@@ -1,0 +1,7 @@
+{
+  "name": "SuySing",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "vue-vite"
+}
