@@ -4,6 +4,7 @@ import token from './token/token';
 
 interface RootState {
   loader: any;
+  token: any;
 }
 
 const store: Store<RootState> = createStore({
