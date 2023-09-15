@@ -36,7 +36,6 @@
             <div class="flex-center">
                 <ion-button class="btn" @click="submitForm" color="none">{{ buttonText }}</ion-button>
             </div>
-            
         </div>
     </ion-page>
 </template>
