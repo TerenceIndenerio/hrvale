@@ -1,7 +1,7 @@
 <template>
   <ion-app>
     <ion-router-outlet />
-    <Loader :isLoading="$store.state.isLoading" />
+    <Loader :isLoading="$store.getters['loader/getLoader']" />
   </ion-app>
 </template>
 

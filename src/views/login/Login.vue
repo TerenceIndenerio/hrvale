@@ -18,9 +18,10 @@
 import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonText, IonAlert, IonSpinner, alertController } from '@ionic/vue';
 import LoginForm from '@/views/login/components/LoginForm.vue';
 import Svg from '@/views/login/components/Svg.vue';
-import { ApiService } from '@/services/api';
 import Alert2 from '@/components/alert/Alert2.vue';
 import { useRouter } from 'vue-router';
+import { useStore } from 'vuex';
+import { mapGetters, mapActions } from 'vuex';
 
 export default {
   components: {
@@ -39,9 +40,9 @@ export default {
   },
   setup() {
     return {
-      http: new ApiService(),
       isLoading: false,
       router: useRouter(),
+      store: useStore()
     }
   },
   data() {
@@ -58,23 +59,11 @@ export default {
   },
   methods: {
     async OnLogin(value) {
-      if(!localStorage.getItem('_token')) {
-        this.$store.commit('isLoading', true);
-        this.http.request('auth/token', {
-          clientId: value.username,
-          clientSecret: value.password,
-          userId: 1
-        }, 'POST').then(res => {
-          if(res.data.token != undefined) {
-            localStorage.setItem('_token', res.data.token);
-            this.$store.commit('isLoading', false);
-            return this.router.push('/tabs/home');
-          }
-          this.alertError();
-          this.$store.commit('isLoading', false);
-        }).catch(error => {
-          this.$store.commit('isLoading', false);
-        });
+      try {
+        await this.store.dispatch('token/generateToken');
+        this.store.commit('loader/updateLoader', true);
+      } catch (error) {
+        console.error(error)
       }
     },
     async alertError() {
