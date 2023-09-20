@@ -18,6 +18,8 @@ import CreatePin from '@/views/forgot_password/CreatePin.vue'
 import OT from '@/views/services/ot/OT.vue';
 import OTApply from '@/views/services/ot/OTApply.vue';
 import Vale from '@/views/services/vale/Vale.vue';
+import ApplyVale from '@/views/services/vale/ApplyVale.vue';
+import ValeRequest from '@/views/services/vale/ValeRequest.vue';
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -87,6 +89,14 @@ const routes: Array<RouteRecordRaw> = [
       {
         path: '/vale',
         component: Vale
+      },
+      {
+        path: '/applyvale',
+        component: ApplyVale
+      },
+      {
+        path: '/valerequest',
+        component: ValeRequest
       }
       
     ]
@@ -119,6 +129,7 @@ const routes: Array<RouteRecordRaw> = [
     path: '/createpin',
     component: CreatePin
   }
+  
 ]
 
 const router = createRouter({
