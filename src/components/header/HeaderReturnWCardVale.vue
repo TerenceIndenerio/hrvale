@@ -82,7 +82,6 @@
         justify-content: space-between;
         width: 80vw;
         margin: 0 auto;
-        /* padding-left: 10px; */
         height: 60px;
         position: absolute;
         left: 0;

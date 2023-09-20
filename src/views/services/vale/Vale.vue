@@ -5,7 +5,7 @@
             <br>
             <br>
             <div class="flex-center">
-                <!-- <ValeImage /> -->
+                <!-- Insert image here -->
             </div>
             <p class="group-name">
                 Recent Purchased
@@ -69,7 +69,6 @@
 <script setup lang="ts">
     import { IonPage, IonContent } from '@ionic/vue';
     import HeaderWAddToCart from '@/components/header/HeaderWAddToCart.vue';
-    import ValeImage from '@/views/services/vale/component/ValeImage.vue';
     import ValeRecentPurchasedCard from '@/components/cards/ValeRecentPurchasedCard.vue';
     import ValeHistoryCard from '@/components/cards/ValeHistoryCard.vue'
     // Header

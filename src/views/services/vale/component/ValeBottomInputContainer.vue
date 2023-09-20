@@ -23,7 +23,6 @@
                 <ion-textarea color="#E8E8E8" label="Type your more here" labelPlacement="floating" placeholder="Your reason..."></ion-textarea>
             </div>
         </div>
-        <!-- <Button :buttonText="buttonText" ></Button> -->
         <div class="flex-center btn-container">
             <ion-button class="btn" color="none">{{ buttonText }}</ion-button>
         </div>
@@ -93,7 +92,6 @@
         font-family: Inter;
         font-size: 17px;
         font-style: normal;
-        /* font-weight: 500; */
         line-height: normal;
     }
     .btn-container {
