@@ -58,9 +58,7 @@
     import { IonPage, IonHeader, IonText, IonContent, IonTitle, IonAlert } from '@ionic/vue'
     import HeaderReturnWCard from '@/components/header/HeaderReturnWCard.vue'
     import LeaveDashboardCard from '@/components/cards/LeaveDashboardCard.vue'
-    // import LeaveDashboardCardReject from '@/components/cards/LeaveDashboardCardReject.vue'
     import Button from '@/components/buttons/Button.vue';
-    // import { ApiService } from '@/services/api';
     import { useRouter } from 'vue-router';
 
     export default {
