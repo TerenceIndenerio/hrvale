@@ -20,6 +20,7 @@ import OTApply from '@/views/services/ot/OTApply.vue';
 import Vale from '@/views/services/vale/Vale.vue';
 import ApplyVale from '@/views/services/vale/ApplyVale.vue';
 import ValeRequest from '@/views/services/vale/ValeRequest.vue';
+import ValeStore from '@/views/services/vale/ValeStore.vue';
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -97,6 +98,10 @@ const routes: Array<RouteRecordRaw> = [
       {
         path: '/valerequest',
         component: ValeRequest
+      },
+      {
+        path: '/valestore',
+        component: ValeStore
       }
       
     ]

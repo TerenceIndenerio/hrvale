@@ -66,10 +66,14 @@
         left: 0;
         right: 0;
         top: 90px;
-    }
+    }   
     .seach-bar {
         text-align: left;
         width: 100%;
         height: 100%;
+    }
+    /* fixed box shadow for android devices */
+    .sc-ion-searchbar-md-h {
+        --box-shadow: none !important
     }
 </style>
