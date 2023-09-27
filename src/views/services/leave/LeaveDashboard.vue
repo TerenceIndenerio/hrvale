@@ -1,53 +1,31 @@
 <template>
     <ion-page>
-        <HeaderReturnWCard 
-            :headerTitle="header.headerTitle"
-            :timePeriod="header.timePeriod" 
-            :userName="header.userName"
-            :leavesNum="header.leavesNum"
-        />
         <ion-content :fullscreen="true">
-            <br>
-            <br>
-
-            <LeaveDashboardCard 
-                :cardTitle = "leaveDashboardCard.pending.cardTitle"
-                :appliedDuration="leaveDashboardCard.pending.appliedDuration"
-                :reason="leaveDashboardCard.pending.reason"
-                :typeOfLeave="leaveDashboardCard.pending.typeOfLeave"
-                :status = "leaveDashboardCard.pending.status"
-                :colorBadge="leaveDashboardCard.pending.colorBadge"
+            <HeaderReturnWCard 
+            :headerTitle="headerTitle"
+            :timePeriod="cardData.timePeriod" 
+            :userName="cardData.employeeName"
+            :leavesNum="cardData.leaveBalance"
+            router-direction="none"
             />
+            <div class="margin-top"></div>
 
+            <div v-if="showComponent">
+                <LeaveDashboardCard 
+                    v-for="(leave, index) in leavesLength"
+                    :key="index"
+                    :cardTitle = "cardData.title"
+                    :appliedDuration="cardData.date"
+                    :reason="cardData.comment"
+                    :typeOfLeave="cardData.leaveType"
+                    :status = "cardData.status"
+                    :colorBadge="cardData.colorBadge"
+                    @view-details-clicked="navigateToLeaveRequests"
+                />
+            </div>
 
-            <LeaveDashboardCard
-                :cardTitle = "leaveDashboardCard.reject.cardTitle2"
-                :appliedDuration="leaveDashboardCard.reject.appliedDuration"
-                :reason="leaveDashboardCard.reject.reason"
-                :typeOfLeave="leaveDashboardCard.reject.typeOfLeave"
-                :status = "leaveDashboardCard.reject.status"
-                :colorBadge="leaveDashboardCard.reject.colorBadge"
-            />
-            <LeaveDashboardCard
-                :cardTitle = "leaveDashboardCard.reject.cardTitle2"
-                :appliedDuration="leaveDashboardCard.reject.appliedDuration"
-                :reason="leaveDashboardCard.reject.reason"
-                :typeOfLeave="leaveDashboardCard.reject.typeOfLeave"
-                :status = "leaveDashboardCard.reject.status"
-                :colorBadge="leaveDashboardCard.reject.colorBadge"
-            />
-            <LeaveDashboardCard
-                :cardTitle = "leaveDashboardCard.reject.cardTitle2"
-                :appliedDuration="leaveDashboardCard.reject.appliedDuration"
-                :reason="leaveDashboardCard.reject.reason"
-                :typeOfLeave="leaveDashboardCard.reject.typeOfLeave"
-                :status = "leaveDashboardCard.reject.status"
-                :colorBadge="leaveDashboardCard.reject.colorBadge"
-            />
-
-            <Button :buttonText="buttonText" :url="ApplyLeave"></Button>
-            <div class="flex-center">
-                <ion-button class="btn">{{ buttonText }}</ion-button>
+            <div class="flex-center btn-bottom">
+                <ion-button class="btn" @click="navigateToApplyLeave">Apply Leave</ion-button>
             </div>
         
         </ion-content>
@@ -55,102 +33,144 @@
 </template>
 
 <script>
-    import { IonPage, IonHeader, IonText, IonContent, IonTitle, IonAlert } from '@ionic/vue'
+    import { IonPage, IonHeader, IonText, IonContent, IonTitle, IonAlert, IonIcon, IonButton } from '@ionic/vue'
     import HeaderReturnWCard from '@/components/header/HeaderReturnWCard.vue'
-    import LeaveDashboardCard from '@/components/cards/LeaveDashboardCard.vue'
-    // import LeaveDashboardCardReject from '@/components/cards/LeaveDashboardCardReject.vue'
+    import LeaveDashboardCard from '@/views/services/leave/components/LeaveDashboardCard.vue'
     import Button from '@/components/buttons/Button.vue';
-    import { ApiService } from '@/services/api';
     import { useRouter } from 'vue-router';
+    import { defineComponent } from 'vue';
+    import axios from 'axios';
 
-    export default {
+    export default defineComponent({
+        name: 'Leave Requests',
         components: {
             IonPage,
-            IonHeader, 
-            IonTitle, 
+            IonHeader,
             IonContent,
+            IonTitle,
+            IonIcon,
             IonText,
-            IonAlert,
-            LeaveDashboardCard,
             HeaderReturnWCard,
-        },
-        setup() {
-            return {
-                http: new ApiService(),
-                isLoading: false,
-                router: useRouter()
-            }
+            LeaveDashboardCard,
+            IonButton,
         },
         data() {
             return {
-            data: "",
-            buttonText: 'Apply Leave',
-            ApplyLeave: "/ApplyLeave",
-            header: {
-                headerTitle : "Leave Dashboard",
-                timePeriod : "Good Morning,",
-                userName : "Al Guzman",
-                leavesNum : "6",
+            showComponent: false,
+            leavesLength: 0,
+            requests: [],
+            headerTitle: 'Leave Dashboard',
+            timePeriod: '',
+            userName: '',
+            leavesNum: '',
+            cardData: {
+                date: '',
+                employeeName: '',
+                leaveType: '',
+                dateText: '',
+                leaveBalance: '',
+                numberOfDays: '',
+                status: '',
+                comment: '',
+                title: '',
+                colorBadge: '',
             },
-            leaveDashboardCard: {
-                "pending" : {
-                    cardTitle : "YESTERDAY",
-                    appliedDuration : "12 Oct, 2019 to 15 Oct, 2019",
-                    reason : "Having fever from last night",
-                    typeOfLeave : "Sick Leave",
-                    status : "Pending",
-                    colorBadge : "warning",
-                },
-                "reject" : {
-                    cardTitle2 : "22 Aug, 2022",
-                    appliedDuration : "12 Oct, 2019 to 15 Oct, 2019",
-                    reason : "Having fever from last night",
-                    typeOfLeave : "Sick Leave",
-                    status : "Reject",
-                    colorBadge : "danger",
+            };
+        },
+        // emits: ['view-details-clicked'],
+        methods: {
+            async fetchData() {
+                try {
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    const response = await axios.post(
+                    'https://hrp-staging-delta.bapplware.com/web/index.php/auth/token',
+                    {
+                        clientId: 'test_id',
+                        clientSecret: 'test_secret',
+                        userId: 1
+                    }
+                    );
+                    console.log(response.data);
+                    const token = response.data.token;
+                    const api = 'https://hrp-staging-delta.bapplware.com/web/index.php/api/v2/leave/leave-requests?limit=50&offset=0&includeEmployees=onlyCurrent';
+                    const headers = {
+                    Authorization: `Bearer ${token}`
+                    };
+                    const dataResponse = await axios.get(api, { headers });
+
+                    console.log('staging:', token);
+                    console.log('IONIC:', localStorage.getItem('_token'));
+
+                    return dataResponse.data;
+                } catch (error) {
+                    console.error(error);
+                    return null;
                 }
             },
-            alertButtons: [
-                {
-                text: 'OK',
-                handler: () => {
-                    console.log("test");
-                },
-                },
-            ],
-            }
-        },
-        async mounted() {
-            console.log("mounted leave dashboard");
-            const response = await this.http.request('api/v2/admin/user-roles', {}).then(res => {
-                console.log(res);
-            });
-        },
-        methods: {
-            async OnLogin(value) {
-            if(!localStorage.getItem('_token')) {
-                this.$store.commit('isLoading', true);
-                this.http.request('auth/token', {
-                    clientId: value.username,
-                    clientSecret: value.password,
-                    userId: 1
-                }, 'POST')
-                .then(res => {
-                    if(res.data.token != undefined) {
-                        localStorage.setItem('_token', res.data.token);
-                    }
-                    this.$store.commit('isLoading', false);
-                    this.router.push('/tabs/home');
-                }).catch(error => {
-                    this.$store.commit('isLoading', false);
-                });
-            }
+            getTimeOfDay() {
+                const currentTime = new Date().getHours();
+
+                if (currentTime >= 5 && currentTime < 12) {
+                    return "Good Morning";
+                } else if (currentTime >= 12 && currentTime < 17) {
+                    return "Good Afternoon";
+                } else {
+                    return "Good Evening";
+                }
             },
+            navigateToLeaveRequests () {
+                this.$router.push('/leaveRequest');
+            },
+            navigateToApplyLeave () {
+                this.$router.push('/applyLeave');
+            },
+        },
+        async created() {
+            const data = await this.fetchData();
+            setTimeout(() => {
+                this.showComponent = true;
+            }, 1000);
+            if (data && data.data.length > 0) {
+                const leaveData = data.data[0];
+                const timeOfDay = this.getTimeOfDay();
+                console.log(`It's currently ${timeOfDay}.`);
+                console.log('Number of Data: ',data.data.length)
+
+                this.leavesLength = data.data.length;
+                this.cardData.date = `${leaveData.dates.fromDate} - ${leaveData.dates.toDate}`;
+                this.cardData.employeeName = `${leaveData.employee.firstName} ${leaveData.employee.middleName || ''} ${leaveData.employee.lastName}`;
+                this.cardData.leaveType = leaveData.leaveType.name;
+                this.cardData.leaveBalance = leaveData.leaveBalances[0].balance.balance.toString();
+                this.cardData.numberOfDays = leaveData.noOfDays.toString();
+                this.cardData.status = 'Pending';
+                this.cardData.comment = leaveData.lastComment;
+                this.cardData.timePeriod = timeOfDay;
+
+                if(this.cardData.status === 'Pending'){
+                    this.cardData.colorBadge = "warning";
+                } else if (this.cardData.status === 'Reject') {
+                    this.cardData.colorBadge = "danger";
+                } else if (this.cardData.status === 'Taken') {
+                    this.cardData.colorBadge = "primary";
+                }
+
+                console.log('Date:', this.cardData.date);
+                console.log('Employee Name:', this.cardData.employeeName);
+                console.log('Leave Type:', this.cardData.leaveType);
+                console.log('Leave Balance:', this.cardData.leaveBalance);
+                console.log('Number of Days:', this.cardData.numberOfDays);
+                console.log('Status:', this.cardData.status);
+                console.log('Comment:', this.cardData.comment)
+                console.log('Badge:', this.cardData.colorBadge)
+            }
         }
-    }
+    });
 </script>
 
 <style scoped>
+    .margin-top {
+        margin-top: 50px;
+    }
     .flex-center {
         display: flex;
         justify-content: center;
@@ -178,4 +198,9 @@
         line-height: normal;
         margin-left: 10%;
   }
+    .btn-bottom {
+        position: fixed;
+        bottom: 20px;
+        width: 100%;
+    }
 </style>

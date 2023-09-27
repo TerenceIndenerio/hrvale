@@ -2,69 +2,73 @@
     <ion-card class="card">
       <ion-grid>
         <ion-row>
+
           <ion-col class="inline-w" size="auto">
             <ion-icon name="person-circle-outline" class="icon1"></ion-icon>
           </ion-col>
+
           <ion-col class="inline-w text-container">
-            <p class="username-text">{{ cardData.History.employeeName }}</p>
+            <p class="username-text">{{ employeeName }}</p>
           </ion-col>
-          <ion-col class="inline-w text-container">
-            <p>{{ cardData.History.dateTitle }}</p>
-          </ion-col>
+          
         </ion-row>
         <ion-row class="pad-w">
           <div class="leave-type outline" v-bind:style="outlineColor">
-            <p>{{ cardData.History.reasonTitle }}</p>
+            <p>{{ leaveType }}</p>
           </div>
         </ion-row>
         <ion-row class="pad-w">
+
           <ion-col class="col-name">
-            <p>Leave Date</p>
-            <p>Duration</p>
-            <p>Leave Balance</p>
-            <p>Reason</p>
+            <p>Leave Date: </p>
+            <p>Leave Balance(Days): </p>
+            <p>Number of Days: </p>
+            <p>Reason: </p>
           </ion-col>
+
           <ion-col class="col-data">
-            <p>{{ cardData.History.dateText }}</p>
-            <p>{{ cardData.History.duration }}</p>
-            <p>{{ cardData.History.leaveBal }}</p>
-            <p>{{ cardData.History.reason }}</p>
+            <p>{{ dateText }}</p>
+            <p>{{ LeaveBalance }}</p>
+            <p>{{ NumberOfDays }}</p>
+            <p>{{ Comment }}</p>
           </ion-col>
         </ion-row>
         <ion-row>
+
           <ion-col>
-            <button type="button" class="btn btn1">APPROVE</button>
+            <button type="button" class="btn btn2">Cancel</button>
           </ion-col>
-          <ion-col>
-            <button type="button" class="btn btn2">REJECT</button>
-          </ion-col>
-          <ion-col size="auto">
-            <button type="button" class="btn btn3">EDIT</button>
-          </ion-col>
+          
         </ion-row>
       </ion-grid>
     </ion-card>
 </template>
   
 <script>
-import { IonCard, IonCol, IonGrid, IonRow } from '@ionic/vue';
-
-const cardData = {
-History: {
-    employeeName: "Employee Name", // Replace with actual data
-    dateTitle: "Leave Period", // Replace with actual data
-    dateText: "Date Text", // Replace with actual data
-    reasonTitle: "Leave Type", // Replace with actual data
-    reasonText: "Reason Text", // Replace with actual data
-    duration: "Duration", // Replace with actual data
-    leaveBal: "Leave Balance", // Replace with actual data
-    reason: "Reason", // Replace with actual data
-},
-};
-
-const outlineColor = "your-outline-color"; // Replace with actual data
-</script>
-
+  import { IonCard, IonCol, IonGrid, IonRow, IonIcon } from '@ionic/vue';
+  
+  export default {
+    components: {
+        IonCard, 
+        IonCol, 
+        IonGrid, 
+        IonRow, 
+        IonIcon,
+    },
+    props: {
+        employeeName: String,
+        dateText: String,
+        outlineColor: String,
+        leaveType: String,
+        leavePeriod: String,
+        duration: String,
+        LeaveBalance: String,
+        reason: String,
+        NumberOfDays: String,
+        Comment: String,
+    },
+  };
+  </script>
 <style scoped>
     @import url('https://fonts.googleapis.com/css?family=Inter');
     @import url('https://fonts.googleapis.com/css?family=Open+Sans');
@@ -79,9 +83,6 @@ const outlineColor = "your-outline-color"; // Replace with actual data
         flex-direction: row;
         align-items: center;
     }
-    /* .outline {
-        border: 1px solid black;
-    } */
     .pad-w {
         padding: 0 20px;
     }
