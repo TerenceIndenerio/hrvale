@@ -40,6 +40,8 @@
     import { useRouter } from 'vue-router';
     import { defineComponent } from 'vue';
     import axios from 'axios';
+    import { useStore } from 'vuex';
+    import { mapGetters, mapActions } from 'vuex';
 
     export default defineComponent({
         name: 'Leave Requests',
@@ -53,6 +55,13 @@
             HeaderReturnWCard,
             LeaveDashboardCard,
             IonButton,
+        },
+        setup() {
+            return {
+                isLoading: false,
+                router: useRouter(),
+                store: useStore()
+            }
         },
         data() {
             return {
@@ -126,7 +135,13 @@
             },
         },
         async created() {
-            const data = await this.fetchData();
+            try {
+                const response = await this.store.dispatch('leave/getLeaveRequests');
+                this.store.commit('loader/updateLoader', false);
+            } catch (error) {
+                console.error(error)
+            }
+            /*const data = await this.fetchData();
             setTimeout(() => {
                 this.showComponent = true;
             }, 1000);
@@ -162,7 +177,7 @@
                 console.log('Status:', this.cardData.status);
                 console.log('Comment:', this.cardData.comment)
                 console.log('Badge:', this.cardData.colorBadge)
-            }
+            }*/
         }
     });
 </script>
