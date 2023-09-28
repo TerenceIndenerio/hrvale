@@ -1,7 +1,8 @@
 <template>
     <ion-page>
+      <HeaderReturn :headerTitle="headerTitle" router-direction="none"></HeaderReturn>
         <ion-content :fullscreen="true">
-          <HeaderReturn :headerTitle="headerTitle" router-direction="none"></HeaderReturn>
+          
             <div v-if="showComponent">
 
               <ion-card>
@@ -26,112 +27,124 @@
                 />
               </div>
             </div>
-            
+            <ion-refresher slot="fixed" @ionRefresh="doRefresh">
+              <ion-refresher-content>
+              </ion-refresher-content>
+            </ion-refresher>
         </ion-content>
     </ion-page>
 </template>
 
 <script>
-    import { IonPage, IonHeader, IonText, IonContent, IonCard, IonIcon } from '@ionic/vue' 
+    import { IonPage, IonHeader, IonText, IonContent, IonCard, IonIcon, IonRefresher, IonRefresherContent, IonSpinner } from '@ionic/vue' 
     import HeaderReturn from '@/components/header/HeaderReturn.vue'
     import LeaveRequestCard from '@/views/services/leave/components/LeaveRequestCard.vue';
     import { defineComponent } from 'vue';
     import axios from 'axios';
-
-export default defineComponent({
-  name: 'Leave Requests',
-  components: {
-    IonPage,
-    IonHeader,
-    IonContent,
-    IonText,
-    IonCard,
-    IonIcon,
-    HeaderReturn,
-    LeaveRequestCard,
-  },
-  data() {
-    return {
-      showComponent: false,
-      requests: [],
-      headerTitle: 'Leave Requests',
-      data: [],
-      employeeName: '',
-      leaveReqFor: '',
-      cardData: {
-        date: '',
-        employeeName: '',
-        leaveType: '',
-        dateText: '',
-        leaveBalance: '',
-        duration: '',
-        status: '',
-        comment: '',
-        outlineColor: '',
+    
+    export default defineComponent({
+      name: 'Leave Requests',
+      components: {
+        IonPage,
+        IonHeader,
+        IonContent,
+        IonText,
+        IonCard,
+        IonIcon,
+        HeaderReturn,
+        LeaveRequestCard,
+        IonRefresher,
+        IonRefresherContent,
+        IonSpinner,
       },
-    };
-  },
-  methods: {
-    async fetchData() {
-      try {
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        const response = await axios.post(
-          'https://hrp-staging-delta.bapplware.com/web/index.php/auth/token',
-          {
-            clientId: 'test_id',
-            clientSecret: 'test_secret',
-            userId: 1
-          }
-        );
-        console.log(response.data);
-        const token = response.data.token;
-        const api = 'https://hrp-staging-delta.bapplware.com/web/index.php/api/v2/leave/leave-requests/1/leaves?limit=50&offset=0';
-        const headers = {
-          Authorization: `Bearer ${token}`
+      data() {
+        return {
+          showComponent: false,
+          requests: [],
+          headerTitle: 'Leave Requests',
+          data: [],
+          employeeName: '',
+          leaveReqFor: '',
+          cardData: {
+            date: '',
+            employeeName: '',
+            leaveType: '',
+            dateText: '',
+            leaveBalance: '',
+            duration: '',
+            status: '',
+            comment: '',
+            outlineColor: '',
+          },
         };
-        const dataResponse = await axios.get(api, { headers });
+      },
+      methods: {
+        doRefresh() {
+          location.reload();
+          setTimeout(() => {
+            event.target.complete();
+          }, 2000);
+        },
+        async fetchData() {
+          try {
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            const response = await axios.post(
+              'https://hrp-staging-delta.bapplware.com/web/index.php/auth/token',
+              {
+                clientId: 'test_id',
+                clientSecret: 'test_secret',
+                userId: 1
+              }
+            );
+            console.log(response.data);
+            const token = response.data.token;
+            const api = 'https://hrp-staging-delta.bapplware.com/web/index.php/api/v2/leave/leave-requests/1/leaves?limit=50&offset=0';
+            const headers = {
+              Authorization: `Bearer ${token}`
+            };
+            const dataResponse = await axios.get(api, { headers });
 
-        console.log('staging:', token);
-        console.log('IONIC:', localStorage.getItem('_token'));
+            console.log('staging:', token);
+            console.log('IONIC:', localStorage.getItem('_token'));
 
-        return dataResponse.data;
-      } catch (error) {
-        console.error(error);
-        return null;
+            return dataResponse.data;
+          } catch (error) {
+            console.error(error);
+            return null;
+          }
+        },
+      },
+      async created() {
+        const data = await this.fetchData();
+        setTimeout(() => {
+          this.showComponent = true;
+        }, 1000);
+
+        for (const leaveData of data.data) {
+            const cardData = {
+              date: `${leaveData.dates.fromDate}`,
+              employeeName: `${data.meta.employee.firstName} ${
+                data.meta.employee.middleName || ''
+              } ${data.meta.employee.lastName}`,
+              leaveType: leaveData.leaveType.name,
+              leaveBalance: leaveData.leaveBalance.balance.balance.toString(),
+              duration: (leaveData.lengthHours).toString(),
+              status: leaveData.leaveStatus.name,
+              Comment: leaveData.lastComment,
+              outlineColor:
+                leaveData.leaveType.name === 'Vacation Leave'
+                  ? 'border: 1px solid #27AE60; color: #27AE60;'
+                  : 'border: 1px solid #2F80ED; color: #2F80ED;',
+            }
+            this.requests.push(cardData)
+            this.employeeName = `${data.meta.employee.firstName} ${
+                data.meta.employee.middleName || ''
+              } ${data.meta.employee.lastName}`;
+              this.leaveReqFor = `${data.data[0].dates.fromDate} - ${leaveData.dates.fromDate} `
+          }
+          console.log('Requests:', this.requests)
       }
-    },
-  },
-  async created() {
-    const data = await this.fetchData();
-    setTimeout(() => {
-      this.showComponent = true;
-    }, 1000);
-
-    for (const leaveData of data.data) {
-        const cardData = {
-          date: `${leaveData.dates.fromDate}`,
-          employeeName: `${data.meta.employee.firstName} ${
-            data.meta.employee.middleName || ''
-          } ${data.meta.employee.lastName}`,
-          leaveType: leaveData.leaveType.name,
-          leaveBalance: leaveData.leaveBalance.balance.balance.toString(),
-          duration: (leaveData.lengthHours).toString(),
-          status: leaveData.leaveStatus.name,
-          Comment: leaveData.lastComment,
-          outlineColor:
-            leaveData.leaveType.name === 'Vacation Leave'
-              ? 'border: 1px solid #27AE60; color: #27AE60;'
-              : 'border: 1px solid #2F80ED; color: #2F80ED;',
-        }
-        this.requests.push(cardData)
-        this.employeeName = `${data.meta.employee.firstName} ${
-            data.meta.employee.middleName || ''
-          } ${data.meta.employee.lastName}`;
-          this.leaveReqFor = `${data.data[0].dates.fromDate} - ${leaveData.dates.fromDate} `
-      }
-      console.log('Requests:', this.requests)
-  }
-});
+    });
 
 </script>
 
