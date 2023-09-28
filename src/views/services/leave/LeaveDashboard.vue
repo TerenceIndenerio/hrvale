@@ -12,8 +12,6 @@
 
             <div v-if="showComponent">
                 <LeaveDashboardCard 
-                    v-for="(leave, index) in leavesLength"
-                    :key="index"
                     :cardTitle = "cardData.title"
                     :appliedDuration="cardData.date"
                     :reason="cardData.comment"
@@ -86,7 +84,6 @@
             },
             };
         },
-        // emits: ['view-details-clicked'],
         methods: {
             async fetchData() {
                 try {
@@ -149,7 +146,6 @@
                 const leaveData = data.data[0];
                 const timeOfDay = this.getTimeOfDay();
                 console.log(`It's currently ${timeOfDay}.`);
-                console.log('Number of Data: ',data.data.length)
 
                 this.leavesLength = data.data.length;
                 this.cardData.date = `${leaveData.dates.fromDate} - ${leaveData.dates.toDate}`;
@@ -157,7 +153,7 @@
                 this.cardData.leaveType = leaveData.leaveType.name;
                 this.cardData.leaveBalance = leaveData.leaveBalances[0].balance.balance.toString();
                 this.cardData.numberOfDays = leaveData.noOfDays.toString();
-                this.cardData.status = 'Pending';
+                this.cardData.status = leaveData.leaveBreakdown[0].name;
                 this.cardData.comment = leaveData.lastComment;
                 this.cardData.timePeriod = timeOfDay;
 

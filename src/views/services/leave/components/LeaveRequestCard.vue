@@ -2,17 +2,6 @@
     <ion-card class="card">
       <ion-grid>
         <ion-row>
-
-          <ion-col class="inline-w" size="auto">
-            <ion-icon name="person-circle-outline" class="icon1"></ion-icon>
-          </ion-col>
-
-          <ion-col class="inline-w text-container">
-            <p class="username-text">{{ employeeName }}</p>
-          </ion-col>
-          
-        </ion-row>
-        <ion-row class="pad-w">
           <div class="leave-type outline" v-bind:style="outlineColor">
             <p>{{ leaveType }}</p>
           </div>
@@ -20,17 +9,19 @@
         <ion-row class="pad-w">
 
           <ion-col class="col-name">
+            <p>Status: </p>
             <p>Leave Date: </p>
-            <p>Leave Balance(Days): </p>
-            <p>Number of Days: </p>
+            <p>Leave Balance (Days): </p>
+            <p>Duration (Hours): </p>
             <p>Reason: </p>
           </ion-col>
 
           <ion-col class="col-data">
+            <p>{{ status }}</p>
             <p>{{ dateText }}</p>
-            <p>{{ LeaveBalance }}</p>
-            <p>{{ NumberOfDays }}</p>
-            <p>{{ Comment }}</p>
+            <p>{{ leaveBalance }}</p>
+            <p>{{ duration }}</p>
+            <p>{{ comment }}</p>
           </ion-col>
         </ion-row>
         <ion-row>
@@ -62,10 +53,11 @@
         leaveType: String,
         leavePeriod: String,
         duration: String,
-        LeaveBalance: String,
+        leaveBalance: String,
         reason: String,
-        NumberOfDays: String,
-        Comment: String,
+        duration: String,
+        comment: String,
+        status: String,
     },
   };
   </script>
@@ -84,7 +76,7 @@
         align-items: center;
     }
     .pad-w {
-        padding: 0 20px;
+        padding: 0 10px;
     }
     p {
         padding: 0;
