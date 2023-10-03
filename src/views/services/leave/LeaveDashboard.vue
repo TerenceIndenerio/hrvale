@@ -23,6 +23,9 @@
                     @view-details-clicked="navigateToLeaveRequests"
                 />
             
+                
+                    <ion-button expand="full" fill="outline" class="leave-entitlement-btn" color="medium" @click="navigateToLeaveEntitlement">Leave Entitlement</ion-button>
+                
 
                 <div class="flex-center btn-bottom">
                     <ion-button class="btn" @click="navigateToApplyLeave">Apply Leave</ion-button>
@@ -132,6 +135,9 @@
             navigateToApplyLeave () {
                 this.$router.push('/applyLeave');
             },
+            navigateToLeaveEntitlement () {
+                this.$router.push('/leaveEntitlement');
+            },
         },
         async created() {
             const data = await this.fetchData();
@@ -210,5 +216,8 @@
         position: fixed;
         bottom: 20px;
         width: 100%;
+    }
+    .leave-entitlement-btn {
+        margin: 20px 10px;
     }
 </style>
