@@ -2,7 +2,7 @@
     <ion-page>
       <HeaderReturn :headerTitle="headerTitle" router-direction="none"></HeaderReturn>
         <ion-content :fullscreen="true">
-          
+          <Refresher />
             <div v-if="showComponent">
 
               <ion-card>
@@ -27,18 +27,15 @@
                 />
               </div>
             </div>
-            <ion-refresher slot="fixed" @ionRefresh="doRefresh">
-              <ion-refresher-content>
-              </ion-refresher-content>
-            </ion-refresher>
         </ion-content>
     </ion-page>
 </template>
 
 <script>
-    import { IonPage, IonHeader, IonText, IonContent, IonCard, IonIcon, IonRefresher, IonRefresherContent, IonSpinner } from '@ionic/vue' 
+    import { IonPage, IonHeader, IonText, IonContent, IonCard, IonIcon } from '@ionic/vue' 
     import HeaderReturn from '@/components/header/HeaderReturn.vue'
     import LeaveRequestCard from '@/views/services/leave/components/LeaveRequestCard.vue';
+    import Refresher from '@/components/refresher/Refresher.vue'
     import { defineComponent } from 'vue';
     import axios from 'axios';
     
@@ -53,9 +50,7 @@
         IonIcon,
         HeaderReturn,
         LeaveRequestCard,
-        IonRefresher,
-        IonRefresherContent,
-        IonSpinner,
+        Refresher,
       },
       data() {
         return {
@@ -79,12 +74,6 @@
         };
       },
       methods: {
-        doRefresh() {
-          location.reload();
-          setTimeout(() => {
-            event.target.complete();
-          }, 2000);
-        },
         async fetchData() {
           try {
             await new Promise(resolve => setTimeout(resolve, 1000));

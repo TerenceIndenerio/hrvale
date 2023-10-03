@@ -1,13 +1,15 @@
 <template>
     <ion-page>
-        <ion-content :fullscreen="true">
-            <HeaderReturnWCard 
+        <HeaderReturnWCard 
             :headerTitle="headerTitle"
             :timePeriod="cardData.timePeriod" 
             :userName="cardData.employeeName"
             :leavesNum="cardData.leaveBalance"
             router-direction="none"
-            />
+        />
+        <ion-content :fullscreen="true">
+            
+            <Refresher />
             <div class="margin-top"></div>
 
             <div v-if="showComponent">
@@ -20,12 +22,13 @@
                     :colorBadge="cardData.colorBadge"
                     @view-details-clicked="navigateToLeaveRequests"
                 />
-            </div>
+            
 
-            <div class="flex-center btn-bottom">
-                <ion-button class="btn" @click="navigateToApplyLeave">Apply Leave</ion-button>
+                <div class="flex-center btn-bottom">
+                    <ion-button class="btn" @click="navigateToApplyLeave">Apply Leave</ion-button>
+                </div>
             </div>
-        
+            
         </ion-content>
     </ion-page>
 </template>
@@ -34,12 +37,11 @@
     import { IonPage, IonHeader, IonText, IonContent, IonTitle, IonAlert, IonIcon, IonButton } from '@ionic/vue'
     import HeaderReturnWCard from '@/components/header/HeaderReturnWCard.vue'
     import LeaveDashboardCard from '@/views/services/leave/components/LeaveDashboardCard.vue'
+    import Refresher from '@/components/refresher/Refresher.vue'
     import Button from '@/components/buttons/Button.vue';
     import { useRouter } from 'vue-router';
     import { defineComponent } from 'vue';
     import axios from 'axios';
-    import { useStore } from 'vuex';
-    import { mapGetters, mapActions } from 'vuex';
 
     export default defineComponent({
         name: 'Leave Requests',
@@ -53,12 +55,12 @@
             HeaderReturnWCard,
             LeaveDashboardCard,
             IonButton,
+            Refresher,
         },
         setup() {
             return {
                 isLoading: false,
                 router: useRouter(),
-                store: useStore()
             }
         },
         data() {
@@ -132,13 +134,7 @@
             },
         },
         async created() {
-            try {
-                const response = await this.store.dispatch('leave/getLeaveRequests');
-                this.store.commit('loader/updateLoader', false);
-            } catch (error) {
-                console.error(error)
-            }
-            /*const data = await this.fetchData();
+            const data = await this.fetchData();
             setTimeout(() => {
                 this.showComponent = true;
             }, 1000);
@@ -173,12 +169,13 @@
                 console.log('Status:', this.cardData.status);
                 console.log('Comment:', this.cardData.comment)
                 console.log('Badge:', this.cardData.colorBadge)
-            }*/
+            }
         }
     });
 </script>
 
 <style scoped>
+    @import url('https://fonts.googleapis.com/css?family=Inter');
     .margin-top {
         margin-top: 50px;
     }
@@ -189,10 +186,10 @@
     }
     .btn {
         border-radius: 15px;
-        width: 150px;
+        width: fit-content;
         height: 50px;
         overflow: hidden;
-        font-family: Open Sans;
+        font-family: Inter;
         font-size: 20px;
         font-style: normal;
         font-weight: 700;

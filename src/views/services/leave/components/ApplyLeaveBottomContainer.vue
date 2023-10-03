@@ -4,16 +4,28 @@
             <h4 class="input-title">
                 Type of leave
             </h4>
-            <ion-list class="list-container box-container flex-r" >
-                <ion-item lines="none" class="max-w" color="#E8E8E8">
-                    <ion-select>
+            <!-- <ion-list class="list-container box-container flex-r" > -->
+                <ion-item lines="none" class="fit-w box-container" color="#E8E8E8">
+                    <!-- <ion-select>
                         <div slot="label" class="input-text">Unpaid Leave</div>
                         <ion-select-option value="Item 1">Item 1</ion-select-option>
                         <ion-select-option value="Item 2">Item 2</ion-select-option>
                         <ion-select-option value="Item 3">Item 3</ion-select-option>
+                    </ion-select> -->
+                    <ion-select>
+                       
+                        <ion-select-option
+                            v-for="option in leaveOptions"
+                            :key="option.value"
+                            :value="option.value"
+                            class="input-text"
+                        >
+                        
+                            {{ option.label }}
+                        </ion-select-option>
                     </ion-select>
                 </ion-item>
-            </ion-list>
+            <!-- </ion-list> -->
         </div>
         <div class="inline-v">
             <h4 class="input-title">
@@ -33,7 +45,10 @@
     import { IonList, IonItem, IonSelect, IonTextarea, IonSelectOption, IonButton } from '@ionic/vue';
     import { defineComponent } from 'vue';
 
-    export default {
+    export default defineComponent({
+        props: {
+            leaveOptions: Array,
+        },
         components: {
             IonList, 
             IonItem, 
@@ -45,7 +60,8 @@
         data() {
             return {
                 buttonText: 'Apply Leave',
-                ApplyLeave: '/leaveRequest'
+                ApplyLeave: '/leaveRequest',
+                selectedLeaveType: null,
             }
         },
         methods: {
@@ -54,7 +70,7 @@
             },
         }
 
-    };
+    });
     
 </script>
 
@@ -65,6 +81,9 @@
     }
     .max-w {
         width: 100%;
+    }
+    .fit-w {
+        width: fit-content;
     }
     .flex-r {
         display: flex;
@@ -118,7 +137,7 @@
     }
     .btn {
         border-radius: 15px;
-        width: 150px;
+        width: fit-content;
         height: 50px;
         overflow: hidden;
         font-family: Open Sans;
