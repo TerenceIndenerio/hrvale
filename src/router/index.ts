@@ -18,6 +18,7 @@ import CreatePin from '@/views/forgot_password/CreatePin.vue'
 import OT from '@/views/services/ot/OT.vue';
 import OTApply from '@/views/services/ot/OTApply.vue';
 import Vale from '@/views/services/vale/Vale.vue';
+import leaveEntitlement from '@/views/services/leave/LeaveEntitlement.vue'
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -59,6 +60,10 @@ const routes: Array<RouteRecordRaw> = [
       {
         path: '/leaveRequest',
         component: LeaveRequest
+      },
+      {
+        path: '/leaveEntitlement',
+        component: leaveEntitlement
       },
       {
         path: '/clockin',

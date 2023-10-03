@@ -4,14 +4,9 @@
             <h4 class="input-title">
                 Type of leave
             </h4>
-            <!-- <ion-list class="list-container box-container flex-r" > -->
+           
                 <ion-item lines="none" class="fit-w box-container" color="#E8E8E8">
-                    <!-- <ion-select>
-                        <div slot="label" class="input-text">Unpaid Leave</div>
-                        <ion-select-option value="Item 1">Item 1</ion-select-option>
-                        <ion-select-option value="Item 2">Item 2</ion-select-option>
-                        <ion-select-option value="Item 3">Item 3</ion-select-option>
-                    </ion-select> -->
+                    
                     <ion-select>
                        
                         <ion-select-option
@@ -66,7 +61,7 @@
         },
         methods: {
             navigateToLeaveRequests () {
-                this.$router.push('/leaveRequest');
+                this.$router.push('/leaveEntitlement');
             },
         }
 
