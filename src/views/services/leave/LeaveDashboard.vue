@@ -13,6 +13,16 @@
             <div class="margin-top"></div>
 
             <div v-if="showComponent">
+                <ion-button
+                    fill="clear"
+                    class="leave-entitlement-btn"
+                    color="medium"
+                    @click="navigateToLeaveEntitlement($event)"
+                >
+                    <ion-icon name="calendar-outline"></ion-icon>
+                    Leave Entitlement
+                </ion-button>
+
                 <LeaveDashboardCard 
                     :cardTitle = "cardData.title"
                     :appliedDuration="cardData.date"
@@ -23,9 +33,6 @@
                     @view-details-clicked="navigateToLeaveRequests"
                 />
             
-                
-                    <ion-button expand="full" fill="outline" class="leave-entitlement-btn" color="medium" @click="navigateToLeaveEntitlement">Leave Entitlement</ion-button>
-                
 
                 <div class="flex-center btn-bottom">
                     <ion-button class="btn" @click="navigateToApplyLeave">Apply Leave</ion-button>
@@ -68,25 +75,25 @@
         },
         data() {
             return {
-            showComponent: false,
-            leavesLength: 0,
-            requests: [],
-            headerTitle: 'Leave Dashboard',
-            timePeriod: '',
-            userName: '',
-            leavesNum: '',
-            cardData: {
-                date: '',
-                employeeName: '',
-                leaveType: '',
-                dateText: '',
-                leaveBalance: '',
-                numberOfDays: '',
-                status: '',
-                comment: '',
-                title: '',
-                colorBadge: '',
-            },
+                showComponent: false,
+                leavesLength: 0,
+                requests: [],
+                headerTitle: 'Leave Dashboard',
+                timePeriod: '',
+                userName: '',
+                leavesNum: '',
+                cardData: {
+                    date: '',
+                    employeeName: '',
+                    leaveType: '',
+                    dateText: '',
+                    leaveBalance: '',
+                    numberOfDays: '',
+                    status: '',
+                    comment: '',
+                    title: '',
+                    colorBadge: '',
+                },
             };
         },
         methods: {
@@ -138,6 +145,7 @@
             navigateToLeaveEntitlement () {
                 this.$router.push('/leaveEntitlement');
             },
+            
         },
         async created() {
             const data = await this.fetchData();
@@ -202,6 +210,7 @@
         line-height: normal;
         border: none;
         margin-bottom: 20px;
+        --background: #12A3DA;
     }
     .card-title {
         color: #3B3C3E;
@@ -218,6 +227,12 @@
         width: 100%;
     }
     .leave-entitlement-btn {
-        margin: 20px 10px;
+        display: flex;
+        align-items: center;
+        width: fit-content;
+        margin: 20px auto;
+        justify-content: center;
+        border: 3px solid #9b9b9b;
+        border-radius: 10px;
     }
 </style>
