@@ -44,6 +44,7 @@ import HeaderReturn from '@/components/header/HeaderReturn.vue'
 import LeaveEntitlementCard from '@/views/services/leave/components/LeaveEntitlementCard.vue'
 import Refresher from '@/components/refresher/Refresher.vue'
 import { defineComponent } from 'vue'
+import { useStore } from 'vuex';
 import axios from 'axios'
 
 export default defineComponent({
@@ -59,6 +60,11 @@ export default defineComponent({
     Refresher,
     IonSelect,
     IonSelectOption
+  },
+  setup() {
+    return {
+        store: useStore(),
+    }
   },
   data() {
     return {
@@ -76,6 +82,7 @@ export default defineComponent({
   methods: {
     async fetchData() {
       try {
+        this.store.commit('loader/updateLoader', true);
         const apiUrls = {
           api1: 'https://hrp-staging-delta.bapplware.com/web/index.php/api/v2/leave/leave-entitlements?limit=50&offset=0&fromDate=2023-09-01&toDate=2024-08-31',
           api2: 'https://hrp-staging-delta.bapplware.com/web/index.php/api/v2/leave/leave-entitlements?limit=50&offset=0&fromDate=2023-01-01&toDate=2023-08-31',
@@ -129,6 +136,7 @@ export default defineComponent({
     setTimeout(() => {
       this.showComponent = true;
     }, 1000);
+    this.store.commit('loader/updateLoader', false);
   },
 });
 </script>

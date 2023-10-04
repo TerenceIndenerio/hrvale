@@ -51,6 +51,7 @@
     import Button from '@/components/buttons/Button.vue';
     import { useRouter } from 'vue-router';
     import { defineComponent } from 'vue';
+    import { useStore } from 'vuex';
     import axios from 'axios';
 
     export default defineComponent({
@@ -69,8 +70,8 @@
         },
         setup() {
             return {
-                isLoading: false,
                 router: useRouter(),
+                store: useStore(),
             }
         },
         data() {
@@ -99,6 +100,7 @@
         methods: {
             async fetchData() {
                 try {
+                    this.store.commit('loader/updateLoader', true);
                     await new Promise(resolve => setTimeout(resolve, 1000));
                     const response = await axios.post(
                     'https://hrp-staging-delta.bapplware.com/web/index.php/auth/token',
@@ -183,6 +185,7 @@
                 console.log('Status:', this.cardData.status);
                 console.log('Comment:', this.cardData.comment)
                 console.log('Badge:', this.cardData.colorBadge)
+                this.store.commit('loader/updateLoader', false);
             }
         }
     });
@@ -203,7 +206,7 @@
         width: fit-content;
         height: 50px;
         overflow: hidden;
-        font-family: Inter;
+        font-family: 'Inter';
         font-size: 20px;
         font-style: normal;
         font-weight: 700;

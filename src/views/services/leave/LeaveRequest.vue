@@ -37,6 +37,7 @@
     import LeaveRequestCard from '@/views/services/leave/components/LeaveRequestCard.vue';
     import Refresher from '@/components/refresher/Refresher.vue'
     import { defineComponent } from 'vue';
+    import { useStore } from 'vuex';
     import axios from 'axios';
     
     export default defineComponent({
@@ -52,6 +53,11 @@
         LeaveRequestCard,
         Refresher,
       },
+      setup() {
+        return {
+            store: useStore(),
+        }
+        },
       data() {
         return {
           showComponent: false,
@@ -76,6 +82,7 @@
       methods: {
         async fetchData() {
           try {
+            this.store.commit('loader/updateLoader', true);
             await new Promise(resolve => setTimeout(resolve, 1000));
             const response = await axios.post(
               'https://hrp-staging-delta.bapplware.com/web/index.php/auth/token',
@@ -132,6 +139,7 @@
               this.leaveReqFor = `${data.data[0].dates.fromDate} - ${leaveData.dates.fromDate} `
           }
           console.log('Requests:', this.requests)
+          this.store.commit('loader/updateLoader', false);
       }
     });
 

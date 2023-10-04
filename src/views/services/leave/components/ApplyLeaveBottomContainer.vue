@@ -31,7 +31,7 @@
             </div>
         </div>
         <div class="flex-center">
-            <ion-button class="btn" @click="navigateToLeaveRequests">Apply Leave</ion-button>
+            <ion-button class="btn" @click="navigateToLeaveDashboard">Apply Leave</ion-button>
         </div>
     </div>
 </template>
@@ -55,13 +55,12 @@
         data() {
             return {
                 buttonText: 'Apply Leave',
-                ApplyLeave: '/leaveRequest',
                 selectedLeaveType: null,
             }
         },
         methods: {
-            navigateToLeaveRequests () {
-                this.$router.push('/leaveEntitlement');
+            navigateToLeaveDashboard () {
+                this.$router.push('/leave');
             },
         }
 
@@ -79,6 +78,7 @@
     }
     .fit-w {
         width: fit-content;
+        height: fit-content;
     }
     .flex-r {
         display: flex;
@@ -102,7 +102,7 @@
         padding: 20px;
     }
     .container {
-        border-top: 1px solid rgb(157, 157, 157);
+        border: 1px solid rgb(157, 157, 157);
         height: 50%;
         width: 100%;
         border-radius: 50px 50px 0 0;
@@ -129,18 +129,20 @@
         font-size: 17px;
         font-style: normal;
         line-height: normal;
+        height: fit-content;
     }
     .btn {
         border-radius: 15px;
         width: fit-content;
         height: 50px;
         overflow: hidden;
-        font-family: Open Sans;
+        font-family: 'Inter';
         font-size: 20px;
         font-style: normal;
         font-weight: 700;
         line-height: normal;
         border: none;
         margin-top: 20px;
+        --background: #12A3DA;
     }
 </style>
