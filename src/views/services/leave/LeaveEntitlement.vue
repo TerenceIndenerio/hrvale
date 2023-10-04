@@ -5,7 +5,7 @@
         <Refresher />
         <div v-if="showComponent">
   
-            <ion-card>
+            <ion-card class="card-round">
                 <div class="flex-c">
                 <p class="username-text"><strong>{{ employeeName }}</strong></p>
                 </div>
@@ -15,7 +15,7 @@
                 </div>
             </ion-card>
 
-            <ion-card>
+            <ion-card class="select-date-container">
                 <ion-select v-model="selectedApi">
                     <div slot="label" class="">Select Date:</div>
                     <ion-select-option value="api1">2023-01-01 - 2023-08-31</ion-select-option>
@@ -158,6 +158,11 @@ export default defineComponent({
     font-size: 30px;
     color: black;
   }
+  .card-round {
+    border-radius: 20px;
+    width: fit-content;
+    margin: 10px auto;
+  }
   .username-text, .leave-text {
     color: #000;
     font-family: Open Sans;
@@ -168,5 +173,9 @@ export default defineComponent({
   }
   .leave-text-val {
     margin-left: 0px;
+  }
+  .select-date-container {
+    height: fit-content;
+    padding: 0 20px;
   }
 </style>

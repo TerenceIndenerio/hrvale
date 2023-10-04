@@ -5,7 +5,7 @@
           <Refresher />
             <div v-if="showComponent">
 
-              <ion-card>
+              <ion-card class="card-round">
                 <div class="flex-c">
                   <p class="username-text"><strong>{{ employeeName }}</strong></p>
                 </div>
@@ -148,6 +148,7 @@
   .flex-h {
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 10px;
     margin: 10px 0;
     padding: 0;
@@ -159,6 +160,11 @@
   .employee-icon {
     font-size: 30px;
     color: black;
+  }
+  .card-round {
+    border-radius: 20px;
+    width: fit-content;
+    margin: 10px auto;
   }
   .username-text, .leave-text {
     color: #000;

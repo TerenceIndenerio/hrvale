@@ -1,10 +1,18 @@
 <template>
     <ion-card class="card">
       <ion-grid>
-        <ion-row>
-          <div class="leave-type outline" v-bind:style="outlineColor">
-            <p>{{ leaveType }}</p>
-          </div>
+        <ion-row class="header-card">
+            <ion-col class="inline-w">
+                <div class="leave-type outline" v-bind:style="outlineColor">
+                    <p>{{ leaveType }}</p>
+                </div>
+            </ion-col>
+            <ion-col class="container-right ">
+                <div class="action-style">
+                    <ion-button fill="clear" color="primary" class="btn-round btn-action"><ion-icon name="create-outline"></ion-icon></ion-button>
+                    <ion-button fill="clear"  color="danger" class="btn-round btn-action"><ion-icon name="trash-outline"></ion-icon></ion-button>
+                </div>
+            </ion-col>
         </ion-row>
         <ion-row class="pad-w">
           <ion-col class="col-name">
@@ -21,12 +29,13 @@
             <p>{{ creditedDate }}</p>
           </ion-col>
         </ion-row>
+
       </ion-grid>
     </ion-card>
 </template>
   
 <script>
-import { IonCard, IonCol, IonGrid, IonRow } from '@ionic/vue';
+import { IonCard, IonCol, IonGrid, IonRow, IonIcon, IonButton } from '@ionic/vue';
 
 export default {
 components: {
@@ -34,6 +43,8 @@ components: {
     IonCol,
     IonGrid,
     IonRow,
+    IonIcon,
+    IonButton,
 },
 props: {
     leaveType: String,
@@ -55,15 +66,24 @@ props: {
         flex-direction: row;
         align-items: center;
     }
-    .pad-w {
-        padding: 0 10px;
+    .container-right {
+        display: flex;
+        justify-content: right;
+        align-items: center;
+        height: fit-content;
     }
+
     p {
         padding: 0;
         margin: 5px 0;
     }
 
     /* specifics */
+    .card {
+        padding: 0 10px;
+        margin: 10px 7%;
+        border-radius: 20px;
+    }
     .icon1 {
         font-size: 30px;
         color: black;
@@ -72,7 +92,7 @@ props: {
         padding: 0;
         margin: 0;
         border-radius: 50px;
-
+        width: fit-content;
     }
     .leave-type p {
         padding: 5px 10px;
@@ -97,6 +117,21 @@ props: {
         color: #2F80ED;
         width: 50px;
     }
+    .btn-round {
+        --border-radius: 50px;
+    }
+    .btn-action {
+        --padding-start: 0 !important;
+        --padding-end: 0 !important;
+        --padding-top: 0 !important;
+        --padding-bottom: 0 !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+        width: 40px;
+        height: 30px;
+    }
     .username-text {
         color: #000;
         font-family: Open Sans;
@@ -120,6 +155,9 @@ props: {
         font-style: normal;
         font-weight: 600;
         line-height: 107.682%;
+    }
+    .header-card {
+        height: 40px;
     }
 </style>
   

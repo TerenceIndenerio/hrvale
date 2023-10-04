@@ -84,6 +84,11 @@
     }
 
     /* specifics */
+    .card {
+      padding: 10px 10px 0 10px;
+      margin: 10px 7%;
+      border-radius: 20px;
+    }
     .icon1 {
         font-size: 30px;
         color: black;
