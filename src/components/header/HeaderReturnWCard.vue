@@ -46,9 +46,6 @@
 </script>
 
 <style scoped>
-    @import url('https://fonts.googleapis.com/css?family=Inter');
-    @import url('https://fonts.googleapis.com/css?family=Open+Sans');
-    @import url('https://fonts.googleapis.com/css?family=Roboto');
     /* specifics */
     .header {
         background-color: var(--ion-color-blue-theme);
@@ -121,7 +118,7 @@
         color: #000;
         text-align: center;
         font-family: 'Open Sans';
-        font-size: 20px;
+        font-size: 18px;
         font-style: normal;
         font-weight: 600;
         line-height: normal;
