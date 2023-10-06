@@ -5,67 +5,69 @@
                 Type of leave
             </h4>
            
-                <ion-item lines="none" class="fit-w box-container" color="#E8E8E8">
-                    
-                    <ion-select>
-                       
-                        <ion-select-option
-                            v-for="option in leaveOptions"
-                            :key="option.value"
-                            :value="option.value"
-                            class="input-text"
-                        >
+            <ion-item lines="none" class="fit-w box-container" color="#E8E8E8">
+                <ion-select @ionChange="selectLeaveOption" label="Select Leave Type" label-placement="floating">
+                    <ion-select-option
+                        v-for="option in leaveOptions"
+                        :key="option"
+                        :value="option"
+                        class="input-text" 
                         
-                            {{ option.label }}
-                        </ion-select-option>
-                    </ion-select>
-                </ion-item>
-            <!-- </ion-list> -->
+                    >
+                        {{ option }}    
+                    </ion-select-option>
+                </ion-select>
+            </ion-item>
         </div>
         <div class="inline-v">
             <h4 class="input-title">
                 Reason
             </h4>
             <div class="box-container text-pad">
-                <ion-textarea color="#E8E8E8" label="Type your reason here" labelPlacement="floating" placeholder="Your reason..."></ion-textarea>
+                <ion-textarea color="#E8E8E8" label="Type your reason here" labelPlacement="floating" placeholder="Your reason..." v-model="reason"></ion-textarea>
             </div>
         </div>
         <div class="flex-center">
-            <ion-button class="btn" @click="navigateToLeaveDashboard">Apply Leave</ion-button>
+            <ion-button class="btn" @click="applyLeave">Apply Leave</ion-button>
         </div>
     </div>
 </template>
 
 <script>
-    import { IonList, IonItem, IonSelect, IonTextarea, IonSelectOption, IonButton } from '@ionic/vue';
-    import { defineComponent } from 'vue';
+import { IonSelect, IonSelectOption, IonButton, IonTextarea, IonItem } from '@ionic/vue';
+import { defineComponent, ref } from 'vue';
 
-    export default defineComponent({
-        props: {
-            leaveOptions: Array,
-        },
-        components: {
-            IonList, 
-            IonItem, 
-            IonSelect, 
-            IonTextarea, 
-            IonSelectOption, 
-            IonButton,
-        },
-        data() {
-            return {
-                buttonText: 'Apply Leave',
-                selectedLeaveType: null,
-            }
-        },
-        methods: {
-            navigateToLeaveDashboard () {
-                this.$router.push('/leave');
-            },
+export default defineComponent({
+    props: {
+        leaveOptions: Array,
+    },
+    components: {
+        IonSelect,
+        IonSelectOption,
+        IonButton,
+        IonTextarea,
+        IonItem,
+    },
+    data() {
+        return {
+            buttonText: 'Apply Leave',
+            selectedLeaveType: null,
+            reason: null,
         }
-
-    });
-    
+    },
+    methods: {
+        applyLeave() {
+            this.$emit('leave-application', this.selectedLeaveType, this.reason);
+        },
+        selectLeaveOption(event) {
+            this.selectedLeaveType = event.target.value;
+        },
+        enterReason(e) {
+            this.reason = e.target.value;
+            console.log(this.reason);
+        },
+    }
+});
 </script>
 
 <style scoped>
@@ -76,8 +78,11 @@
     .max-w {
         width: 100%;
     }
+    .padding-r {
+        padding-right: 10px;
+    }
     .fit-w {
-        width: fit-content;
+        width: 100%;
         height: fit-content;
     }
     .flex-r {
@@ -100,6 +105,7 @@
         bottom:0px;
         width: 100%;
         padding: 20px;
+        z-index: 10;
     }
     .container {
         border: 1px solid rgb(157, 157, 157);
