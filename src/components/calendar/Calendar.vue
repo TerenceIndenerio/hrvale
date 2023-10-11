@@ -1,6 +1,6 @@
 <template>
     <div class="calendar-container">
-        <ion-datetime presentation="date" @ionChange="handleDateChange"></ion-datetime>
+        <ion-datetime presentation="date" display-timezone="false" @ionChange="handleDateChange"></ion-datetime>
     </div>
 </template>
 
@@ -18,7 +18,10 @@ export default defineComponent({
     methods: {
         handleDateChange(event: CustomEvent) {
             const selectedDate = event.detail.value;
-            this.$emit('date-selected', selectedDate);
+            const dateObj = new Date(selectedDate);
+            const formattedDate = dateObj.toISOString().split('T')[0];
+            
+            this.$emit('date-selected', formattedDate);
         },
     },
 });

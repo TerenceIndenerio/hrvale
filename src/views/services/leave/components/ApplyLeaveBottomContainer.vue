@@ -8,13 +8,12 @@
             <ion-item lines="none" class="fit-w box-container" color="#E8E8E8">
                 <ion-select @ionChange="selectLeaveOption" label="Select Leave Type" label-placement="floating">
                     <ion-select-option
-                        v-for="option in leaveOptions"
-                        :key="option"
-                        :value="option"
-                        class="input-text" 
-                        
+                        v-for="option in leaveOptionsWithIds"
+                        :key="option.id"
+                        :value="option.name"
+                        class="input-text"
                     >
-                        {{ option }}    
+                        {{ option.name }}
                     </ion-select-option>
                 </ion-select>
             </ion-item>
@@ -35,11 +34,11 @@
 
 <script>
 import { IonSelect, IonSelectOption, IonButton, IonTextarea, IonItem } from '@ionic/vue';
-import { defineComponent, ref } from 'vue';
+import { defineComponent } from 'vue';
 
 export default defineComponent({
     props: {
-        leaveOptions: Array,
+        leaveOptionsWithIds: Array,
     },
     components: {
         IonSelect,
@@ -57,18 +56,22 @@ export default defineComponent({
     },
     methods: {
         applyLeave() {
-            this.$emit('leave-application', this.selectedLeaveType, this.reason);
+            const selectedOption = this.leaveOptionsWithIds.find(option => option.name === this.selectedLeaveType);
+            if (selectedOption) {
+                this.$emit('apply-leave', selectedOption, this.reason);
+            }
         },
         selectLeaveOption(event) {
             this.selectedLeaveType = event.target.value;
         },
         enterReason(e) {
             this.reason = e.target.value;
-            console.log(this.reason);
         },
     }
 });
 </script>
+
+
 
 <style scoped>
     .inline-v {

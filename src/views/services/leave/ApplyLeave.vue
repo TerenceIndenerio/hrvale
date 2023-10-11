@@ -17,9 +17,9 @@
             <div class="vh"></div>
             
             <ApplyLeaveBottomContainer
-                :leaveOptions="leaveOptions"
-                @leave-application="handleLeaveApplication"
+                :leaveOptionsWithIds="leaveOptionsWithIds"
                 
+                @apply-leave="sendLeaveRequest"
             />
         </ion-content>
     </ion-page>
@@ -48,12 +48,13 @@
         data() {
             return {
                 headerTitle: 'Apply Leave',
-                leaveOptions: [],
+                leaveOptionsWithIds: [],
                 selectedDate1: "",
                 selectedDate2: "",
                 reason: "",
-                selectedLeaveType: "", 
-                leaveVal: '',
+                selectedLeaveType: "",
+                leaveVal: "",
+                leaveId: "",
             }
         },
         methods: {
@@ -77,8 +78,11 @@
 
                     const api = 'https://hrp-staging-delta.bapplware.com/web/index.php/api/v2/leave/leave-types';
                     const dataResponse = await axios.get(api, { headers });
-
-                    return dataResponse.data;
+                    console.log(dataResponse.data)
+                    return dataResponse.data.data.map(leaveData => ({
+                        name: leaveData.name,
+                        id: leaveData.id,
+                    }));
                 } catch (error) {
                     console.error('Error fetching token or data:', error);
                     return null;
@@ -90,21 +94,37 @@
             updateSelectedDate2(selectedDate) {
                 this.selectedDate2 = selectedDate;
             },
-            handleLeaveApplication(selectedLeaveType, reason) {
-                this.selectedLeaveType = selectedLeaveType;
+            async sendLeaveRequest(selectedLeaveType, reason) {
+                const apiUrl = 'https://hrp-staging-delta.bapplware.com/web/index.php/api/v2/leave/leave-requests';
 
-                console.log("Selected Leave Type: ", selectedLeaveType);
-                console.log("Reason: ", reason);
-                console.log("Date: ", this.selectedDate1);
-                console.log("Date: ", this.selectedDate2);
+                this.selectedLeaveType = selectedLeaveType.name;
+                this.reason = reason
+                this.leaveId = selectedLeaveType.id;
+
+                console.log("Selected Leave Type Name: ", this.selectedLeaveType);
+                console.log("Selected Leave Type ID: ", this.leaveId);
+                console.log("Reason: ", this.reason);
+                console.log("Date From: ", this.selectedDate1);
+                console.log("Date To: ", this.selectedDate2);
+
+                try {
+                    const response = await axios.post(apiUrl, {
+                        leaveType: this.selectedLeaveType,
+                        fromDate: this.selectedDate1,
+                        toDate: this.selectedDate2,
+                        reason: this.reason,
+                    });
+
+                    console.log("Leave request sent successfully:", response.data);
+                } catch (error) {
+                    console.error('Error sending leave request:', error);
+                }
             },
         },
         async created() {
             const data = await this.fetchData();
 
-            this.leaveOptions = data.data.map(leaveData => leaveData.name);
-
-           
+            this.leaveOptionsWithIds = data;
         }
     });
 
