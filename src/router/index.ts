@@ -3,6 +3,7 @@ import { RouteRecordRaw } from 'vue-router'
 import TabsPage from '../views/TabsPage.vue'
 import Leave from '@/views/services/leave/LeaveDashboard.vue'
 import ApplyLeave from '@/views/services/leave/ApplyLeave.vue'
+import ApplyLeave_2 from '@/views/services/leave/ApplyLeave_2.vue'
 import LeaveRequest from '@/views/services/leave/LeaveRequest.vue'
 import ClockIn from '@/views/services/clock_in/ClockIn.vue'
 import Schedule from '@/views/services/schedule/Schedule.vue'
@@ -56,6 +57,10 @@ const routes: Array<RouteRecordRaw> = [
       {
         path: '/applyLeave',
         component: ApplyLeave
+      },
+      {
+        path: '/applyLeave_2',
+        component: ApplyLeave_2
       },
       {
         path: '/leaveRequest',

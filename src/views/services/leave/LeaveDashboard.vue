@@ -142,7 +142,7 @@
                 this.$router.push('/leaveRequest');
             },
             navigateToApplyLeave () {
-                this.$router.push('/applyLeave');
+                this.$router.push('/applyLeave_2');
             },
             navigateToLeaveEntitlement () {
                 this.$router.push('/leaveEntitlement');
