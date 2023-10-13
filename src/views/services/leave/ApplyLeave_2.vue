@@ -29,12 +29,12 @@
 
                 <div class="flex-w">
                     <ion-card class="card date-container">
-                        <p class="margin-l">From Date</p>
+                        <p class="margin-l">From Date*</p>
                         <input type="date" name="fromDate" id="fromDate" class="date-picker" v-model="fromDate">
                     </ion-card>
 
                     <ion-card class="card date-container">
-                        <p class="margin-l">To Date</p>
+                        <p class="margin-l">To Date*</p>
                         <input type="date" name="toDate" id="toDate" class="date-picker" v-model="toDate">
                     </ion-card>
                 </div>
@@ -43,21 +43,75 @@
                     <p class="margin-l">
                         Partial Days
                     </p>
-                    <ion-select label="Floating label" label-placement="floating" v-model="partialSelectedValue" class="box-container select-option">
-                        <ion-select-option value="value1">value 1</ion-select-option>
-                        <ion-select-option value="value2">value 2</ion-select-option>
-                        <ion-select-option value="value3">value 3</ion-select-option>
+                    <ion-select label="Select Partial Days" label-placement="floating" v-model="partialSelectedValue" class="box-container select-option">
+                        <ion-select-option value="value1">All Days</ion-select-option>
+                        <ion-select-option value="value2">Start Day Only</ion-select-option>
+                        <ion-select-option value="value3">End Day Only</ion-select-option>
+                        <ion-select-option value="value4">Start and End Day</ion-select-option>
                     </ion-select>
+                </ion-card>
+
+                <ion-card class="card" id="partialDay" v-show="showStartDayOnly">
+                    <p class="margin-l">
+                        Start Day
+                    </p>
+                    <ion-select label="Select" label-placement="floating" v-model="startDaySelectedValue" class="box-container select-option">
+                        <ion-select-option value="value5">Half Day - Morning</ion-select-option>
+                        <ion-select-option value="value6">Half Day - Afternoon</ion-select-option>
+                        <ion-select-option value="value7">Specific Time</ion-select-option>
+                    </ion-select>
+                </ion-card>
+                <ion-card class="card" id="specificTime" v-show="showsSpecificTimeStartDay">
+                    <p class="margin-l">
+                        Specific Time
+                    </p>
+                    <div class="specific-time-container">
+                        <ion-card class="card specific-time-card">
+                            <label for="fromTime">From*:</label>
+                            <input type="time" id="fromTime" name="fromTime" class="specific-time">
+                        </ion-card>
+                        <ion-card class="card specific-time-card">
+                            <label for="toTime">To*:</label>
+                            <input type="time" id="toTime" name="toTime" class="specific-time">
+                        </ion-card>
+                    </div>
+                </ion-card>
+
+                <ion-card class="card" id="partialDay" v-show="showEndDayOnly">
+                    <p class="margin-l">
+                        End Day
+                    </p>
+                    <ion-select label="Select" label-placement="floating" v-model="endDaySelectedValue" class="box-container select-option">
+                        <ion-select-option value="value5">Half Day - Morning</ion-select-option>
+                        <ion-select-option value="value6">Half Day - Afternoon</ion-select-option>
+                        <ion-select-option value="value7">Specific Time</ion-select-option>
+                    </ion-select>
+                </ion-card>
+                <ion-card class="card" id="specificTime" v-show="showsSpecificTimeEndDay">
+                    <p class="margin-l">
+                        Specific Time
+                    </p>
+                    <div class="specific-time-container">
+                        <ion-card class="card specific-time-card">
+                            <label for="fromTime">From*:</label>
+                            <input type="time" id="fromTime" name="fromTime" class="specific-time">
+                        </ion-card>
+                        <ion-card class="card specific-time-card">
+                            <label for="toTime">To*:</label>
+                            <input type="time" id="toTime" name="toTime" class="specific-time">
+                        </ion-card>
+                    </div>
                 </ion-card>
 
                 <ion-card class="card" id="duration" v-show="showDuration">
                     <p class="margin-l">
                         Duration
                     </p>
-                    <ion-select label="Floating label" label-placement="floating" v-model="durationSelectedValue" class="box-container select-option">
-                        <ion-select-option value="value1">value 1</ion-select-option>
-                        <ion-select-option value="value2">value 2</ion-select-option>
-                        <ion-select-option value="value3">value 3</ion-select-option>
+                    <ion-select label="Select Duration" label-placement="floating" v-model="durationSelectedValue" class="box-container select-option">
+                        <ion-select-option value="value1">Full Day</ion-select-option>
+                        <ion-select-option value="value2">Half Day - Morning</ion-select-option>
+                        <ion-select-option value="value4">Half Day - Afternoon</ion-select-option>
+                        <ion-select-option value="value3">Specific Time</ion-select-option>
                     </ion-select>
                 </ion-card>
 
@@ -133,26 +187,37 @@
                 leaveId: "",
                 fromDate: '',
                 toDate: '',
-                partialSelectedValue: null,
                 showDuration: false,
+                showEndDayOnly: false,
+                showStartDayOnly: false,
                 showsSpecificTime: false,
+                showsSpecificTimeEndDay: false,
+                showsSpecificTimeStartDay: false,
+                partialSelectedValue: null,
                 durationSelectedValue: null,
+                startDaySelectedValue: null,
+                endDaySelectedValue: null,
             }
         },
         watch: {
+            startDaySelectedValue(newVal) {
+                this.showsSpecificTimeStartDay = newVal === 'value7';
+            },
+            endDaySelectedValue(newVal) {
+                this.showsSpecificTimeEndDay = newVal === 'value7';
+            },
             partialSelectedValue(newVal) {
-                if (newVal === 'value1') {
-                    this.showDuration = true
-                } else {
-                    this.showDuration = false
-                }
+                const options = {
+                    value1: { showDuration: true, showStartDayOnly: false, showEndDayOnly: false },
+                    value2: { showStartDayOnly: true, showDuration: false, showEndDayOnly: false },
+                    value3: { showEndDayOnly: true, showDuration: false, showStartDayOnly: false },
+                    value4: { showEndDayOnly: true, showDuration: false, showStartDayOnly: true },
+                };
+                const selectedOption = options[newVal] || {};
+                Object.assign(this, selectedOption);
             },
             durationSelectedValue(newVal) {
-                if (newVal === 'value3') {
-                    this.showsSpecificTime = true
-                } else {
-                    this.showsSpecificTime = false
-                }
+                this.showsSpecificTime = newVal === 'value3';
             },
         },
         computed: {
@@ -160,19 +225,17 @@
                 if (this.fromDate && this.toDate) {
                     const fromDateObj = new Date(this.fromDate);
                     const toDateObj = new Date(this.toDate);
-
                     const fromDay = fromDateObj.setHours(0, 0, 0, 0);
                     const toDay = toDateObj.setHours(0, 0, 0, 0);
-
                     const oneDay = 24 * 60 * 60 * 1000;
-
                     const daysDifference = Math.floor((toDay - fromDay) / oneDay);
 
-                    return daysDifference < 1;
+                    this.showDuration = daysDifference === 0;
+
+                    return daysDifference > 0;
                 }
                 return false;
             },
-            
         },
         methods: {
             async fetchData() {
@@ -267,6 +330,8 @@
         padding: 5px 10px;
         width: fit-content;
         min-width: 100px;
+        height: 30px;
+        padding: 0;
     }
     .box-container {
         border-radius: 9px;
@@ -290,6 +355,8 @@
     }
     .specific-time {
         border-radius: 10px;
+        width: fit-content;
+        min-width: 100px;
     }
     .specific-time-container {
         display: flex;
