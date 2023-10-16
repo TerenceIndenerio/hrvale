@@ -15,7 +15,7 @@
                     <p class="margin-l">
                         Leave Type
                     </p>
-                    <ion-select label="Select Leave Type" label-placement="floating" class="box-container select-option">
+                    <ion-select label="Select Leave Type" label-placement="floating" class="box-container select-option" v-model="selectedLeaveType">
                         <ion-select-option
                             v-for="option in leaveOptionsWithIds"
                             :key="option.id"
@@ -44,22 +44,24 @@
                         Partial Days
                     </p>
                     <ion-select label="Select Partial Days" label-placement="floating" v-model="partialSelectedValue" class="box-container select-option">
-                        <ion-select-option value="value1">All Days</ion-select-option>
-                        <ion-select-option value="value2">Start Day Only</ion-select-option>
-                        <ion-select-option value="value3">End Day Only</ion-select-option>
-                        <ion-select-option value="value4">Start and End Day</ion-select-option>
+                        <ion-select-option v-for="option in partialDaysOptions" :key="option.value" :value="option.value">
+                            {{ option.label }}
+                        </ion-select-option>
                     </ion-select>
+
                 </ion-card>
 
+                 <!-- Start day Only -->
                 <ion-card class="card" id="partialDay" v-show="showStartDayOnly">
                     <p class="margin-l">
                         Start Day
                     </p>
                     <ion-select label="Select" label-placement="floating" v-model="startDaySelectedValue" class="box-container select-option">
-                        <ion-select-option value="value5">Half Day - Morning</ion-select-option>
-                        <ion-select-option value="value6">Half Day - Afternoon</ion-select-option>
-                        <ion-select-option value="value7">Specific Time</ion-select-option>
+                        <ion-select-option v-for="option in startDayOptions" :key="option.value" :value="option.value">
+                            {{ option.label }}
+                        </ion-select-option>
                     </ion-select>
+
                 </ion-card>
                 <ion-card class="card" id="specificTime" v-show="showsSpecificTimeStartDay">
                     <p class="margin-l">
@@ -68,24 +70,26 @@
                     <div class="specific-time-container">
                         <ion-card class="card specific-time-card">
                             <label for="fromTime">From*:</label>
-                            <input type="time" id="fromTime" name="fromTime" class="specific-time">
+                            <input type="time" id="fromTime" name="fromTime" class="specific-time" v-model="fromTimeStartDay">
                         </ion-card>
                         <ion-card class="card specific-time-card">
                             <label for="toTime">To*:</label>
-                            <input type="time" id="toTime" name="toTime" class="specific-time">
+                            <input type="time" id="toTime" name="toTime" class="specific-time" v-model="toTimeStartDay">
                         </ion-card>
                     </div>
                 </ion-card>
-
+                
+                <!-- End day Only -->
                 <ion-card class="card" id="partialDay" v-show="showEndDayOnly">
                     <p class="margin-l">
                         End Day
                     </p>
                     <ion-select label="Select" label-placement="floating" v-model="endDaySelectedValue" class="box-container select-option">
-                        <ion-select-option value="value5">Half Day - Morning</ion-select-option>
-                        <ion-select-option value="value6">Half Day - Afternoon</ion-select-option>
-                        <ion-select-option value="value7">Specific Time</ion-select-option>
+                        <ion-select-option v-for="option in endDayOptions" :key="option.value" :value="option.value">
+                            {{ option.label }}
+                        </ion-select-option>
                     </ion-select>
+
                 </ion-card>
                 <ion-card class="card" id="specificTime" v-show="showsSpecificTimeEndDay">
                     <p class="margin-l">
@@ -94,11 +98,11 @@
                     <div class="specific-time-container">
                         <ion-card class="card specific-time-card">
                             <label for="fromTime">From*:</label>
-                            <input type="time" id="fromTime" name="fromTime" class="specific-time">
+                            <input type="time" id="fromTime" name="fromTime" class="specific-time" v-model="fromTimeEndDay">
                         </ion-card>
                         <ion-card class="card specific-time-card">
                             <label for="toTime">To*:</label>
-                            <input type="time" id="toTime" name="toTime" class="specific-time">
+                            <input type="time" id="toTime" name="toTime" class="specific-time" v-model="toTimeEndDay">
                         </ion-card>
                     </div>
                 </ion-card>
@@ -108,10 +112,9 @@
                         Duration
                     </p>
                     <ion-select label="Select Duration" label-placement="floating" v-model="durationSelectedValue" class="box-container select-option">
-                        <ion-select-option value="value1">Full Day</ion-select-option>
-                        <ion-select-option value="value2">Half Day - Morning</ion-select-option>
-                        <ion-select-option value="value4">Half Day - Afternoon</ion-select-option>
-                        <ion-select-option value="value3">Specific Time</ion-select-option>
+                        <ion-select-option v-for="duration in durations" :key="duration.id" :value="duration.key">
+                            {{ duration.label }}
+                        </ion-select-option>
                     </ion-select>
                 </ion-card>
 
@@ -122,11 +125,11 @@
                     <div class="specific-time-container">
                         <ion-card class="card specific-time-card">
                             <label for="fromTime">From*:</label>
-                            <input type="time" id="fromTime" name="fromTime" class="specific-time">
+                            <input type="time" id="fromTime" name="fromTime" class="specific-time" v-model="fromTimeDuration">
                         </ion-card>
                         <ion-card class="card specific-time-card">
                             <label for="toTime">To*:</label>
-                            <input type="time" id="toTime" name="toTime" class="specific-time">
+                            <input type="time" id="toTime" name="toTime" class="specific-time" v-model="toTimeDuration">
                         </ion-card>
                     </div>
                     
@@ -144,7 +147,7 @@
                 </ion-card>
 
                 <div class="flex-center">
-                    <ion-button class="btn">Apply Leave</ion-button>
+                    <ion-button class="btn" @click="sendLeaveRequest">Apply Leave</ion-button>
                 </div>
                 
         </ion-card>
@@ -185,8 +188,14 @@
                 selectedLeaveType: "",
                 leaveVal: "",
                 leaveId: "",
-                fromDate: '',
-                toDate: '',
+                fromDate: "",
+                toDate: "",
+                fromTimeDuration: "",
+                toTimeDuration: "",
+                fromTimeStartDay: "",
+                toTimeStartDay: "",
+                fromTimeEndDay: "",
+                toTimeEndDay: "",
                 showDuration: false,
                 showEndDayOnly: false,
                 showStartDayOnly: false,
@@ -197,6 +206,28 @@
                 durationSelectedValue: null,
                 startDaySelectedValue: null,
                 endDaySelectedValue: null,
+                durations: [
+                    { key: 'full_day', label: 'Full Day' },
+                    { key: 'half_day_morning', label: 'Half Day - Morning' },
+                    { key: 'half_day_afternoon', label: 'Half Day - Afternoon' },
+                    { key: 'specify_time', label: 'Specific Time' },
+                ],
+                partialDaysOptions: [
+                    { value: 'value1', label: 'All Days' },
+                    { value: 'value2', label: 'Start Day Only' },
+                    { value: 'value3', label: 'End Day Only' },
+                    { value: 'value4', label: 'Start and End Day' },
+                ],
+                endDayOptions: [
+                    { value: 'value5', label: 'Half Day - Morning' },
+                    { value: 'value6', label: 'Half Day - Afternoon' },
+                    { value: 'value7', label: 'Specific Time' },
+                ],
+                startDayOptions: [
+                    { value: 'value5', label: 'Half Day - Morning' },
+                    { value: 'value6', label: 'Half Day - Afternoon' },
+                    { value: 'value7', label: 'Specific Time' },
+                ],
             }
         },
         watch: {
@@ -217,7 +248,7 @@
                 Object.assign(this, selectedOption);
             },
             durationSelectedValue(newVal) {
-                this.showsSpecificTime = newVal === 'value3';
+                this.showsSpecificTime = newVal === 'specify_time';
             },
         },
         computed: {
@@ -266,6 +297,39 @@
                 } catch (error) {
                     console.error('Error fetching token or data:', error);
                     return null;
+                }
+            },
+            async sendLeaveRequest() {
+                try {
+                    const token = localStorage.getItem('_token');
+                    const headers = {
+                        Authorization: `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                    };
+                    const api = 'https://hrp-staging-delta.bapplware.com/web/index.php/api/v2/leave/leave-requests';
+
+                    const requestData = {
+                        leaveType: this.selectedLeaveType,
+                        fromDate: this.fromDate,
+                        toDate: this.toDate,
+                        reason: this.reason,
+                        partialSelectedValue: this.partialSelectedValue,
+                        durationSelectedValue: this.durationSelectedValue,
+                        startDaySelectedValue: this.startDaySelectedValue,
+                        endDaySelectedValue: this.endDaySelectedValue,
+                        fromTimeDuration: this.fromTimeDuration,
+                        toTimeDuration: this.toTimeDuration,
+                        fromTimeStartDay: this.fromTimeStartDay,
+                        toTimeStartDay: this.toTimeStartDay,
+                        fromTimeEndDay: this.fromTimeEndDay,
+                        toTimeEndDay: this.toTimeEndDay,
+                    };
+
+                    const response = await axios.post(api, requestData, { headers });
+                    console.log('Leave request response:', response.data);
+                    
+                } catch (error) {
+                    console.error('Error sending leave request:', error);
                 }
             },
         },
