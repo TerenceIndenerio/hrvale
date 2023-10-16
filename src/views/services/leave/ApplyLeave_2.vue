@@ -7,7 +7,7 @@
             
                 <ion-card class="card leaveBal-container">
                     <p class="leave-bal">
-                        Leave Balance: <strong>0.00</strong> Day(s)
+                        Leave Balance: <strong>{{ leaveBalance }}</strong> Day(s)
                     </p>
                 </ion-card>
 
@@ -15,7 +15,7 @@
                     <p class="margin-l">
                         Leave Type
                     </p>
-                    <ion-select label="Select Leave Type" label-placement="floating" class="box-container select-option" v-model="selectedLeaveType">
+                    <ion-select label="Select Leave Type" label-placement="floating" class="box-container select-option" v-model="selectedLeaveType" @change="checkLeaveType()">
                         <ion-select-option
                             v-for="option in leaveOptionsWithIds"
                             :key="option.id"
@@ -181,11 +181,11 @@
         data() {
             return {
                 headerTitle: 'Apply Leave',
+                leaveBalance: 0,
                 leaveOptionsWithIds: [],
                 selectedDate1: "",
                 selectedDate2: "",
                 reason: "",
-                selectedLeaveType: "",
                 leaveVal: "",
                 leaveId: "",
                 fromDate: "",
@@ -206,6 +206,7 @@
                 durationSelectedValue: null,
                 startDaySelectedValue: null,
                 endDaySelectedValue: null,
+                selectedLeaveType: null,
                 durations: [
                     { key: 'full_day', label: 'Full Day' },
                     { key: 'half_day_morning', label: 'Half Day - Morning' },
@@ -249,6 +250,9 @@
             },
             durationSelectedValue(newVal) {
                 this.showsSpecificTime = newVal === 'specify_time';
+            },
+            selectedLeaveType(newSelectedLeaveType) {
+                this.checkLeaveType(newSelectedLeaveType);
             },
         },
         computed: {
@@ -297,6 +301,39 @@
                 } catch (error) {
                     console.error('Error fetching token or data:', error);
                     return null;
+                }
+            },
+            async checkLeaveType(selectedType) {
+                console.log('Selected Leave Type:', selectedType);
+                const token = localStorage.getItem('_token');
+                const headers = {
+                    Authorization: `Bearer ${token}`,
+                };
+
+                let apiEndpoint = '';
+
+                switch (selectedType) {
+                    case 'LWOP':
+                        apiEndpoint = 'https://hrp-staging-delta.bapplware.com/web/index.php/api/v2/leave/leave-balance/leave-type/3';
+                        break;
+                    case 'Vacation Leave':
+                        apiEndpoint = 'https://hrp-staging-delta.bapplware.com/web/index.php/api/v2/leave/leave-balance/leave-type/1';
+                        break;
+                    default:
+
+                        break;
+                }
+
+                try {
+                    if (apiEndpoint) {
+                        const response = await axios.get(apiEndpoint, { headers });
+                        this.leaveBalance = response.data.data.balance.entitled;
+                        console.log('Leave Balance:', this.leaveBalance);
+                    } else {
+                        this.leaveBalance = 0;
+                    }
+                } catch (error) {
+                    console.error('Error fetching leave balance:', error);
                 }
             },
             async sendLeaveRequest() {
