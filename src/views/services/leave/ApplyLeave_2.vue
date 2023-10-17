@@ -214,36 +214,36 @@
                     { key: 'specify_time', label: 'Specific Time' },
                 ],
                 partialDaysOptions: [
-                    { value: 'value1', label: 'All Days' },
-                    { value: 'value2', label: 'Start Day Only' },
-                    { value: 'value3', label: 'End Day Only' },
-                    { value: 'value4', label: 'Start and End Day' },
+                    { value: 'all', label: 'All Days' },
+                    { value: 'start', label: 'Start Day Only' },
+                    { value: 'end', label: 'End Day Only' },
+                    { value: 'start_end', label: 'Start and End Day' },
                 ],
                 endDayOptions: [
-                    { value: 'value5', label: 'Half Day - Morning' },
-                    { value: 'value6', label: 'Half Day - Afternoon' },
-                    { value: 'value7', label: 'Specific Time' },
+                    { value: 'half_day_morning', label: 'Half Day - Morning' },
+                    { value: 'half_day_afternoon', label: 'Half Day - Afternoon' },
+                    { value: 'specific_time', label: 'Specific Time' },
                 ],
                 startDayOptions: [
-                    { value: 'value5', label: 'Half Day - Morning' },
-                    { value: 'value6', label: 'Half Day - Afternoon' },
-                    { value: 'value7', label: 'Specific Time' },
+                    { value: 'half_day_morning', label: 'Half Day - Morning' },
+                    { value: 'half_day_afternoon', label: 'Half Day - Afternoon' },
+                    { value: 'specific_time', label: 'Specific Time' },
                 ],
             }
         },
         watch: {
             startDaySelectedValue(newVal) {
-                this.showsSpecificTimeStartDay = newVal === 'value7';
+                this.showsSpecificTimeStartDay = newVal === 'specific_time';
             },
             endDaySelectedValue(newVal) {
-                this.showsSpecificTimeEndDay = newVal === 'value7';
+                this.showsSpecificTimeEndDay = newVal === 'specific_time';
             },
             partialSelectedValue(newVal) {
                 const options = {
-                    value1: { showDuration: true, showStartDayOnly: false, showEndDayOnly: false },
-                    value2: { showStartDayOnly: true, showDuration: false, showEndDayOnly: false },
-                    value3: { showEndDayOnly: true, showDuration: false, showStartDayOnly: false },
-                    value4: { showEndDayOnly: true, showDuration: false, showStartDayOnly: true },
+                    all: { showDuration: true, showStartDayOnly: false, showEndDayOnly: false },
+                    start: { showStartDayOnly: true, showDuration: false, showEndDayOnly: false },
+                    end: { showEndDayOnly: true, showDuration: false, showStartDayOnly: false },
+                    start_end: { showEndDayOnly: true, showDuration: false, showStartDayOnly: true },
                 };
                 const selectedOption = options[newVal] || {};
                 Object.assign(this, selectedOption);
@@ -345,6 +345,7 @@
                     };
                     const api = 'https://hrp-staging-delta.bapplware.com/web/index.php/api/v2/leave/leave-requests';
 
+                    // This is the data that needs to be changed inorder to successfully send.
                     const requestData = {
                         leaveType: this.selectedLeaveType,
                         fromDate: this.fromDate,
