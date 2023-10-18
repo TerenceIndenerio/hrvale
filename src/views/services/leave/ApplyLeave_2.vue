@@ -350,7 +350,9 @@
         return false;
       },
     },
+    
     methods: {
+      
       async fetchData() {
         try {
           const response = await axios.post(
@@ -431,7 +433,30 @@
           this.selectedLeaveID = null;
           this.selectedLeaveType = null;
         }
+
+        if (this.selectedLeaveType === 'LWOP') {
+          this.fetchLeaveBalance(3);
+      } else if (this.selectedLeaveType === 'Vacation Leave') {
+          this.fetchLeaveBalance(1);
+      } else {
+        this.leaveBalance = 0
+      }
       },
+      async fetchLeaveBalance(leaveTypeId) {
+      const token = localStorage.getItem('_token');
+      const headers = {
+        Authorization: `Bearer ${token}`,
+      };
+      const api = `https://hrp-staging-delta.bapplware.com/web/index.php/api/v2/leave/leave-balance/leave-type/${leaveTypeId}`;
+
+      try {
+        const response = await axios.get(api, { headers });
+        this.leaveBalance = response.data.data.balance.balance;
+        console.log('Leave balance response:', this.leaveBalance);
+      } catch (error) {
+        console.error('Error fetching leave balance:', error);
+      }
+    },
     },
     async created() {
       const data = await this.fetchData();
