@@ -174,11 +174,14 @@
 </template>
 
 <script>
-  import { IonPage, IonContent, IonCard, IonButton, IonSelectOption, IonSelect, IonTextarea } from '@ionic/vue';
-  import HeaderReturn from '@/components/header/HeaderReturn.vue';
-  import { defineComponent } from 'vue';
-  import Refresher from '@/components/refresher/Refresher.vue';
-  import axios from 'axios';
+    import { IonPage, IonContent, IonCard, IonButton, IonSelectOption, IonSelect, IonTextarea } from '@ionic/vue';
+    import HeaderReturn from '@/components/header/HeaderReturn.vue';
+    import { defineComponent } from 'vue';
+    import Refresher from '@/components/refresher/Refresher.vue';
+    import axios from 'axios';
+    import { GlobalConstants } from '@/config/constants';
+  
+    const baseURL = GlobalConstants.HOST_URL;
 
   export default defineComponent({
     components: {
@@ -356,7 +359,7 @@
       async fetchData() {
         try {
           const response = await axios.post(
-            'https://hrp-staging-delta.bapplware.com/web/index.php/auth/token',
+            baseURL+'auth/token',
             {
               clientId: 'test_id',
               clientSecret: 'test_secret',
@@ -371,7 +374,7 @@
             Authorization: `Bearer ${token}`,
           };
 
-          const api = 'https://hrp-staging-delta.bapplware.com/web/index.php/api/v2/leave/leave-types';
+          const api = baseURL+'api/v2/leave/leave-types';
           const dataResponse = await axios.get(api, { headers });
           console.log("Response Leave Types: ", dataResponse.data);
           return dataResponse.data.data.map((leaveData) => ({
@@ -390,7 +393,8 @@
             Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json',
           };
-          const api = 'https://hrp-staging-delta.bapplware.com/web/index.php/api/v2/leave/leave-requests';
+
+          const api = baseURL+'api/v2/leave/leave-requests';
           const { fromDate, toDate } = this.leaveData.data[0].dates;
 
           console.log("Leave Type: ", this.selectedLeaveID)
@@ -398,20 +402,23 @@
 
           // !!! I need this to change base on the API's Payload structure
           const requestData = {
-            leaveType: this.selectedLeaveType,
+            // leaveType: this.selectedLeaveType,
             fromDate: this.fromDate,
             toDate: this.toDate,
-            reason: this.reason,
-            partialSelectedValue: this.partialSelectedValue,
-            durationSelectedValue: this.durationSelectedValue,
-            startDaySelectedValue: this.startDaySelectedValue,
-            endDaySelectedValue: this.endDaySelectedValue,
-            fromTimeDuration: this.fromTimeDuration,
-            toTimeDuration: this.toTimeDuration,
-            fromTimeStartDay: this.fromTimeStartDay,
-            toTimeStartDay: this.toTimeStartDay,
-            fromTimeEndDay: this.fromTimeEndDay,
-            toTimeEndDay: this.toTimeEndDay,
+            comment: this.reason,
+            // partialSelectedValue: this.partialSelectedValue,
+            // durationSelectedValue: this.durationSelectedValue,
+            duration: {type: this.durationSelectedValue},
+            leaveTypeId: this.selectedLeaveID,
+            partialOption: this.partialSelectedValue,
+            // startDaySelectedValue: this.startDaySelectedValue,
+            // endDaySelectedValue: this.endDaySelectedValue,
+            // fromTimeDuration: this.fromTimeDuration,
+            // toTimeDuration: this.toTimeDuration,
+            // fromTimeStartDay: this.fromTimeStartDay,
+            // toTimeStartDay: this.toTimeStartDay,
+            // fromTimeEndDay: this.fromTimeEndDay,
+            // toTimeEndDay: this.toTimeEndDay,
           };
 
           console.log(requestData)
