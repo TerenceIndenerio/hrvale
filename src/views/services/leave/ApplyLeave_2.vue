@@ -55,20 +55,48 @@
               </ion-select-option>
             </ion-select>
           </ion-card>
-  
-          <!-- Start Day Only Card -->
-          <ion-card class="card" id="startDayOnly" v-show="showStartDayOnly">
+          
+          <ion-card class="card" id="duration" v-show="showStartDayOnly">
             <p class="margin-l">Start Day</p>
             <ion-select
-              label="Select"
+              label="Select Duration"
               label-placement="floating"
-              v-model="startDaySelectedValue"
+              v-model="durationSelectedValue"
               class="box-container select-option"
             >
-              <ion-select-option v-for="option in startDayOptions" :key="option.value" :value="option.value">
-                {{ option.label }}
+              <ion-select-option v-for="duration in durations" :key="duration.key" :value="duration.key">
+                {{ duration.label }}
               </ion-select-option>
             </ion-select>
+          </ion-card>
+
+          <!-- Duration Card -->
+          <ion-card class="card" id="duration" v-show="showDuration">
+            <p class="margin-l">Duration</p>
+            <ion-select
+              label="Select Duration"
+              label-placement="floating"
+              v-model="durationSelectedValue"
+              class="box-container select-option"
+            >
+              <ion-select-option v-for="duration in durations" :key="duration.key" :value="duration.key">
+                {{ duration.label }}
+              </ion-select-option>
+            </ion-select>
+          </ion-card>
+
+          <ion-card class="card" id="specificTime" v-show="showsSpecificTime">
+            <p class="margin-l">Specific Time</p>
+            <div class="specific-time-container">
+              <ion-card class="card specific-time-card">
+                <label for="fromTimeDuration">From*:</label>
+                <input type="time" id="fromTimeDuration" name="fromTimeDuration" class="specific-time" v-model="fromTimeDuration">
+              </ion-card>
+              <ion-card class="card specific-time-card">
+                <label for="toTimeDuration">To*:</label>
+                <input type="time" id="toTimeDuration" name="toTimeDuration" class="specific-time" v-model="toTimeDuration">
+              </ion-card>
+            </div>
           </ion-card>
   
           <!-- Specific Time (Start Day) Card -->
@@ -115,37 +143,7 @@
               </ion-card>
             </div>
           </ion-card>
-  
-          <!-- Duration Card -->
-          <ion-card class="card" id="duration" v-show="showDuration">
-            <p class="margin-l">Duration</p>
-            <ion-select
-              label="Select Duration"
-              label-placement="floating"
-              v-model="durationSelectedValue"
-              class="box-container select-option"
-            >
-              <ion-select-option v-for="duration in durations" :key="duration.key" :value="duration.key">
-                {{ duration.label }}
-              </ion-select-option>
-            </ion-select>
-          </ion-card>
-  
-          <!-- Specific Time (Duration) Card -->
-          <ion-card class="card" id="specificTime" v-show="showsSpecificTime">
-            <p class="margin-l">Specific Time</p>
-            <div class="specific-time-container">
-              <ion-card class="card specific-time-card">
-                <label for="fromTimeDuration">From*:</label>
-                <input type="time" id="fromTimeDuration" name="fromTimeDuration" class="specific-time" v-model="fromTimeDuration">
-              </ion-card>
-              <ion-card class="card specific-time-card">
-                <label for="toTimeDuration">To*:</label>
-                <input type="time" id="toTimeDuration" name="toTimeDuration" class="specific-time" v-model="toTimeDuration">
-              </ion-card>
-            </div>
-          </ion-card>
-  
+
           <!-- Reason Card -->
           <ion-card class="card">
             <div class="inline-v">
@@ -225,7 +223,7 @@
           { key: 'full_day', label: 'Full Day' },
           { key: 'half_day_morning', label: 'Half Day - Morning' },
           { key: 'half_day_afternoon', label: 'Half Day - Afternoon' },
-          { key: 'specify_time', label: 'Specific Time' },
+          { key: 'specific_time', label: 'Specific Time' },
         ],
         partialDaysOptions: [
           { value: 'all', label: 'All Days' },
@@ -243,76 +241,6 @@
           { value: 'half_day_afternoon', label: 'Half Day - Afternoon' },
           { value: 'specific_time', label: 'Specific Time' },
         ],
-        // For Reference
-        leaveData: {
-          data: [
-            {
-              dates: {
-                fromDate: "2023-06-01",
-                toDate: "2023-06-09",
-                durationType: {
-                  id: null,
-                  type: null,
-                },
-                startTime: null,
-                endTime: null,
-              },
-              noOfDays: 7,
-              leaveBalances: [
-                {
-                  period: {
-                    startDate: String,
-                    endDate: String,
-                  },
-                  balance: {
-                    entitled: 15,
-                    used: 7,
-                    scheduled: 0,
-                    pending: 0,
-                    taken: 7,
-                    balance: 8,
-                    asAtDate: "2023-06-01",
-                    endDate: "2023-08-31",
-                  },
-                },
-              ],
-              multiPeriod: false,
-              leaveBreakdown: [
-                {
-                  id: 3,
-                  name: "Taken",
-                  lengthDays: 7,
-                },
-              ],
-              allowedActions: [
-                {
-                  action: "CANCEL",
-                  name: "Cancel",
-                },
-              ],
-              hasMultipleStatus: false,
-              employee: {
-                empNumber: 1,
-                lastName: "Ocubillo",
-                firstName: "Sherwin",
-                middleName: "Travieza",
-                employeeId: "0000001",
-                terminationId: null,
-              },
-              leaveType: {
-                id: 1,
-                name: String,
-                deleted: false,
-              },
-              lastComment: null,
-            },
-          ],
-          meta: {
-            empNumber: 1,
-            total: 1,
-          },
-          rels: [],
-        },
       };
     },
     watch: {
@@ -333,7 +261,7 @@
         Object.assign(this, selectedOption);
       },
       durationSelectedValue(newVal) {
-        this.showsSpecificTime = newVal === 'specify_time';
+          this.showsSpecificTime = newVal === 'specific_time';
       },
     },
     computed: {
@@ -395,30 +323,27 @@
           };
 
           const api = baseURL+'api/v2/leave/leave-requests';
-          const { fromDate, toDate } = this.leaveData.data[0].dates;
 
           console.log("Leave Type: ", this.selectedLeaveID)
           console.log("Leave ID: ", this.selectedLeaveType)
+          console.log(this.durationSelectedValue)
 
-          // !!! I need this to change base on the API's Payload structure
           const requestData = {
-            // leaveType: this.selectedLeaveType,
             fromDate: this.fromDate,
             toDate: this.toDate,
             comment: this.reason,
-            // partialSelectedValue: this.partialSelectedValue,
-            // durationSelectedValue: this.durationSelectedValue,
-            duration: {type: this.durationSelectedValue},
+            duration: {
+              type: this.durationSelectedValue,
+              fromTime: this.fromTimeDuration,
+              toTime: this.toTimeDuration,
+            },
             leaveTypeId: this.selectedLeaveID,
             partialOption: this.partialSelectedValue,
-            // startDaySelectedValue: this.startDaySelectedValue,
-            // endDaySelectedValue: this.endDaySelectedValue,
-            // fromTimeDuration: this.fromTimeDuration,
-            // toTimeDuration: this.toTimeDuration,
-            // fromTimeStartDay: this.fromTimeStartDay,
-            // toTimeStartDay: this.toTimeStartDay,
-            // fromTimeEndDay: this.fromTimeEndDay,
-            // toTimeEndDay: this.toTimeEndDay,
+            endDuration: {
+              type: this.endDaySelectedValue,
+              fromTime: this.fromTimeEndDay,
+              toTime: this.toTimeEndDay,
+            },
           };
 
           console.log(requestData)
