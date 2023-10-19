@@ -1,10 +1,10 @@
 <template>
     
-    <ion-text>
+    <!-- <ion-text>
         <h1 class="card-title">
             {{ cardTitle }}
         </h1>  
-    </ion-text>
+    </ion-text> -->
 
     <ion-card class="card-top">
         <ion-badge class="status" v-bind:color="colorBadge">{{ status }}</ion-badge>

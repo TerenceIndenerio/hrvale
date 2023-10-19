@@ -23,21 +23,24 @@
                     Leave Entitlement
                 </ion-button>
 
-                <LeaveDashboardCard 
-                    :cardTitle = "cardData.title"
-                    :appliedDuration="cardData.date"
-                    :reason="cardData.comment"
-                    :typeOfLeave="cardData.leaveType"
-                    :status = "cardData.status"
-                    :colorBadge="cardData.colorBadge"
-                    @view-details-clicked="navigateToLeaveRequests"
-                />
+                <div v-for="item in requests" :key="item.id">
+                    <LeaveDashboardCard
+                        :cardTitle="item.leaveType.name"
+                        :appliedDuration="item.dates.fromDate + ' - ' + item.dates.toDate"
+                        :reason="item.lastComment"
+                        :typeOfLeave="item.leaveType.name"
+                        :status="item.leaveBreakdown[0].name"
+                        :colorBadge="getStatusColor(item.leaveBreakdown[0].name)"
+                        @view-details-clicked="navigateToLeaveRequests(item)"
+                    />
+                </div>
             
-
                 <div class="flex-center btn-bottom">
                     <ion-button class="btn" @click="navigateToApplyLeave">Apply Leave</ion-button>
                 </div>
             </div>
+
+            <div class="margin-bottom"></div>
             
         </ion-content>
     </ion-page>
@@ -53,6 +56,9 @@
     import { defineComponent } from 'vue';
     import { useStore } from 'vuex';
     import axios from 'axios';
+    import { GlobalConstants } from '@/config/constants';
+  
+    const baseURL = GlobalConstants.HOST_URL;
 
     export default defineComponent({
         name: 'Leave Requests',
@@ -103,7 +109,7 @@
                     this.store.commit('loader/updateLoader', true);
                     await new Promise(resolve => setTimeout(resolve, 1000));
                     const response = await axios.post(
-                    'https://hrp-staging-delta.bapplware.com/web/index.php/auth/token',
+                        baseURL+'auth/token',
                     {
                         clientId: 'test_id',
                         clientSecret: 'test_secret',
@@ -112,7 +118,7 @@
                     );
                     console.log(response.data);
                     const token = response.data.token;
-                    const api = 'https://hrp-staging-delta.bapplware.com/web/index.php/api/v2/leave/leave-requests?limit=50&offset=0&includeEmployees=onlyCurrent';
+                    const api = baseURL+'api/v2/leave/leave-requests?limit=50&offset=0&includeEmployees=onlyCurrent';
                     const headers = {
                     Authorization: `Bearer ${token}`
                     };
@@ -138,8 +144,9 @@
                     return "Good Evening";
                 }
             },
-            navigateToLeaveRequests () {
-                this.$router.push('/leaveRequest');
+            navigateToLeaveRequests(item) {
+                this.cardId = item.id;
+                this.$router.push({ path: '/leaveRequest', query: { cardId: this.cardId } });
             },
             navigateToApplyLeave () {
                 this.$router.push('/applyLeave_2');
@@ -147,47 +154,37 @@
             navigateToLeaveEntitlement () {
                 this.$router.push('/leaveEntitlement');
             },
-            
+            getStatusColor(status) {
+                if (status === 'Pending Approval') {
+                    return 'warning';
+                } else if (status === 'Reject') {
+                    return 'danger';
+                } else if (status === 'Taken') {
+                    return 'primary';
+                } else {
+                    return 'default';
+                }
+            },
         },
         async created() {
-            const data = await this.fetchData();
-            setTimeout(() => {
-                this.showComponent = true;
-            }, 1000);
-            if (data && data.data.length > 0) {
-                const leaveData = data.data[0];
-                const timeOfDay = this.getTimeOfDay();
-                console.log(`It's currently ${timeOfDay}.`);
+            try {
+                this.store.commit('loader/updateLoader', true);
+                const data = await this.fetchData();
 
-                this.leavesLength = data.data.length;
-                this.cardData.date = `${leaveData.dates.fromDate} - ${leaveData.dates.toDate}`;
-                this.cardData.employeeName = `${leaveData.employee.firstName} ${leaveData.employee.middleName || ''} ${leaveData.employee.lastName}`;
-                this.cardData.leaveType = leaveData.leaveType.name;
-                this.cardData.leaveBalance = leaveData.leaveBalances[0].balance.balance.toString();
-                this.cardData.numberOfDays = leaveData.noOfDays.toString();
-                this.cardData.status = leaveData.leaveBreakdown[0].name;
-                this.cardData.comment = leaveData.lastComment;
-                this.cardData.timePeriod = timeOfDay;
+                if (data && data.data.length > 0) {
+                    this.requests = data.data; 
+                    this.showComponent = true;
 
-                if(this.cardData.status === 'Pending'){
-                    this.cardData.colorBadge = "warning";
-                } else if (this.cardData.status === 'Reject') {
-                    this.cardData.colorBadge = "danger";
-                } else if (this.cardData.status === 'Taken') {
-                    this.cardData.colorBadge = "primary";
+                    const leaveData = this.requests[0];
+                    this.cardData.employeeName = `${leaveData.employee.firstName} ${leaveData.employee.middleName || ''} ${leaveData.employee.lastName}`;
+                    this.cardData.leaveBalance = leaveData.leaveBalances[0].balance.balance;
+
+                    this.store.commit('loader/updateLoader', false);
                 }
-
-                console.log('Date:', this.cardData.date);
-                console.log('Employee Name:', this.cardData.employeeName);
-                console.log('Leave Type:', this.cardData.leaveType);
-                console.log('Leave Balance:', this.cardData.leaveBalance);
-                console.log('Number of Days:', this.cardData.numberOfDays);
-                console.log('Status:', this.cardData.status);
-                console.log('Comment:', this.cardData.comment)
-                console.log('Badge:', this.cardData.colorBadge)
-                this.store.commit('loader/updateLoader', false);
+            } catch (error) {
+                console.error(error);
             }
-        }
+        },
     });
 </script>
 
@@ -195,6 +192,9 @@
     @import url('https://fonts.googleapis.com/css?family=Inter');
     .margin-top {
         margin-top: 50px;
+    }
+    .margin-bottom {
+        margin-bottom: 20vh;
     }
     .flex-center {
         display: flex;
