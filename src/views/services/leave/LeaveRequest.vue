@@ -38,7 +38,11 @@
     import Refresher from '@/components/refresher/Refresher.vue'
     import { defineComponent } from 'vue';
     import { useStore } from 'vuex';
+    import { useRouter } from 'vue-router';
     import axios from 'axios';
+    import { GlobalConstants } from '@/config/constants';
+  
+    const baseURL = GlobalConstants.HOST_URL;
     
     export default defineComponent({
       name: 'Leave Requests',
@@ -60,6 +64,8 @@
         },
       data() {
         return {
+          cardId: 0,
+          api: '',
           showComponent: false,
           requests: [],
           headerTitle: 'Leave Requests',
@@ -85,7 +91,7 @@
             this.store.commit('loader/updateLoader', true);
             await new Promise(resolve => setTimeout(resolve, 1000));
             const response = await axios.post(
-              'https://hrp-staging-delta.bapplware.com/web/index.php/auth/token',
+              baseURL+'auth/token',
               {
                 clientId: 'test_id',
                 clientSecret: 'test_secret',
@@ -93,8 +99,9 @@
               }
             );
             console.log(response.data);
+            const _cardId = this.cardId
             const token = response.data.token;
-            const api = 'https://hrp-staging-delta.bapplware.com/web/index.php/api/v2/leave/leave-requests/1/leaves?limit=50&offset=0';
+            const api = `${baseURL}api/v2/leave/leave-requests/${_cardId}/leaves?limit=50&offset=0`;
             const headers = {
               Authorization: `Bearer ${token}`
             };
@@ -111,6 +118,7 @@
         },
       },
       async created() {
+        this.cardId = this.$route.query.cardId;
         const data = await this.fetchData();
         setTimeout(() => {
           this.showComponent = true;
@@ -142,7 +150,6 @@
           this.store.commit('loader/updateLoader', false);
       }
     });
-
 </script>
 
 <style scoped>
