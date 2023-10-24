@@ -23,17 +23,20 @@
                     Leave Entitlement
                 </ion-button>
 
-                <div v-for="item in requests" :key="item.id">
-                    <LeaveDashboardCard
-                        :cardTitle="item.leaveType.name"
-                        :appliedDuration="item.dates.fromDate + ' - ' + item.dates.toDate"
-                        :reason="item.lastComment"
-                        :typeOfLeave="item.leaveType.name"
-                        :status="item.leaveBreakdown[0].name"
-                        :colorBadge="getStatusColor(item.leaveBreakdown[0].name)"
-                        @view-details-clicked="navigateToLeaveRequests(item)"
-                    />
-                </div>
+                <ion-card class="result-container"> 
+                    <div v-for="item in requests" :key="item.id">
+                        <LeaveDashboardCard
+                            :cardTitle="item.leaveType.name"
+                            :appliedDuration="item.dates.fromDate + ' to ' + item.dates.toDate"
+                            :reason="item.lastComment ? item.lastComment.comment : ''"
+                            :typeOfLeave="item.leaveType.name"
+                            :status="item.leaveBreakdown[0].name"
+                            :colorBadge="getStatusColor(item.leaveBreakdown[0].name)"
+                            @view-details-clicked="navigateToLeaveRequests(item)"
+                        />
+                    </div>
+                </ion-card>
+
             
                 <div class="flex-center btn-bottom">
                     <ion-button class="btn" @click="navigateToApplyLeave">Apply Leave</ion-button>
@@ -47,7 +50,7 @@
 </template>
 
 <script>
-    import { IonPage, IonHeader, IonText, IonContent, IonTitle, IonAlert, IonIcon, IonButton } from '@ionic/vue'
+    import { IonPage, IonHeader, IonText, IonContent, IonTitle, IonAlert, IonIcon, IonButton, IonCard } from '@ionic/vue'
     import HeaderReturnWCard from '@/components/header/HeaderReturnWCard.vue'
     import LeaveDashboardCard from '@/views/services/leave/components/LeaveDashboardCard.vue'
     import Refresher from '@/components/refresher/Refresher.vue'
@@ -73,6 +76,7 @@
             LeaveDashboardCard,
             IonButton,
             Refresher,
+            IonCard,
         },
         setup() {
             return {
@@ -88,7 +92,6 @@
                 headerTitle: 'Leave Dashboard',
                 timePeriod: '',
                 userName: '',
-                leavesNum: '',
                 cardData: {
                     date: '',
                     employeeName: '',
@@ -116,16 +119,12 @@
                         userId: 1
                     }
                     );
-                    console.log(response.data);
                     const token = response.data.token;
                     const api = baseURL+'api/v2/leave/leave-requests?limit=50&offset=0&includeEmployees=onlyCurrent';
                     const headers = {
                     Authorization: `Bearer ${token}`
                     };
                     const dataResponse = await axios.get(api, { headers });
-
-                    console.log('staging:', token);
-                    console.log('IONIC:', localStorage.getItem('_token'));
 
                     return dataResponse.data;
                 } catch (error) {
@@ -200,6 +199,11 @@
         display: flex;
         justify-content: center;
         align-items: center;
+    }
+    .result-container {
+        margin-top: 20px;
+        border-radius: 20px;
+        padding: 20px 0;
     }
     .btn {
         border-radius: 15px;

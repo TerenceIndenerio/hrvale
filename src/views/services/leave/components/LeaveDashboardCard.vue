@@ -1,12 +1,6 @@
 <template>
-    
-    <!-- <ion-text>
-        <h1 class="card-title">
-            {{ cardTitle }}
-        </h1>  
-    </ion-text> -->
 
-    <ion-card class="card-top">
+    <ion-card class="card-top card" style="border-radius: 10px;">
         <ion-badge class="status" v-bind:color="colorBadge">{{ status }}</ion-badge>
         <ion-list lines="none">
             <ion-item lines="none">
@@ -82,52 +76,63 @@
     }
 </script>
     
-  <style scoped>
-  @import url('https://fonts.googleapis.com/css?family=Open+Sans');
-  @import url('https://fonts.googleapis.com/css?family=Roboto');
+<style scoped>
+    @import url('https://fonts.googleapis.com/css?family=Open+Sans');
+    @import url('https://fonts.googleapis.com/css?family=Roboto');
 
-  *{
-    padding: 0;
-    margin: 0;
-  }
-  
-  .card-top {
-      border-radius: 5px;
-      margin: 0 10% 20px 10%;
-  }
-  .status {
-      float: right;
-      border-radius: 20px 0px 0px 20px;
-      padding: 5px 10px;
-      color: white;
-  }
-  .card-title {
-      color: #3B3C3E;
-      font-family: 'Open Sans';
-      font-size: 19px;
-      font-style: normal;
-      font-weight: bold;
-      line-height: normal;
-      margin-left: 10%;
-  }
-  .icon-item-container {
-      margin-right: 10px;
-  }
-  .text-item-container p {
-      margin: 0;
-      color: #7B808B;
-      font-family: var(--ion-font-font1);
-      font-size: 13px;
-      font-style: normal;
-      font-weight: 400;
-      line-height: normal;
-  }
-  .text-item-container h4 {
-      color: #3B3C3E;
-      font-family: var(--ion-font-font1);
-      font-size: 14px;
-      font-style: normal;
-      font-weight: 600;
-      line-height: normal;
-  }
-  </style>
+    *{
+        padding: 0;
+        margin: 0;
+    }
+
+    ion-card {
+        border-radius: 50%;
+        overflow: hidden;
+    }
+    .card {
+        padding-top: 10px;
+    }
+    .card-top {
+        border-radius: 5px;
+        margin: 0 10% 20px 10%;
+    }
+    .status {
+        position: absolute;
+        top: 5;
+        right: 0;
+        border-radius: 20px 0px 0px 20px;
+        padding: 5px 10px;
+        margin: 10pz;
+        color: white;
+        z-index: 10;
+    }
+    .card-title {
+        color: #3B3C3E;
+        font-family: 'Open Sans';
+        font-size: 19px;
+        font-style: normal;
+        font-weight: bold;
+        line-height: normal;
+        margin-left: 10%;
+    }
+    .icon-item-container {
+        margin-right: 10px;
+    }
+    .text-item-container p {
+        margin: 0;
+        color: #7B808B;
+        font-family: var(--ion-font-font1);
+        font-size: 13px;
+        font-style: normal;
+        font-weight: 400;
+        line-height: normal;
+    }
+    .text-item-container h4 {
+        color: #3B3C3E;
+        font-family: var(--ion-font-font1);
+        font-size: 14px;
+        font-style: normal;
+        font-weight: 600;
+        line-height: normal;
+    }
+</style>
