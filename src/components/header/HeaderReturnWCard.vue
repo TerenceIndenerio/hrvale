@@ -35,7 +35,10 @@
         headerTitle: String,
         timePeriod: String,
         userName: String,
-        leavesNum: String,
+        leavesNum: {
+            type: [Number, String],
+            default: '0',
+        },
     },
     methods: {
         navigateBack() {
