@@ -15,7 +15,7 @@
                 </div>
             </ion-card>
 
-            <ion-card class="select-date-container">
+            <ion-card class="select-date-container card-round">
                 <ion-select v-model="selectedApi">
                     <div slot="label" class="">Select Date:</div>
                     <ion-select-option value="api1">2023-01-01 - 2023-08-31</ion-select-option>
@@ -23,16 +23,17 @@
                     <!-- <ion-select-option value="api3">2024-09-01 - 2025-08-31</ion-select-option> This is still empty --> 
                 </ion-select>
             </ion-card>
-            
-          <div v-for="(entitlement, index) in entitlements" :key="index">
-            <LeaveEntitlementCard
-              :leaveType="entitlement.leaveType.name"
-              :entitlement="entitlement.entitlement"
-              :daysUsed="entitlement.daysUsed"
-              :creditedDate="entitlement.creditedDate"
-              :outlineColor="entitlement.outlineColor"
-            />
-          </div>
+          
+          <ion-card class="result-container">
+            <div v-for="(entitlement, index) in entitlements" :key="index">
+              <LeaveEntitlementCard
+                :leaveType="entitlement.leaveType.name"
+                :entitlement="entitlement.entitlement"
+                :daysUsed="entitlement.daysUsed"
+                :creditedDate="entitlement.creditedDate"
+              />
+            </div>
+          </ion-card>
         </div>
       </ion-content>
     </ion-page>
@@ -106,11 +107,6 @@ export default defineComponent({
         };
         const dataResponse = await axios.get(apiUrl, { headers });
 
-        if (!dataResponse.data || !dataResponse.data.data) {
-          console.warn('API response is null or empty.');
-          return;
-        }
-
         this.employeeName = `${dataResponse.data.data[0].employee.firstName} ${dataResponse.data.data[0].employee.middleName || ''} ${dataResponse.data.data[0].employee.lastName}`;
         this.leaveEntitlementFor = `${dataResponse.data.meta.fromDate} - ${dataResponse.data.meta.toDate}`;
 
@@ -120,15 +116,13 @@ export default defineComponent({
             entitlement: entitlement.entitlement,
             daysUsed: entitlement.daysUsed,
             creditedDate: entitlement.creditedDate,
-            outlineColor: entitlement.leaveType.name === 'Vacation Leave'
-              ? 'border: 1px solid #27AE60; color: #27AE60;'
-              : 'border: 1px solid #2F80ED; color: #2F80ED;',
           };
           return leaveData;
         });
       } catch (error) {
         console.error(error);
       }
+      this.store.commit('loader/updateLoader', false);
     },
   },
   async created() {
@@ -165,6 +159,10 @@ export default defineComponent({
   .employee-icon {
     font-size: 30px;
     color: black;
+  }
+  .result-container {
+    margin-top: 20px;
+    border-radius: 20px;
   }
   .card-round {
     border-radius: 20px;

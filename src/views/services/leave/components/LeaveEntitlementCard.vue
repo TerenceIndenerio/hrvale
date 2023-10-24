@@ -1,19 +1,13 @@
 <template>
     <ion-card class="card">
       <ion-grid>
-        <ion-row class="header-card">
-            <ion-col class="inline-w">
-                <div class="leave-type outline" v-bind:style="outlineColor">
-                    <p>{{ leaveType }}</p>
-                </div>
-            </ion-col>
-            <ion-col class="container-right ">
-                <div class="action-style">
-                    <ion-button fill="clear" color="primary" class="btn-round btn-action"><ion-icon name="create-outline"></ion-icon></ion-button>
-                    <ion-button fill="clear"  color="danger" class="btn-round btn-action"><ion-icon name="trash-outline"></ion-icon></ion-button>
-                </div>
-            </ion-col>
-        </ion-row>
+        
+        <ion-col class="flex-c">
+            <div class="leave-type outlineColor">
+                <p>{{ leaveType }}</p>
+            </div>
+        </ion-col>
+        
         <ion-row class="pad-w">
           <ion-col class="col-name">
             <p>Entitlement Type: </p>
@@ -51,7 +45,7 @@ props: {
     entitlement: Number,
     daysUsed: Number,
     creditedDate: String,
-    outlineColor: String,
+    // outlineColor: String,
 },
 };
 </script>
@@ -61,16 +55,10 @@ props: {
         display: flex;
         flex-direction: column;
     }
-    .inline-w {
+    .flex-c {
         display: flex;
-        flex-direction: row;
+        justify-content: center;    
         align-items: center;
-    }
-    .container-right {
-        display: flex;
-        justify-content: right;
-        align-items: center;
-        height: fit-content;
     }
 
     p {
@@ -82,7 +70,7 @@ props: {
     .card {
         padding: 0 10px;
         margin: 10px 7%;
-        border-radius: 20px;
+        border-radius: 10px;
     }
     .icon1 {
         font-size: 30px;
@@ -92,7 +80,8 @@ props: {
         padding: 0;
         margin: 0;
         border-radius: 50px;
-        width: fit-content;
+        width: 80%;
+        text-align: center;
     }
     .leave-type p {
         padding: 5px 10px;
@@ -132,6 +121,10 @@ props: {
         width: 40px;
         height: 30px;
     }
+    .outlineColor {
+        border: 1px solid #828282; 
+        color: #828282;
+    }
     .username-text {
         color: #000;
         font-family: Open Sans;
@@ -158,6 +151,7 @@ props: {
     }
     .header-card {
         height: 40px;
+        text-align: center;
     }
 </style>
   
