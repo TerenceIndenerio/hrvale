@@ -242,12 +242,12 @@
           { key: 'full_day', label: 'Full Day' },
           { key: 'half_day_morning', label: 'Half Day - Morning' },
           { key: 'half_day_afternoon', label: 'Half Day - Afternoon' },
-          { key: 'specific_time', label: 'Specific Time' },
+          { key: 'specify_time', label: 'Specific Time' },
         ],
         durations2: [
           { key: 'half_day_morning', label: 'Half Day - Morning' },
           { key: 'half_day_afternoon', label: 'Half Day - Afternoon' },
-          { key: 'specific_time', label: 'Specific Time' },
+          { key: 'specify_time', label: 'Specific Time' },
         ],
         partialDaysOptions: [
           { value: 'all', label: 'All Days' },
@@ -258,21 +258,21 @@
         endDayOptions: [
           { value: 'half_day_morning', label: 'Half Day - Morning' },
           { value: 'half_day_afternoon', label: 'Half Day - Afternoon' },
-          { value: 'specific_time', label: 'Specific Time' },
+          { value: 'specify_time', label: 'Specific Time' },
         ],
         startDayOptions: [
           { value: 'half_day_morning', label: 'Half Day - Morning' },
           { value: 'half_day_afternoon', label: 'Half Day - Afternoon' },
-          { value: 'specific_time', label: 'Specific Time' },
+          { value: 'specify_time', label: 'Specific Time' },
         ],
       };
     },
     watch: {
       startDaySelectedValue(newVal) {
-        this.showsSpecificTimeStartDay = newVal === 'specific_time';
+        this.showsSpecificTimeStartDay = newVal === 'specify_time';
       },
       endDaySelectedValue(newVal) {
-        this.showsSpecificTimeEndDay = newVal === 'specific_time';
+        this.showsSpecificTimeEndDay = newVal === 'specify_time';
       },
       partialSelectedValue(newVal) {
         const options = {
@@ -285,7 +285,7 @@
         Object.assign(this, selectedOption);
       },
       durationSelectedValue(newVal) {
-          this.showsSpecificTime = newVal === 'specific_time';
+          this.showsSpecificTime = newVal === 'specify_time';
       },
     },
     computed: {
@@ -308,161 +308,165 @@
     
     methods: {
       
-      async fetchData() {
+    async fetchData() {
         try {
-          const response = await axios.post(
-            baseURL+'auth/token',
-            {
-              clientId: 'test_id',
-              clientSecret: 'test_secret',
-              userId: 1,
-            }
-          );
-          const token = response.data.token;
+            const response = await axios.post(
+                baseURL+'auth/token',
+                {
+                clientId: 'test_id',
+                clientSecret: 'test_secret',
+                userId: 1,
+                }
+            );
+            const token = response.data.token;
 
-          localStorage.setItem('_token', token);
+            localStorage.setItem('_token', token);
 
-          const headers = {
-            Authorization: `Bearer ${token}`,
-          };
+            const headers = {
+                Authorization: `Bearer ${token}`,
+            };
 
-          const api = baseURL+'api/v2/leave/leave-types';
-          const dataResponse = await axios.get(api, { headers });
+            const api = baseURL+'api/v2/leave/leave-types';
+            const dataResponse = await axios.get(api, { headers });
 
-          return dataResponse.data.data.map((leaveData) => ({
-            name: leaveData.name,
-            id: leaveData.id,
-          }));
+            return dataResponse.data.data.map((leaveData) => ({
+                name: leaveData.name,
+                id: leaveData.id,
+            }));
         } catch (error) {
-          console.error('Error fetching token or data:', error);
-          return null;
+            console.error('Error fetching token or data:', error);
+            return null;
         }
-      },
-      async sendLeaveRequest() {
-        try {
-          const token = localStorage.getItem('_token');
-          const headers = {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          };
-
-          const api = baseURL+'api/v2/leave/leave-requests';
-
-          const requestData = {
-            fromDate: this.fromDate,
-            toDate: this.toDate,
-            comment: this.reason,
-            leaveTypeId: this.selectedLeaveID,
-            partialOption: this.partialSelectedValue,
-          };
-
-          if (this.durationSelectedValue !== null && this.durationSelectedValue !== undefined) {
-            requestData.duration = {
-              type: this.durationSelectedValue,
-            };
-            if (this.fromTimeDuration !== null && this.toTimeDuration !== null) {
-              requestData.duration.fromTime = this.fromTimeDuration;
-              requestData.duration.toTime = this.toTimeDuration;
-            };
-          }
-
-          if (this.endDaySelectedValue !== null && this.endDaySelectedValue !== undefined) {
-            requestData.endDuration = {
-              type: this.endDaySelectedValue,
-            };
-            if (this.fromTimeEndDay !== null && this.toTimeEndDay !== null) {
-              requestData.endDuration.fromTime = this.fromTimeEndDay;
-              requestData.endDuration.toTime = this.toTimeEndDay;
-            }
-          }
-
-          for (const key in requestData) {
-            if (requestData[key] === null || requestData[key] === undefined) {
-              delete requestData[key];
-            }
-          }
-
-          const response = await axios.post(api, requestData, { headers });
-
-          const toast = await toastController.create({
-            message: 'Leave request sent successfully!',
-            duration: 3000,
-            position: 'top',
-            icon: 'alert-circle-outline',
-            buttons: [
-              {
-                icon: 'close-outline',
-                role: 'cancel',
-              },
-            ],
-          });
-          
-          await toast.present();
-
-          this.fromDate = null;
-          this.toDate = null;
-          this.reason = null;
-          this.durationSelectedValue = null;
-          this.fromTimeDuration = null;
-          this.toTimeDuration = null;
-          this.selectedLeaveID = null;
-          this.selectedLeaveType = null;
-          this.partialSelectedValue = null;
-          this.startDaySelectedValue = null;
-          this.endDaySelectedValue = null;
-
-        } catch (error) {
-          console.error('Error sending leave request:', error);
-
-          const toast = await toastController.create({
-            message: 'Failed to send leave request!',
-            duration: 3000,
-            position: 'top',
-            icon: 'alert-circle-outline',
-            buttons: [
-              {
-                icon: 'close-outline',
-                role: 'cancel',
-              },
-            ],
-          });
-          await toast.present();
-        }
-      },
-      updateSelectedLeave(event) {
-        const selectedOption = event.target.value;
-        const selectedLeave = this.leaveOptionsWithIds.find(option => option.name === selectedOption);
-
-        if (selectedLeave) {
-          this.selectedLeaveID = selectedLeave.id;
-          this.selectedLeaveType = selectedOption;
-        } else {
-          this.selectedLeaveID = null;
-          this.selectedLeaveType = null;
-        }
-
-        if (this.selectedLeaveType === 'LWOP') {
-          this.fetchLeaveBalance(3);
-      } else if (this.selectedLeaveType === 'Vacation Leave') {
-          this.fetchLeaveBalance(1);
-      } else {
-        this.leaveBalance = 0
-      }
-      },
-      async fetchLeaveBalance(leaveTypeId) {
-      const token = localStorage.getItem('_token');
-      const headers = {
-        Authorization: `Bearer ${token}`,
-      };
-      const api = `https://hrp-staging-delta.bapplware.com/web/index.php/api/v2/leave/leave-balance/leave-type/${leaveTypeId}`;
-
-      try {
-        const response = await axios.get(api, { headers });
-        this.leaveBalance = response.data.data.balance.balance;
-      } catch (error) {
-        console.error('Error fetching leave balance:', error);
-      }
     },
+    async sendLeaveRequest() {
+        try {
+            const token = localStorage.getItem('_token');
+            const headers = {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json',
+            };
+
+            const api = baseURL+'api/v2/leave/leave-requests';
+
+            const requestData = {
+                fromDate: this.fromDate,
+                toDate: this.toDate,
+                comment: this.reason,
+                leaveTypeId: this.selectedLeaveID,
+                partialOption: this.partialSelectedValue,
+            };
+
+            if (this.durationSelectedValue !== null && this.durationSelectedValue !== undefined) {
+                requestData.duration = {
+                type: this.durationSelectedValue,
+                };
+                if (this.fromTimeDuration !== null && this.toTimeDuration !== null) {
+                requestData.duration.fromTime = this.fromTimeDuration;
+                requestData.duration.toTime = this.toTimeDuration;
+                };
+            }
+
+            if (this.endDaySelectedValue !== null && this.endDaySelectedValue !== undefined) {
+                requestData.endDuration = {
+                type: this.endDaySelectedValue,
+                };
+                if (this.fromTimeEndDay !== null && this.toTimeEndDay !== null) {
+                requestData.endDuration.fromTime = this.fromTimeEndDay;
+                requestData.endDuration.toTime = this.toTimeEndDay;
+                }
+            }
+
+            for (const key in requestData) {
+                if (requestData[key] === null || requestData[key] === undefined) {
+                delete requestData[key];
+                }
+            }
+
+            const response = await axios.post(api, requestData, { headers });
+
+            const toast = await toastController.create({
+                message: 'Leave request sent successfully!',
+                duration: 3000,
+                position: 'top',
+                icon: 'alert-circle-outline',
+                buttons: [
+                {
+                    icon: 'close-outline',
+                    role: 'cancel',
+                },
+                ],
+            });
+            
+            await toast.present();
+
+            this.fromDate = null;
+            this.toDate = null;
+            this.reason = null;
+            this.durationSelectedValue = null;
+            this.fromTimeDuration = null;
+            this.toTimeDuration = null;
+            this.selectedLeaveID = null;
+            this.selectedLeaveType = null;
+            this.partialSelectedValue = null;
+            this.startDaySelectedValue = null;
+            this.endDaySelectedValue = null;
+
+        } catch (error) {
+            console.error('Error sending leave request:', error);
+
+            const errorMessage = error.response.data.error.message || 'Failed to send leave request';
+            const fullErrorMessage = `Failed to Submit Leave Request, ${errorMessage}`;
+
+            const toast = await toastController.create({
+            message: fullErrorMessage,
+            duration: 3000,
+            position: 'top',
+            icon: 'alert-circle-outline',
+            buttons: [
+                {
+                icon: 'close-outline',
+                role: 'cancel',
+                },
+            ],
+            });
+            await toast.present();
+
+            }
+        },
+        updateSelectedLeave(event) {
+            const selectedOption = event.target.value;
+            const selectedLeave = this.leaveOptionsWithIds.find(option => option.name === selectedOption);
+
+            if (selectedLeave) {
+                this.selectedLeaveID = selectedLeave.id;
+                this.selectedLeaveType = selectedOption;
+            } else {
+                this.selectedLeaveID = null;
+                this.selectedLeaveType = null;
+            }
+
+            if (this.selectedLeaveType === 'LWOP') {
+                tchLeaveBalance(3);
+        } else if (this.selectedLeaveType === 'Vacation Leave') {
+            this.fetchLeaveBalance(1);
+        } else {
+            this.leaveBalance = 0
+        }
+        },
+        async fetchLeaveBalance(leaveTypeId) {
+            const token = localStorage.getItem('_token');
+            const headers = {
+                Authorization: `Bearer ${token}`,
+            };
+            const api = `https://hrp-staging-delta.bapplware.com/web/index.php/api/v2/leave/leave-balance/leave-type/${leaveTypeId}`;
+
+            try {
+                const response = await axios.get(api, { headers });
+                this.leaveBalance = response.data.data.balance.balance;
+            } catch (error) {
+                console.error('Error fetching leave balance:', error);
+            }
+        },
     },
     async created() {
       const data = await this.fetchData();
