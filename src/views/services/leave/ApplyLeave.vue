@@ -212,7 +212,7 @@
     },
     data() {
       return {
-        headerTitle: 'Apply Leave Main',
+        headerTitle: 'Apply Leave',
         leaveBalance: 0,
         leaveOptionsWithIds: [],
         fromDate: null,
