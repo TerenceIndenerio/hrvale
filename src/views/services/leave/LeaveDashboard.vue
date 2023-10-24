@@ -148,7 +148,7 @@
                 this.$router.push({ path: '/leaveRequest', query: { cardId: this.cardId } });
             },
             navigateToApplyLeave () {
-                this.$router.push('/applyLeave_2');
+                this.$router.push('/applyLeave');
             },
             navigateToLeaveEntitlement () {
                 this.$router.push('/leaveEntitlement');
