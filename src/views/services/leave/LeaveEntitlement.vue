@@ -40,6 +40,9 @@ import Refresher from '@/components/refresher/Refresher.vue';
 import { defineComponent, ref, onMounted, watch } from 'vue';
 import { useStore } from 'vuex';
 import axios from 'axios';
+import { GlobalConstants } from '@/config/constants';
+  
+const baseURL = GlobalConstants.HOST_URL;
 
 export default defineComponent({
   name: 'LeaveEntitlements',
@@ -71,7 +74,7 @@ export default defineComponent({
     async fetchLeavePeriods() {
       try {
         const tokenResponse = await axios.post(
-          'https://hrp-staging-delta.bapplware.com/web/index.php/auth/token',
+          baseURL+'auth/token',
           {
             clientId: 'test_id',
             clientSecret: 'test_secret',
@@ -81,7 +84,7 @@ export default defineComponent({
         const token = tokenResponse.data.token;
 
         const currentLeavePeriodResponse = await axios.get(
-          'https://hrp-staging-delta.bapplware.com/web/index.php/api/v2/leave/leave-periods',
+          baseURL+'api/v2/leave/leave-periods',
           {
             headers: {
               Authorization: `Bearer ${token}`
@@ -94,7 +97,7 @@ export default defineComponent({
         this.makeGetRequest(startDate, endDate);
 
         const response = await axios.get(
-          'https://hrp-staging-delta.bapplware.com/web/index.php/api/v2/leave/leave-periods',
+          baseURL+'api/v2/leave/leave-periods',
           {
             headers: {
               Authorization: `Bearer ${token}`
@@ -115,7 +118,7 @@ export default defineComponent({
     async makeGetRequest(fromDate, toDate) {
       try {
         this.store.commit('loader/updateLoader', true);
-        const apiUrl = `https://hrp-staging-delta.bapplware.com/web/index.php/api/v2/leave/leave-entitlements?limit=50&offset=0&fromDate=${fromDate}&toDate=${toDate}`;
+        const apiUrl = baseURL+`api/v2/leave/leave-entitlements?limit=50&offset=0&fromDate=${fromDate}&toDate=${toDate}`;
         const tokenResponse = await axios.post(
           'https://hrp-staging-delta.bapplware.com/web/index.php/auth/token',
           {
