@@ -35,6 +35,7 @@
                             @view-details-clicked="navigateToLeaveRequests(item)"
                         />
                     </div>
+                    <div class="margin-bottom"></div>
                 </ion-card>
 
             
@@ -42,8 +43,6 @@
                     <ion-button class="btn" @click="navigateToApplyLeave">Apply Leave</ion-button>
                 </div>
             </div>
-
-            <div class="margin-bottom"></div>
             
         </ion-content>
     </ion-page>
@@ -193,7 +192,7 @@
         margin-top: 50px;
     }
     .margin-bottom {
-        margin-bottom: 20vh;
+        margin-bottom: 10vh;
     }
     .flex-center {
         display: flex;
@@ -204,6 +203,11 @@
         margin-top: 20px;
         border-radius: 20px;
         padding: 20px 0;
+        height: 50vh;
+        overflow-y: scroll;
+        border: 5px solid rgba(220, 220, 220, 0.581);
+        box-shadow: inset 10px 10px 15px #D9DADE, inset -10px -10px 15px #FFFFFF,
+        9.91px 9.91px 15px #D9DADE, -9.91px -9.91px 15px #FFFFFF;
     }
     .btn {
         border-radius: 15px;
