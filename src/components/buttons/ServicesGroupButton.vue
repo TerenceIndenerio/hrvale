@@ -24,7 +24,7 @@
         </ion-row>
         <ion-row>
             <ion-col class="card btn-text" expand="full" color="none">
-                <a href="/schedule">
+                <a href="/viewschedule">
                     <span class="ion-text-left">
                         <img src="/assets/images/image4.png" alt="" class="icon-circle" />
                         <h4>
