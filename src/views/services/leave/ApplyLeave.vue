@@ -458,7 +458,7 @@
             const headers = {
                 Authorization: `Bearer ${token}`,
             };
-            const api = `https://hrp-staging-delta.bapplware.com/web/index.php/api/v2/leave/leave-balance/leave-type/${leaveTypeId}`;
+            const api =  baseURL+`api/v2/leave/leave-balance/leave-type/${leaveTypeId}`;
 
             try {
                 const response = await axios.get(api, { headers });
