@@ -40,7 +40,6 @@ export default {
   },
   setup() {
     return {
-      isLoading: false,
       router: useRouter(),
       store: useStore()
     }
@@ -62,6 +61,7 @@ export default {
       try {
         await this.store.dispatch('token/generateToken');
         this.store.commit('loader/updateLoader', true);
+        this.router.push('/tabs/home');
       } catch (error) {
         console.error(error)
       }

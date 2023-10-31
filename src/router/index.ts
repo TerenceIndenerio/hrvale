@@ -5,7 +5,6 @@ import Leave from '@/views/services/leave/LeaveDashboard.vue'
 import ApplyLeave from '@/views/services/leave/ApplyLeave.vue'
 import LeaveRequest from '@/views/services/leave/LeaveRequest.vue'
 import ClockIn from '@/views/services/clock_in/ClockIn.vue'
-import Schedule from '@/views/services/schedule/Schedule.vue'
 import Attendance from '@/views/services/attendance/Attendance.vue'
 import OTRequest from '@/views/services/ot/OTRequest.vue'
 import Login from '@/views/login/Login.vue'
@@ -19,6 +18,7 @@ import OT from '@/views/services/ot/OT.vue';
 import OTApply from '@/views/services/ot/OTApply.vue';
 import Vale from '@/views/services/vale/Vale.vue';
 import leaveEntitlement from '@/views/services/leave/LeaveEntitlement.vue'
+import ViewSchedule from '@/views/services/schedule/ViewSchedule.vue'
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -70,8 +70,8 @@ const routes: Array<RouteRecordRaw> = [
         component: ClockIn
       },
       {
-        path: '/Schedule',
-        component: Schedule
+        path: '/viewschedule',
+        component: ViewSchedule
       },
       {
         path: '/attendance',
