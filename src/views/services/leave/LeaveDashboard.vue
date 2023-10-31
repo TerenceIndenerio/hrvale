@@ -50,144 +50,155 @@
 </template>
 
 <script>
-    import { IonPage, IonHeader, IonText, IonContent, IonTitle, IonAlert, IonIcon, IonButton, IonCard } from '@ionic/vue'
-    import HeaderReturnWCard from '@/components/header/HeaderReturnWCard.vue'
-<<<<<<< HEAD
-    import LeaveDashboardCard from '@/views/services/leave/components/LeaveDashboardCard.vue'
-    import Refresher from '@/components/refresher/Refresher.vue'
-=======
->>>>>>> origin/HRP-285-remaining-ui-for-vale
-    import Button from '@/components/buttons/Button.vue';
-    import { useRouter } from 'vue-router';
-    import { defineComponent } from 'vue';
-    import { useStore } from 'vuex';
-    import axios from 'axios';
-    import { GlobalConstants } from '@/config/constants';
+import {
+  IonPage,
+  IonHeader,
+  IonText,
+  IonContent,
+  IonTitle,
+  IonAlert,
+  IonIcon,
+  IonButton,
+  IonCard,
+} from "@ionic/vue";
+import HeaderReturnWCard from "@/components/header/HeaderReturnWCard.vue";
+import LeaveDashboardCard from "@/views/services/leave/components/LeaveDashboardCard.vue";
+import Refresher from "@/components/refresher/Refresher.vue";
+import Button from "@/components/buttons/Button.vue";
+import { useRouter } from "vue-router";
+import { defineComponent } from "vue";
+import { useStore } from "vuex";
+import axios from "axios";
+import { GlobalConstants } from "@/config/constants";
 
-    const baseURL = GlobalConstants.HOST_URL;
+const baseURL = GlobalConstants.HOST_URL;
 
-    export default defineComponent({
-        name: 'Leave Requests',
-        components: {
-            IonPage,
-            IonHeader,
-            IonContent,
-            IonTitle,
-            IonIcon,
-            IonText,
-            HeaderReturnWCard,
-            LeaveDashboardCard,
-            IonButton,
-            Refresher,
-            IonCard,
-        },
-        setup() {
-            return {
-                router: useRouter(),
-                store: useStore(),
-            }
-        },
-        data() {
-            return {
-                showComponent: false,
-                leavesLength: 0,
-                requests: [],
-                headerTitle: 'Leave Dashboard',
-                timePeriod: '',
-                userName: '',
-                cardData: {
-                    date: '',
-                    employeeName: '',
-                    leaveType: '',
-                    dateText: '',
-                    leaveBalance: '',
-                    numberOfDays: '',
-                    status: '',
-                    comment: '',
-                    title: '',
-                    colorBadge: '',
-                },
-            };
-        },
-        methods: {
-            async fetchData() {
-                try {
-                    this.store.commit('loader/updateLoader', true);
-                    await new Promise(resolve => setTimeout(resolve, 1000));
-                    const response = await axios.post(
-                        baseURL+'auth/token',
-                    {
-                        clientId: 'test_id',
-                        clientSecret: 'test_secret',
-                        userId: 1
-                    }
-                    );
-                    const token = response.data.token;
-                    const api = baseURL+'api/v2/leave/leave-requests?limit=50&offset=0&includeEmployees=onlyCurrent';
-                    const headers = {
-                    Authorization: `Bearer ${token}`
-                    };
-                    const dataResponse = await axios.get(api, { headers });
+export default defineComponent({
+  name: "Leave Requests",
+  components: {
+    IonPage,
+    IonHeader,
+    IonContent,
+    IonTitle,
+    IonIcon,
+    IonText,
+    HeaderReturnWCard,
+    LeaveDashboardCard,
+    IonButton,
+    Refresher,
+    IonCard,
+  },
+  setup() {
+    return {
+      router: useRouter(),
+      store: useStore(),
+    };
+  },
+  data() {
+    return {
+      showComponent: false,
+      leavesLength: 0,
+      requests: [],
+      headerTitle: "Leave Dashboard",
+      timePeriod: "",
+      userName: "",
+      cardData: {
+        date: "",
+        employeeName: "",
+        leaveType: "",
+        dateText: "",
+        leaveBalance: "",
+        numberOfDays: "",
+        status: "",
+        comment: "",
+        title: "",
+        colorBadge: "",
+      },
+    };
+  },
+  methods: {
+    async fetchData() {
+      try {
+        this.store.commit("loader/updateLoader", true);
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        const response = await axios.post(baseURL + "auth/token", {
+          clientId: "test_id",
+          clientSecret: "test_secret",
+          userId: 1,
+        });
+        const token = response.data.token;
+        const api =
+          baseURL +
+          "api/v2/leave/leave-requests?limit=50&offset=0&includeEmployees=onlyCurrent";
+        const headers = {
+          Authorization: `Bearer ${token}`,
+        };
+        const dataResponse = await axios.get(api, { headers });
 
-                    return dataResponse.data;
-                } catch (error) {
-                    console.error(error);
-                    return null;
-                }
-            },
-            getTimeOfDay() {
-                const currentTime = new Date().getHours();
+        return dataResponse.data;
+      } catch (error) {
+        console.error(error);
+        return null;
+      }
+    },
+    getTimeOfDay() {
+      const currentTime = new Date().getHours();
 
-                if (currentTime >= 5 && currentTime < 12) {
-                    return "Good Morning";
-                } else if (currentTime >= 12 && currentTime < 17) {
-                    return "Good Afternoon";
-                } else {
-                    return "Good Evening";
-                }
-            },
-            navigateToLeaveRequests(item) {
-                this.cardId = item.id;
-                this.$router.push({ path: '/leaveRequest', query: { cardId: this.cardId } });
-            },
-            navigateToApplyLeave () {
-                this.$router.push('/applyLeave');
-            },
-            navigateToLeaveEntitlement () {
-                this.$router.push('/leaveEntitlement');
-            },
-            getStatusColor(status) {
-                if (status === 'Pending Approval') {
-                    return 'warning';
-                } else if (status === 'Reject') {
-                    return 'danger';
-                } else if (status === 'Taken') {
-                    return 'primary';
-                } else {
-                    return 'default';
-                }
-            },
-        },
-        async created() {
-            try {
-                this.store.commit('loader/updateLoader', true);
-                const data = await this.fetchData();
+      if (currentTime >= 5 && currentTime < 12) {
+        return "Good Morning";
+      } else if (currentTime >= 12 && currentTime < 17) {
+        return "Good Afternoon";
+      } else {
+        return "Good Evening";
+      }
+    },
+    navigateToLeaveRequests(item) {
+      this.cardId = item.id;
+      this.$router.push({
+        path: "/leaveRequest",
+        query: { cardId: this.cardId },
+      });
+    },
+    navigateToApplyLeave() {
+      this.$router.push("/applyLeave");
+    },
+    navigateToLeaveEntitlement() {
+      this.$router.push("/leaveEntitlement");
+    },
+    getStatusColor(status) {
+      if (status === "Pending Approval") {
+        return "warning";
+      } else if (status === "Reject") {
+        return "danger";
+      } else if (status === "Taken") {
+        return "primary";
+      } else {
+        return "default";
+      }
+    },
+  },
+  async created() {
+    try {
+      this.store.commit("loader/updateLoader", true);
+      const data = await this.fetchData();
 
-                if (data && data.data.length > 0) {
-                    this.requests = data.data;
-                    this.showComponent = true;
+      if (data && data.data.length > 0) {
+        this.requests = data.data;
+        this.showComponent = true;
 
-                    const leaveData = this.requests[0];
-                    this.cardData.employeeName = `${leaveData.employee.firstName} ${leaveData.employee.middleName || ''} ${leaveData.employee.lastName}`;
-                    this.cardData.leaveBalance = leaveData.leaveBalances[0].balance.balance;
+        const leaveData = this.requests[0];
+        this.cardData.employeeName = `${leaveData.employee.firstName} ${
+          leaveData.employee.middleName || ""
+        } ${leaveData.employee.lastName}`;
+        this.cardData.leaveBalance = leaveData.leaveBalances[0].balance.balance;
 
-                    this.store.commit('loader/updateLoader', false);
-                }
-            } catch (error) {
-                console.error(error);
-            }
-        },
-    });
+        this.store.commit("loader/updateLoader", false);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  },
+});
 </script>
 
 <style scoped>
