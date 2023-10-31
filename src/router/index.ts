@@ -93,19 +93,6 @@ const routes: Array<RouteRecordRaw> = [
         path: '/vale',
         component: Vale
       },
-      {
-        path: '/applyvale',
-        component: ApplyVale
-      },
-      {
-        path: '/valerequest',
-        component: ValeRequest
-      },
-      {
-        path: '/valestore',
-        component: ValeStore
-      }
-      
     ]
   },
   {
