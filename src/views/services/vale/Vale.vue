@@ -5,66 +5,62 @@
             <br>
             <br>
             <div class="flex-center">
-                <ValeImage />
+                <!-- Insert image here -->
             </div>
             <p class="group-name">
                 Recent Purchased
             </p>
             <div class="mini-card-container">
-                <ValeRecentPurchasedCard 
-                :employeeName="OTReqCardVal.Recent_Purchased.employeeName" 
-                :dateTitle="OTReqCardVal.Recent_Purchased.dateTitle" 
-                :dateText="OTReqCardVal.Recent_Purchased.dateText" 
-                :purchasedVal="OTReqCardVal.Recent_Purchased.purchasedVal"/>
+                <ValeRecentPurchasedCard
+                :dateTitle="valeReqCardVal.Recent_Purchased.dateTitle" 
+                :dateText="valeReqCardVal.Recent_Purchased.dateText" 
+                :purchasedVal="valeReqCardVal.Recent_Purchased.purchasedVal"/>
 
-                <ValeRecentPurchasedCard 
-                :employeeName="OTReqCardVal.Recent_Purchased.employeeName" 
-                :dateTitle="OTReqCardVal.Recent_Purchased.dateTitle" 
-                :dateText="OTReqCardVal.Recent_Purchased.dateText" 
-                :purchasedVal="OTReqCardVal.Recent_Purchased.purchasedVal"/>
+                <ValeRecentPurchasedCard
+                :dateTitle="valeReqCardVal.Recent_Purchased.dateTitle" 
+                :dateText="valeReqCardVal.Recent_Purchased.dateText" 
+                :purchasedVal="valeReqCardVal.Recent_Purchased.purchasedVal"/>
 
-                <ValeRecentPurchasedCard 
-                :employeeName="OTReqCardVal.Recent_Purchased.employeeName" 
-                :dateTitle="OTReqCardVal.Recent_Purchased.dateTitle" 
-                :dateText="OTReqCardVal.Recent_Purchased.dateText" 
-                :purchasedVal="OTReqCardVal.Recent_Purchased.purchasedVal"/>
+                <ValeRecentPurchasedCard
+                :dateTitle="valeReqCardVal.Recent_Purchased.dateTitle" 
+                :dateText="valeReqCardVal.Recent_Purchased.dateText" 
+                :purchasedVal="valeReqCardVal.Recent_Purchased.purchasedVal"/>
 
-                <ValeRecentPurchasedCard 
-                :employeeName="OTReqCardVal.Recent_Purchased.employeeName" 
-                :dateTitle="OTReqCardVal.Recent_Purchased.dateTitle" 
-                :dateText="OTReqCardVal.Recent_Purchased.dateText" 
-                :purchasedVal="OTReqCardVal.Recent_Purchased.purchasedVal"/>
+                <ValeRecentPurchasedCard
+                :dateTitle="valeReqCardVal.Recent_Purchased.dateTitle" 
+                :dateText="valeReqCardVal.Recent_Purchased.dateText" 
+                :purchasedVal="valeReqCardVal.Recent_Purchased.purchasedVal"/>
             </div>
             <p class="group-name">
                 History
             </p>
             <div class="inline-v">
                 <ValeHistoryCard 
-                :dateTitle="OTReqCardVal.History.dateTitle" 
-                :dateText="OTReqCardVal.History.dateText" 
-                :reasonTitle="OTReqCardVal.History.reasonTitle" 
-                :reasonText="OTReqCardVal.History.reasonText" 
-                :status="OTReqCardVal.History.status"
-                :badgeColor="OTReqCardVal.History.badgeColor"
-                :purchasedVal="OTReqCardVal.History.purchasedVal"/>
+                :dateTitle="valeReqCardVal.History.dateTitle" 
+                :dateText="valeReqCardVal.History.dateText" 
+                :reasonTitle="valeReqCardVal.History.reasonTitle" 
+                :reasonText="valeReqCardVal.History.reasonText" 
+                :status="valeReqCardVal.History.status"
+                :badgeColor="valeReqCardVal.History.badgeColor"
+                :purchasedVal="valeReqCardVal.History.purchasedVal"/>
 
                 <ValeHistoryCard 
-                :dateTitle="OTReqCardVal.History.dateTitle" 
-                :dateText="OTReqCardVal.History.dateText" 
-                :reasonTitle="OTReqCardVal.History.reasonTitle" 
-                :reasonText="OTReqCardVal.History.reasonText" 
-                :status="OTReqCardVal.History.status"
-                :badgeColor="OTReqCardVal.History.badgeColor"
-                :purchasedVal="OTReqCardVal.History.purchasedVal"/>
+                :dateTitle="valeReqCardVal.History.dateTitle" 
+                :dateText="valeReqCardVal.History.dateText" 
+                :reasonTitle="valeReqCardVal.History.reasonTitle" 
+                :reasonText="valeReqCardVal.History.reasonText" 
+                :status="valeReqCardVal.History.status"
+                :badgeColor="valeReqCardVal.History.badgeColor"
+                :purchasedVal="valeReqCardVal.History.purchasedVal"/>
                 
                 <ValeHistoryCard 
-                :dateTitle="OTReqCardVal.History.dateTitle" 
-                :dateText="OTReqCardVal.History.dateText" 
-                :reasonTitle="OTReqCardVal.History.reasonTitle" 
-                :reasonText="OTReqCardVal.History.reasonText" 
-                :status="OTReqCardVal.History.status"
-                :badgeColor="OTReqCardVal.History.badgeColor"
-                :purchasedVal="OTReqCardVal.History.purchasedVal"/>
+                :dateTitle="valeReqCardVal.History.dateTitle" 
+                :dateText="valeReqCardVal.History.dateText" 
+                :reasonTitle="valeReqCardVal.History.reasonTitle" 
+                :reasonText="valeReqCardVal.History.reasonText" 
+                :status="valeReqCardVal.History.status"
+                :badgeColor="valeReqCardVal.History.badgeColor"
+                :purchasedVal="valeReqCardVal.History.purchasedVal"/>
             </div>
         </ion-content>
     </ion-page>
@@ -73,12 +69,11 @@
 <script setup lang="ts">
     import { IonPage, IonContent } from '@ionic/vue';
     import HeaderWAddToCart from '@/components/header/HeaderWAddToCart.vue';
-    import ValeImage from '@/views/services/vale/component/ValeImage.vue';
     import ValeRecentPurchasedCard from '@/components/cards/ValeRecentPurchasedCard.vue';
     import ValeHistoryCard from '@/components/cards/ValeHistoryCard.vue'
     // Header
     const headerTitle = "Vale";
-    const OTReqCardVal = {
+    const valeReqCardVal = {
         "Recent_Purchased" : {
             dateTitle : "Date Purchase",
             dateText : "October 01,2019",
