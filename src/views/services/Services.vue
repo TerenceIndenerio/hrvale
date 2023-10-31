@@ -2,7 +2,7 @@
   <ion-page>
     <HeaderUser :headerTitle="headerTitle"></HeaderUser>
     <ion-content :fullscreen="true">
-
+      <Refresher />
       <CardWImg :cardHeader="cardHeader" :cardText="cardText" :img_src="img_src" />
 
       <ion-text>
@@ -21,19 +21,35 @@
   </ion-page>
 </template>
 
-<script setup lang="ts">
+<script>
   import { IonPage, IonHeader, IonText, IonContent, IonIcon } from '@ionic/vue';
   import CardWImg from '@/components/cards/CardWImg.vue'
   import ServicesGroupButton from '@/components/buttons/ServicesGroupButton.vue'
   import HeaderUser from '@/components/header/HeaderUser.vue';
-  
-  // Header
-  var headerTitle = "Services";
+  import Refresher from '@/components/refresher/Refresher.vue'
+  import { defineComponent } from 'vue'
 
-  // Card
-  var cardHeader = "Services"
-  var cardText = "is simply dummy text of the printing & typesetting industry."
-  var img_src = "assets/images/card_img2.png"
+  export default defineComponent({
+    components: {
+      IonPage, 
+      IonHeader, 
+      IonText, 
+      IonContent, 
+      IonIcon, 
+      CardWImg,
+      ServicesGroupButton, 
+      HeaderUser, 
+      Refresher,
+    },
+    data() {
+      return {
+        headerTitle: 'Services',
+        cardHeader: 'Services',
+        cardText: 'is simply dummy text of the printing & typesetting industry.',
+        img_src: 'assets/images/card_img2.png',
+      }
+    }
+  });
 
 </script>
 
