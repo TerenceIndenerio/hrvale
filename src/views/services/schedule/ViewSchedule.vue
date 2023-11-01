@@ -5,6 +5,24 @@
       router-direction="none"
     ></HeaderReturn>
     <ion-content :fullscreen="true">
+      <Refresher />
+      <div class="sched-container">
+        <div class="box-container">
+          <ion-card class="box">
+            <h3>In</h3>
+            <h2>
+              {{ regularWorkHourStart }}
+            </h2>
+          </ion-card>
+          <ion-card class="box">
+            <h3>Out</h3>
+            <h2>
+              {{ regularWorkHourEnd }}
+            </h2>
+          </ion-card>
+        </div>
+      </div>
+
       <div class="calendar-container">
         <ion-datetime
           class="date border-style"
@@ -27,22 +45,8 @@
           :prefer-wheel="true"
         ></ion-datetime>
       </div>
-
-      <div class="sched-container">
-        <div class="box-container">
-          <ion-card class="box">
-            <h3>In</h3>
-            <h2>
-              {{ regularWorkHourStart }}
-            </h2>
-          </ion-card>
-          <ion-card class="box">
-            <h3>Out</h3>
-            <h2>
-              {{ regularWorkHourEnd }}
-            </h2>
-          </ion-card>
-        </div>
+      <div class="hint">
+        <p>Please Select a date here.</p>
       </div>
     </ion-content>
   </ion-page>
@@ -51,6 +55,7 @@
 <script>
 import { IonPage, IonContent, IonButton, IonCard } from "@ionic/vue";
 import HeaderReturn from "@/components/header/HeaderReturn.vue";
+import Refresher from "@/components/refresher/Refresher.vue";
 import { IonDatetime } from "@ionic/vue";
 import { defineComponent } from "vue";
 import axios from "axios";
@@ -66,6 +71,7 @@ export default defineComponent({
     HeaderReturn,
     IonButton,
     IonCard,
+    Refresher,
   },
   data() {
     return {
@@ -183,7 +189,7 @@ export default defineComponent({
 .sched-container {
   text-align: center;
   border-radius: 30px;
-  padding: 20px 0;
+  padding: 0;
 }
 .sched-container h2 {
   margin: 10px 0 0 0;
@@ -204,7 +210,16 @@ export default defineComponent({
   min-width: 40%;
   height: fit-content;
   padding: 10px 20px;
-  margin: 20px 0;
+  margin: 10px 0;
   border-radius: 10px;
+  border: 3px solid rgba(220, 220, 220, 0.581);
+  border-radius: 20px;
+  overflow: hidden;
+}
+.hint {
+  text-align: center;
+}
+.hint p {
+  color: rgba(128, 128, 128, 0.695);
 }
 </style>

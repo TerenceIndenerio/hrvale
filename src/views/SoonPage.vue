@@ -1,11 +1,15 @@
 <template>
   <ion-page>
-    <HeaderUser :headerTitle="headerTitle"></HeaderUser>
+    <HeaderReturn
+      :headerTitle="headerTitle"
+      router-direction="none"
+    ></HeaderReturn>
     <ion-content :fullscreen="true">
       <Refresher />
+
       <ion-card class="card">
         <h1>SOON</h1>
-        <p>This Page is still not available</p>
+        <p>Please return to home page.</p>
       </ion-card>
     </ion-content>
   </ion-page>
@@ -13,20 +17,20 @@
 
 <script>
 import { IonPage, IonContent, IonCard } from "@ionic/vue";
-import { defineComponent } from "vue";
-import HeaderUser from "@/components/header/HeaderUser.vue";
+import HeaderReturn from "@/components/header/HeaderReturn.vue";
 import Refresher from "@/components/refresher/Refresher.vue";
+import { defineComponent } from "vue";
 
 export default defineComponent({
   components: {
     IonPage,
     IonContent,
-    HeaderUser,
+    HeaderReturn,
     Refresher,
     IonCard,
   },
   data() {
-    return { headerTitle: "Approval" };
+    return { headerTitle: "SuySing" };
   },
 });
 </script>

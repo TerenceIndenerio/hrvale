@@ -1,34 +1,44 @@
 <template>
-<ion-page>
+  <ion-page>
     <ion-content :fullscreen="true">
-        <div class="container">
-            <ion-text class="logo-name">
-                <h1>Suy Sing</h1>
-            </ion-text>
-            <div class="bg-container">
-                <Svg></Svg>
-            </div>
+      <div class="container">
+        <ion-text class="logo-name">
+          <h1>Suy Sing</h1>
+        </ion-text>
+        <div class="bg-container">
+          <Svg></Svg>
         </div>
-        <LoginForm @login="OnLogin" />
+      </div>
+      <LoginForm @login="OnLogin" />
     </ion-content>
-</ion-page>
+  </ion-page>
 </template>
 
 <script>
-import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonText, IonAlert, IonSpinner, alertController } from '@ionic/vue';
-import LoginForm from '@/views/login/components/LoginForm.vue';
-import Svg from '@/views/login/components/Svg.vue';
-import Alert2 from '@/components/alert/Alert2.vue';
-import { useRouter } from 'vue-router';
-import { useStore } from 'vuex';
-import { mapGetters, mapActions } from 'vuex';
+import {
+  IonPage,
+  IonHeader,
+  IonToolbar,
+  IonTitle,
+  IonContent,
+  IonText,
+  IonAlert,
+  IonSpinner,
+  alertController,
+} from "@ionic/vue";
+import LoginForm from "@/views/login/components/LoginForm.vue";
+import Svg from "@/views/login/components/Svg.vue";
+import Alert2 from "@/components/alert/Alert2.vue";
+import { useRouter } from "vue-router";
+import { useStore } from "vuex";
+import { mapGetters, mapActions } from "vuex";
 
 export default {
   components: {
     IonPage,
-    IonHeader, 
-    IonToolbar, 
-    IonTitle, 
+    IonHeader,
+    IonToolbar,
+    IonTitle,
     IonContent,
     IonText,
     LoginForm,
@@ -36,46 +46,49 @@ export default {
     Alert2,
     IonAlert,
     IonSpinner,
-    alertController
+    alertController,
   },
   setup() {
     return {
       router: useRouter(),
-      store: useStore()
-    }
+      store: useStore(),
+    };
   },
   data() {
     return {
       data: "",
       alertText: "test text Lorem ipsum.",
-    }
+    };
   },
   async mounted() {
     console.log("mounted login");
-    if(localStorage.getItem('_token')) {
-      this.router.push('/tabs/home');
+    if (localStorage.getItem("_token")) {
+      this.router.push("/tabs/home");
+      this.store.commit("loader/updateLoader", false);
     }
   },
   methods: {
     async OnLogin(value) {
       try {
-        await this.store.dispatch('token/generateToken');
-        this.store.commit('loader/updateLoader', true);
-        this.router.push('/tabs/home');
+        await this.store.dispatch("token/generateToken");
+        this.store.commit("loader/updateLoader", true);
+        this.router.push("/tabs/home");
+        this.store.commit("loader/updateLoader", false);
       } catch (error) {
-        console.error(error)
+        console.error(error);
       }
     },
     async alertError() {
       const showAlert = async () => {
         const alert = await alertController.create({
-          header: 'Invalid Credentials',
-          message: 'The username or password you entered is incorrect. Please try again.',
+          header: "Invalid Credentials",
+          message:
+            "The username or password you entered is incorrect. Please try again.",
           buttons: [
             {
-              text: 'Close',
+              text: "Close",
               htmlAttributes: {
-                'aria-label': 'close',
+                "aria-label": "close",
               },
             },
           ],
@@ -83,33 +96,33 @@ export default {
         await alert.present();
       };
       return showAlert();
-    }
-  }
-}
+    },
+  },
+};
 </script>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css?family=Alata');
+@import url("https://fonts.googleapis.com/css?family=Alata");
 * {
-    margin: 0;
-    padding: 0;
+  margin: 0;
+  padding: 0;
 }
 .container {
-    background-color: #12A3DA;
-    height: 100%;
+  background-color: #12a3da;
+  height: 100%;
 }
 .logo-name h1 {
-    text-align: right;
-    color: #FFF;
-    font-family: Alata;
-    font-size: 31.567px;
-    font-style: normal;
-    font-weight: 400;
-    line-height: normal;
-    margin-right: 20px;
+  text-align: right;
+  color: #fff;
+  font-family: Alata;
+  font-size: 31.567px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+  margin-right: 20px;
 }
 .bg-container {
-    display: flex;
-    justify-content: center;
+  display: flex;
+  justify-content: center;
 }
 </style>

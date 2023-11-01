@@ -6,6 +6,7 @@ import ApplyLeave from '@/views/services/leave/ApplyLeave.vue'
 import LeaveRequest from '@/views/services/leave/LeaveRequest.vue'
 import ClockIn from '@/views/services/clock_in/ClockIn.vue'
 import Attendance from '@/views/services/attendance/Attendance.vue'
+import AttendanceCorrection from '@/views/services/attendance/AttendanceCorrection.vue'
 import OTRequest from '@/views/services/ot/OTRequest.vue'
 import Login from '@/views/login/Login.vue'
 import Flash from '@/views/login/Flash.vue'
@@ -19,6 +20,7 @@ import OTApply from '@/views/services/ot/OTApply.vue';
 import Vale from '@/views/services/vale/Vale.vue';
 import leaveEntitlement from '@/views/services/leave/LeaveEntitlement.vue'
 import ViewSchedule from '@/views/services/schedule/ViewSchedule.vue'
+import SoonPage from '@/views/SoonPage.vue'
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -78,6 +80,10 @@ const routes: Array<RouteRecordRaw> = [
         component: Attendance
       },
       {
+        path: '/attendancecorrection',
+        component: AttendanceCorrection
+      },
+      {
         path: '/ot',
         component: OT
       },
@@ -92,6 +98,10 @@ const routes: Array<RouteRecordRaw> = [
       {
         path: '/vale',
         component: Vale
+      },
+      {
+        path: '/soon',
+        component: SoonPage
       },
     ]
   },
