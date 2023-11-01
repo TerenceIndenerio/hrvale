@@ -46,7 +46,7 @@
         ></ion-datetime>
       </div>
       <div class="hint">
-        <p>Please Select a date here.</p>
+        <p>Note: Please Select a date here.</p>
       </div>
     </ion-content>
   </ion-page>
@@ -162,6 +162,7 @@ export default defineComponent({
 .calendar-container {
   margin: 10px auto;
   width: 100%;
+  height: fit-content;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -180,6 +181,8 @@ export default defineComponent({
 .date {
   margin: auto;
   border-radius: 20px;
+  height: fit-content;
+  width: fit-content;
 }
 .border-style {
   border: 5px solid rgba(220, 220, 220, 0.581);
@@ -200,17 +203,20 @@ export default defineComponent({
 }
 .box-container {
   display: flex;
-  justify-content: space-evenly;
+  justify-content: center;
+  gap: 20px;
   align-items: center;
   flex-direction: row;
   height: fit-content;
+  margin: 0 5%;
 }
 .box {
-  width: fit-content;
-  min-width: 40%;
+  min-width: 100px;
+  width: 100%;
+  max-width: 200px;
   height: fit-content;
   padding: 10px 20px;
-  margin: 10px 0;
+  margin: 10px 0 0 0;
   border-radius: 10px;
   border: 3px solid rgba(220, 220, 220, 0.581);
   border-radius: 20px;
