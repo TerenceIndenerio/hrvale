@@ -22,32 +22,15 @@
           </ion-select-option>
         </ion-select>
       </ion-card>
-      <ion-card class="card result-container">
-        <h4 class="text-center">Result</h4>
-        <div>
-          <ion-grid>
-            <ion-row class="header-row">
-              <ion-col>Date</ion-col>
-              <ion-col>Actual IN</ion-col>
-              <ion-col>Actual OUT</ion-col>
-              <ion-col>Schedule IN</ion-col>
-              <ion-col>Schedule OUT</ion-col>
-              <ion-col>Status</ion-col>
-            </ion-row>
-            <ion-row
-              v-for="result in results"
-              :key="result.id"
-              class="data-row"
-            >
-              <ion-col>{{ result.date }}</ion-col>
-              <ion-col>{{ result.actualIn }}</ion-col>
-              <ion-col>{{ result.actualOut }}</ion-col>
-              <ion-col>{{ result.scheduleIn }}</ion-col>
-              <ion-col>{{ result.scheduleOut }}</ion-col>
-              <ion-col>{{ result.status }}</ion-col>
-            </ion-row>
-            <h5 v-if="noResult" class="text-center">No Result Found!</h5>
-          </ion-grid>
+
+      <ion-card class="card">
+        <h4 class="text-center outlineColor">Result</h4>
+        <div v-for="(result, index) in results" :key="index">
+          <AttendanceCard
+            :userDate="result.userDate"
+            :punchIn="result.punchIn"
+            :punchOut="result.punchOut"
+          />
         </div>
       </ion-card>
     </ion-content>
@@ -64,12 +47,16 @@ import {
   IonGrid,
   IonRow,
   IonCol,
+  IonToast,
+  toastController,
 } from "@ionic/vue";
 import Refresher from "@/components/refresher/Refresher.vue";
 import HeaderReturn from "@/components/header/HeaderReturn.vue";
+import AttendanceCard from "@/views/services/attendance/components/AttendanceCard.vue";
 import { defineComponent } from "vue";
 import axios from "axios";
 import { GlobalConstants } from "@/config/constants";
+import { mapState } from "vuex";
 
 const baseURL = GlobalConstants.HOST_URL;
 
@@ -85,6 +72,9 @@ export default defineComponent({
     IonGrid,
     IonRow,
     IonCol,
+    AttendanceCard,
+    IonToast,
+    toastController,
   },
   data() {
     return {
@@ -95,10 +85,25 @@ export default defineComponent({
       results: [],
     };
   },
+  computed: {
+    ...mapState("loader", ["loading"]),
+  },
   created() {
     this.fetchAuthToken();
   },
   methods: {
+    showErrorMessage(message) {
+      this.$ionic.toastController
+        .create({
+          message: message,
+          duration: 3000,
+          position: "bottom",
+          color: "danger",
+        })
+        .then((toast) => {
+          toast.present();
+        });
+    },
     async fetchAuthToken() {
       try {
         const response = await axios.post(baseURL + "auth/token", {
@@ -111,6 +116,24 @@ export default defineComponent({
         this.fetchPayrollPeriodOptions();
       } catch (error) {
         console.error("Error fetching authentication token: ", error);
+        this.showErrorMessage("An error occurred: " + error.message);
+
+        const errorMessage =
+          error.response.data.error.message || "Failed to load data";
+        const fullErrorMessage = `An error occurred: ${errorMessage}`;
+        const toast = await toastController.create({
+          message: fullErrorMessage,
+          duration: 3000,
+          position: "top",
+          icon: "alert-circle-outline",
+          buttons: [
+            {
+              icon: "close-outline",
+              role: "cancel",
+            },
+          ],
+        });
+        await toast.present();
       }
     },
     async fetchPayrollPeriodOptions() {
@@ -136,6 +159,24 @@ export default defineComponent({
         }
       } catch (error) {
         console.error("Error fetching payroll period options: ", error);
+        this.showErrorMessage("An error occurred: " + error.message);
+
+        const errorMessage =
+          error.response.data.error.message || "Failed to load data";
+        const fullErrorMessage = `Failed to load data, ${errorMessage}`;
+        const toast = await toastController.create({
+          message: fullErrorMessage,
+          duration: 3000,
+          position: "top",
+          icon: "alert-circle-outline",
+          buttons: [
+            {
+              icon: "close-outline",
+              role: "cancel",
+            },
+          ],
+        });
+        await toast.present();
       }
     },
     handlePayrollPeriodChange(event) {
@@ -159,30 +200,68 @@ export default defineComponent({
         if (!this.authToken) {
           throw new Error("Authentication token is missing.");
         }
-
+        this.$store.commit("loader/updateLoader", true);
         const headers = {
           Authorization: `Bearer ${this.authToken}`,
         };
 
         const response = await axios.get(apiUrl, { headers });
-        console.log(response.data);
 
-        if (response.data && response.data.data === null) {
-          this.results = response.data.data;
-          this.noResult = !this.results;
-        } else {
-          this.results = [];
-          this.noResult = true;
-        }
+        this.results = response.data.data.map((record) => {
+          return {
+            id: record.id,
+            userDate: record.punchIn.userDate,
+            punchIn: record.punchIn.userTime,
+            punchOut: record.punchOut.userTime,
+          };
+        });
+
+        const toast = await toastController.create({
+          message: "Successfully Loaded!",
+          duration: 3000,
+          position: "top",
+          icon: "alert-circle-outline",
+          buttons: [
+            {
+              icon: "close-outline",
+              role: "cancel",
+            },
+          ],
+        });
+
+        await toast.present();
+
+        console.log("found: ", this.results);
+        this.$store.commit("loader/updateLoader", false);
       } catch (error) {
         console.error("Error making the API request: ", error);
+        this.showErrorMessage("An error occurred: " + error.message);
         this.results = [];
         this.noResult = true;
+        this.$store.commit("loader/updateLoader", false);
+
+        const errorMessage =
+          error.response.data.error.message || "Failed to load data";
+        const fullErrorMessage = `Failed to load data, ${errorMessage}`;
+        const toast = await toastController.create({
+          message: fullErrorMessage,
+          duration: 3000,
+          position: "top",
+          icon: "alert-circle-outline",
+          buttons: [
+            {
+              icon: "close-outline",
+              role: "cancel",
+            },
+          ],
+        });
+        await toast.present();
       }
     },
   },
 });
 </script>
+
 <style scoped>
 @import url("https://fonts.googleapis.com/css?family=Open+Sans");
 .flex-h {
@@ -246,5 +325,10 @@ export default defineComponent({
 .header-row {
   border-bottom: 1px solid #000;
   margin-bottom: 20px;
+}
+.outlineColor {
+  border: 1px solid #828282;
+  color: #828282;
+  border-radius: 20px;
 }
 </style>
