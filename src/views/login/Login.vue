@@ -3,7 +3,7 @@
     <ion-content :fullscreen="true">
       <div class="container">
         <ion-text class="logo-name">
-          <h1>Suy Sing</h1>
+          <img src="assets/images/loginBanner2.png" alt="SUYSING" />
         </ion-text>
         <div class="bg-container">
           <Svg></Svg>
@@ -112,7 +112,7 @@ export default {
   height: 100%;
 }
 .logo-name h1 {
-  text-align: right;
+  text-align: center;
   color: #fff;
   font-family: Alata;
   font-size: 31.567px;
@@ -121,7 +121,16 @@ export default {
   line-height: normal;
   margin-right: 20px;
 }
+
+.logo-name {
+  text-align: center;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 .bg-container {
+  margin-top: 20px;
   display: flex;
   justify-content: center;
 }

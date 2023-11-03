@@ -34,6 +34,9 @@
           buttonText
         }}</ion-button>
       </div>
+      <div class="bottom-text">
+        <p>© 2023 BAPPLWARE Technologies, <br />Inc. All rights reserved.</p>
+      </div>
     </div>
   </ion-page>
 </template>
@@ -129,7 +132,7 @@ a {
   border-radius: 15px;
   background-color: var(--ion-color-blue-theme);
   color: var(--ion-color-primary-contrast);
-  width: 150px;
+  width: 70%;
   height: 50px;
   overflow: hidden;
   font-family: Open Sans;
@@ -138,5 +141,19 @@ a {
   font-weight: 700;
   line-height: normal;
   border: none;
+}
+.bottom-text {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  position: fixed;
+  bottom: 10px;
+  left: 0;
+  right: 0;
+}
+.bottom-text p {
+  padding: 0;
+  margin: 0;
+  text-align: center;
 }
 </style>
