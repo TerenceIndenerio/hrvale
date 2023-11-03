@@ -3,10 +3,10 @@
     <ion-content :fullscreen="true">
       <div class="container">
         <ion-text class="logo-name">
-          <img src="assets/images/loginBanner2.png" alt="SUYSING" />
+          <img src="\assets\images\login_banner2.png" alt="SUYSING" />
         </ion-text>
         <div class="bg-container">
-          <Svg></Svg>
+          <SVGLoginImage />
         </div>
       </div>
       <LoginForm @login="OnLogin" />
@@ -27,7 +27,7 @@ import {
   alertController,
 } from "@ionic/vue";
 import LoginForm from "@/views/login/components/LoginForm.vue";
-import Svg from "@/views/login/components/Svg.vue";
+import SVGLoginImage from "@/views/login/components/Svg.vue";
 import Alert2 from "@/components/alert/Alert2.vue";
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
@@ -42,7 +42,7 @@ export default {
     IonContent,
     IonText,
     LoginForm,
-    Svg,
+    SVGLoginImage,
     Alert2,
     IonAlert,
     IonSpinner,

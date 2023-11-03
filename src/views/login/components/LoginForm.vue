@@ -25,11 +25,8 @@
             :required="true"
           ></ion-input>
         </div>
-        <p class="float-r">
-          <a href="#"> Forgot Password </a>
-        </p>
       </div>
-      <div class="flex-center">
+      <div class="flex-center margin-top">
         <ion-button class="btn" @click="submitForm" color="none">{{
           buttonText
         }}</ion-button>
@@ -73,6 +70,9 @@ a {
   text-decoration: none;
   color: #000;
 }
+.margin-top {
+  margin: 10% 0;
+}
 .flex-center {
   display: flex;
   justify-content: center;
@@ -97,10 +97,11 @@ a {
   color: #313536;
   text-align: center;
   font-family: Lato;
-  font-size: 39px;
+  font-size: 35px;
   font-style: normal;
   font-weight: 600;
   line-height: normal;
+  margin: 0;
 }
 .bottom {
   overflow-y: auto;
@@ -117,7 +118,7 @@ a {
   border-radius: 50px 50px 0 0;
 }
 .box-container {
-  border-radius: 9px;
+  border-radius: 20px;
   background-color: #e8e8e8;
 }
 .input-title {
@@ -144,16 +145,13 @@ a {
 }
 .bottom-text {
   width: 100%;
-  margin: 0;
+  margin: 10% 0;
   padding: 0;
-  position: fixed;
-  bottom: 10px;
-  left: 0;
-  right: 0;
 }
 .bottom-text p {
   padding: 0;
   margin: 0;
   text-align: center;
+  color: rgba(128, 128, 128, 0.7);
 }
 </style>
