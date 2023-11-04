@@ -25,6 +25,27 @@
           <p>{{ punchOut }}</p>
         </ion-col>
       </ion-row>
+
+      <ion-row class="pad-w">
+        <ion-col class="col-name">
+          <p>Schedule In:</p>
+        </ion-col>
+
+        <ion-col class="col-data">
+          <p>{{ schedIn }}</p>
+        </ion-col>
+      </ion-row>
+
+      <ion-row class="pad-w">
+        <ion-col class="col-name">
+          <p>Schedule Out:</p>
+        </ion-col>
+
+        <ion-col class="col-data">
+          <p>{{ schedOut }}</p>
+        </ion-col>
+      </ion-row>
+
       <ion-row class="pad-w">
         <ion-col class="col-name">
           <p>Status:</p>
@@ -61,6 +82,8 @@ export default {
     userDate: String,
     punchIn: String,
     punchOut: String,
+    schedIn: String,
+    schedOut: String,
   },
 };
 </script>

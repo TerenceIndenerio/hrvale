@@ -1,15 +1,18 @@
 <template>
   <ion-page>
-    <HeaderReturnWCard
+    <!-- <HeaderReturnWCard
       :headerTitle="headerTitle"
       :timePeriod="cardData.timePeriod"
       :userName="cardData.employeeName"
       :leavesNum="cardData.leaveBalance"
       router-direction="none"
-    />
+    /> -->
+    <HeaderReturn
+      :headerTitle="headerTitle"
+      router-direction="none"
+    ></HeaderReturn>
     <ion-content :fullscreen="true">
       <Refresher />
-      <div class="margin-top"></div>
 
       <div v-if="showComponent">
         <ion-button
@@ -62,6 +65,7 @@ import {
   IonCard,
 } from "@ionic/vue";
 import HeaderReturnWCard from "@/components/header/HeaderReturnWCard.vue";
+import HeaderReturn from "@/components/header/HeaderReturn.vue";
 import LeaveDashboardCard from "@/views/services/leave/components/LeaveDashboardCard.vue";
 import Refresher from "@/components/refresher/Refresher.vue";
 import Button from "@/components/buttons/Button.vue";
@@ -83,6 +87,7 @@ export default defineComponent({
     IonIcon,
     IonText,
     HeaderReturnWCard,
+    HeaderReturn,
     LeaveDashboardCard,
     IonButton,
     Refresher,
@@ -215,7 +220,8 @@ export default defineComponent({
   align-items: center;
 }
 .result-container {
-  margin-top: 20px;
+  margin: 20px auto 0 auto;
+  max-width: 370px;
   border-radius: 20px;
   padding: 20px 0;
   height: 50vh;

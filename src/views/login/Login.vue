@@ -1,15 +1,19 @@
 <template>
   <ion-page>
     <ion-content :fullscreen="true">
-      <div class="container">
-        <ion-text class="logo-name">
-          <img src="\assets\images\login_banner2.png" alt="SUYSING" />
-        </ion-text>
-        <div class="bg-container">
-          <SVGLoginImage />
+      <div v-if="loaded">
+        <div class="container" :style="{ backgroundColor: theme.primaryColor }">
+          <ion-text class="logo-banner">
+            <img :src="imgLogo" alt="SUYSING" />
+          </ion-text>
         </div>
+
+        <LoginForm
+          @login="OnLogin"
+          :btnBackgroundColor="theme.primaryColor"
+          :btnColor="theme.primaryFontColor"
+        />
       </div>
-      <LoginForm @login="OnLogin" />
     </ion-content>
   </ion-page>
 </template>
@@ -29,11 +33,16 @@ import {
 import LoginForm from "@/views/login/components/LoginForm.vue";
 import SVGLoginImage from "@/views/login/components/Svg.vue";
 import Alert2 from "@/components/alert/Alert2.vue";
+import { defineComponent } from "vue";
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
-import { mapGetters, mapActions } from "vuex";
+import { mapGetters, mapActions, mapState } from "vuex";
+import { GlobalConstants } from "@/config/constants";
+import axios from "axios";
 
-export default {
+const baseURL = GlobalConstants.HOST_URL;
+
+export default defineComponent({
   components: {
     IonPage,
     IonHeader,
@@ -58,6 +67,10 @@ export default {
     return {
       data: "",
       alertText: "test text Lorem ipsum.",
+      imgLogo: "",
+      theme: [],
+      bgTheme: "",
+      loaded: false,
     };
   },
   async mounted() {
@@ -66,8 +79,91 @@ export default {
       this.router.push("/tabs/home");
       this.store.commit("loader/updateLoader", false);
     }
+
+    this.store.commit("loader/updateLoader", true);
+    await this.fetchTheme();
   },
   methods: {
+    async fetchToken() {
+      try {
+        const response = await axios.post(baseURL + "auth/token", {
+          clientId: "test_id",
+          clientSecret: "test_secret",
+          userId: 1,
+        });
+        const token = response.data.token;
+
+        localStorage.setItem("_token", token);
+      } catch (error) {
+        console.error("Error fetching authentication token: ", error);
+      }
+    },
+    async fetchTheme() {
+      try {
+        // await this.fetchToken();
+        const response = await axios.post(baseURL + "auth/token", {
+          clientId: "test_id",
+          clientSecret: "test_secret",
+          userId: 1,
+        });
+        const token = response.data.token;
+        // const token = localStorage.getItem("_token");
+        if (!token) {
+          console.error("Token not available.");
+          return;
+        }
+
+        const headers = {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        };
+        const apiUrl = baseURL + `api/v2/admin/theme`;
+
+        const responseData = await axios.get(apiUrl, { headers });
+
+        this.themeData = responseData.data.data;
+
+        this.imgLogo =
+          baseURL +
+          `admin/theme/image/loginBanner?` +
+          responseData.data.data.clientBanner.filename;
+
+        this.theme = {
+          name: responseData.data.data.name,
+          primaryColor: responseData.data.data.variables.primaryColor,
+          primaryFontColor: responseData.data.data.variables.primaryFontColor,
+          secondaryColor: responseData.data.data.variables.secondaryColor,
+          secondaryFontColor:
+            responseData.data.data.variables.secondaryFontColor,
+          primaryGradientStartColor:
+            responseData.data.data.variables.primaryGradientStartColor,
+          primaryGradientEndColor:
+            responseData.data.data.variables.primaryGradientEndColor,
+          clientLogo:
+            baseURL +
+            `admin/theme/image/loginBanner?` +
+            responseData.data.data.clientLogo.filename,
+          clientBanner:
+            baseURL +
+            `admin/theme/image/loginBanner?` +
+            responseData.data.data.clientBanner.filename,
+          loginBanner:
+            baseURL +
+            `admin/theme/image/loginBanner?` +
+            responseData.data.data.loginBanner.filename,
+        };
+
+        this.bgTheme = "background-color: " + this.theme.primaryColor;
+
+        this.btnColorTheme = this.theme.primaryColor;
+
+        console.log(this.bgTheme);
+        this.loaded = true;
+        this.store.commit("loader/updateLoader", false);
+      } catch (error) {
+        console.error("Error making the API request: ", error);
+      }
+    },
     async OnLogin(value) {
       try {
         await this.store.dispatch("token/generateToken");
@@ -98,7 +194,7 @@ export default {
       return showAlert();
     },
   },
-};
+});
 </script>
 
 <style scoped>
@@ -108,23 +204,12 @@ export default {
   padding: 0;
 }
 .container {
-  background-color: #12a3da;
   height: 100%;
 }
-.logo-name h1 {
-  text-align: center;
-  color: #fff;
-  font-family: Alata;
-  font-size: 31.567px;
-  font-style: normal;
-  font-weight: 400;
-  line-height: normal;
-  margin-right: 20px;
-}
 
-.logo-name {
-  text-align: center;
+.logo-banner {
   width: 100%;
+  height: 40vh;
   display: flex;
   justify-content: center;
   align-items: center;

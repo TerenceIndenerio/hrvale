@@ -6,22 +6,12 @@
     ></HeaderReturn>
     <ion-content :fullscreen="true">
       <Refresher />
-      <div class="sched-container">
-        <div class="box-container">
-          <ion-card class="box">
-            <h3>In</h3>
-            <h2>
-              {{ regularWorkHourStart }}
-            </h2>
-          </ion-card>
-          <ion-card class="box">
-            <h3>Out</h3>
-            <h2>
-              {{ regularWorkHourEnd }}
-            </h2>
-          </ion-card>
-        </div>
-      </div>
+
+      <ion-card class="box-container">
+        <h3>In: {{ regularWorkHourStart }}</h3>
+
+        <h3>Out: {{ regularWorkHourEnd }}</h3>
+      </ion-card>
 
       <div class="calendar-container">
         <ion-datetime
@@ -203,12 +193,15 @@ export default defineComponent({
 }
 .box-container {
   display: flex;
+  flex-direction: row;
   justify-content: center;
   gap: 20px;
   align-items: center;
   flex-direction: row;
   height: fit-content;
   margin: 0 5%;
+  border-radius: 20px;
+  margin-top: 10px;
 }
 .box {
   min-width: 100px;

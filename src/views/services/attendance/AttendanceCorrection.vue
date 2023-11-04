@@ -30,6 +30,8 @@
             :userDate="result.userDate"
             :punchIn="result.punchIn"
             :punchOut="result.punchOut"
+            :schedIn="result.timeIn"
+            :schedOut="result.timeOut"
           />
         </div>
       </ion-card>
@@ -124,7 +126,7 @@ export default defineComponent({
         const toast = await toastController.create({
           message: fullErrorMessage,
           duration: 3000,
-          position: "top",
+          position: "bottom",
           icon: "alert-circle-outline",
           buttons: [
             {
@@ -167,7 +169,7 @@ export default defineComponent({
         const toast = await toastController.create({
           message: fullErrorMessage,
           duration: 3000,
-          position: "top",
+          position: "bottom",
           icon: "alert-circle-outline",
           buttons: [
             {
@@ -213,13 +215,15 @@ export default defineComponent({
             userDate: record.punchIn.userDate,
             punchIn: record.punchIn.userTime,
             punchOut: record.punchOut.userTime,
+            timeIn: record.schedule.timeIn,
+            timeOut: record.schedule.timeOut,
           };
         });
 
         const toast = await toastController.create({
           message: "Successfully Loaded!",
           duration: 3000,
-          position: "top",
+          position: "bottom",
           icon: "alert-circle-outline",
           buttons: [
             {
@@ -246,7 +250,7 @@ export default defineComponent({
         const toast = await toastController.create({
           message: fullErrorMessage,
           duration: 3000,
-          position: "top",
+          position: "bottom",
           icon: "alert-circle-outline",
           buttons: [
             {

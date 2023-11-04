@@ -27,9 +27,16 @@
         </div>
       </div>
       <div class="flex-center margin-top">
-        <ion-button class="btn" @click="submitForm" color="none">{{
-          buttonText
-        }}</ion-button>
+        <ion-button
+          class="btn"
+          @click="submitForm"
+          color="none"
+          v-bind:style="{
+            backgroundColor: btnBackgroundColor,
+            color: btnColor,
+          }"
+          >{{ buttonText }}</ion-button
+        >
       </div>
       <div class="bottom-text">
         <p>© 2023 BAPPLWARE Technologies, <br />Inc. All rights reserved.</p>
@@ -48,6 +55,10 @@ export default {
     IonInput,
     IonPage,
     IonButton,
+  },
+  props: {
+    btnBackgroundColor: String,
+    btnColor: String,
   },
   data() {
     return {
@@ -131,8 +142,8 @@ a {
 }
 .btn {
   border-radius: 15px;
-  background-color: var(--ion-color-blue-theme);
-  color: var(--ion-color-primary-contrast);
+  /* background-color: var(--ion-color-blue-theme); */
+  /* color: var(--ion-color-primary-contrast); */
   width: 70%;
   height: 50px;
   overflow: hidden;

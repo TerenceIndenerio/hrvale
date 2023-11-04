@@ -4,7 +4,7 @@
       <ion-col class="card btn-text" expand="full" color="none">
         <a href="/leave">
           <span class="ion-text-left">
-            <img src="/assets/images/image7.png" alt="" class="icon-circle" />
+            <ion-icon name="exit" class="icon-btn"></ion-icon>
             <h4>Leave</h4>
           </span>
         </a>
@@ -12,7 +12,7 @@
       <ion-col class="card btn-text" expand="full" color="none">
         <a href="/clockin" class="clockin">
           <span class="ion-text-left">
-            <img src="/assets/images/image2.png" alt="" class="icon-circle" />
+            <ion-icon name="time" class="icon-btn"></ion-icon>
             <h4>Clock In</h4>
           </span>
         </a>
@@ -22,7 +22,7 @@
       <ion-col class="card btn-text" expand="full" color="none">
         <a href="/viewschedule">
           <span class="ion-text-left">
-            <img src="/assets/images/image4.png" alt="" class="icon-circle" />
+            <ion-icon name="calendar" class="icon-btn"></ion-icon>
             <h4>Schedule</h4>
           </span>
         </a>
@@ -30,7 +30,7 @@
       <ion-col class="card btn-text" expand="full" color="none">
         <a href="/attendancecorrection">
           <span class="ion-text-left">
-            <img src="/assets/images/image7.png" alt="" class="icon-circle" />
+            <ion-icon name="today" class="icon-btn"></ion-icon>
             <h4>Attendance</h4>
           </span>
         </a>
@@ -40,7 +40,7 @@
       <ion-col class="card btn-text" expand="full" color="none">
         <a href="/soon">
           <span class="ion-text-left">
-            <img src="/assets/images/image7.png" alt="" class="icon-circle" />
+            <ion-icon name="calendar-clear" class="icon-btn"></ion-icon>
             <h4>OT</h4>
           </span>
         </a>
@@ -48,7 +48,7 @@
       <ion-col class="card btn-text" expand="full" color="none">
         <a href="/soon" disabled>
           <span class="ion-text-left">
-            <img src="/assets/images/image7.png" alt="" class="icon-circle" />
+            <ion-icon name="pricetags" class="icon-btn"></ion-icon>
             <h4>Vale</h4>
           </span>
         </a>
@@ -58,11 +58,12 @@
 </template>
 
 <script setup lang="ts">
-import { IonButton, IonCol, IonGrid, IonRow } from "@ionic/vue";
+import { IonButton, IonCol, IonGrid, IonRow, IonIcon } from "@ionic/vue";
 </script>
 
 <style scoped>
 @import url("https://fonts.googleapis.com/css?family=Open+Sans");
+
 a {
   text-decoration: none;
   width: 100%;
@@ -100,11 +101,12 @@ a {
   height: 100%;
   margin-right: auto;
   mix-blend-mode: multiply;
-  margin-left: 5px;
+  margin-left: 10px;
+  gap: 10px;
 }
 .card {
   padding: 0;
-  height: 55px;
+  height: 60px;
   border-radius: 10px;
   margin: 10px;
   box-shadow: 0px 2px 5px 0px rgb(175, 175, 175);
@@ -130,5 +132,9 @@ a {
 .clockin {
   display: flex;
   align-items: center;
+}
+.icon-btn {
+  font-size: 30px;
+  color: var(--ion-color-blue-theme);
 }
 </style>
