@@ -1,12 +1,5 @@
 <template>
   <ion-page>
-    <!-- <HeaderReturnWCard
-      :headerTitle="headerTitle"
-      :timePeriod="cardData.timePeriod"
-      :userName="cardData.employeeName"
-      :leavesNum="cardData.leaveBalance"
-      router-direction="none"
-    /> -->
     <HeaderReturn
       :headerTitle="headerTitle"
       router-direction="none"

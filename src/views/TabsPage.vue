@@ -7,7 +7,7 @@
           <div class="services">
             <ion-icon name="grid" class="icon-color"></ion-icon>
           </div>
-          <!-- <ion-label>SERVICES</ion-label> -->
+          <ion-label>SERVICES</ion-label>
         </ion-tab-button>
 
         <ion-tab-button tab="home" href="/tabs/home">
@@ -15,21 +15,21 @@
             <ion-icon name="home" class="icon-color"></ion-icon>
           </div>
 
-          <!-- <ion-label>HOME</ion-label> -->
+          <ion-label>HOME</ion-label>
         </ion-tab-button>
 
         <ion-tab-button tab="tab3" href="/tabs/tab3">
           <div class="approval">
             <ion-icon name="checkmark-circle" class="icon-color"></ion-icon>
           </div>
-          <!-- <ion-label>APPROVAL</ion-label> -->
+          <ion-label>APPROVAL</ion-label>
         </ion-tab-button>
 
         <ion-tab-button tab="tab4" href="/tabs/tab4">
           <div class="more">
             <ion-icon name="cog" class="icon-color"></ion-icon>
           </div>
-          <!-- <ion-label>MORE</ion-label> -->
+          <ion-label>MORE</ion-label>
         </ion-tab-button>
       </ion-tab-bar>
     </ion-tabs>
@@ -61,9 +61,6 @@ ion-tab-button {
 }
 ion-tab-bar {
   height: 60px;
-}
-ion-label {
-  margin-bottom: 10px;
 }
 ion-label {
   color: var(--ion-color-primary-contrast);
