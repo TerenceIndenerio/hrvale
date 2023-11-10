@@ -8,7 +8,7 @@
           label="Select Request Type"
           label-placement="floating"
           class="box-container select-option"
-          @ionChange="handleApprovalTypeChange"
+          @ionChange="handleApprovalTypeChange($event.detail.value)"
         >
           <ion-select-option
             v-for="option in requestTypeOption"
@@ -50,6 +50,8 @@ import { defineComponent } from "vue";
 import HeaderUser from "@/components/header/HeaderUser.vue";
 import ApprovalCard from "@/views/approval/component/ApprovalCard.vue";
 import Refresher from "@/components/refresher/Refresher.vue";
+import { useStore } from "vuex";
+import { useRouter } from "vue-router";
 import axios from "axios";
 import { GlobalConstants } from "@/config/constants";
 const baseURL = GlobalConstants.HOST_URL;
@@ -65,8 +67,14 @@ export default defineComponent({
     IonSelect,
     IonSelectOption,
   },
+  setup() {
+    return {
+      router: useRouter(),
+      store: useStore(),
+    };
+  },
   data() {
-    return { headerTitle: "Approval", requestTypeOption: [], results: [] };
+    return { headerTitle: "Approval", requestTypeOption: [], results: [], };
   },
 
   methods: {
@@ -80,7 +88,6 @@ export default defineComponent({
         this.authToken = response.data.token;
         localStorage.setItem("_token", this.authToken);
 
-        console.log(localStorage.getItem("_token", this.authToken));
       } catch (error) {
         console.error("Error fetching authentication token: ", error);
         this.showErrorMessage("An error occurred: " + error.message);
@@ -106,6 +113,7 @@ export default defineComponent({
 
     async fetchRequest() {
       try {
+        this.store.commit("loader/updateLoader", true);
         await this.fetchAuthToken();
         if (!this.authToken) {
           throw new Error("Authentication token is missing.");
@@ -118,7 +126,6 @@ export default defineComponent({
         const api = baseURL + "api/v2/admin/requests?limit=50&offset=0";
         const dataResponse = await axios.get(api, { headers });
 
-        console.log(dataResponse);
         if (dataResponse.data && Array.isArray(dataResponse.data.data)) {
           const uniqueRequestTypes = {};
           dataResponse.data.data.forEach((period) => {
@@ -139,8 +146,7 @@ export default defineComponent({
             status: period.status,
           }));
         }
-
-        console.log("result:", this.results);
+        this.store.commit("loader/updateLoader", false);
       } catch (error) {
         console.error("Error fetching payroll period options: ", error);
         this.showErrorMessage("An error occurred: " + error.message);
@@ -163,10 +169,69 @@ export default defineComponent({
         await toast.present();
       }
     },
+    
+    async handleApprovalTypeChange(selectedRequestType) {
+      try {
+        this.store.commit("loader/updateLoader", true);
+
+        await this.fetchAuthToken();
+        if (!this.authToken) {
+          throw new Error("Authentication token is missing.");
+        }
+
+        const headers = {
+          Authorization: `Bearer ${this.authToken}`,
+        };
+
+        const api = baseURL + "api/v2/admin/requests?limit=50&offset=0";
+        const dataResponse = await axios.get(api, { headers });
+
+        if (dataResponse.data && Array.isArray(dataResponse.data.data)) {
+          const uniqueRequestTypes = {};
+          dataResponse.data.data.forEach((period) => {
+            uniqueRequestTypes[period.requestTypeId] = period.requestType;
+          });
+
+          this.requestTypeOption = Object.values(uniqueRequestTypes).map(
+            (requestType) => ({
+              label: requestType,
+              value: requestType,
+            })
+          );
+
+          this.results = dataResponse.data.data.map((period) => ({
+            employee: period.employee,
+            requestTypeId: period.requestTypeId,
+            requestType: selectedRequestType,
+            status: period.status,
+          }));
+        }
+        this.store.commit("loader/updateLoader", false);
+      } catch (error) {
+        console.error("Error fetching payroll period options: ", error);
+        this.showErrorMessage("An error occurred: " + error.message);
+
+        const errorMessage =
+          error.response.data.error.message || "Failed to load data";
+        const fullErrorMessage = `Failed to load data, ${errorMessage}`;
+        const toast = await toastController.create({
+          message: fullErrorMessage,
+          duration: 3000,
+          position: "bottom",
+          icon: "alert-circle-outline",
+          buttons: [
+            {
+              icon: "close-outline",
+              role: "cancel",
+            },
+          ],
+        });
+        await toast.present();
+      }
+    },
+
   },
-  handleApprovalTypeChange() {
-    console.log("hi");
-  },
+  
   created() {
     this.fetchRequest();
   },
