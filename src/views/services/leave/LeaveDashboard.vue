@@ -15,17 +15,17 @@
       <Refresher />
 
       <div v-if="showComponent">
-        <ion-button
-          fill="clear"
-          class="leave-entitlement-btn"
-          color="medium"
-          @click="navigateToLeaveEntitlement($event)"
-        >
-          <ion-icon name="calendar-outline"></ion-icon>
-          Leave Entitlement
-        </ion-button>
-
         <ion-card class="result-container">
+          <ion-button
+            fill="clear"
+            class="leave-entitlement-btn"
+            color="medium"
+            @click="navigateToLeaveEntitlement($event)"
+          >
+            <ion-icon name="calendar-outline"></ion-icon>
+            Leave Entitlement
+          </ion-button>
+
           <div v-for="item in requests" :key="item.id">
             <LeaveDashboardCard
               :cardTitle="item.leaveType.name"
@@ -224,7 +224,7 @@ export default defineComponent({
   max-width: 370px;
   border-radius: 20px;
   padding: 20px 0;
-  height: 50vh;
+  height: 60vh;
   overflow-y: scroll;
   border: 5px solid rgba(220, 220, 220, 0.581);
   box-shadow: inset 10px 10px 15px #d9dade, inset -10px -10px 15px #ffffff,
@@ -262,7 +262,7 @@ export default defineComponent({
   display: flex;
   align-items: center;
   width: fit-content;
-  margin: 20px auto;
+  margin: 0 auto 20px auto;
   justify-content: center;
   border: 3px solid #9b9b9b;
   border-radius: 10px;

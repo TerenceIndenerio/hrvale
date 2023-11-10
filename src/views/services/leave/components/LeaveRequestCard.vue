@@ -6,20 +6,52 @@
           <p>{{ leaveType }}</p>
         </div>
       </ion-row>
+
       <ion-row class="pad-w">
         <ion-col class="col-name">
           <p>Status:</p>
-          <p>Leave Date:</p>
-          <p>Leave Balance (Days):</p>
-          <p>Duration (Hours):</p>
-          <p>Reason:</p>
         </ion-col>
 
         <ion-col class="col-data">
           <p>{{ status }}</p>
+        </ion-col>
+      </ion-row>
+
+      <ion-row class="pad-w">
+        <ion-col class="col-name">
+          <p>Leave Date:</p>
+        </ion-col>
+
+        <ion-col class="col-data">
           <p>{{ dateText }}</p>
+        </ion-col>
+      </ion-row>
+
+      <ion-row class="pad-w">
+        <ion-col class="col-name">
+          <p>Leave Bal (Days):</p>
+        </ion-col>
+
+        <ion-col class="col-data">
           <p>{{ leaveBalance }}</p>
+        </ion-col>
+      </ion-row>
+
+      <ion-row class="pad-w">
+        <ion-col class="col-name">
+          <p>Duration (Hours):</p>
+        </ion-col>
+
+        <ion-col class="col-data">
           <p>{{ duration }}</p>
+        </ion-col>
+      </ion-row>
+      <ion-row class="pad-w">
+        <ion-col class="col-name">
+          <p>Reason:</p>
+        </ion-col>
+
+        <ion-col class="col-data">
           <p>{{ comment }}</p>
         </ion-col>
       </ion-row>
@@ -74,7 +106,9 @@ p {
   padding: 0;
   margin: 5px 0;
 }
-
+ion-col p {
+  margin: 0;
+}
 /* specifics */
 .card {
   padding: 10px 10px 0 10px;

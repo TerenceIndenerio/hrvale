@@ -235,7 +235,6 @@ export default defineComponent({
 
         await toast.present();
 
-        console.log("found: ", this.results);
         this.$store.commit("loader/updateLoader", false);
       } catch (error) {
         console.error("Error making the API request: ", error);

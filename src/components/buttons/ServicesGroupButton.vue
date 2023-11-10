@@ -13,7 +13,7 @@
         <a href="/clockin" class="clockin">
           <span class="ion-text-left">
             <ion-icon name="time" class="icon-btn"></ion-icon>
-            <h4>Clock In</h4>
+            <h4>Clock In/Out</h4>
           </span>
         </a>
       </ion-col>
@@ -31,7 +31,7 @@
         <a href="/attendancecorrection">
           <span class="ion-text-left">
             <ion-icon name="today" class="icon-btn"></ion-icon>
-            <h4>Attendance</h4>
+            <h4>Attendance <br />Correction</h4>
           </span>
         </a>
       </ion-col>
@@ -41,7 +41,7 @@
         <a href="/soon">
           <span class="ion-text-left">
             <ion-icon name="calendar-clear" class="icon-btn"></ion-icon>
-            <h4>OT</h4>
+            <h4>Apply OT</h4>
           </span>
         </a>
       </ion-col>
@@ -50,6 +50,42 @@
           <span class="ion-text-left">
             <ion-icon name="pricetags" class="icon-btn"></ion-icon>
             <h4>Vale</h4>
+          </span>
+        </a>
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col class="card btn-text" expand="full" color="none">
+        <a href="/soon" disabled>
+          <span class="ion-text-left">
+            <ion-icon name="receipt" class="icon-btn"></ion-icon>
+            <h4>View Payslip</h4>
+          </span>
+        </a>
+      </ion-col>
+      <ion-col class="card btn-text" expand="full" color="none">
+        <a href="/soon" disabled>
+          <span class="ion-text-left">
+            <ion-icon name="create" class="icon-btn"></ion-icon>
+            <h4>PCR</h4>
+          </span>
+        </a>
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col class="card btn-text" expand="full" color="none">
+        <a href="/soon" disabled>
+          <span class="ion-text-left">
+            <ion-icon name="gift" class="icon-btn"></ion-icon>
+            <h4>Benefits</h4>
+          </span>
+        </a>
+      </ion-col>
+      <ion-col class="card btn-text" expand="full" color="none">
+        <a href="/soon" disabled>
+          <span class="ion-text-left">
+            <ion-icon name="cash" class="icon-btn"></ion-icon>
+            <h4>Loan Balances</h4>
           </span>
         </a>
       </ion-col>

@@ -144,7 +144,7 @@ export default defineComponent({
         leaveBalance: leaveData.leaveBalance.balance.balance.toString(),
         duration: leaveData.lengthHours.toString(),
         status: leaveData.leaveStatus.name,
-        Comment: leaveData.lastComment,
+        comment: leaveData.lastComment,
         outlineColor:
           leaveData.leaveType.name === "Vacation Leave"
             ? "border: 1px solid #27AE60; color: #27AE60;"

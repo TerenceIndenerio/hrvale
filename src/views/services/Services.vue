@@ -17,9 +17,9 @@
         <ServicesGroupButton />
       </div>
 
-      <div class="img-container">
+      <!-- <div class="img-container">
         <img src="/assets/images/image3.png" alt="" />
-      </div>
+      </div> -->
     </ion-content>
   </ion-page>
 </template>

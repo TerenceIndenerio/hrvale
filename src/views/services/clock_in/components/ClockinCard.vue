@@ -129,7 +129,7 @@
     <p class="text-clock">GENERAL 09:00 AM TO 06:00 PM</p>
 
     <ion-button color="none" class="btn-clock space" @click="setClockInTime">
-      Clock In
+      {{ btnText }}
     </ion-button>
   </ion-card>
 </template>
@@ -153,6 +153,9 @@ export default defineComponent({
     IonCardSubtitle,
     IonCardTitle,
     IonButton,
+  },
+  props: {
+    btnText: String,
   },
   data() {
     return {

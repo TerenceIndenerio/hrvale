@@ -13,7 +13,7 @@
         <h3>Out: {{ regularWorkHourEnd }}</h3>
       </ion-card>
 
-      <div class="calendar-container">
+      <div class="calendar-container" v-if="selectedMonth">
         <ion-datetime
           class="date border-style"
           presentation="date"
@@ -120,14 +120,23 @@ export default defineComponent({
       }
     },
     handleMonthChange(event) {
-      const selectedDate = event.detail.value;
-      const datePart = new Date(selectedDate).toISOString().split("T")[0];
-      const month = new Date(selectedDate).getMonth() + 1;
+      const selectedDate = new Date(event.detail.value);
+      const datePart = new Date(
+        selectedDate.getTime() - selectedDate.getTimezoneOffset() * 60000
+      )
+        .toISOString()
+        .split("T")[0];
+
+      const day = selectedDate.getDate();
+      const month = selectedDate.getMonth() + 1;
       const selectedMonth = event.detail.value;
 
       this.selectedDate = datePart;
+      this.day = day;
       this.month = month;
       this.selectedMonth = selectedMonth;
+
+      console.log(day);
 
       const selectedData = this.scheduleData.find(
         (entry) => entry.scheduleDate.date.split(" ")[0] === datePart

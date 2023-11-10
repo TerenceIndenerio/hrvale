@@ -8,7 +8,7 @@
     <ion-content :fullscreen="true">
       <Refresher />
       <div class="margin-top"></div>
-      <ClockinCard @clockInData="handleClockInData" />
+      <ClockinCard @clockInData="handleClockInData" :btnText="btnText" />
     </ion-content>
   </ion-page>
 </template>
@@ -26,9 +26,10 @@ import {
 import Refresher from "@/components/refresher/Refresher.vue";
 import ClockinCard from "@/views/services/clock_in/components/ClockinCard.vue";
 import HeaderClockWCard from "@/components/header/HeaderClockWCard.vue";
-import { defineComponent } from "vue";
+import { defineComponent, ref } from "vue";
 import { GlobalConstants } from "@/config/constants";
-import { mapState } from "vuex";
+import { useRouter } from "vue-router";
+import { useStore } from "vuex";
 import axios from "axios";
 
 const baseURL = GlobalConstants.HOST_URL;
@@ -46,19 +47,71 @@ export default defineComponent({
     IonToast,
     toastController,
   },
+  setup() {
+    return {
+      router: useRouter(),
+      store: useStore(),
+    };
+  },
   data() {
     return {
-      headerTitle: "Clock",
-      clockin: "08:50 AM",
-      clockout: "08:50 PM",
+      btnText: "Clock In",
+      headerTitle: "Clock In/Out",
+      clockin: "00:00",
+      clockout: "00:00",
       date: "",
       time: "",
       timezoneName: "",
       timezoneOffset: "",
-      employeeAlreadyPunchedIn: true,
+      employeeAlreadyPunchedIn: false,
     };
   },
   methods: {
+    async checkState() {
+      try {
+        this.store.commit("loader/updateLoader", true);
+        await this.fetchToken();
+
+        const token = localStorage.getItem("_token");
+        if (!token) {
+          console.error("Token not available.");
+          return;
+        }
+
+        const headers = {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        };
+        const apiUrl = baseURL + `api/v2/attendance/records/latest`;
+
+        const getStateResponse = await axios.get(apiUrl, { headers });
+
+        this.clockin = getStateResponse.data?.data?.punchIn?.userTime;
+        this.clockout = getStateResponse.data?.data?.punchOut?.userTime;
+
+        if (this.clockin === null) {
+          this.clockin = "00:00";
+        }
+        if (this.clockout === null) {
+          this.clockout = "00:00";
+        }
+
+        if (getStateResponse.data?.data?.state?.name === "Punched Out") {
+          this.btnText = "Clock In";
+        } else {
+          this.btnText = "Clock Out";
+        }
+        this.store.commit("loader/updateLoader", false);
+      } catch (error) {
+        if (error.response && error.response.status === 401) {
+          console.error(
+            "Session Expired. Token needs to be refreshed or user needs to re-authenticate."
+          );
+        } else {
+          console.error("Error making the GET request:", error);
+        }
+      }
+    },
     async fetchToken() {
       try {
         const response = await axios.post(baseURL + "auth/token", {
@@ -71,31 +124,47 @@ export default defineComponent({
         localStorage.setItem("_token", token);
       } catch (error) {
         console.error("Error fetching authentication token: ", error);
-        this.showErrorMessage("An error occurred: " + error.message);
+      }
+    },
 
-        const errorMessage =
-          error.response.data.error.message || "Failed to load data";
-        const fullErrorMessage = `An error occurred: ${errorMessage}`;
-        const toast = await toastController.create({
-          message: fullErrorMessage,
-          duration: 3000,
-          position: "top",
-          icon: "alert-circle-outline",
-          buttons: [
-            {
-              icon: "close-outline",
-              role: "cancel",
-            },
-          ],
-        });
-        await toast.present();
+    async getState(dataData) {
+      try {
+        const token = localStorage.getItem("_token");
+        if (!token) {
+          console.error("Token not available.");
+          return;
+        }
+
+        const headers = {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        };
+        const apiUrl = baseURL + `api/v2/attendance/records/latest`;
+        const payload = {
+          date: dataData,
+        };
+
+        const getStateResponse = await axios.get(apiUrl, { headers });
+
+        if (getStateResponse.data?.data?.state?.name === "Punched Out") {
+          this.employeeAlreadyPunchedIn = false;
+        } else {
+          this.employeeAlreadyPunchedIn = true;
+        }
+      } catch (error) {
+        if (error.response && error.response.status === 401) {
+          console.error(
+            "Session Expired. Token needs to be refreshed or user needs to re-authenticate."
+          );
+        } else {
+          console.error("Error making the GET request:", error);
+        }
       }
     },
 
     async handleClockInData(data) {
       try {
-        this.$store.commit("loader/updateLoader", true);
-
+        const dataData = data.date;
         await this.fetchToken();
 
         const token = localStorage.getItem("_token");
@@ -111,13 +180,15 @@ export default defineComponent({
           timezoneOffset: data.timezoneOffset,
           note: null,
         };
-        console.log(payload);
 
-        // change the employeeAlreadyPunchedIn to true or false
+        await this.getState(dataData);
+
         if (this.employeeAlreadyPunchedIn) {
-          const response = await axios.put(apiUrl, payload, { headers });
+          this.btnText = "Clock In";
+          await axios.put(apiUrl, payload, { headers });
         } else {
-          const response = await axios.post(apiUrl, payload, { headers });
+          this.btnText = "Clock Out";
+          await axios.post(apiUrl, payload, { headers });
         }
 
         const toast = await toastController.create({
@@ -134,17 +205,11 @@ export default defineComponent({
         });
 
         await toast.present();
-
-        console.log("found: ", this.results);
-        this.$store.commit("loader/updateLoader", false);
       } catch (error) {
         console.error(
           "Error making the API request: ",
-          error.response.data.error.message
+          error.response?.data?.error?.message
         );
-        this.results = [];
-        this.noResult = true;
-        this.$store.commit("loader/updateLoader", false);
 
         const errorMessage =
           error.response.data.error.message || "Failed to load data";
@@ -161,11 +226,12 @@ export default defineComponent({
             },
           ],
         });
-        const errorPunch =
-          "Cannot Proceed Punch In Employee Already Punched In";
-        await toast.present(data);
+        await toast.present();
       }
     },
+  },
+  async created() {
+    await this.checkState();
   },
 });
 </script>

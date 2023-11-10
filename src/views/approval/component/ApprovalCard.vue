@@ -3,59 +3,42 @@
     <ion-grid>
       <ion-col class="flex-c">
         <div class="leave-type outlineColor">
-          <p>{{ userDate }}</p>
+          <p>{{ status }}</p>
         </div>
       </ion-col>
 
       <ion-row class="pad-w">
         <ion-col class="col-name">
-          <p>Actual In:</p>
+          <p>Employee Name:</p>
         </ion-col>
 
         <ion-col class="col-data">
-          <p>{{ punchIn || Null }}</p>
+          <p>{{ employeeName }}</p>
         </ion-col>
       </ion-row>
       <ion-row class="pad-w">
         <ion-col class="col-name">
-          <p>Actual Out:</p>
+          <p>Request Type:</p>
         </ion-col>
 
         <ion-col class="col-data">
-          <p>{{ punchOut }}</p>
+          <p>{{ requestType }}</p>
         </ion-col>
       </ion-row>
 
-      <ion-row class="pad-w">
+      <ion-row class="pad-w action-container">
         <ion-col class="col-name">
-          <p>Schedule In:</p>
+          <ion-button expand="block" color="light" class="btn"
+            ><ion-icon name="checkmark-sharp" class="btn-icon"></ion-icon
+          ></ion-button>
         </ion-col>
 
         <ion-col class="col-data">
-          <p>{{ schedIn }}</p>
+          <ion-button expand="block" color="light" class="btn"
+            ><ion-icon name="close-sharp" class="btn-icon"></ion-icon
+          ></ion-button>
         </ion-col>
       </ion-row>
-
-      <ion-row class="pad-w">
-        <ion-col class="col-name">
-          <p>Schedule Out:</p>
-        </ion-col>
-
-        <ion-col class="col-data">
-          <p>{{ schedOut }}</p>
-        </ion-col>
-      </ion-row>
-
-      <ion-row class="pad-w">
-        <ion-col class="col-name">
-          <p>Status:</p>
-        </ion-col>
-
-        <ion-col class="col-data">
-          <p>No Action</p>
-        </ion-col>
-      </ion-row>
-      <ion-button expand="full" color="light" class="border">Edit</ion-button>
     </ion-grid>
   </ion-card>
 </template>
@@ -68,6 +51,8 @@ import {
   IonRow,
   IonIcon,
   IonButton,
+  IonToast,
+  toastController,
 } from "@ionic/vue";
 
 export default {
@@ -78,13 +63,13 @@ export default {
     IonRow,
     IonIcon,
     IonButton,
+    IonToast,
+    toastController,
   },
   props: {
-    userDate: String,
-    punchIn: String,
-    punchOut: String,
-    schedIn: String,
-    schedOut: String,
+    status: String,
+    employeeName: String,
+    requestType: String,
   },
 };
 </script>
@@ -106,11 +91,15 @@ p {
 }
 
 /* specifics */
+ion-grid {
+  width: 100%;
+}
 .card {
   padding: 0;
   margin: 10px 7%;
   border-radius: 10px;
   height: fit-content;
+  width: 80%;
 }
 .icon1 {
   font-size: 30px;
@@ -164,6 +153,7 @@ p {
 .outlineColor {
   border: 1px solid #828282;
   color: #828282;
+  /* height: 50px; */
 }
 .username-text {
   color: #000;
@@ -198,5 +188,18 @@ p {
 .header-card {
   height: 40px;
   text-align: center;
+}
+.btn {
+  padding: 0;
+  margin: 0;
+}
+
+.btn-icon {
+  margin: 0;
+  padding: 0;
+  font-size: 24px;
+}
+.action-container {
+  margin-top: 10px;
 }
 </style>
