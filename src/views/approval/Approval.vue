@@ -31,6 +31,9 @@
             :status="result.status"
             :employeeName="result.employee"
             :requestType="result.requestType"
+            :code="result.code"
+            :requestDataId="result.requestDataId"
+            @checkButtonClick="handleCheckButtonClick"
           />
         </div>
       </ion-card>
@@ -78,6 +81,30 @@ export default defineComponent({
   },
 
   methods: {
+    handleCheckButtonClick(code, requestDataId) {
+    console.log(`Check button clicked for request type: ${code}`);
+      switch (code) {
+        case 'leave':
+          
+          console.log("leave")
+          break;
+        case 'overtime':
+         
+          this.otRequest(requestDataId)
+          console.log("requestDataId:", requestDataId)
+          console.log("overtime")
+          break;
+        case 'attendanceCorrection':
+          
+          break;
+        case 'vale':
+          
+          console.log("vale")
+          break;
+        default:
+          break;
+      }
+    },
     async fetchAuthToken() {
       try {
         const response = await axios.post(baseURL + "auth/token", {
@@ -143,9 +170,12 @@ export default defineComponent({
             employee: period.employee,
             requestTypeId: period.requestTypeId,
             requestType: period.requestType,
+            code: period.code,
+            requestDataId: period.requestDataId,
             status: period.status,
           }));
         }
+        console.log(this.results)
         this.store.commit("loader/updateLoader", false);
       } catch (error) {
         console.error("Error fetching payroll period options: ", error);
@@ -230,8 +260,60 @@ export default defineComponent({
       }
     },
 
+    async otRequest(requestDataId) {
+      try {
+        this.store.commit("loader/updateLoader", true);
+
+        await this.fetchAuthToken();
+        if (!this.authToken) {
+          throw new Error("Authentication token is missing.");
+        }
+
+        const headers = {
+          Authorization: `Bearer ${this.authToken}`,
+        };
+        console.log(this.authToken)
+        const api = baseURL + "api/v2/admin/overtime/"+requestDataId;
+        const dataResponse = await axios.put(api, {status: 'approved'}, { headers });
+
+        const toast = await toastController.create({
+          message: "Successfully Approved Overtime Request!",
+          duration: 3000,
+          position: "bottom",
+          icon: "alert-circle-outline",
+          buttons: [
+            {
+              icon: "close-outline",
+              role: "cancel",
+            },
+          ],
+        });
+        await toast.present();
+
+        this.store.commit("loader/updateLoader", false);
+      } catch (error) {
+        console.error("Error fetching authentication token: ", error);
+        this.showErrorMessage("An error occurred: " + error.message);
+
+        const errorMessage =
+          error.response.data.error.message || "Failed to load data";
+        const fullErrorMessage = `An error occurred: ${errorMessage}`;
+        const toast = await toastController.create({
+          message: fullErrorMessage,
+          duration: 3000,
+          position: "bottom",
+          icon: "alert-circle-outline",
+          buttons: [
+            {
+              icon: "close-outline",
+              role: "cancel",
+            },
+          ],
+        });
+        await toast.present();
+      }
+    },
   },
-  
   created() {
     this.fetchRequest();
   },

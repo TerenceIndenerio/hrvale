@@ -28,7 +28,7 @@
 
       <ion-row class="pad-w action-container">
         <ion-col class="col-name">
-          <ion-button expand="block" color="light" class="btn"
+          <ion-button expand="block" color="light" class="btn" @click="handleCheckButtonClick"
             ><ion-icon name="checkmark-sharp" class="btn-icon"></ion-icon
           ></ion-button>
         </ion-col>
@@ -51,7 +51,6 @@ import {
   IonRow,
   IonIcon,
   IonButton,
-  IonToast,
   toastController,
 } from "@ionic/vue";
 
@@ -63,16 +62,42 @@ export default {
     IonRow,
     IonIcon,
     IonButton,
-    IonToast,
-    toastController,
   },
   props: {
     status: String,
     employeeName: String,
     requestType: String,
+    code: String,
+    requestDataId: Number,
+  },
+  methods: {
+    async handleCheckButtonClick() {
+      try {
+        this.$emit("checkButtonClick", this.code, this.requestDataId);
+      } catch (error) {
+        console.error("Error handling check button click: ", error);
+        this.showErrorMessage("An error occurred: " + error.message);
+      }
+    },
+    async showErrorMessage(message) {
+      const toast = await toastController.create({
+        message: message,
+        duration: 3000,
+        position: "bottom",
+        color: "danger",
+        buttons: [
+          {
+            icon: "close-outline",
+            role: "cancel",
+          },
+        ],
+      });
+      await toast.present();
+    },
   },
 };
 </script>
+
 
 <style scoped>
 .inline-v {
