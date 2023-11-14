@@ -16,6 +16,17 @@
           <p>{{ employeeName }}</p>
         </ion-col>
       </ion-row>
+
+      <ion-row class="pad-w">
+        <ion-col class="col-name">
+          <p>Request ID:</p>
+        </ion-col>
+
+        <ion-col class="col-data">
+          <p>{{ requestId }}</p>
+        </ion-col>
+      </ion-row>
+
       <ion-row class="pad-w">
         <ion-col class="col-name">
           <p>Request Type:</p>
@@ -34,7 +45,7 @@
         </ion-col>
 
         <ion-col class="col-data">
-          <ion-button expand="block" color="light" class="btn"
+          <ion-button expand="block" color="light" class="btn"  @click="handleCheckButtonClickReject"
             ><ion-icon name="close-sharp" class="btn-icon"></ion-icon
           ></ion-button>
         </ion-col>
@@ -69,11 +80,20 @@ export default {
     requestType: String,
     code: String,
     requestDataId: Number,
+    requestId: Number,
   },
   methods: {
     async handleCheckButtonClick() {
       try {
-        this.$emit("checkButtonClick", this.code, this.requestDataId);
+        this.$emit("checkButtonClick", "approve", this.code, this.requestDataId, this.requestId);
+      } catch (error) {
+        console.error("Error handling check button click: ", error);
+        this.showErrorMessage("An error occurred: " + error.message);
+      }
+    },
+    async handleCheckButtonClickReject() {
+      try {
+        this.$emit("checkButtonClick", "reject", this.code, this.requestDataId, this.requestId);
       } catch (error) {
         console.error("Error handling check button click: ", error);
         this.showErrorMessage("An error occurred: " + error.message);
@@ -178,7 +198,6 @@ ion-grid {
 .outlineColor {
   border: 1px solid #828282;
   color: #828282;
-  /* height: 50px; */
 }
 .username-text {
   color: #000;

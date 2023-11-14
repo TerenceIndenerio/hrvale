@@ -27,14 +27,15 @@
           :key="index"
           class="card-container"
         >
-          <ApprovalCard
-            :status="result.status"
-            :employeeName="result.employee"
-            :requestType="result.requestType"
-            :code="result.code"
-            :requestDataId="result.requestDataId"
-            @checkButtonClick="handleCheckButtonClick"
-          />
+        <ApprovalCard
+          :status="result.status"
+          :employeeName="result.employee"
+          :requestType="result.requestType"
+          :code="result.code"
+          :requestDataId="result.requestDataId"
+          :requestId="result.id"
+          @checkButtonClick="handleCheckButtonClick"
+        />
         </div>
       </ion-card>
     </ion-content>
@@ -48,6 +49,7 @@ import {
   IonCard,
   IonSelect,
   IonSelectOption,
+  toastController,
 } from "@ionic/vue";
 import { defineComponent } from "vue";
 import HeaderUser from "@/components/header/HeaderUser.vue";
@@ -57,6 +59,7 @@ import { useStore } from "vuex";
 import { useRouter } from "vue-router";
 import axios from "axios";
 import { GlobalConstants } from "@/config/constants";
+
 const baseURL = GlobalConstants.HOST_URL;
 
 export default defineComponent({
@@ -69,6 +72,7 @@ export default defineComponent({
     ApprovalCard,
     IonSelect,
     IonSelectOption,
+    toastController,
   },
   setup() {
     return {
@@ -79,32 +83,32 @@ export default defineComponent({
   data() {
     return { headerTitle: "Approval", requestTypeOption: [], results: [], };
   },
-
   methods: {
-    handleCheckButtonClick(code, requestDataId) {
+    handleCheckButtonClick(action, code, requestDataId, requestId) {
     console.log(`Check button clicked for request type: ${code}`);
-      switch (code) {
-        case 'leave':
-          
-          console.log("leave")
-          break;
-        case 'overtime':
-         
-          this.otRequest(requestDataId)
-          console.log("requestDataId:", requestDataId)
-          console.log("overtime")
-          break;
-        case 'attendanceCorrection':
-          
-          break;
-        case 'vale':
-          
-          console.log("vale")
-          break;
-        default:
-          break;
-      }
-    },
+    console.log(`code: ${code}`);
+    console.log(`Request Data ID: ${requestDataId}`);
+    console.log(`Status: ${action}`);
+    console.log(`Status: ${requestId}`);
+
+    switch (code) {
+      case 'leave':
+        this.leaveRequest(requestId, action);
+        break;
+      case 'overtime':
+        this.otRequest(requestId, action);
+        break;
+      case 'attendance_correction':
+        this.attendanceCorrection(requestId, action);
+        break;
+      case 'vale':
+      this.valeRequest(requestId, action);
+        break;
+      default:
+        break;
+    }
+  },
+
     async fetchAuthToken() {
       try {
         const response = await axios.post(baseURL + "auth/token", {
@@ -120,7 +124,7 @@ export default defineComponent({
         this.showErrorMessage("An error occurred: " + error.message);
 
         const errorMessage =
-          error.response.data.error.message || "Failed to load data";
+          error.response.data.error.message;
         const fullErrorMessage = `An error occurred: ${errorMessage}`;
         const toast = await toastController.create({
           message: fullErrorMessage,
@@ -167,6 +171,7 @@ export default defineComponent({
           );
 
           this.results = dataResponse.data.data.map((period) => ({
+            id: period.id,
             employee: period.employee,
             requestTypeId: period.requestTypeId,
             requestType: period.requestType,
@@ -182,7 +187,7 @@ export default defineComponent({
         this.showErrorMessage("An error occurred: " + error.message);
 
         const errorMessage =
-          error.response.data.error.message || "Failed to load data";
+          error.response.data.error.message;
         const fullErrorMessage = `Failed to load data, ${errorMessage}`;
         const toast = await toastController.create({
           message: fullErrorMessage,
@@ -230,19 +235,23 @@ export default defineComponent({
           );
 
           this.results = dataResponse.data.data.map((period) => ({
+            id: period.id,
             employee: period.employee,
             requestTypeId: period.requestTypeId,
             requestType: selectedRequestType,
+            code: period.code,
+            requestDataId: period.requestDataId,
             status: period.status,
           }));
         }
+        
         this.store.commit("loader/updateLoader", false);
       } catch (error) {
         console.error("Error fetching payroll period options: ", error);
         this.showErrorMessage("An error occurred: " + error.message);
 
         const errorMessage =
-          error.response.data.error.message || "Failed to load data";
+          error.response.data.error.message;
         const fullErrorMessage = `Failed to load data, ${errorMessage}`;
         const toast = await toastController.create({
           message: fullErrorMessage,
@@ -260,7 +269,69 @@ export default defineComponent({
       }
     },
 
-    async otRequest(requestDataId) {
+    async leaveRequest(requestId, action) {
+      try {
+        this.store.commit("loader/updateLoader", true);
+
+        await this.fetchAuthToken();
+
+        if (!this.authToken) {
+          throw new Error("Authentication token is missing.");
+        }
+
+        const headers = {
+          Authorization: `Bearer ${this.authToken}`,
+        };
+
+        const payloadVal = action === "approve" ? "approved":"declined";
+        const payload = action === "approve" ? { status: "approved" } : { status: "declined" };
+
+        const api = baseURL + "api/v2/admin/update-request/" + requestId + "?status=" + payloadVal;
+        // const payload = action === "approve" ? { status: "approved" } : { status: "declined" };
+        const dataResponse = await axios.put(api, payload, { headers });
+        
+        const toast = await toastController.create({
+          message: `Successfully `+ action + ` leave request!`,
+          duration: 3000,
+          position: "bottom",
+          icon: "alert-circle-outline",
+          buttons: [
+            {
+              icon: "close-outline",
+              role: "cancel",
+            },
+          ],
+        });
+
+        await toast.present();
+
+        this.store.commit("loader/updateLoader", false);
+        this.fetchRequest();
+      } catch (error) {
+        console.error("Error updating Attendance Correction: ", error);
+        this.showErrorMessage("An error occurred: " + error.message);
+
+        const errorMessage = error.response?.data?.error?.message;
+        const fullErrorMessage = `An error occurred: ${errorMessage}`;
+
+        const toast = await toastController.create({
+          message: fullErrorMessage,
+          duration: 3000,
+          position: "bottom",
+          icon: "alert-circle-outline",
+          buttons: [
+            {
+              icon: "close-outline",
+              role: "cancel",
+            },
+          ],
+        });
+
+        await toast.present();
+      }
+    },
+
+    async otRequest(requestId, action) {
       try {
         this.store.commit("loader/updateLoader", true);
 
@@ -273,11 +344,14 @@ export default defineComponent({
           Authorization: `Bearer ${this.authToken}`,
         };
         console.log(this.authToken)
-        const api = baseURL + "api/v2/admin/overtime/"+requestDataId;
-        const dataResponse = await axios.put(api, {status: 'approved'}, { headers });
+        const payloadVal = action === "approve" ? "approved":"declined";
+        const payload = action === "approve" ? { status: "approved" } : { status: "declined" };
+        
+        const api = baseURL + "api/v2/admin/overtime/"+requestId + "?status=" + payloadVal;
+        const dataResponse = await axios.put(api, payload, { headers });
 
         const toast = await toastController.create({
-          message: "Successfully Approved Overtime Request!",
+          message: "Successfully " + action + " overtime request!",
           duration: 3000,
           position: "bottom",
           icon: "alert-circle-outline",
@@ -291,12 +365,13 @@ export default defineComponent({
         await toast.present();
 
         this.store.commit("loader/updateLoader", false);
+        this.fetchRequest();
       } catch (error) {
         console.error("Error fetching authentication token: ", error);
         this.showErrorMessage("An error occurred: " + error.message);
 
         const errorMessage =
-          error.response.data.error.message || "Failed to load data";
+          error.response.data.error.message;
         const fullErrorMessage = `An error occurred: ${errorMessage}`;
         const toast = await toastController.create({
           message: fullErrorMessage,
@@ -313,7 +388,131 @@ export default defineComponent({
         await toast.present();
       }
     },
+    
+    async attendanceCorrection(requestId, action) {
+      try {
+        this.store.commit("loader/updateLoader", true);
+
+        await this.fetchAuthToken();
+
+        if (!this.authToken) {
+          throw new Error("Authentication token is missing.");
+        }
+
+        const headers = {
+          Authorization: `Bearer ${this.authToken}`,
+        };
+
+        const payloadVal = action === "approve" ? "approved":"declined";
+        const payload = action === "approve" ? { status: "approved" } : { status: "declined" };
+        
+        const api = baseURL + "api/v2/admin/update-request/" + requestId + "?status=" + payloadVal;
+        const dataResponse = await axios.put(api, payload, { headers });
+        
+        const toast = await toastController.create({
+          message: `Successfully `+ action + ` Attendance Correction!`,
+          duration: 3000,
+          position: "bottom",
+          icon: "alert-circle-outline",
+          buttons: [
+            {
+              icon: "close-outline",
+              role: "cancel",
+            },
+          ],
+        });
+
+        await toast.present();
+
+        this.store.commit("loader/updateLoader", false);
+        this.fetchRequest();
+      } catch (error) {
+        console.error("Error updating Attendance Correction: ", error);
+        this.showErrorMessage("An error occurred: " + error.message);
+
+        const errorMessage = error.response?.data?.error?.message;
+        const fullErrorMessage = `An error occurred: ${errorMessage}`;
+
+        const toast = await toastController.create({
+          message: fullErrorMessage,
+          duration: 3000,
+          position: "bottom",
+          icon: "alert-circle-outline",
+          buttons: [
+            {
+              icon: "close-outline",
+              role: "cancel",
+            },
+          ],
+        });
+
+        await toast.present();
+      }
+    },
+
+    async valeRequest(requestId, action) {
+      try {
+        this.store.commit("loader/updateLoader", true);
+
+        await this.fetchAuthToken();
+
+        if (!this.authToken) {
+          throw new Error("Authentication token is missing.");
+        }
+
+        const headers = {
+          Authorization: `Bearer ${this.authToken}`,
+        };
+
+        const payloadVal = action === "approve" ? "approved":"declined";
+        const payload = action === "approve" ? { status: "approved" } : { status: "declined" };
+
+        const api = baseURL + "api/v2/admin/update-request/" + requestId + "?status=" + payloadVal;
+        const dataResponse = await axios.put(api, payload, { headers });
+        
+        const toast = await toastController.create({
+          message: `Successfully `+ action + ` vale!`,
+          duration: 3000,
+          position: "bottom",
+          icon: "alert-circle-outline",
+          buttons: [
+            {
+              icon: "close-outline",
+              role: "cancel",
+            },
+          ],
+        });
+
+        await toast.present();
+
+        this.store.commit("loader/updateLoader", false);
+        this.fetchRequest();
+      } catch (error) {
+        console.error("Error updating Attendance Correction: ", error);
+        this.showErrorMessage("An error occurred: " + error.message);
+
+        const errorMessage = error.response?.data?.error?.message;
+        const fullErrorMessage = `An error occurred: ${errorMessage}`;
+
+        const toast = await toastController.create({
+          message: fullErrorMessage,
+          duration: 3000,
+          position: "bottom",
+          icon: "alert-circle-outline",
+          buttons: [
+            {
+              icon: "close-outline",
+              role: "cancel",
+            },
+          ],
+        });
+
+        await toast.present();
+      }
+    }
+
   },
+
   created() {
     this.fetchRequest();
   },
