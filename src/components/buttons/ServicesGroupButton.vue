@@ -38,7 +38,7 @@
     </ion-row>
     <ion-row>
       <ion-col class="card btn-text" expand="full" color="none">
-        <a href="/soon">
+        <a href="/OTApply">
           <span class="ion-text-left">
             <ion-icon name="calendar-clear" class="icon-btn"></ion-icon>
             <h4>Apply OT</h4>
