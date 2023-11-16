@@ -38,7 +38,9 @@
       </ion-row>
 
       <div class="flex-row">
-        <ion-button expand="full" color="light" class="border">View</ion-button>
+        <ion-button expand="full" color="light" class="border" @click="handleView"
+          >View</ion-button
+        >
         <ion-button expand="full" color="light" class="border">Apply</ion-button>
       </div>
     </ion-grid>
@@ -61,6 +63,14 @@ export default {
     date: String,
     totalHour: String,
     status: String,
+    result: Object,
+  },
+  methods: {
+    handleView() {
+      // this.$emit("view", true);
+      this.$emit("view", this.result);
+      console.log("Clicked View");
+    },
   },
 };
 </script>

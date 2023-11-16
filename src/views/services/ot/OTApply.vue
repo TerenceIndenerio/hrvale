@@ -25,11 +25,112 @@
         <h4 class="text-center outlineColor">Result</h4>
         <div v-for="(result, index) in results" :key="index">
           <OTCard
-            :otType="result.otType"
+            :otType="result.otName"
             :date="result.date"
             :totalHour="result.totalHour"
             :status="result.status"
+            :result="result"
+            @view="handleView"
           />
+
+          <ion-modal :is-open="isOpen" id="example-modal">
+            <div class="modal-header">
+              <h4>View Details</h4>
+
+              <ion-button
+                @click="setOpen(false)"
+                color="light"
+                style="border-radius: 20px"
+              >
+                <ion-icon name="close"></ion-icon>
+              </ion-button>
+            </div>
+
+            <ion-card class="card">
+              <ion-grid>
+                <ion-row>
+                  <ion-col>
+                    <p><strong>OT Type:</strong></p>
+                  </ion-col>
+                  <ion-col>
+                    <p>{{ selectedResult.otName }}</p>
+                  </ion-col>
+                </ion-row>
+
+                <ion-row>
+                  <ion-col>
+                    <p><strong>Date:</strong></p>
+                  </ion-col>
+                  <ion-col>
+                    <p>{{ selectedResult.date }}</p>
+                  </ion-col>
+                </ion-row>
+
+                <ion-row>
+                  <ion-col>
+                    <p><strong>Status:</strong></p>
+                  </ion-col>
+                  <ion-col>
+                    <p>{{ selectedResult.status }}</p>
+                  </ion-col>
+                </ion-row>
+
+                <ion-row>
+                  <ion-col>
+                    <p><strong>Total Hours:</strong></p>
+                  </ion-col>
+                  <ion-col>
+                    <p>{{ selectedResult.totalHour }}</p>
+                  </ion-col>
+                </ion-row>
+
+                <ion-row>
+                  <ion-col>
+                    <p><strong>Schedule In:</strong></p>
+                  </ion-col>
+                  <ion-col>
+                    <p>{{ selectedResult.scheduleIn }}</p>
+                  </ion-col>
+                </ion-row>
+
+                <ion-row>
+                  <ion-col>
+                    <p><strong>Schedule Out:</strong></p>
+                  </ion-col>
+                  <ion-col>
+                    <p>{{ selectedResult.scheduleOut }}</p>
+                  </ion-col>
+                </ion-row>
+
+                <ion-row>
+                  <ion-col>
+                    <p><strong>Actual In:</strong></p>
+                  </ion-col>
+                  <ion-col>
+                    <p>{{ selectedResult.actualIn }}</p>
+                  </ion-col>
+                </ion-row>
+
+                <ion-row>
+                  <ion-col>
+                    <p><strong>Actual Out:</strong></p>
+                  </ion-col>
+                  <ion-col>
+                    <p>{{ selectedResult.actualOut }}</p>
+                  </ion-col>
+                </ion-row>
+
+                <ion-row>
+                  <ion-col>
+                    <p><strong>Fixed OT:</strong></p>
+                  </ion-col>
+                  <ion-col>
+                    <p>{{ selectedResult.fixedOt }} Hour(s)</p>
+                  </ion-col>
+                </ion-row>
+              </ion-grid>
+            </ion-card>
+          </ion-modal>
         </div>
       </ion-card>
     </ion-content>
@@ -45,6 +146,15 @@ import {
   IonLabel,
   IonCard,
   IonButton,
+  IonButtons,
+  IonModal,
+  IonTitle,
+  IonToolbar,
+  IonHeader,
+  IonCol,
+  IonRow,
+  IonGrid,
+  IonIcon,
 } from "@ionic/vue";
 import HeaderReturn from "@/components/header/HeaderReturn.vue";
 import { defineComponent } from "vue";
@@ -69,6 +179,15 @@ export default defineComponent({
     IonCard,
     OTCard,
     IonButton,
+    IonButtons,
+    IonModal,
+    IonTitle,
+    IonToolbar,
+    IonHeader,
+    IonCol,
+    IonRow,
+    IonGrid,
+    IonIcon,
   },
   setup() {
     return {
@@ -77,21 +196,28 @@ export default defineComponent({
     };
   },
   data() {
+    const currentDate = new Date();
+    const formattedDate = currentDate.toISOString().split("T")[0];
+
     return {
       headerTitle: "Approval",
       results: [],
       headerTitle: "Apply OT",
-      selectedDateFrom: null,
-      selectedDateTo: null,
+      selectedDateFrom: formattedDate,
+      selectedDateTo: formattedDate,
+      isModalVisible: false,
+      selectedResult: null,
+      isOpen: false,
     };
   },
+
   methods: {
     async fetchAuthToken() {
       try {
         const response = await axios.post(baseURL + "auth/token", {
           clientId: "test_id",
           clientSecret: "test_secret",
-          userId: 1,
+          userId: 45,
         });
         this.authToken = response.data.token;
         localStorage.setItem("_token", this.authToken);
@@ -138,10 +264,25 @@ export default defineComponent({
 
         this.results = dataResponse.data.data.map((val) => ({
           otType: val.type,
+          otName: val.name,
           date: val.date,
           totalHour: val.totalHour,
           status: val.requestStatus,
+          scheduleIn: formatTime(val.schedule.timeStart.date),
+          scheduleOut: formatTime(val.schedule.timeEnd.date),
+          actualIn: formatTime(val.attendance.timeStart.date),
+          actualOut: formatTime(val.attendance.timeEnd.date),
+          fixedOt: val.schedule.fixedOt,
         }));
+
+        function formatTime(dateTimeString) {
+          const time = new Date(dateTimeString);
+          return time.toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: true,
+          });
+        }
 
         console.log(this.results);
         this.store.commit("loader/updateLoader", false);
@@ -186,10 +327,25 @@ export default defineComponent({
 
         this.results = dataResponse.data.data.map((val) => ({
           otType: val.type,
+          otName: val.name,
           date: val.date,
           totalHour: val.totalHour,
           status: val.requestStatus,
+          scheduleIn: formatTime(val.schedule.timeStart.date),
+          scheduleOut: formatTime(val.schedule.timeEnd.date),
+          actualIn: formatTime(val.attendance.timeStart.date),
+          actualOut: formatTime(val.attendance.timeEnd.date),
+          fixedOt: val.schedule.fixedOt,
         }));
+
+        function formatTime(dateTimeString) {
+          const time = new Date(dateTimeString);
+          return time.toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: true,
+          });
+        }
 
         console.log(this.results);
         this.store.commit("loader/updateLoader", false);
@@ -213,6 +369,15 @@ export default defineComponent({
         });
         await toast.present();
       }
+    },
+
+    handleView(result) {
+      this.selectedResult = result;
+      this.isOpen = true;
+    },
+
+    setOpen(val) {
+      this.isOpen = val;
     },
   },
   created() {
@@ -243,5 +408,20 @@ export default defineComponent({
   color: #828282;
   border-radius: 20px;
   width: 90%;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-direction: row;
+  padding: 0 10px;
+}
+
+ion-modal#example-modal {
+  --width: fit-content;
+  --min-width: 250px;
+  --height: fit-content;
+  --border-radius: 20px;
 }
 </style>
