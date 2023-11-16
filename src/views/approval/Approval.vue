@@ -22,20 +22,17 @@
       </ion-card>
 
       <ion-card class="card">
-        <div
-          v-for="(result, index) in results"
-          :key="index"
-          class="card-container"
-        >
-        <ApprovalCard
-          :status="result.status"
-          :employeeName="result.employee"
-          :requestType="result.requestType"
-          :code="result.code"
-          :requestDataId="result.requestDataId"
-          :requestId="result.id"
-          @checkButtonClick="handleCheckButtonClick"
-        />
+        <div v-for="(result, index) in results" :key="index" class="card-container">
+          <ApprovalCard
+            :status="result.status"
+            :employeeName="result.employee"
+            :requestType="result.requestType"
+            :code="result.code"
+            :requestDataId="result.requestDataId"
+            :requestId="result.id"
+            :date="result.date"
+            @checkButtonClick="handleCheckButtonClick"
+          />
         </div>
       </ion-card>
     </ion-content>
@@ -81,33 +78,33 @@ export default defineComponent({
     };
   },
   data() {
-    return { headerTitle: "Approval", requestTypeOption: [], results: [], };
+    return { headerTitle: "Approval", requestTypeOption: [], results: [] };
   },
   methods: {
     handleCheckButtonClick(action, code, requestDataId, requestId) {
-    console.log(`Check button clicked for request type: ${code}`);
-    console.log(`code: ${code}`);
-    console.log(`Request Data ID: ${requestDataId}`);
-    console.log(`Status: ${action}`);
-    console.log(`Status: ${requestId}`);
+      console.log(`Check button clicked for request type: ${code}`);
+      console.log(`code: ${code}`);
+      console.log(`Request Data ID: ${requestDataId}`);
+      console.log(`Status: ${action}`);
+      console.log(`Status: ${requestId}`);
 
-    switch (code) {
-      case 'leave':
-        this.leaveRequest(requestId, action);
-        break;
-      case 'overtime':
-        this.otRequest(requestId, action);
-        break;
-      case 'attendance_correction':
-        this.attendanceCorrection(requestId, action);
-        break;
-      case 'vale':
-      this.valeRequest(requestId, action);
-        break;
-      default:
-        break;
-    }
-  },
+      switch (code) {
+        case "leave":
+          this.leaveRequest(requestId, action);
+          break;
+        case "overtime":
+          this.otRequest(requestId, action);
+          break;
+        case "attendance_correction":
+          this.attendanceCorrection(requestId, action);
+          break;
+        case "vale":
+          this.valeRequest(requestId, action);
+          break;
+        default:
+          break;
+      }
+    },
 
     async fetchAuthToken() {
       try {
@@ -118,13 +115,11 @@ export default defineComponent({
         });
         this.authToken = response.data.token;
         localStorage.setItem("_token", this.authToken);
-
       } catch (error) {
         console.error("Error fetching authentication token: ", error);
         this.showErrorMessage("An error occurred: " + error.message);
 
-        const errorMessage =
-          error.response.data.error.message;
+        const errorMessage = error.response.data.error.message;
         const fullErrorMessage = `An error occurred: ${errorMessage}`;
         const toast = await toastController.create({
           message: fullErrorMessage,
@@ -178,16 +173,16 @@ export default defineComponent({
             code: period.code,
             requestDataId: period.requestDataId,
             status: period.status,
+            date: new Date(period.dateApplied.date).toLocaleDateString(),
           }));
         }
-        console.log(this.results)
+        console.log(this.results);
         this.store.commit("loader/updateLoader", false);
       } catch (error) {
         console.error("Error fetching payroll period options: ", error);
         this.showErrorMessage("An error occurred: " + error.message);
 
-        const errorMessage =
-          error.response.data.error.message;
+        const errorMessage = error.response.data.error.message;
         const fullErrorMessage = `Failed to load data, ${errorMessage}`;
         const toast = await toastController.create({
           message: fullErrorMessage,
@@ -204,7 +199,7 @@ export default defineComponent({
         await toast.present();
       }
     },
-    
+
     async handleApprovalTypeChange(selectedRequestType) {
       try {
         this.store.commit("loader/updateLoader", true);
@@ -242,16 +237,16 @@ export default defineComponent({
             code: period.code,
             requestDataId: period.requestDataId,
             status: period.status,
+            date: new Date(period.dateApplied.date).toLocaleDateString(),
           }));
         }
-        
+
         this.store.commit("loader/updateLoader", false);
       } catch (error) {
         console.error("Error fetching payroll period options: ", error);
         this.showErrorMessage("An error occurred: " + error.message);
 
-        const errorMessage =
-          error.response.data.error.message;
+        const errorMessage = error.response.data.error.message;
         const fullErrorMessage = `Failed to load data, ${errorMessage}`;
         const toast = await toastController.create({
           message: fullErrorMessage,
@@ -283,15 +278,17 @@ export default defineComponent({
           Authorization: `Bearer ${this.authToken}`,
         };
 
-        const payloadVal = action === "approve" ? "approved":"declined";
-        const payload = action === "approve" ? { status: "approved" } : { status: "declined" };
+        const payloadVal = action === "approve" ? "approved" : "declined";
+        const payload =
+          action === "approve" ? { status: "approved" } : { status: "declined" };
 
-        const api = baseURL + "api/v2/admin/update-request/" + requestId + "?status=" + payloadVal;
+        const api =
+          baseURL + "api/v2/admin/update-request/" + requestId + "?status=" + payloadVal;
         // const payload = action === "approve" ? { status: "approved" } : { status: "declined" };
         const dataResponse = await axios.put(api, payload, { headers });
-        
+
         const toast = await toastController.create({
-          message: `Successfully `+ action + ` leave request!`,
+          message: `Successfully ` + action + ` leave request!`,
           duration: 3000,
           position: "bottom",
           icon: "alert-circle-outline",
@@ -343,11 +340,13 @@ export default defineComponent({
         const headers = {
           Authorization: `Bearer ${this.authToken}`,
         };
-        console.log(this.authToken)
-        const payloadVal = action === "approve" ? "approved":"declined";
-        const payload = action === "approve" ? { status: "approved" } : { status: "declined" };
-        
-        const api = baseURL + "api/v2/admin/overtime/"+requestId + "?status=" + payloadVal;
+        console.log(this.authToken);
+        const payloadVal = action === "approve" ? "approved" : "declined";
+        const payload =
+          action === "approve" ? { status: "approved" } : { status: "declined" };
+
+        const api =
+          baseURL + "api/v2/admin/overtime/" + requestId + "?status=" + payloadVal;
         const dataResponse = await axios.put(api, payload, { headers });
 
         const toast = await toastController.create({
@@ -370,8 +369,7 @@ export default defineComponent({
         console.error("Error fetching authentication token: ", error);
         this.showErrorMessage("An error occurred: " + error.message);
 
-        const errorMessage =
-          error.response.data.error.message;
+        const errorMessage = error.response.data.error.message;
         const fullErrorMessage = `An error occurred: ${errorMessage}`;
         const toast = await toastController.create({
           message: fullErrorMessage,
@@ -388,7 +386,7 @@ export default defineComponent({
         await toast.present();
       }
     },
-    
+
     async attendanceCorrection(requestId, action) {
       try {
         this.store.commit("loader/updateLoader", true);
@@ -403,14 +401,16 @@ export default defineComponent({
           Authorization: `Bearer ${this.authToken}`,
         };
 
-        const payloadVal = action === "approve" ? "approved":"declined";
-        const payload = action === "approve" ? { status: "approved" } : { status: "declined" };
-        
-        const api = baseURL + "api/v2/admin/update-request/" + requestId + "?status=" + payloadVal;
+        const payloadVal = action === "approve" ? "approved" : "declined";
+        const payload =
+          action === "approve" ? { status: "approved" } : { status: "declined" };
+
+        const api =
+          baseURL + "api/v2/admin/update-request/" + requestId + "?status=" + payloadVal;
         const dataResponse = await axios.put(api, payload, { headers });
-        
+
         const toast = await toastController.create({
-          message: `Successfully `+ action + ` Attendance Correction!`,
+          message: `Successfully ` + action + ` Attendance Correction!`,
           duration: 3000,
           position: "bottom",
           icon: "alert-circle-outline",
@@ -464,14 +464,16 @@ export default defineComponent({
           Authorization: `Bearer ${this.authToken}`,
         };
 
-        const payloadVal = action === "approve" ? "approved":"declined";
-        const payload = action === "approve" ? { status: "approved" } : { status: "declined" };
+        const payloadVal = action === "approve" ? "approved" : "declined";
+        const payload =
+          action === "approve" ? { status: "approved" } : { status: "declined" };
 
-        const api = baseURL + "api/v2/admin/update-request/" + requestId + "?status=" + payloadVal;
+        const api =
+          baseURL + "api/v2/admin/update-request/" + requestId + "?status=" + payloadVal;
         const dataResponse = await axios.put(api, payload, { headers });
-        
+
         const toast = await toastController.create({
-          message: `Successfully `+ action + ` vale!`,
+          message: `Successfully ` + action + ` vale!`,
           duration: 3000,
           position: "bottom",
           icon: "alert-circle-outline",
@@ -509,8 +511,7 @@ export default defineComponent({
 
         await toast.present();
       }
-    }
-
+    },
   },
 
   created() {

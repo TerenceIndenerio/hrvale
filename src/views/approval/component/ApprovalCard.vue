@@ -9,6 +9,16 @@
 
       <ion-row class="pad-w">
         <ion-col class="col-name">
+          <p>Date:</p>
+        </ion-col>
+
+        <ion-col class="col-data">
+          <p>{{ date }}</p>
+        </ion-col>
+      </ion-row>
+
+      <ion-row class="pad-w">
+        <ion-col class="col-name">
           <p>Employee Name:</p>
         </ion-col>
 
@@ -39,13 +49,21 @@
 
       <ion-row class="pad-w action-container">
         <ion-col class="col-name">
-          <ion-button expand="block" color="light" class="btn" @click="handleCheckButtonClick"
+          <ion-button
+            expand="block"
+            color="light"
+            class="btn"
+            @click="handleCheckButtonClick"
             ><ion-icon name="checkmark-sharp" class="btn-icon"></ion-icon
           ></ion-button>
         </ion-col>
 
         <ion-col class="col-data">
-          <ion-button expand="block" color="light" class="btn"  @click="handleCheckButtonClickReject"
+          <ion-button
+            expand="block"
+            color="light"
+            class="btn"
+            @click="handleCheckButtonClickReject"
             ><ion-icon name="close-sharp" class="btn-icon"></ion-icon
           ></ion-button>
         </ion-col>
@@ -81,11 +99,18 @@ export default {
     code: String,
     requestDataId: Number,
     requestId: Number,
+    date: String,
   },
   methods: {
     async handleCheckButtonClick() {
       try {
-        this.$emit("checkButtonClick", "approve", this.code, this.requestDataId, this.requestId);
+        this.$emit(
+          "checkButtonClick",
+          "approve",
+          this.code,
+          this.requestDataId,
+          this.requestId
+        );
       } catch (error) {
         console.error("Error handling check button click: ", error);
         this.showErrorMessage("An error occurred: " + error.message);
@@ -93,7 +118,13 @@ export default {
     },
     async handleCheckButtonClickReject() {
       try {
-        this.$emit("checkButtonClick", "reject", this.code, this.requestDataId, this.requestId);
+        this.$emit(
+          "checkButtonClick",
+          "reject",
+          this.code,
+          this.requestDataId,
+          this.requestId
+        );
       } catch (error) {
         console.error("Error handling check button click: ", error);
         this.showErrorMessage("An error occurred: " + error.message);
@@ -117,7 +148,6 @@ export default {
   },
 };
 </script>
-
 
 <style scoped>
 .inline-v {
