@@ -6,7 +6,17 @@ const config: CapacitorConfig = {
   webDir: 'dist',
   server: {
     androidScheme: 'https'
+  },
+  plugins: {
+    Geolocation: {
+      // Add any Geolocation plugin configurations here
+      // For example:
+      // enableHighAccuracy: true,
+      timeout: 5000,
+      // maximumAge: 0
+    }
   }
+  
 };
 
 export default config;
