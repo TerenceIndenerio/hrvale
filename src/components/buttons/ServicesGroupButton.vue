@@ -4,16 +4,24 @@
       <ion-col class="card btn-text" expand="full" color="none">
         <a href="/leave">
           <span class="ion-text-left">
-            <ion-icon name="exit" class="icon-btn"></ion-icon>
-            <h4>Leave</h4>
+            <ion-icon
+              name="exit"
+              class="icon-btn"
+              :style="{ color: btnColor }"
+            ></ion-icon>
+            <h4 :style="{ color: btnTextColor }">Leave</h4>
           </span>
         </a>
       </ion-col>
       <ion-col class="card btn-text" expand="full" color="none">
         <a href="/clockin" class="clockin">
           <span class="ion-text-left">
-            <ion-icon name="time" class="icon-btn"></ion-icon>
-            <h4>Clock In/Out</h4>
+            <ion-icon
+              name="time"
+              class="icon-btn"
+              :style="{ color: btnColor }"
+            ></ion-icon>
+            <h4 :style="{ color: btnTextColor }">Clock In/Out</h4>
           </span>
         </a>
       </ion-col>
@@ -22,16 +30,24 @@
       <ion-col class="card btn-text" expand="full" color="none">
         <a href="/viewschedule">
           <span class="ion-text-left">
-            <ion-icon name="calendar" class="icon-btn"></ion-icon>
-            <h4>Schedule</h4>
+            <ion-icon
+              name="calendar"
+              class="icon-btn"
+              :style="{ color: btnColor }"
+            ></ion-icon>
+            <h4 :style="{ color: btnTextColor }">Schedule</h4>
           </span>
         </a>
       </ion-col>
       <ion-col class="card btn-text" expand="full" color="none">
         <a href="/attendancecorrection">
           <span class="ion-text-left">
-            <ion-icon name="today" class="icon-btn"></ion-icon>
-            <h4>Attendance <br />Correction</h4>
+            <ion-icon
+              name="today"
+              class="icon-btn"
+              :style="{ color: btnColor }"
+            ></ion-icon>
+            <h4 :style="{ color: btnTextColor }">Attendance <br />Correction</h4>
           </span>
         </a>
       </ion-col>
@@ -40,34 +56,24 @@
       <ion-col class="card btn-text" expand="full" color="none">
         <a href="/OTApply">
           <span class="ion-text-left">
-            <ion-icon name="calendar-clear" class="icon-btn"></ion-icon>
-            <h4>Apply OT</h4>
+            <ion-icon
+              name="calendar-clear"
+              class="icon-btn"
+              :style="{ color: btnColor }"
+            ></ion-icon>
+            <h4 :style="{ color: btnTextColor }">Apply OT</h4>
           </span>
         </a>
       </ion-col>
       <ion-col class="card btn-text" expand="full" color="none">
         <a href="/soon" disabled>
           <span class="ion-text-left">
-            <ion-icon name="pricetags" class="icon-btn"></ion-icon>
-            <h4>Vale</h4>
-          </span>
-        </a>
-      </ion-col>
-    </ion-row>
-    <ion-row>
-      <ion-col class="card btn-text" expand="full" color="none">
-        <a href="/soon" disabled>
-          <span class="ion-text-left">
-            <ion-icon name="receipt" class="icon-btn"></ion-icon>
-            <h4>View Payslip</h4>
-          </span>
-        </a>
-      </ion-col>
-      <ion-col class="card btn-text" expand="full" color="none">
-        <a href="/soon" disabled>
-          <span class="ion-text-left">
-            <ion-icon name="create" class="icon-btn"></ion-icon>
-            <h4>PCR</h4>
+            <ion-icon
+              name="pricetags"
+              class="icon-btn"
+              :style="{ color: btnColor }"
+            ></ion-icon>
+            <h4 :style="{ color: btnTextColor }">Vale</h4>
           </span>
         </a>
       </ion-col>
@@ -76,16 +82,38 @@
       <ion-col class="card btn-text" expand="full" color="none">
         <a href="/soon" disabled>
           <span class="ion-text-left">
-            <ion-icon name="gift" class="icon-btn"></ion-icon>
-            <h4>Benefits</h4>
+            <ion-icon
+              name="gift"
+              class="icon-btn"
+              :style="{ color: btnColor }"
+            ></ion-icon>
+            <h4 :style="{ color: btnTextColor }">Benefits</h4>
           </span>
         </a>
       </ion-col>
       <ion-col class="card btn-text" expand="full" color="none">
         <a href="/soon" disabled>
           <span class="ion-text-left">
-            <ion-icon name="cash" class="icon-btn"></ion-icon>
-            <h4>Loan Balances</h4>
+            <ion-icon
+              name="cash"
+              class="icon-btn"
+              :style="{ color: btnColor }"
+            ></ion-icon>
+            <h4 :style="{ color: btnTextColor }">Loan Balances</h4>
+          </span>
+        </a>
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col class="card btn-text" expand="full" color="none">
+        <a href="/soon" disabled>
+          <span class="ion-text-left">
+            <ion-icon
+              name="receipt"
+              class="icon-btn"
+              :style="{ color: btnColor }"
+            ></ion-icon>
+            <h4 :style="{ color: btnTextColor }">View Payslip</h4>
           </span>
         </a>
       </ion-col>
@@ -95,6 +123,11 @@
 
 <script setup lang="ts">
 import { IonButton, IonCol, IonGrid, IonRow, IonIcon } from "@ionic/vue";
+
+defineProps({
+  btnColor: String,
+  btnTextColor: String,
+});
 </script>
 
 <style scoped>

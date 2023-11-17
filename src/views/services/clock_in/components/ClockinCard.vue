@@ -30,16 +30,8 @@
           fill="#F2994A"
           stroke="#3C3636"
         />
-        <path
-          d="M23.7526 7.49194V0.899628"
-          stroke="#3B3636"
-          stroke-linecap="round"
-        />
-        <path
-          d="M23.7526 43.7822V37.1899"
-          stroke="#3B3636"
-          stroke-linecap="round"
-        />
+        <path d="M23.7526 7.49194V0.899628" stroke="#3B3636" stroke-linecap="round" />
+        <path d="M23.7526 43.7822V37.1899" stroke="#3B3636" stroke-linecap="round" />
         <path
           d="M39.7066 22.3409L46.7896 22.3409"
           stroke="#3B3636"
@@ -128,7 +120,12 @@
 
     <p class="text-clock">GENERAL 09:00 AM TO 06:00 PM</p>
 
-    <ion-button color="none" class="btn-clock space" @click="setClockInTime">
+    <ion-button
+      color="none"
+      class="btn-clock space"
+      @click="setClockInTime"
+      :style="{ backgroundColor: btnColor, color: btnTextColor }"
+    >
       {{ btnText }}
     </ion-button>
   </ion-card>
@@ -156,6 +153,8 @@ export default defineComponent({
   },
   props: {
     btnText: String,
+    btnColor: String,
+    btnTextColor: String,
   },
   data() {
     return {
@@ -199,10 +198,7 @@ export default defineComponent({
       console.log("date:", formattedDate);
       console.log("time:", formattedTime);
       console.log("timezoneName:", timeZone);
-      console.log(
-        "timezoneOffset:",
-        offsetSign + Math.abs(timeZoneOffsetMinutes) / 60
-      );
+      console.log("timezoneOffset:", offsetSign + Math.abs(timeZoneOffsetMinutes) / 60);
 
       this.$emit("clockInData", {
         date: formattedDate,
@@ -274,8 +270,6 @@ ion-card {
 }
 .btn-clock {
   border-radius: 15px;
-  background-color: #12a3da;
-
   width: 232px;
   height: 50px;
   overflow: hidden;
@@ -284,6 +278,7 @@ ion-card {
   font-style: normal;
   font-weight: 700;
   line-height: normal;
+  color: #fff;
 }
 .sun {
   animation: floatSun 10s ease 0s infinite normal forwards;

@@ -5,14 +5,22 @@
         <ion-col expand="full" color="none">
           <a href="/leave">
             <div class="flex-center box-container">
-              <ion-icon name="exit" class="icon-btn"></ion-icon>
+              <ion-icon
+                name="exit"
+                class="icon-btn"
+                :style="{ color: btnColor }"
+              ></ion-icon>
             </div>
           </a>
         </ion-col>
         <ion-col expand="full" color="none">
           <a href="/clockin" class="clockin">
             <div class="flex-center box-container">
-              <ion-icon name="time" class="icon-btn"></ion-icon>
+              <ion-icon
+                name="time"
+                class="icon-btn"
+                :style="{ color: btnColor }"
+              ></ion-icon>
             </div>
           </a>
         </ion-col>
@@ -21,14 +29,22 @@
         <ion-col expand="full" color="none">
           <a href="/viewschedule">
             <div class="flex-center box-container">
-              <ion-icon name="calendar" class="icon-btn"></ion-icon>
+              <ion-icon
+                name="calendar"
+                class="icon-btn"
+                :style="{ color: btnColor }"
+              ></ion-icon>
             </div>
           </a>
         </ion-col>
         <ion-col expand="full" color="none">
           <a href="/attendancecorrection">
             <div class="flex-center box-container">
-              <ion-icon name="today" class="icon-btn"></ion-icon>
+              <ion-icon
+                name="today"
+                class="icon-btn"
+                :style="{ color: btnColor }"
+              ></ion-icon>
             </div>
           </a>
         </ion-col>
@@ -37,14 +53,22 @@
         <ion-col expand="full" color="none">
           <a href="/soon">
             <div class="flex-center box-container">
-              <ion-icon name="calendar-clear" class="icon-btn"></ion-icon>
+              <ion-icon
+                name="calendar-clear"
+                class="icon-btn"
+                :style="{ color: btnColor }"
+              ></ion-icon>
             </div>
           </a>
         </ion-col>
         <ion-col class="card btn-text" expand="full" color="none">
           <a href="/soon" disabled>
             <div class="flex-center box-container">
-              <ion-icon name="pricetags" class="icon-btn"></ion-icon>
+              <ion-icon
+                name="pricetags"
+                class="icon-btn"
+                :style="{ color: btnColor }"
+              ></ion-icon>
             </div>
           </a>
         </ion-col>
@@ -80,6 +104,9 @@ export default defineComponent({
     IonGrid,
     IonCol,
     IonRow,
+  },
+  props: {
+    btnColor: String,
   },
 });
 </script>
@@ -138,6 +165,6 @@ ion-card {
 }
 .icon-btn {
   font-size: 30px;
-  color: var(--ion-color-blue-theme);
+  /* color: var(--ion-color-blue-theme); */
 }
 </style>

@@ -1,14 +1,23 @@
 <template>
   <ion-page>
     <HeaderClockWCard
+      v-if="!loading"
       :headerTitle="headerTitle"
       :clockin="clockin"
       :clockout="clockout"
+      :headerColor="theme.primaryColor"
+      :headerTextColor="theme.primaryFontColor"
     />
     <ion-content :fullscreen="true">
       <Refresher />
       <div class="margin-top"></div>
-      <ClockinCard @clockInData="handleClockInData" :btnText="btnText" />
+      <ClockinCard
+        v-if="!loading"
+        @clockInData="handleClockInData"
+        :btnText="btnText"
+        :btnColor="theme.primaryColor"
+        :btnTextColor="theme.primaryFontColor"
+      />
     </ion-content>
   </ion-page>
 </template>
@@ -32,6 +41,7 @@ import { useRouter } from "vue-router";
 import { useStore } from "vuex";
 import axios from "axios";
 import { Geolocation } from "@capacitor/geolocation";
+import { getThemeData } from "@/theme/theme";
 
 const baseURL = GlobalConstants.HOST_URL;
 
@@ -54,6 +64,7 @@ export default defineComponent({
       store: useStore(),
     };
   },
+
   data() {
     return {
       btnText: "Clock In",
@@ -65,6 +76,8 @@ export default defineComponent({
       timezoneName: "",
       timezoneOffset: "",
       employeeAlreadyPunchedIn: false,
+      theme: {},
+      loading: true,
     };
   },
   methods: {
@@ -103,7 +116,9 @@ export default defineComponent({
           this.btnText = "Clock Out";
         }
         this.store.commit("loader/updateLoader", false);
+        this.loading = false;
       } catch (error) {
+        this.loading = false;
         if (error.response && error.response.status === 401) {
           console.error(
             "Session Expired. Token needs to be refreshed or user needs to re-authenticate."
@@ -236,9 +251,19 @@ export default defineComponent({
       const coordinates = await Geolocation.getCurrentPosition();
       console.log("Current position:", coordinates);
     },
+    getTheme() {
+      const storedThemeData = getThemeData();
+
+      if (storedThemeData) {
+        this.theme = storedThemeData;
+      }
+      this.theme = storedThemeData;
+      console.log(this.theme);
+    },
   },
   async created() {
     await this.checkState();
+    this.getTheme();
   },
 });
 </script>

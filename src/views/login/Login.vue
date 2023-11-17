@@ -2,7 +2,7 @@
   <ion-page>
     <ion-content :fullscreen="true">
       <div v-if="loaded">
-        <div class="container" :style="{ backgroundColor: theme.primaryColor }">
+        <div class="container" :style="{ backgroundColor: themeData.primaryColor }">
           <ion-text class="logo-banner">
             <img :src="imgLogo" alt="SUYSING" />
           </ion-text>
@@ -10,8 +10,8 @@
 
         <LoginForm
           @login="OnLogin"
-          :btnBackgroundColor="theme.primaryColor"
-          :btnColor="theme.primaryFontColor"
+          :btnBackgroundColor="themeData.primaryColor"
+          :btnColor="themeData.primaryFontColor"
         />
       </div>
     </ion-content>
@@ -39,6 +39,7 @@ import { useStore } from "vuex";
 import { mapGetters, mapActions, mapState } from "vuex";
 import { GlobalConstants } from "@/config/constants";
 import axios from "axios";
+import { getThemeData, setThemeData } from "@/theme/theme";
 
 const baseURL = GlobalConstants.HOST_URL;
 
@@ -68,7 +69,7 @@ export default defineComponent({
       data: "",
       alertText: "test text Lorem ipsum.",
       imgLogo: "",
-      theme: [],
+      themeData: {},
       bgTheme: "",
       loaded: false,
     };
@@ -122,19 +123,19 @@ export default defineComponent({
         const responseData = await axios.get(apiUrl, { headers });
 
         this.themeData = responseData.data.data;
+        setThemeData(this.themeData);
 
         this.imgLogo =
           baseURL +
           `admin/theme/image/loginBanner?` +
           responseData.data.data.clientBanner.filename;
 
-        this.theme = {
+        this.themeData = {
           name: responseData.data.data.name,
           primaryColor: responseData.data.data.variables.primaryColor,
           primaryFontColor: responseData.data.data.variables.primaryFontColor,
           secondaryColor: responseData.data.data.variables.secondaryColor,
-          secondaryFontColor:
-            responseData.data.data.variables.secondaryFontColor,
+          secondaryFontColor: responseData.data.data.variables.secondaryFontColor,
           primaryGradientStartColor:
             responseData.data.data.variables.primaryGradientStartColor,
           primaryGradientEndColor:
@@ -152,10 +153,13 @@ export default defineComponent({
             `admin/theme/image/loginBanner?` +
             responseData.data.data.loginBanner.filename,
         };
+        console.log("theme:", this.themeData);
 
-        this.bgTheme = "background-color: " + this.theme.primaryColor;
+        setThemeData(this.themeData);
 
-        this.btnColorTheme = this.theme.primaryColor;
+        this.bgTheme = "background-color: " + this.themeData.primaryColor;
+
+        this.btnColorTheme = this.themeData.primaryColor;
 
         console.log(this.bgTheme);
         this.loaded = true;
@@ -178,8 +182,7 @@ export default defineComponent({
       const showAlert = async () => {
         const alert = await alertController.create({
           header: "Invalid Credentials",
-          message:
-            "The username or password you entered is incorrect. Please try again.",
+          message: "The username or password you entered is incorrect. Please try again.",
           buttons: [
             {
               text: "Close",

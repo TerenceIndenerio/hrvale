@@ -1,22 +1,20 @@
 <template>
   <ion-page>
-    <HeaderUser :headerTitle="headerTitle"></HeaderUser>
+    <HeaderUser :headerTitle="headerTitle" :headerColor="theme.primaryColor"></HeaderUser>
     <ion-content :fullscreen="true">
       <Refresher />
-      <CardWImg
-        :cardHeader="cardHeader"
-        :cardText="cardText"
-        :img_src="img_src"
-      />
+      <CardWImg :cardHeader="cardHeader" :cardText="cardText" :img_src="img_src" />
 
       <ion-text>
         <h2 class="title">Check Services</h2>
       </ion-text>
 
       <div class="flex-center">
-        <ServicesGroupButton />
+        <ServicesGroupButton
+          :btnColor="theme.primaryColor"
+          :btnTextColor="theme.primaryColor"
+        />
       </div>
-
     </ion-content>
   </ion-page>
 </template>
@@ -28,6 +26,7 @@ import ServicesGroupButton from "@/components/buttons/ServicesGroupButton.vue";
 import HeaderUser from "@/components/header/HeaderUser.vue";
 import Refresher from "@/components/refresher/Refresher.vue";
 import { defineComponent } from "vue";
+import { getThemeData } from "@/theme/theme";
 
 export default defineComponent({
   components: {
@@ -47,7 +46,17 @@ export default defineComponent({
       cardHeader: "Services",
       cardText: "is simply dummy text of the printing & typesetting industry.",
       img_src: "assets/images/card_img2.png",
+      theme: {},
     };
+  },
+  created() {
+    const storedThemeData = getThemeData();
+
+    if (storedThemeData) {
+      this.theme = storedThemeData;
+    }
+    this.theme = storedThemeData;
+    console.log(this.theme.primaryFontColor);
   },
 });
 </script>
