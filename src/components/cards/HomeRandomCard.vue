@@ -73,6 +73,43 @@
           </a>
         </ion-col>
       </ion-row>
+      <ion-row>
+        <ion-col class="card btn-text" expand="full" color="none">
+          <a href="/soon" disabled>
+            <div class="flex-center box-container">
+              <ion-icon
+                name="gift"
+                class="icon-btn"
+                :style="{ color: btnColor }"
+              ></ion-icon>
+            </div>
+          </a>
+        </ion-col>
+        <ion-col class="card btn-text" expand="full" color="none">
+          <a href="/soon" disabled>
+            <div class="flex-center box-container">
+              <ion-icon
+                name="cash"
+                class="icon-btn"
+                :style="{ color: btnColor }"
+              ></ion-icon>
+            </div>
+          </a>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col class="card btn-text" expand="full" color="none">
+          <a href="/soon" disabled>
+            <div class="flex-center box-container">
+              <ion-icon
+                name="receipt"
+                class="icon-btn"
+                :style="{ color: btnColor }"
+              ></ion-icon>
+            </div>
+          </a>
+        </ion-col>
+      </ion-row>
     </ion-grid>
   </ion-card>
 </template>
@@ -126,6 +163,7 @@ ion-card {
   box-shadow: 0px 2px 5px 0px rgb(175, 175, 175);
   border-radius: 10px;
   padding: 10px;
+  max-width: 150px;
 }
 .flex-center {
   display: flex;
@@ -144,6 +182,9 @@ ion-card {
 }
 .button-container {
   padding: 20px;
+  display: flex;
+  justify-content: center;
+  overflow-x: scroll;
 }
 .circle {
   width: 50px;
@@ -165,6 +206,5 @@ ion-card {
 }
 .icon-btn {
   font-size: 30px;
-  /* color: var(--ion-color-blue-theme); */
 }
 </style>

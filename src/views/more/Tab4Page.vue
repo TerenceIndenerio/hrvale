@@ -1,6 +1,6 @@
 <template>
   <ion-page>
-    <HeaderUser :headerTitle="headerTitle"></HeaderUser>
+    <HeaderUser :headerTitle="headerTitle" :headerColor="theme.primaryColor"></HeaderUser>
     <ion-content :fullscreen="true">
       <Refresher />
       <ion-card class="card">
@@ -16,6 +16,7 @@ import { IonPage, IonContent, IonCard } from "@ionic/vue";
 import { defineComponent } from "vue";
 import HeaderUser from "@/components/header/HeaderUser.vue";
 import Refresher from "@/components/refresher/Refresher.vue";
+import { getThemeData } from "@/theme/theme";
 
 export default defineComponent({
   components: {
@@ -27,6 +28,14 @@ export default defineComponent({
   },
   data() {
     return { headerTitle: "Other Page" };
+  },
+  created() {
+    const storedThemeData = getThemeData();
+
+    if (storedThemeData) {
+      this.theme = storedThemeData;
+    }
+    this.theme = storedThemeData;
   },
 });
 </script>

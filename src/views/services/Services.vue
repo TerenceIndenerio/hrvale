@@ -56,7 +56,6 @@ export default defineComponent({
       this.theme = storedThemeData;
     }
     this.theme = storedThemeData;
-    console.log(this.theme.primaryFontColor);
   },
 });
 </script>

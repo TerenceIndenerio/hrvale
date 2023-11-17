@@ -1,6 +1,6 @@
 <template>
   <ion-page>
-    <HeaderUser :headerTitle="headerTitle"></HeaderUser>
+    <HeaderUser :headerTitle="headerTitle" :headerColor="theme.primaryColor"></HeaderUser>
     <ion-content :fullscreen="true">
       <Refresher />
       <ion-card class="card">
@@ -56,6 +56,7 @@ import { useStore } from "vuex";
 import { useRouter } from "vue-router";
 import axios from "axios";
 import { GlobalConstants } from "@/config/constants";
+import { getThemeData } from "@/theme/theme";
 
 const baseURL = GlobalConstants.HOST_URL;
 
@@ -78,7 +79,12 @@ export default defineComponent({
     };
   },
   data() {
-    return { headerTitle: "Approval", requestTypeOption: [], results: [] };
+    return {
+      headerTitle: "Approval",
+      requestTypeOption: [],
+      results: [],
+      theme: {},
+    };
   },
   methods: {
     handleCheckButtonClick(action, code, requestDataId, requestId) {
@@ -516,6 +522,13 @@ export default defineComponent({
 
   created() {
     this.fetchRequest();
+
+    const storedThemeData = getThemeData();
+
+    if (storedThemeData) {
+      this.theme = storedThemeData;
+    }
+    this.theme = storedThemeData;
   },
 });
 </script>

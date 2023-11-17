@@ -31,7 +31,12 @@
       <ion-button class="btn" fill="clear" expand="full"
         ><ion-icon name="person-circle-outline"></ion-icon> Profile</ion-button
       >
-      <ion-button class="btn logout-btn" expand="full" color="none" @click="logout"
+      <ion-button
+        class="btn logout-btn"
+        expand="full"
+        color="none"
+        @click="logout"
+        :style="{ backgroundColor: headerColor }"
         ><ion-icon name="exit-outline"></ion-icon> Log Out</ion-button
       >
     </div>
