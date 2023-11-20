@@ -1,8 +1,11 @@
 <template>
   <ion-page>
     <HeaderReturn
+      v-if="!loading"
       :headerTitle="headerTitle"
       router-direction="none"
+      :headerColor="theme.primaryColor"
+      :headerTextColor="theme.primaryFontColor"
     ></HeaderReturn>
     <ion-content :fullscreen="true">
       <Refresher />
@@ -22,9 +25,7 @@
           <div v-for="item in requests" :key="item.id">
             <LeaveDashboardCard
               :cardTitle="item.leaveType.name"
-              :appliedDuration="
-                item.dates.fromDate + ' to ' + item.dates.toDate
-              "
+              :appliedDuration="item.dates.fromDate + ' to ' + item.dates.toDate"
               :reason="item.lastComment ? item.lastComment.comment : ''"
               :typeOfLeave="item.leaveType.name"
               :status="item.leaveBreakdown[0].name"
@@ -36,7 +37,14 @@
         </ion-card>
 
         <div class="flex-center btn-bottom">
-          <ion-button class="btn" @click="navigateToApplyLeave"
+          <ion-button
+            class="btn"
+            @click="navigateToApplyLeave"
+            color="none"
+            :style="{
+              backgroundColor: theme.primaryColor,
+              color: theme.primaryFontColor,
+            }"
             >Apply Leave</ion-button
           >
         </div>
@@ -57,7 +65,7 @@ import {
   IonButton,
   IonCard,
 } from "@ionic/vue";
-import HeaderReturnWCard from "@/components/header/HeaderReturnWCard.vue";
+
 import HeaderReturn from "@/components/header/HeaderReturn.vue";
 import LeaveDashboardCard from "@/views/services/leave/components/LeaveDashboardCard.vue";
 import Refresher from "@/components/refresher/Refresher.vue";
@@ -67,6 +75,7 @@ import { defineComponent } from "vue";
 import { useStore } from "vuex";
 import axios from "axios";
 import { GlobalConstants } from "@/config/constants";
+import { getThemeData } from "@/theme/theme";
 
 const baseURL = GlobalConstants.HOST_URL;
 
@@ -79,7 +88,6 @@ export default defineComponent({
     IonTitle,
     IonIcon,
     IonText,
-    HeaderReturnWCard,
     HeaderReturn,
     LeaveDashboardCard,
     IonButton,
@@ -100,6 +108,8 @@ export default defineComponent({
       headerTitle: "Leave Dashboard",
       timePeriod: "",
       userName: "",
+      theme: {},
+      loading: true,
       cardData: {
         date: "",
         employeeName: "",
@@ -174,7 +184,16 @@ export default defineComponent({
         return "default";
       }
     },
+    getTheme() {
+      const storedThemeData = getThemeData();
+
+      if (storedThemeData) {
+        this.theme = storedThemeData;
+      }
+      this.theme = storedThemeData;
+    },
   },
+
   async created() {
     try {
       this.store.commit("loader/updateLoader", true);
@@ -189,10 +208,13 @@ export default defineComponent({
           leaveData.employee.middleName || ""
         } ${leaveData.employee.lastName}`;
         this.cardData.leaveBalance = leaveData.leaveBalances[0].balance.balance;
+        this.getTheme();
 
         this.store.commit("loader/updateLoader", false);
+        this.loading = false;
       }
     } catch (error) {
+      this.loading = false;
       console.error(error);
     }
   },

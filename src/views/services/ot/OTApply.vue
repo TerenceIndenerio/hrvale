@@ -1,7 +1,12 @@
 <template>
   <ion-page>
-    <HeaderReturn :headerTitle="headerTitle" />
-    <ion-content :fullscreen="true">
+    <HeaderReturn
+      v-if="!loading"
+      :headerTitle="headerTitle"
+      :headerColor="theme.primaryColor"
+      :headerTextColor="theme.primaryFontColor"
+    />
+    <ion-content :fullscreen="true" v-if="!loading">
       <Refresher />
 
       <ion-card class="card">
@@ -164,6 +169,8 @@ import { useStore } from "vuex";
 import { useRouter } from "vue-router";
 import axios from "axios";
 import { GlobalConstants } from "@/config/constants";
+import { toastController } from "@ionic/vue";
+import { getThemeData } from "@/theme/theme";
 
 const baseURL = GlobalConstants.HOST_URL;
 
@@ -208,6 +215,8 @@ export default defineComponent({
       isModalVisible: false,
       selectedResult: null,
       isOpen: false,
+      theme: {},
+      loading: true,
     };
   },
 
@@ -217,7 +226,7 @@ export default defineComponent({
         const response = await axios.post(baseURL + "auth/token", {
           clientId: "test_id",
           clientSecret: "test_secret",
-          userId: 45,
+          userId: 1,
         });
         this.authToken = response.data.token;
         localStorage.setItem("_token", this.authToken);
@@ -284,9 +293,9 @@ export default defineComponent({
           });
         }
 
-        console.log(this.results);
         this.store.commit("loader/updateLoader", false);
       } catch (error) {
+        this.store.commit("loader/updateLoader", false);
         console.error("Error fetching payroll period options: ", error);
         this.showErrorMessage("An error occurred: " + error.message);
 
@@ -350,16 +359,19 @@ export default defineComponent({
         console.log(this.results);
         this.store.commit("loader/updateLoader", false);
       } catch (error) {
+        this.store.commit("loader/updateLoader", false);
         console.error("Error fetching payroll period options: ", error);
         this.showErrorMessage("An error occurred: " + error.message);
+      }
+    },
 
-        const errorMessage = error.response.data.error.message;
-        const fullErrorMessage = `Failed to load data, ${errorMessage}`;
+    async showErrorMessage(message) {
+      try {
         const toast = await toastController.create({
-          message: fullErrorMessage,
+          message: message,
           duration: 3000,
           position: "bottom",
-          icon: "alert-circle-outline",
+          color: "danger",
           buttons: [
             {
               icon: "close-outline",
@@ -368,6 +380,8 @@ export default defineComponent({
           ],
         });
         await toast.present();
+      } catch (error) {
+        console.error("Error displaying toast:", error);
       }
     },
 
@@ -379,9 +393,19 @@ export default defineComponent({
     setOpen(val) {
       this.isOpen = val;
     },
+    getTheme() {
+      const storedThemeData = getThemeData();
+
+      if (storedThemeData) {
+        this.theme = storedThemeData;
+      }
+      this.theme = storedThemeData;
+    },
   },
   created() {
+    this.getTheme();
     this.fetchRequest();
+    this.loading = false;
   },
 });
 </script>

@@ -3,6 +3,8 @@
     <HeaderReturn
       :headerTitle="headerTitle"
       router-direction="none"
+      :headerColor="theme.primaryColor"
+      :headerTextColor="theme.primaryFontColor"
     ></HeaderReturn>
     <ion-content :fullscreen="true">
       <Refresher />
@@ -20,6 +22,7 @@ import { IonPage, IonContent, IonCard } from "@ionic/vue";
 import HeaderReturn from "@/components/header/HeaderReturn.vue";
 import Refresher from "@/components/refresher/Refresher.vue";
 import { defineComponent } from "vue";
+import { getThemeData } from "@/theme/theme";
 
 export default defineComponent({
   components: {
@@ -30,7 +33,20 @@ export default defineComponent({
     IonCard,
   },
   data() {
-    return { headerTitle: "SuySing" };
+    return { headerTitle: "SuySing", theme: {} };
+  },
+  methods: {
+    getTheme() {
+      const storedThemeData = getThemeData();
+
+      if (storedThemeData) {
+        this.theme = storedThemeData;
+      }
+      this.theme = storedThemeData;
+    },
+  },
+  async created() {
+    this.getTheme();
   },
 });
 </script>

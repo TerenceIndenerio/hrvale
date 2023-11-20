@@ -1,8 +1,11 @@
 <template>
   <ion-page>
     <HeaderReturn
+      v-if="!loading"
       :headerTitle="headerTitle"
       router-direction="none"
+      :headerColor="theme.primaryColor"
+      :headerTextColor="theme.primaryFontColor"
     ></HeaderReturn>
     <ion-content :fullscreen="true">
       <Refresher />
@@ -38,14 +41,7 @@
 </template>
 
 <script>
-import {
-  IonPage,
-  IonHeader,
-  IonText,
-  IonContent,
-  IonCard,
-  IonIcon,
-} from "@ionic/vue";
+import { IonPage, IonHeader, IonText, IonContent, IonCard, IonIcon } from "@ionic/vue";
 import HeaderReturn from "@/components/header/HeaderReturn.vue";
 import LeaveRequestCard from "@/views/services/leave/components/LeaveRequestCard.vue";
 import Refresher from "@/components/refresher/Refresher.vue";
@@ -54,6 +50,7 @@ import { useStore } from "vuex";
 import { useRouter } from "vue-router";
 import axios from "axios";
 import { GlobalConstants } from "@/config/constants";
+import { getThemeData } from "@/theme/theme";
 
 const baseURL = GlobalConstants.HOST_URL;
 
@@ -85,6 +82,8 @@ export default defineComponent({
       data: [],
       employeeName: "",
       leaveReqFor: "",
+      theme: {},
+      loading: true,
       cardData: {
         date: "",
         employeeName: "",
@@ -126,8 +125,17 @@ export default defineComponent({
         return null;
       }
     },
+    getTheme() {
+      const storedThemeData = getThemeData();
+
+      if (storedThemeData) {
+        this.theme = storedThemeData;
+      }
+      this.theme = storedThemeData;
+    },
   },
   async created() {
+    this.getTheme();
     this.cardId = this.$route.query.cardId;
     const data = await this.fetchData();
     setTimeout(() => {
@@ -158,6 +166,7 @@ export default defineComponent({
     }
     console.log("Requests:", this.requests);
     this.store.commit("loader/updateLoader", false);
+    this.loading = false;
   },
 });
 </script>

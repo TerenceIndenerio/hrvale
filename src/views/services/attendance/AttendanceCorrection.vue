@@ -1,7 +1,12 @@
 <template>
   <ion-page>
-    <HeaderReturn :headerTitle="headerTitle" />
-    <ion-content :fullscreen="true">
+    <HeaderReturn
+      v-if="!loading"
+      :headerTitle="headerTitle"
+      :headerColor="theme.primaryColor"
+      :headerTextColor="theme.primaryFontColor"
+    />
+    <ion-content :fullscreen="true" v-if="!loading">
       <Refresher />
       <ion-card class="card text-center">
         <h3>Attendance Correction</h3>
@@ -59,6 +64,7 @@ import { defineComponent } from "vue";
 import axios from "axios";
 import { GlobalConstants } from "@/config/constants";
 import { mapState } from "vuex";
+import { getThemeData } from "@/theme/theme";
 
 const baseURL = GlobalConstants.HOST_URL;
 
@@ -85,13 +91,14 @@ export default defineComponent({
       authToken: null,
       noResult: false,
       results: [],
+      theme: {},
+      loading: true,
     };
-  },
-  computed: {
-    ...mapState("loader", ["loading"]),
   },
   created() {
     this.fetchAuthToken();
+    this.getTheme();
+    this.loading = false;
   },
   methods: {
     showErrorMessage(message) {
@@ -120,8 +127,7 @@ export default defineComponent({
         console.error("Error fetching authentication token: ", error);
         this.showErrorMessage("An error occurred: " + error.message);
 
-        const errorMessage =
-          error.response.data.error.message || "Failed to load data";
+        const errorMessage = error.response.data.error.message || "Failed to load data";
         const fullErrorMessage = `An error occurred: ${errorMessage}`;
         const toast = await toastController.create({
           message: fullErrorMessage,
@@ -163,8 +169,7 @@ export default defineComponent({
         console.error("Error fetching payroll period options: ", error);
         this.showErrorMessage("An error occurred: " + error.message);
 
-        const errorMessage =
-          error.response.data.error.message || "Failed to load data";
+        const errorMessage = error.response.data.error.message || "Failed to load data";
         const fullErrorMessage = `Failed to load data, ${errorMessage}`;
         const toast = await toastController.create({
           message: fullErrorMessage,
@@ -243,8 +248,7 @@ export default defineComponent({
         this.noResult = true;
         this.$store.commit("loader/updateLoader", false);
 
-        const errorMessage =
-          error.response.data.error.message || "Failed to load data";
+        const errorMessage = error.response.data.error.message || "Failed to load data";
         const fullErrorMessage = `Failed to load data, ${errorMessage}`;
         const toast = await toastController.create({
           message: fullErrorMessage,
@@ -260,6 +264,14 @@ export default defineComponent({
         });
         await toast.present();
       }
+    },
+    getTheme() {
+      const storedThemeData = getThemeData();
+
+      if (storedThemeData) {
+        this.theme = storedThemeData;
+      }
+      this.theme = storedThemeData;
     },
   },
 });

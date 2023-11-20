@@ -1,11 +1,16 @@
 <template>
   <ion-page>
-    <HeaderReturn :headerTitle="headerTitle" />
+    <HeaderReturn
+      v-if="!loading"
+      :headerTitle="headerTitle"
+      :headerColor="theme.primaryColor"
+      :headerTextColor="theme.primaryFontColor"
+    />
 
     <ion-content :fullscreen="true">
       <Refresher />
 
-      <ion-card class="card-container">
+      <ion-card class="card-container" v-if="!loading">
         <!-- Leave Balance Card -->
         <ion-card class="card leaveBal-container">
           <p class="leave-bal">
@@ -161,11 +166,7 @@
         </ion-card>
 
         <!-- Specific Time (Start Day) Card -->
-        <ion-card
-          class="card"
-          id="specificTime"
-          v-show="showsSpecificTimeStartDay"
-        >
+        <ion-card class="card" id="specificTime" v-show="showsSpecificTimeStartDay">
           <p class="margin-l">Specific Time</p>
           <div class="specific-time-container">
             <ion-card class="card specific-time-card">
@@ -211,11 +212,7 @@
         </ion-card>
 
         <!-- Specific Time (End Day) Card -->
-        <ion-card
-          class="card"
-          id="specificTime"
-          v-show="showsSpecificTimeEndDay"
-        >
+        <ion-card class="card" id="specificTime" v-show="showsSpecificTimeEndDay">
           <p class="margin-l">Specific Time</p>
           <div class="specific-time-container">
             <ion-card class="card specific-time-card">
@@ -260,7 +257,14 @@
 
         <!-- Apply Leave Button -->
         <div class="flex-center">
-          <ion-button class="btn" @click="sendLeaveRequest"
+          <ion-button
+            class="btn"
+            @click="sendLeaveRequest"
+            color="none"
+            :style="{
+              backgroundColor: theme.primaryColor,
+              color: theme.primaryFontColor,
+            }"
             >Apply Leave</ion-button
           >
         </div>
@@ -285,7 +289,10 @@ import HeaderReturn from "@/components/header/HeaderReturn.vue";
 import { defineComponent, ref } from "vue";
 import Refresher from "@/components/refresher/Refresher.vue";
 import axios from "axios";
+import { useStore } from "vuex";
+import { useRouter } from "vue-router";
 import { GlobalConstants } from "@/config/constants";
+import { getThemeData } from "@/theme/theme";
 
 const baseURL = GlobalConstants.HOST_URL;
 
@@ -303,8 +310,15 @@ export default defineComponent({
     IonToast,
     toastController,
   },
+  setup() {
+    return {
+      store: useStore(),
+    };
+  },
   data() {
     return {
+      theme: {},
+      loading: true,
       headerTitle: "Apply Leave",
       leaveBalance: 0,
       leaveOptionsWithIds: [],
@@ -425,6 +439,7 @@ export default defineComponent({
   methods: {
     async fetchData() {
       try {
+        this.store.commit("loader/updateLoader", true);
         const response = await axios.post(baseURL + "auth/token", {
           clientId: "test_id",
           clientSecret: "test_secret",
@@ -440,12 +455,14 @@ export default defineComponent({
 
         const api = baseURL + "api/v2/leave/leave-types";
         const dataResponse = await axios.get(api, { headers });
-
+        this.loading = false;
         return dataResponse.data.data.map((leaveData) => ({
           name: leaveData.name,
           id: leaveData.id,
         }));
+        this.store.commit("loader/updateLoader", false);
       } catch (error) {
+        this.loading = false;
         console.error("Error fetching token or data:", error);
         return null;
       }
@@ -481,10 +498,7 @@ export default defineComponent({
           }
         }
 
-        if (
-          this.endDaySelectedValue !== null &&
-          this.endDaySelectedValue !== undefined
-        ) {
+        if (this.endDaySelectedValue !== null && this.endDaySelectedValue !== undefined) {
           requestData.endDuration = {
             type: this.endDaySelectedValue,
           };
@@ -528,6 +542,8 @@ export default defineComponent({
         this.partialSelectedValue = null;
         this.startDaySelectedValue = null;
         this.endDaySelectedValue = null;
+
+        this.store.commit("loader/updateLoader", false);
       } catch (error) {
         console.error("Error sending leave request:", error);
 
@@ -581,8 +597,7 @@ export default defineComponent({
       const headers = {
         Authorization: `Bearer ${token}`,
       };
-      const api =
-        baseURL + `api/v2/leave/leave-balance/leave-type/${leaveTypeId}`;
+      const api = baseURL + `api/v2/leave/leave-balance/leave-type/${leaveTypeId}`;
 
       try {
         const response = await axios.get(api, { headers });
@@ -591,10 +606,20 @@ export default defineComponent({
         console.error("Error fetching leave balance:", error);
       }
     },
+    getTheme() {
+      const storedThemeData = getThemeData();
+
+      if (storedThemeData) {
+        this.theme = storedThemeData;
+      }
+      this.theme = storedThemeData;
+    },
   },
   async created() {
     const data = await this.fetchData();
     this.leaveOptionsWithIds = data;
+    this.getTheme();
+    this.store.commit("loader/updateLoader", false);
   },
 });
 </script>

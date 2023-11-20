@@ -88,12 +88,6 @@ export default defineComponent({
   },
   methods: {
     handleCheckButtonClick(action, code, requestDataId, requestId) {
-      console.log(`Check button clicked for request type: ${code}`);
-      console.log(`code: ${code}`);
-      console.log(`Request Data ID: ${requestDataId}`);
-      console.log(`Status: ${action}`);
-      console.log(`Status: ${requestId}`);
-
       switch (code) {
         case "leave":
           this.leaveRequest(requestId, action);
@@ -182,7 +176,6 @@ export default defineComponent({
             date: new Date(period.dateApplied.date).toLocaleDateString(),
           }));
         }
-        console.log(this.results);
         this.store.commit("loader/updateLoader", false);
       } catch (error) {
         console.error("Error fetching payroll period options: ", error);

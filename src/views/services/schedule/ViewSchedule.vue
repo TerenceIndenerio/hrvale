@@ -1,10 +1,13 @@
 <template>
   <ion-page>
     <HeaderReturn
+      v-if="!loading"
       :headerTitle="headerTitle"
       router-direction="none"
+      :headerColor="theme.primaryColor"
+      :headerTextColor="theme.primaryFontColor"
     ></HeaderReturn>
-    <ion-content :fullscreen="true">
+    <ion-content :fullscreen="true" v-if="!loading">
       <Refresher />
 
       <ion-card class="box-container">
@@ -50,6 +53,7 @@ import { IonDatetime } from "@ionic/vue";
 import { defineComponent } from "vue";
 import axios from "axios";
 import { GlobalConstants } from "@/config/constants";
+import { getThemeData } from "@/theme/theme";
 
 const baseURL = GlobalConstants.HOST_URL;
 
@@ -74,6 +78,8 @@ export default defineComponent({
       scheduleData: [],
       regularWorkHourStart: "00:00",
       regularWorkHourEnd: "00:00",
+      theme: {},
+      loading: true,
     };
   },
   computed: {
@@ -92,10 +98,7 @@ export default defineComponent({
           clientSecret: "test_secret",
           userId: 1,
         };
-        const authResponse = await axios.post(
-          baseURL + "auth/token",
-          authPayload
-        );
+        const authResponse = await axios.post(baseURL + "auth/token", authPayload);
         const authToken = `Bearer ${authResponse.data.token}`;
         const currentMonth = new Date().getMonth() + 1;
         const apiUrl =
@@ -150,9 +153,19 @@ export default defineComponent({
       }
       this.requestData();
     },
+    getTheme() {
+      const storedThemeData = getThemeData();
+
+      if (storedThemeData) {
+        this.theme = storedThemeData;
+      }
+      this.theme = storedThemeData;
+    },
   },
   async created() {
+    this.getTheme();
     const data = await this.requestData();
+    this.loading = false;
   },
 });
 </script>
