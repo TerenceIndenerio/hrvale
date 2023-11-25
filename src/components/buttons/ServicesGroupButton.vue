@@ -2,7 +2,7 @@
   <ion-grid class="button-container">
     <ion-row>
       <ion-col class="card btn-text" expand="full" color="none">
-        <a @click="navigateleave">
+        <a @click="navigateLeave">
           <span class="ion-text-left">
             <ion-icon
               name="exit"
@@ -66,7 +66,7 @@
         </a>
       </ion-col>
       <ion-col class="card btn-text" expand="full" color="none">
-        <a href="/soon" disabled>
+        <a @click="navigateSoon" disabled>
           <span class="ion-text-left">
             <ion-icon
               name="pricetags"
