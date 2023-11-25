@@ -1,7 +1,7 @@
 <template>
   <ion-page>
     <HeaderUser :headerTitle="headerTitle" :headerColor="theme.primaryColor"></HeaderUser>
-    <ion-content :fullscreen="true">
+    <ion-content :fullscreen="true" v-if="!loading">
       <Refresher />
       <ion-card class="card">
         <ion-select
@@ -84,6 +84,7 @@ export default defineComponent({
       requestTypeOption: [],
       results: [],
       theme: {},
+      loading: true,
     };
   },
   methods: {
@@ -177,6 +178,7 @@ export default defineComponent({
           }));
         }
         this.store.commit("loader/updateLoader", false);
+        this.loading = false;
       } catch (error) {
         console.error("Error fetching payroll period options: ", error);
         this.showErrorMessage("An error occurred: " + error.message);
