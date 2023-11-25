@@ -2,7 +2,7 @@
   <ion-grid class="button-container">
     <ion-row>
       <ion-col class="card btn-text" expand="full" color="none">
-        <a href="/leave">
+        <a @click="navigateleave">
           <span class="ion-text-left">
             <ion-icon
               name="exit"
@@ -14,7 +14,7 @@
         </a>
       </ion-col>
       <ion-col class="card btn-text" expand="full" color="none">
-        <a href="/clockin" class="clockin">
+        <a @click="navigateclockin" class="clockin">
           <span class="ion-text-left">
             <ion-icon
               name="time"
@@ -28,7 +28,7 @@
     </ion-row>
     <ion-row>
       <ion-col class="card btn-text" expand="full" color="none">
-        <a href="/viewschedule">
+        <a @click="navigateviewschedule">
           <span class="ion-text-left">
             <ion-icon
               name="calendar"
@@ -40,7 +40,7 @@
         </a>
       </ion-col>
       <ion-col class="card btn-text" expand="full" color="none">
-        <a href="/attendancecorrection">
+        <a @click="navigateattendancecorrection">
           <span class="ion-text-left">
             <ion-icon
               name="today"
@@ -54,7 +54,7 @@
     </ion-row>
     <ion-row>
       <ion-col class="card btn-text" expand="full" color="none">
-        <a href="/OTApply">
+        <a @click="navigateOTApply">
           <span class="ion-text-left">
             <ion-icon
               name="calendar-clear"
@@ -80,7 +80,7 @@
     </ion-row>
     <ion-row>
       <ion-col class="card btn-text" expand="full" color="none">
-        <a href="/soon" disabled>
+        <a @click="navigateSoon" disabled>
           <span class="ion-text-left">
             <ion-icon
               name="gift"
@@ -92,7 +92,7 @@
         </a>
       </ion-col>
       <ion-col class="card btn-text" expand="full" color="none">
-        <a href="/soon" disabled>
+        <a @click="navigateSoon" disabled>
           <span class="ion-text-left">
             <ion-icon
               name="cash"
@@ -106,7 +106,7 @@
     </ion-row>
     <ion-row>
       <ion-col class="card btn-text" expand="full" color="none">
-        <a href="/soon" disabled>
+        <a @click="navigateSoon" disabled>
           <span class="ion-text-left">
             <ion-icon
               name="receipt"
@@ -120,13 +120,36 @@
     </ion-row>
   </ion-grid>
 </template>
-
-<script setup lang="ts">
+<script>
 import { IonButton, IonCol, IonGrid, IonRow, IonIcon } from "@ionic/vue";
+import { defineComponent } from "vue";
 
-defineProps({
-  btnColor: String,
-  btnTextColor: String,
+export default defineComponent({
+  components: { IonButton, IonCol, IonGrid, IonRow, IonIcon },
+  props: {
+    btnColor: String,
+    btnTextColor: String,
+  },
+  methods: {
+    navigateSoon() {
+      this.$router.push("/soon");
+    },
+    navigateLeave() {
+      this.$router.push("/leave");
+    },
+    navigateclockin() {
+      this.$router.push("/clockin");
+    },
+    navigateviewschedule() {
+      this.$router.push("/viewschedule");
+    },
+    navigateattendancecorrection() {
+      this.$router.push("/attendancecorrection");
+    },
+    navigateOTApply() {
+      this.$router.push("/OTApply");
+    },
+  },
 });
 </script>
 

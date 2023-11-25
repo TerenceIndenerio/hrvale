@@ -1,18 +1,17 @@
 <template>
   <ion-page>
     <HeaderClockWCard
-      v-if="!loading"
       :headerTitle="headerTitle"
       :clockin="clockin"
       :clockout="clockout"
       :headerColor="theme.primaryColor"
       :headerTextColor="theme.primaryFontColor"
+      v-if="!loading"
     />
-    <ion-content :fullscreen="true">
+    <ion-content :fullscreen="true" v-if="!loading">
       <Refresher />
       <div class="margin-top"></div>
       <ClockinCard
-        v-if="!loading"
         @clockInData="handleClockInData"
         :btnText="btnText"
         :btnColor="theme.primaryColor"

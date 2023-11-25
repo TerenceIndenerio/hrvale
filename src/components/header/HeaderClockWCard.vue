@@ -1,8 +1,6 @@
 <template>
   <ion-header class="header" :style="{ backgroundColor: headerColor }">
-    <a href="/tabs/services"
-      ><ion-icon name="arrow-back-outline" class="icon1"></ion-icon
-    ></a>
+    <ion-icon name="arrow-back-outline" class="icon1" @click="navigateBack"></ion-icon>
     <h2 class="title" :style="{ color: headerTextColor }">{{ headerTitle }}</h2>
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -47,16 +45,28 @@
   </ion-header>
 </template>
 
-<script setup lang="ts">
+<script>
 import { IonHeader, IonIcon, IonCard } from "@ionic/vue";
 
-defineProps({
-  headerTitle: String,
-  clockin: String,
-  clockout: String,
-  headerColor: String,
-  headerTextColor: String,
-});
+export default {
+  components: {
+    IonHeader,
+    IonIcon,
+    IonCard,
+  },
+  props: {
+    headerTitle: String,
+    clockin: String,
+    clockout: String,
+    headerColor: String,
+    headerTextColor: String,
+  },
+  methods: {
+    navigateBack() {
+      this.$router.go(-1);
+    },
+  },
+};
 </script>
 
 <style scoped>
