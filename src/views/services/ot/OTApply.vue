@@ -30,12 +30,18 @@
         <h4 class="text-center outlineColor">Result</h4>
         <div v-for="(result, index) in results" :key="index">
           <OTCard
-            :otType="result.otName"
             :date="result.date"
-            :totalHour="result.totalHour"
             :status="result.status"
-            :result="result"
-            @view="handleView"
+            :scheduleIn="result.scheduleIn"
+            :scheduleOut="result.scheduleOut"
+            :actualIn="result.actualIn"
+            :actualOut="result.actualOut"
+            :day="result.day"
+            :fixedOtIn="result.fixedOtIn"
+            :fixedOtOut="result.fixedOtOut"
+            :otHours="result.otHours"
+            :reason="result.reason"
+            @view="handleView(result)"
           />
 
           <ion-modal :is-open="isOpen" id="example-modal">
@@ -44,24 +50,16 @@
 
               <ion-button
                 @click="setOpen(false)"
-                color="light"
+                color="dark"
+                fill="clear"
                 style="border-radius: 20px"
               >
                 <ion-icon name="close"></ion-icon>
               </ion-button>
             </div>
 
-            <ion-card class="card">
+            <ion-card class="card-modal">
               <ion-grid>
-                <ion-row>
-                  <ion-col>
-                    <p><strong>OT Type:</strong></p>
-                  </ion-col>
-                  <ion-col>
-                    <p>{{ selectedResult.otName }}</p>
-                  </ion-col>
-                </ion-row>
-
                 <ion-row>
                   <ion-col>
                     <p><strong>Date:</strong></p>
@@ -73,19 +71,10 @@
 
                 <ion-row>
                   <ion-col>
-                    <p><strong>Status:</strong></p>
+                    <p><strong>OT Hours:</strong></p>
                   </ion-col>
                   <ion-col>
-                    <p>{{ selectedResult.status }}</p>
-                  </ion-col>
-                </ion-row>
-
-                <ion-row>
-                  <ion-col>
-                    <p><strong>Total Hours:</strong></p>
-                  </ion-col>
-                  <ion-col>
-                    <p>{{ selectedResult.totalHour }}</p>
+                    <p>{{ selectedResult.otHours }}</p>
                   </ion-col>
                 </ion-row>
 
@@ -130,7 +119,25 @@
                     <p><strong>Fixed OT:</strong></p>
                   </ion-col>
                   <ion-col>
-                    <p>{{ selectedResult.fixedOt }} Hour(s)</p>
+                    <p>{{ selectedResult.fixedOtIn }}</p>
+                  </ion-col>
+                </ion-row>
+
+                <ion-row>
+                  <ion-col>
+                    <p><strong>Fixed OT:</strong></p>
+                  </ion-col>
+                  <ion-col>
+                    <p>{{ selectedResult.fixedOtOut }}</p>
+                  </ion-col>
+                </ion-row>
+
+                <ion-row>
+                  <ion-col>
+                    <p><strong>Reason:</strong></p>
+                  </ion-col>
+                  <ion-col>
+                    <p>{{ selectedResult.reason }}</p>
                   </ion-col>
                 </ion-row>
               </ion-grid>
@@ -272,16 +279,19 @@ export default defineComponent({
         const dataResponse = await axios.get(api, { headers });
 
         this.results = dataResponse.data.data.map((val) => ({
-          otType: val.type,
-          otName: val.name,
           date: val.date,
-          totalHour: val.totalHour,
-          status: val.requestStatus,
-          scheduleIn: formatTime(val.schedule.timeStart.date),
-          scheduleOut: formatTime(val.schedule.timeEnd.date),
-          actualIn: formatTime(val.attendance.timeStart.date),
-          actualOut: formatTime(val.attendance.timeEnd.date),
-          fixedOt: val.schedule.fixedOt,
+          scheduleIn: val.scheduleIn,
+          scheduleOut: val.scheduleOut,
+          actualIn: val.actualIn,
+          actualOut: val.actualOut,
+          day: val.day,
+          fixedOtIn: val.fixedOtIn,
+          fixedOtOut: val.fixedOtOut,
+          otHours: val.otHours,
+          reason:
+            val.reasonOptions && val.reasonOptions.length > 0
+              ? val.reasonOptions[0].content
+              : "",
         }));
 
         function formatTime(dateTimeString) {
@@ -335,16 +345,19 @@ export default defineComponent({
         const dataResponse = await axios.get(api, { headers });
 
         this.results = dataResponse.data.data.map((val) => ({
-          otType: val.type,
-          otName: val.name,
           date: val.date,
-          totalHour: val.totalHour,
-          status: val.requestStatus,
-          scheduleIn: formatTime(val.schedule.timeStart.date),
-          scheduleOut: formatTime(val.schedule.timeEnd.date),
-          actualIn: formatTime(val.attendance.timeStart.date),
-          actualOut: formatTime(val.attendance.timeEnd.date),
-          fixedOt: val.schedule.fixedOt,
+          scheduleIn: val.scheduleIn,
+          scheduleOut: val.scheduleOut,
+          actualIn: val.actualIn,
+          actualOut: val.actualOut,
+          day: val.day,
+          fixedOtIn: val.fixedOtIn,
+          fixedOtOut: val.fixedOtOut,
+          otHours: val.otHours,
+          reason:
+            val.reasonOptions && val.reasonOptions.length > 0
+              ? val.reasonOptions[0].content
+              : "",
         }));
 
         function formatTime(dateTimeString) {
@@ -387,6 +400,8 @@ export default defineComponent({
 
     handleView(result) {
       this.selectedResult = result;
+      console.log("Selected", this.selectedResult);
+      console.log("Selected", result);
       this.isOpen = true;
     },
 
@@ -419,6 +434,12 @@ export default defineComponent({
   border-radius: 20px;
   max-width: 400px;
 }
+
+.card-modal {
+  border-radius: 20px;
+  max-width: 400px;
+  margin-top: 0;
+}
 .result-container {
   padding: 10px 0;
 }
@@ -439,11 +460,11 @@ export default defineComponent({
   justify-content: space-between;
   align-items: center;
   flex-direction: row;
-  padding: 0 10px;
+  padding: 0 5px 0 20px;
 }
 
 ion-modal#example-modal {
-  --width: fit-content;
+  --width: 350px;
   --min-width: 250px;
   --height: fit-content;
   --border-radius: 20px;

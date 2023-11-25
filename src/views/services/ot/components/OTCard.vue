@@ -9,31 +9,41 @@
 
       <ion-row class="pad-w">
         <ion-col class="col-name">
-          <p>OT Type:</p>
+          <p>Day:</p>
         </ion-col>
 
         <ion-col class="col-data">
-          <p>{{ otType }}</p>
+          <p>{{ day }}</p>
         </ion-col>
       </ion-row>
 
       <ion-row class="pad-w">
         <ion-col class="col-name">
-          <p>Total Hours:</p>
+          <p>Actual In:</p>
         </ion-col>
 
         <ion-col class="col-data">
-          <p>{{ totalHour }}</p>
+          <p>{{ actualIn }}</p>
         </ion-col>
       </ion-row>
 
       <ion-row class="pad-w">
         <ion-col class="col-name">
-          <p>Status:</p>
+          <p>Actual Out:</p>
         </ion-col>
 
         <ion-col class="col-data">
-          <p>{{ status }}</p>
+          <p>{{ actualOut }}</p>
+        </ion-col>
+      </ion-row>
+
+      <ion-row class="pad-w">
+        <ion-col class="col-name">
+          <p>Reason:</p>
+        </ion-col>
+
+        <ion-col class="col-data">
+          <p>{{ reason }}</p>
         </ion-col>
       </ion-row>
 
@@ -41,7 +51,6 @@
         <ion-button expand="full" color="light" class="border" @click="handleView"
           >View</ion-button
         >
-        <ion-button expand="full" color="light" class="border">Apply</ion-button>
       </div>
     </ion-grid>
   </ion-card>
@@ -59,10 +68,16 @@ export default {
     IonButton,
   },
   props: {
-    otType: String,
     date: String,
-    totalHour: String,
-    status: String,
+    day: String,
+    scheduleIn: String,
+    scheduleOut: String,
+    fixedOtIn: String,
+    fixedOtOut: String,
+    actualIn: String,
+    actualOut: String,
+    otHours: Number,
+    reason: String,
     result: Object,
   },
   methods: {
