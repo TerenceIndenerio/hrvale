@@ -22,8 +22,8 @@
           presentation="date"
           display-timezone="false"
           v-model="selectedDate"
+          @ionChange="handleMonthChange"
           :highlighted-dates="highlightedDates"
-          readonly
         ></ion-datetime>
       </div>
 

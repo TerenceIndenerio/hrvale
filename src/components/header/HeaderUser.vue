@@ -107,7 +107,7 @@ export default defineComponent({
 .icon1 {
   position: absolute;
   right: 20px;
-  font-size: 30px;
+  font-size: 25px;
   color: var(--ion-color-primary-contrast);
 }
 .icon2 {
