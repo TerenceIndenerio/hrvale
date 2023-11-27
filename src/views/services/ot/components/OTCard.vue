@@ -1,5 +1,5 @@
 <template>
-  <ion-card class="card">
+  <ion-card class="card-container">
     <ion-grid>
       <ion-col class="flex-c">
         <div class="leave-type outlineColor">
@@ -82,7 +82,6 @@ export default {
   },
   methods: {
     handleView() {
-      // this.$emit("view", true);
       this.$emit("view", this.result);
       console.log("Clicked View");
     },
@@ -114,9 +113,9 @@ p {
 }
 
 /* specifics */
-.card {
+.card-container {
   padding: 0;
-  margin: 10px 7%;
+  /* margin: 10px 7%; */
   border-radius: 10px;
   height: fit-content;
 }
