@@ -1,6 +1,10 @@
 <template>
   <ion-page>
-    <HeaderUser :headerTitle="headerTitle" :headerColor="theme.primaryColor"></HeaderUser>
+    <HeaderUser
+      :headerTitle="headerTitle"
+      :headerColor="theme.primaryColor"
+      :imgLogo="theme.clientLogo"
+    ></HeaderUser>
     <ion-content :fullscreen="true" v-if="!loading">
       <Refresher />
       <CardWImg
@@ -75,6 +79,7 @@ export default defineComponent({
       orgData: [],
       extractedData: [],
       loading: true,
+      imgLogo: "",
     };
   },
   methods: {

@@ -1,6 +1,10 @@
 <template>
   <ion-page>
-    <HeaderUser :headerTitle="headerTitle" :headerColor="theme.primaryColor"></HeaderUser>
+    <HeaderUser
+      :headerTitle="headerTitle"
+      :headerColor="theme.primaryColor"
+      :imgLogo="theme.clientLogo"
+    ></HeaderUser>
     <ion-content :fullscreen="true">
       <Refresher />
       <ion-card class="card">
