@@ -92,7 +92,10 @@ export default defineComponent({
           clientSecret: "test_secret",
           userId: 1,
         };
-        const authResponse = await axios.post(baseURL + "auth/token", authPayload);
+        const authResponse = await axios.post(
+          baseURL + "auth/token",
+          authPayload
+        );
         const authToken = `Bearer ${authResponse.data.token}`;
         const apiUrl = baseURL + `api/v2/admin/organization`;
         const headers = {

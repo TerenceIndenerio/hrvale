@@ -1,22 +1,14 @@
 <template>
   <div class="container">
     <ion-card class="card">
-      <ion-grid>
-        <ion-row>
-          <ion-col class="inline-v text-container">
-            <h3 class="cardHeader">{{ cardHeader }}</h3>
-            <div class="inline-h">
-              <div class="icon flex-center"></div>
-              <div class="inline-v">
-                <p class="cardText">{{ cardText }}</p>
-              </div>
-            </div>
-          </ion-col>
-          <ion-col class="img-container" size="auto">
-            <img v-bind:src="img_src" class="img" />
-          </ion-col>
-        </ion-row>
-      </ion-grid>
+      <div class="inline-v text-container">
+        <h3 class="cardHeader">{{ cardHeader }}</h3>
+
+        <div class="flex-center"></div>
+        <div class="p-container">
+          <p class="cardText">{{ cardText }}</p>
+        </div>
+      </div>
     </ion-card>
   </div>
 </template>
@@ -43,10 +35,9 @@ defineProps({
 }
 
 .card {
-  padding-left: 20px;
+  padding: 0 10px;
   margin: 0;
-  border-radius: 20px;
-  min-height: 137px;
+  border-radius: 10px;
   height: fit-content;
 }
 .inline-v {
@@ -85,6 +76,12 @@ defineProps({
   font-style: normal;
   font-weight: 400;
   line-height: normal;
+  text-align: center;
+}
+.p-container {
+  margin: 0 20px;
+  display: flex;
+  justify-content: center;
 }
 .cardHeader {
   color: var(--ion-text-color);
@@ -93,6 +90,7 @@ defineProps({
   font-style: normal;
   font-weight: 700;
   line-height: normal;
+  text-align: center;
 }
 .img-container {
   display: flex;

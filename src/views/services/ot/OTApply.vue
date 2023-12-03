@@ -12,16 +12,28 @@
         <ion-card class="card search-container">
           <ion-card class="card date-container">
             <ion-item>
-              <ion-input label="from:" v-model="selectedDateFrom" type="date"></ion-input>
+              <ion-input
+                label="from:"
+                v-model="selectedDateFrom"
+                type="date"
+              ></ion-input>
             </ion-item>
           </ion-card>
           <ion-card class="card date-container">
             <ion-item>
-              <ion-input label="to:" v-model="selectedDateTo" type="date"></ion-input>
+              <ion-input
+                label="to:"
+                v-model="selectedDateTo"
+                type="date"
+              ></ion-input>
             </ion-item>
           </ion-card>
 
-          <ion-button @click="handleSearch" class="flex-right btn-container" color="light"
+          <ion-button
+            @click="handleSearch"
+            class="flex-right btn-container"
+            color="none"
+            :style="{ backgroundColor: theme.secondaryColor }"
             >Search</ion-button
           >
         </ion-card>
@@ -453,6 +465,8 @@ export default defineComponent({
 }
 .btn-container {
   margin: 0 10px 10px 10px;
+  border-radius: 10px;
+  overflow: hidden;
 }
 .outlineColor {
   border: 1px solid #828282;

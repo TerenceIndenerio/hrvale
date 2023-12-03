@@ -8,13 +8,7 @@ const config: CapacitorConfig = {
     androidScheme: 'https'
   },
   plugins: {
-    Geolocation: {
-      // Add any Geolocation plugin configurations here
-      // For example:
-      // enableHighAccuracy: true,
-      timeout: 5000,
-      // maximumAge: 0
-    }
+    
   }
   
 };

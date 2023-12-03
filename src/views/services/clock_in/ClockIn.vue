@@ -39,7 +39,7 @@ import { GlobalConstants } from "@/config/constants";
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
 import axios from "axios";
-import { Geolocation } from "@capacitor/geolocation";
+// import { Geolocation } from "@capacitor/geolocation";
 import { getThemeData } from "@/theme/theme";
 
 const baseURL = GlobalConstants.HOST_URL;
@@ -206,8 +206,8 @@ export default defineComponent({
           await axios.post(apiUrl, payload, { headers });
         }
 
-        const coordinates = await Geolocation.getCurrentPosition();
-        console.log("Current position:", coordinates);
+        // const coordinates = await Geolocation.getCurrentPosition();
+        // console.log("Current position:", coordinates);
 
         const toast = await toastController.create({
           message: "Successfully Sent!",
@@ -229,7 +229,8 @@ export default defineComponent({
           error.response?.data?.error?.message
         );
 
-        const errorMessage = error.response.data.error.message || "Failed to load data";
+        const errorMessage =
+          error.response.data.error.message || "Failed to load data";
         const fullErrorMessage = `Failed to load data, ${errorMessage}`;
         const toast = await toastController.create({
           message: fullErrorMessage,
@@ -247,8 +248,8 @@ export default defineComponent({
       }
     },
     async printCurrentPosition() {
-      const coordinates = await Geolocation.getCurrentPosition();
-      console.log("Current position:", coordinates);
+      // const coordinates = await Geolocation.getCurrentPosition();
+      // console.log("Current position:", coordinates);
     },
     getTheme() {
       const storedThemeData = getThemeData();

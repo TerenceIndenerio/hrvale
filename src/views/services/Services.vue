@@ -7,17 +7,22 @@
     ></HeaderUser>
     <ion-content :fullscreen="true">
       <Refresher />
-      <CardWImg :cardHeader="cardHeader" :cardText="cardText" :img_src="img_src" />
-
-      <ion-text>
-        <h2 class="title">Check Services</h2>
-      </ion-text>
+      <CardWImg
+        :cardHeader="cardHeader"
+        :cardText="cardText"
+        :img_src="img_src"
+      />
 
       <div class="flex-center">
-        <ServicesGroupButton
-          :btnColor="theme.primaryColor"
-          :btnTextColor="theme.primaryColor"
-        />
+        <ion-card class="services-card">
+          <ion-text>
+            <h2 class="title">Check Services</h2>
+          </ion-text>
+          <ServicesGroupButton
+            :btnColor="theme.primaryColor"
+            :btnTextColor="theme.primaryColor"
+          />
+        </ion-card>
       </div>
     </ion-content>
   </ion-page>
@@ -76,11 +81,8 @@ export default defineComponent({
 }
 ion-text .title {
   width: 120px;
-  margin-top: 20px;
-  margin-bottom: 0;
-  margin-left: 10px;
+  margin: 10px 0;
   color: var(--ion-text-color);
-  text-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
   font-family: Open Sans;
   font-size: 16px;
   font-style: normal;
@@ -136,15 +138,7 @@ ion-text .title {
   font-size: 30px;
   color: var(--ion-color-primary-contrast);
 }
-.title {
-  color: var(--ion-color-primary-contrast);
-  text-align: center;
-  font-family: var(--ion-font-font2);
-  font-size: 24px;
-  font-style: normal;
-  font-weight: 700;
-  line-height: normal;
-}
+
 .space {
   margin: 7px;
 }
@@ -259,5 +253,10 @@ ion-text .title {
 .btn-center {
   text-align: center;
   margin-top: 30px;
+}
+.services-card {
+  border-radius: 20px;
+  padding: 10px;
+  width: fit-content;
 }
 </style>

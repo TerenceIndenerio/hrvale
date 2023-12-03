@@ -12,6 +12,7 @@
             v-model="form.username"
             labelPlacement="floating"
             placeholder="user@example.com"
+            class="input-text"
             required
           ></ion-input>
         </div>
@@ -22,6 +23,7 @@
             v-model="form.password"
             labelPlacement="floating"
             type="password"
+            class="input-text"
             :required="true"
           ></ion-input>
         </div>
@@ -129,21 +131,24 @@ a {
   border-radius: 50px 50px 0 0;
 }
 .box-container {
-  border-radius: 20px;
+  border-radius: 50px;
   background-color: #e8e8e8;
+  overflow: hidden;
 }
 .input-title {
   color: #3b3c3e;
   font-family: Inter;
-  font-size: 19px;
+  font-size: 16px;
   font-style: normal;
   font-weight: bold;
   line-height: normal;
 }
+.input-text {
+  color: gray;
+  margin-left: 10px;
+}
 .btn {
   border-radius: 15px;
-  /* background-color: var(--ion-color-blue-theme); */
-  /* color: var(--ion-color-primary-contrast); */
   width: 70%;
   height: 50px;
   overflow: hidden;

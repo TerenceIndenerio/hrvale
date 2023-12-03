@@ -47,7 +47,9 @@
               class="icon-btn"
               :style="{ color: btnColor }"
             ></ion-icon>
-            <h4 :style="{ color: btnTextColor }">Attendance <br />Correction</h4>
+            <h4 :style="{ color: btnTextColor }">
+              Attendance <br />Correction
+            </h4>
           </span>
         </a>
       </ion-col>
@@ -198,16 +200,15 @@ a {
 }
 .card {
   padding: 0;
-  height: 60px;
+  height: 50px;
   border-radius: 10px;
-  margin: 10px;
+  margin: 5px;
   box-shadow: 0px 2px 5px 0px rgb(175, 175, 175);
   overflow: hidden;
   display: flex;
   justify-content: left;
   align-items: center;
-  max-width: 300px;
-  width: 150px;
+  width: 140px;
 }
 .btn-text h4 {
   padding: 0;

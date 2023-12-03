@@ -11,21 +11,25 @@
       <Refresher />
 
       <div v-if="showComponent">
-        <ion-card class="result-container">
-          <ion-button
-            fill="clear"
-            class="leave-entitlement-btn"
-            color="medium"
-            @click="navigateToLeaveEntitlement($event)"
-          >
-            <ion-icon name="calendar-outline"></ion-icon>
-            Leave Entitlement
-          </ion-button>
+        <div class="result-container">
+          <div class="le-btn-contianer">
+            <ion-button
+              class="leave-entitlement-btn"
+              color="none"
+              :style="{ backgroundColor: theme.secondaryColor }"
+              @click="navigateToLeaveEntitlement($event)"
+            >
+              <ion-icon name="calendar-outline"></ion-icon>
+              Leave Entitlement
+            </ion-button>
+          </div>
 
           <div v-for="item in requests" :key="item.id">
             <LeaveDashboardCard
               :cardTitle="item.leaveType.name"
-              :appliedDuration="item.dates.fromDate + ' to ' + item.dates.toDate"
+              :appliedDuration="
+                item.dates.fromDate + ' to ' + item.dates.toDate
+              "
               :reason="item.lastComment ? item.lastComment.comment : ''"
               :typeOfLeave="item.leaveType.name"
               :status="item.leaveBreakdown[0].name"
@@ -34,7 +38,7 @@
             />
           </div>
           <div class="margin-bottom"></div>
-        </ion-card>
+        </div>
 
         <div class="flex-center btn-bottom">
           <ion-button
@@ -227,7 +231,7 @@ export default defineComponent({
   margin-top: 50px;
 }
 .margin-bottom {
-  margin-bottom: 10vh;
+  margin-bottom: 5vh;
 }
 .flex-center {
   display: flex;
@@ -235,15 +239,14 @@ export default defineComponent({
   align-items: center;
 }
 .result-container {
-  margin: 20px auto 0 auto;
+  margin: 0 auto;
   max-width: 370px;
-  border-radius: 20px;
-  padding: 20px 0;
-  height: 60vh;
-  overflow-y: scroll;
-  border: 5px solid rgba(220, 220, 220, 0.581);
-  box-shadow: inset 10px 10px 15px #d9dade, inset -10px -10px 15px #ffffff,
-    9.91px 9.91px 15px #d9dade, -9.91px -9.91px 15px #ffffff;
+  padding-bottom: 100px;
+}
+.le-btn-contianer {
+  width: 100%;
+  display: flex;
+  justify-content: center;
 }
 .btn {
   border-radius: 15px;
@@ -274,12 +277,10 @@ export default defineComponent({
   width: 100%;
 }
 .leave-entitlement-btn {
-  display: flex;
-  align-items: center;
-  width: fit-content;
-  margin: 0 auto 20px auto;
-  justify-content: center;
-  border: 3px solid #9b9b9b;
-  border-radius: 10px;
+  overflow: hidden;
+  border-radius: 20px;
+  width: 80%;
+  height: 50px;
+  margin: 10px 0;
 }
 </style>
