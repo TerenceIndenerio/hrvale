@@ -47,9 +47,7 @@
               class="icon-btn"
               :style="{ color: btnColor }"
             ></ion-icon>
-            <h4 :style="{ color: btnTextColor }">
-              Attendance <br />Correction
-            </h4>
+            <h4 :style="{ color: btnTextColor }">Attendance <br />Correction</h4>
           </span>
         </a>
       </ion-col>
@@ -82,7 +80,7 @@
     </ion-row>
     <ion-row>
       <ion-col class="card btn-text" expand="full" color="none">
-        <a @click="navigateSoon" disabled>
+        <a @click="navigateBenefits" disabled>
           <span class="ion-text-left">
             <ion-icon
               name="gift"
@@ -150,6 +148,9 @@ export default defineComponent({
     },
     navigateOTApply() {
       this.$router.push("/OTApply");
+    },
+    navigateBenefits() {
+      this.$router.push("/benefits");
     },
   },
 });

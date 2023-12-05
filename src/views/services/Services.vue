@@ -7,11 +7,7 @@
     ></HeaderUser>
     <ion-content :fullscreen="true">
       <Refresher />
-      <CardWImg
-        :cardHeader="cardHeader"
-        :cardText="cardText"
-        :img_src="img_src"
-      />
+      <CardWImg :cardHeader="cardHeader" :cardText="cardText" :img_src="img_src" />
 
       <div class="flex-center">
         <ion-card class="services-card">
@@ -29,7 +25,7 @@
 </template>
 
 <script>
-import { IonPage, IonHeader, IonText, IonContent, IonIcon } from "@ionic/vue";
+import { IonPage, IonHeader, IonText, IonContent, IonIcon, IonCard } from "@ionic/vue";
 import CardWImg from "@/components/cards/CardWImg.vue";
 import ServicesGroupButton from "@/components/buttons/ServicesGroupButton.vue";
 import HeaderUser from "@/components/header/HeaderUser.vue";
@@ -48,6 +44,7 @@ export default defineComponent({
     ServicesGroupButton,
     HeaderUser,
     Refresher,
+    IonCard,
   },
   data() {
     return {
