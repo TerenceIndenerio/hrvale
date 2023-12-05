@@ -10,7 +10,7 @@
       <Refresher />
       <div class="container">
         <ion-card class="card result-container">
-          <h4 class="text-center">{{ totalRec }} Record Found</h4>
+          <h4 class="text-center outlineColor">{{ totalRec }} Record Found</h4>
           <div v-for="(result, index) in results" :key="index">
             <BenefitCard
               :benefitCode="result.benefitCode"
