@@ -203,7 +203,7 @@ a {
   padding: 0;
   height: 50px;
   border-radius: 10px;
-  margin: 5px;
+  margin: 10px;
   box-shadow: 0px 2px 5px 0px rgb(175, 175, 175);
   overflow: hidden;
   display: flex;
