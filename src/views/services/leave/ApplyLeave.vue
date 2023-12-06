@@ -25,6 +25,7 @@
         <div class="card emp-detail-container">
           <ion-card class="card emp-detail flex-center">
             <p>Employee Code</p>
+
             <p v-if="employeeDetail">
               <strong>{{ employeeDetail.employeeId }}</strong>
             </p>
@@ -725,7 +726,7 @@ export default defineComponent({
 .card {
   border-radius: 20px;
   padding: 10px;
-  margin: 10px;
+  margin: 5px 10px;
 }
 .date-container {
   width: fit-content;
@@ -747,16 +748,17 @@ export default defineComponent({
   display: flex;
   justify-content: space-around;
   align-items: center;
+  margin: 0;
 }
 .emp-detail {
-  margin: 0;
+  margin: 5px;
   min-width: 150px;
   min-height: 50px;
   justify-content: start;
 }
 
 .leave-type {
-  margin: 10px;
+  margin: 0 10px;
 }
 .date-picker {
   border-radius: 20px;
