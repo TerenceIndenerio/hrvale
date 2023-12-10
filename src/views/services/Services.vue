@@ -7,11 +7,7 @@
     ></HeaderUser>
     <ion-content :fullscreen="true">
       <Refresher />
-      <CardWImg
-        :cardHeader="cardHeader"
-        :cardText="cardText"
-        :img_src="img_src"
-      />
+      <CardWImg :cardHeader="cardHeader" :cardText="cardText" />
 
       <div class="flex-center">
         <ion-card class="services-card">
@@ -35,6 +31,7 @@ import {
   IonText,
   IonContent,
   IonIcon,
+  IonCard,
   IonCard,
 } from "@ionic/vue";
 import CardWImg from "@/components/cards/CardWImg.vue";
@@ -288,5 +285,6 @@ ion-text .title {
   border-radius: 20px;
   padding: 10px;
   width: fit-content;
+  min-width: 350px;
 }
 </style>

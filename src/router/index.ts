@@ -20,6 +20,7 @@ import OTApply from '@/views/services/ot/OTApply.vue';
 import Vale from '@/views/services/vale/Vale.vue';
 import leaveEntitlement from '@/views/services/leave/LeaveEntitlement.vue'
 import ViewSchedule from '@/views/services/schedule/ViewSchedule.vue'
+import Benefits from '@/views/services/benefits/Benefits.vue'
 import SoonPage from '@/views/SoonPage.vue'
 
 const routes: Array<RouteRecordRaw> = [
@@ -102,6 +103,10 @@ const routes: Array<RouteRecordRaw> = [
       {
         path: '/soon',
         component: SoonPage
+      },
+      {
+        path: '/benefits',
+        component: Benefits
       },
     ]
   },

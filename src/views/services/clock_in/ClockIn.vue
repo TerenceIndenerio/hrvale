@@ -102,6 +102,17 @@ export default defineComponent({
         this.clockin = getStateResponse.data?.data?.punchIn?.userTime;
         this.clockout = getStateResponse.data?.data?.punchOut?.userTime;
 
+        // Check if the utcDate is not equal to today's date
+        const currentDate = new Date().toISOString().split("T")[0];
+
+        // Check if the utcDate is not equal to today's date
+        if (getStateResponse.data?.data?.punchIn?.userDate !== currentDate) {
+          this.clockin = "00:00";
+        }
+        if (getStateResponse.data?.data?.punchOut?.userDate !== currentDate) {
+          this.clockout = "00:00";
+        }
+
         if (this.clockin === null) {
           this.clockin = "00:00";
         }
@@ -127,6 +138,7 @@ export default defineComponent({
         }
       }
     },
+
     async fetchToken() {
       try {
         const response = await axios.post(baseURL + "auth/token", {
@@ -229,8 +241,7 @@ export default defineComponent({
           error.response?.data?.error?.message
         );
 
-        const errorMessage =
-          error.response.data.error.message || "Failed to load data";
+        const errorMessage = error.response.data.error.message || "Failed to load data";
         const fullErrorMessage = `Failed to load data, ${errorMessage}`;
         const toast = await toastController.create({
           message: fullErrorMessage,

@@ -12,14 +12,36 @@
 
       <ion-card class="card-container" v-if="!loading">
         <!-- Leave Balance Card -->
-        <ion-card class="card leaveBal-container">
+        <ion-card v-if="employeeDetail2" class="card leaveBal-container">
           <p class="leave-bal">
-            Leave Balance: <strong>{{ leaveBalance }}</strong> Day(s)
+            Leave Balance: <strong>{{ employeeDetail2.balance }}</strong> Day(s)
           </p>
         </ion-card>
 
+        <ion-card v-else class="card leaveBal-container">
+          <p class="leave-bal">Leave Balance: <strong>0</strong> Day(s)</p>
+        </ion-card>
+
+        <div class="card emp-detail-container">
+          <ion-card class="card emp-detail flex-center">
+            <p>Employee Code</p>
+
+            <p v-if="employeeDetail">
+              <strong>{{ employeeDetail.employeeId }}</strong>
+            </p>
+          </ion-card>
+          <ion-card class="card emp-detail flex-center">
+            <p>Name</p>
+            <p v-if="employeeDetail">
+              <strong
+                >{{ employeeDetail.firstName }} {{ employeeDetail.lastName }}
+              </strong>
+            </p>
+          </ion-card>
+        </div>
+
         <!-- Leave Type Card -->
-        <ion-card class="card">
+        <ion-card class="card leave-type">
           <p class="margin-l">Leave Type</p>
           <ion-select
             label="Select Leave Type"
@@ -38,6 +60,22 @@
             </ion-select-option>
           </ion-select>
         </ion-card>
+
+        <!-- details -->
+        <div class="card emp-detail-container">
+          <ion-card class="card emp-detail flex-center">
+            <p>Allocated Days:</p>
+            <p v-if="employeeDetail2">
+              <strong>{{ employeeDetail2.entitled }}</strong>
+            </p>
+          </ion-card>
+          <ion-card class="card emp-detail flex-center">
+            <p>Total Days:</p>
+            <p>
+              <strong>{{ dateDifference }}</strong>
+            </p>
+          </ion-card>
+        </div>
 
         <!-- Date Range Card -->
         <div class="flex-w">
@@ -328,7 +366,6 @@ export default defineComponent({
       theme: {},
       loading: true,
       headerTitle: "Apply Leave",
-      leaveBalance: 0,
       leaveOptionsWithIds: [],
       fromDate: null,
       toDate: null,
@@ -353,6 +390,9 @@ export default defineComponent({
       selectedLeaveType: null,
       selectedLeaveID: null,
       reason: null,
+      employeeDetail: null,
+      employeeDetail2: null,
+
       durations: [
         { key: "full_day", label: "Full Day" },
         { key: "half_day_morning", label: "Half Day - Morning" },
@@ -427,6 +467,22 @@ export default defineComponent({
     },
   },
   computed: {
+    dateDifference() {
+      // Calculate the date difference in days
+      if (this.fromDate && this.toDate) {
+        const from = new Date(this.fromDate);
+        const to = new Date(this.toDate);
+
+        const differenceInMilliseconds = Math.abs(to - from);
+        const differenceInDays = Math.ceil(
+          differenceInMilliseconds / (1000 * 60 * 60 * 24)
+        );
+
+        return differenceInDays;
+      } else {
+        return 0;
+      }
+    },
     showPartialDays() {
       if (this.fromDate && this.toDate) {
         const fromDateObj = new Date(this.fromDate);
@@ -600,6 +656,8 @@ export default defineComponent({
         this.selectedLeaveType = null;
       }
 
+      this.fetchLeaveBalance(this.selectedLeaveID);
+
       // if (this.selectedLeaveType === "LWOP") {
       //   this.fetchLeaveBalance(3);
       // } else if (this.selectedLeaveType === "Vacation Leave") {
@@ -622,7 +680,20 @@ export default defineComponent({
 
       try {
         const response = await axios.get(api, { headers });
-        this.leaveBalance = response.data.data.balance.balance;
+        const { firstName, lastName, employeeId } = response.data.meta.employee;
+        this.employeeDetail = {
+          firstName,
+          lastName,
+          employeeId,
+        };
+
+        const { entitled, balance } = response.data.data.balance;
+        this.employeeDetail2 = {
+          entitled,
+          balance,
+        };
+
+        // this.leaveBalance = response.data.data.balance.balance;
       } catch (error) {
         console.error("Error fetching leave balance:", error);
       }
@@ -697,6 +768,7 @@ export default defineComponent({
 .card {
   border-radius: 20px;
   padding: 10px;
+  margin: 5px 10px;
 }
 .date-container {
   width: fit-content;
@@ -713,6 +785,22 @@ export default defineComponent({
 }
 .leave-bal {
   font-size: 12px;
+}
+.emp-detail-container {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  margin: 0;
+}
+.emp-detail {
+  margin: 5px;
+  min-width: 150px;
+  min-height: 50px;
+  justify-content: start;
+}
+
+.leave-type {
+  margin: 0 10px;
 }
 .date-picker {
   border-radius: 20px;
