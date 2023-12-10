@@ -166,7 +166,11 @@
         </ion-card>
 
         <!-- Specific Time (Start Day) Card -->
-        <ion-card class="card" id="specificTime" v-show="showsSpecificTimeStartDay">
+        <ion-card
+          class="card"
+          id="specificTime"
+          v-show="showsSpecificTimeStartDay"
+        >
           <p class="margin-l">Specific Time</p>
           <div class="specific-time-container">
             <ion-card class="card specific-time-card">
@@ -212,7 +216,11 @@
         </ion-card>
 
         <!-- Specific Time (End Day) Card -->
-        <ion-card class="card" id="specificTime" v-show="showsSpecificTimeEndDay">
+        <ion-card
+          class="card"
+          id="specificTime"
+          v-show="showsSpecificTimeEndDay"
+        >
           <p class="margin-l">Specific Time</p>
           <div class="specific-time-container">
             <ion-card class="card specific-time-card">
@@ -440,33 +448,38 @@ export default defineComponent({
     async fetchData() {
       try {
         this.store.commit("loader/updateLoader", true);
-        const response = await axios.post(baseURL + "auth/token", {
-          clientId: "test_id",
-          clientSecret: "test_secret",
-          userId: 1,
-        });
-        const token = response.data.token;
 
-        localStorage.setItem("_token", token);
+        const storedToken = localStorage.getItem("_token");
+
+        if (!storedToken) {
+          console.error("Token not available.");
+          console.log("Token is missing. Redirecting to login...");
+          this.router.push("/login");
+          return;
+        }
 
         const headers = {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${storedToken}`,
         };
 
         const api = baseURL + "api/v2/leave/leave-types";
         const dataResponse = await axios.get(api, { headers });
+
         this.loading = false;
+        this.store.commit("loader/updateLoader", false);
+
         return dataResponse.data.data.map((leaveData) => ({
           name: leaveData.name,
           id: leaveData.id,
         }));
-        this.store.commit("loader/updateLoader", false);
       } catch (error) {
         this.loading = false;
+        this.store.commit("loader/updateLoader", false);
         console.error("Error fetching token or data:", error);
         return null;
       }
     },
+
     async sendLeaveRequest() {
       try {
         const token = localStorage.getItem("_token");
@@ -498,7 +511,10 @@ export default defineComponent({
           }
         }
 
-        if (this.endDaySelectedValue !== null && this.endDaySelectedValue !== undefined) {
+        if (
+          this.endDaySelectedValue !== null &&
+          this.endDaySelectedValue !== undefined
+        ) {
           requestData.endDuration = {
             type: this.endDaySelectedValue,
           };
@@ -520,6 +536,7 @@ export default defineComponent({
           message: "Leave request sent successfully!",
           duration: 3000,
           position: "top",
+          color: "success",
           icon: "alert-circle-outline",
           buttons: [
             {
@@ -546,7 +563,7 @@ export default defineComponent({
         this.store.commit("loader/updateLoader", false);
       } catch (error) {
         console.error("Error sending leave request:", error);
-
+        this.checkTokenExpiration();
         const errorMessage =
           error.response.data.error.message || "Failed to send leave request";
         const fullErrorMessage = `Failed to Submit Leave Request, ${errorMessage}`;
@@ -572,6 +589,9 @@ export default defineComponent({
         (option) => option.name === selectedOption
       );
 
+      console.log(selectedOption);
+      console.log(selectedLeave);
+
       if (selectedLeave) {
         this.selectedLeaveID = selectedLeave.id;
         this.selectedLeaveType = selectedOption;
@@ -580,24 +600,25 @@ export default defineComponent({
         this.selectedLeaveType = null;
       }
 
-      if (this.selectedLeaveType === "LWOP") {
-        this.fetchLeaveBalance(3);
-      } else if (this.selectedLeaveType === "Vacation Leave") {
-        this.fetchLeaveBalance(1);
-      } else if (this.selectedLeaveType === "Sick Leave") {
-        this.fetchLeaveBalance(2);
-      } else if (this.selectedLeaveType === "BIRTHDAY LEAVE") {
-        this.fetchLeaveBalance(9);
-      } else {
-        this.leaveBalance = 0;
-      }
+      // if (this.selectedLeaveType === "LWOP") {
+      //   this.fetchLeaveBalance(3);
+      // } else if (this.selectedLeaveType === "Vacation Leave") {
+      //   this.fetchLeaveBalance(1);
+      // } else if (this.selectedLeaveType === "Sick Leave") {
+      //   this.fetchLeaveBalance(2);
+      // } else if (this.selectedLeaveType === "BIRTHDAY LEAVE") {
+      //   this.fetchLeaveBalance(9);
+      // } else {
+      //   this.leaveBalance = 0;
+      // }
     },
     async fetchLeaveBalance(leaveTypeId) {
       const token = localStorage.getItem("_token");
       const headers = {
         Authorization: `Bearer ${token}`,
       };
-      const api = baseURL + `api/v2/leave/leave-balance/leave-type/${leaveTypeId}`;
+      const api =
+        baseURL + `api/v2/leave/leave-balance/leave-type/${leaveTypeId}`;
 
       try {
         const response = await axios.get(api, { headers });
@@ -614,8 +635,29 @@ export default defineComponent({
       }
       this.theme = storedThemeData;
     },
+
+    // Exppiration of token
+    async checkTokenExpiration() {
+      const storedToken = localStorage.getItem("_token");
+
+      if (!storedToken) {
+        console.error("Token not available.");
+        console.log("Token is missing. Redirecting to login...");
+        this.router.push("/login");
+        return;
+      }
+
+      const tokenData = JSON.parse(atob(storedToken.split(".")[1]));
+      const expirationTime = tokenData.exp * 1000;
+
+      if (Date.now() > expirationTime) {
+        console.log("Token expired. Redirecting to login...");
+        this.router.push("/login");
+      }
+    },
   },
   async created() {
+    this.checkTokenExpiration();
     const data = await this.fetchData();
     this.leaveOptionsWithIds = data;
     this.getTheme();

@@ -11,11 +11,11 @@ interface ApiResponse {
   data: any; 
 }
 /** will move to different file later */
-export const generateToken = async (): Promise<any> => {
+export const generateToken = async (payload:any): Promise<any> => {
   try {
     const response: AxiosResponse<ApiResponse> = await api.post('/auth/token', {
-      clientId: GlobalConstants.CLIENT_ID,
-      clientSecret: GlobalConstants.CLIENT_SECRET,
+      clientId: payload.username,
+      clientSecret: payload.password,
       userId: GlobalConstants.USER_ID
     });
     return response;

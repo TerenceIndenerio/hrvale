@@ -37,7 +37,13 @@
 </template>
 
 <script>
-import { IonPage, IonCard, IonSelect, IonSelectOption, IonContent } from "@ionic/vue";
+import {
+  IonPage,
+  IonCard,
+  IonSelect,
+  IonSelectOption,
+  IonContent,
+} from "@ionic/vue";
 import HeaderReturn from "@/components/header/HeaderReturn.vue";
 import LeaveEntitlementCard from "@/views/services/leave/components/LeaveEntitlementCard.vue";
 import Refresher from "@/components/refresher/Refresher.vue";
@@ -81,34 +87,38 @@ export default defineComponent({
     async fetchLeavePeriods() {
       try {
         this.store.commit("loader/updateLoader", true);
-        const tokenResponse = await axios.post(baseURL + "auth/token", {
-          clientId: "test_id",
-          clientSecret: "test_secret",
-          userId: 1,
-        });
-        const token = tokenResponse.data.token;
+
+        const storedToken = localStorage.getItem("_token");
+
+        if (!storedToken) {
+          console.log("Token is missing. Redirecting to login...");
+          this.router.push("/login");
+          return;
+        }
 
         const currentLeavePeriodResponse = await axios.get(
           baseURL + "api/v2/leave/leave-periods",
           {
             headers: {
-              Authorization: `Bearer ${token}`,
+              Authorization: `Bearer ${storedToken}`,
             },
           }
         );
 
-        const {
-          startDate,
-          endDate,
-        } = currentLeavePeriodResponse.data.meta.currentLeavePeriod;
+        const { startDate, endDate } =
+          currentLeavePeriodResponse.data.meta.currentLeavePeriod;
         this.selectedApi = `${startDate} - ${endDate}`;
-        this.makeGetRequest(startDate, endDate);
 
-        const response = await axios.get(baseURL + "api/v2/leave/leave-periods", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        await this.makeGetRequest(startDate, endDate, storedToken);
+
+        const response = await axios.get(
+          baseURL + "api/v2/leave/leave-periods",
+          {
+            headers: {
+              Authorization: `Bearer ${storedToken}`,
+            },
+          }
+        );
 
         const leavePeriods = response.data.data;
         this.leavePeriodOptions = leavePeriods.map((period, index) => ({
@@ -122,25 +132,17 @@ export default defineComponent({
         console.error(error);
       }
     },
-    async makeGetRequest(fromDate, toDate) {
+    async makeGetRequest(fromDate, toDate, token) {
       try {
         this.store.commit("loader/updateLoader", true);
         const apiUrl =
           baseURL +
           `api/v2/leave/leave-entitlements?limit=50&offset=0&fromDate=${fromDate}&toDate=${toDate}`;
-        const tokenResponse = await axios.post(
-          "https://hrp-staging-delta.bapplware.com/web/index.php/auth/token",
-          {
-            clientId: "test_id",
-            clientSecret: "test_secret",
-            userId: 1,
-          }
-        );
-        const token = tokenResponse.data.token;
 
         const headers = {
           Authorization: `Bearer ${token}`,
         };
+
         const dataResponse = await axios.get(apiUrl, { headers });
 
         this.entitlements = dataResponse.data.data.map((entitlement) => {
@@ -151,6 +153,7 @@ export default defineComponent({
             creditedDate: entitlement.creditedDate,
           };
         });
+
         this.store.commit("loader/updateLoader", false);
       } catch (error) {
         this.store.commit("loader/updateLoader", false);

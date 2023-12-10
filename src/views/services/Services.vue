@@ -29,7 +29,14 @@
 </template>
 
 <script>
-import { IonPage, IonHeader, IonText, IonContent, IonIcon } from "@ionic/vue";
+import {
+  IonPage,
+  IonHeader,
+  IonText,
+  IonContent,
+  IonIcon,
+  IonCard,
+} from "@ionic/vue";
 import CardWImg from "@/components/cards/CardWImg.vue";
 import ServicesGroupButton from "@/components/buttons/ServicesGroupButton.vue";
 import HeaderUser from "@/components/header/HeaderUser.vue";
@@ -48,6 +55,7 @@ export default defineComponent({
     ServicesGroupButton,
     HeaderUser,
     Refresher,
+    IonCard,
   },
   data() {
     return {
@@ -58,7 +66,29 @@ export default defineComponent({
       theme: {},
     };
   },
+  methods: {
+    // Exppiration of token
+    async checkTokenExpiration() {
+      const storedToken = localStorage.getItem("_token");
+
+      if (!storedToken) {
+        console.error("Token not available.");
+        console.log("Token is missing. Redirecting to login...");
+        this.router.push("/login");
+        return;
+      }
+
+      const tokenData = JSON.parse(atob(storedToken.split(".")[1]));
+      const expirationTime = tokenData.exp * 1000;
+
+      if (Date.now() > expirationTime) {
+        console.log("Token expired. Redirecting to login...");
+        this.router.push("/login");
+      }
+    },
+  },
   created() {
+    this.checkTokenExpiration();
     const storedThemeData = getThemeData();
 
     if (storedThemeData) {

@@ -16,12 +16,13 @@ const mutations: MutationTree<TokenState> = {
 };
 
 const actions: ActionTree<TokenState, any> = {
-  async generateToken({ commit }) {
+  async generateToken({ commit }, payload) {
     try {
-      const response = await generateToken();
+      const response = await generateToken(payload);
       const token = response.data.token;
       localStorage.setItem("_token", token);
       commit('updateToken', token);
+      return response
     } catch (error) {
         console.error(error);
     }

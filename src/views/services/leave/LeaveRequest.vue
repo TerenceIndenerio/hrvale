@@ -41,7 +41,14 @@
 </template>
 
 <script>
-import { IonPage, IonHeader, IonText, IonContent, IonCard, IonIcon } from "@ionic/vue";
+import {
+  IonPage,
+  IonHeader,
+  IonText,
+  IonContent,
+  IonCard,
+  IonIcon,
+} from "@ionic/vue";
 import HeaderReturn from "@/components/header/HeaderReturn.vue";
 import LeaveRequestCard from "@/views/services/leave/components/LeaveRequestCard.vue";
 import Refresher from "@/components/refresher/Refresher.vue";
@@ -101,23 +108,23 @@ export default defineComponent({
     async fetchData() {
       try {
         this.store.commit("loader/updateLoader", true);
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        const response = await axios.post(baseURL + "auth/token", {
-          clientId: "test_id",
-          clientSecret: "test_secret",
-          userId: 1,
-        });
-        console.log(response.data);
+
+        const storedToken = localStorage.getItem("_token");
+
+        if (!storedToken) {
+          console.log("Token is missing. Redirecting to login...");
+          this.router.push("/login");
+          return;
+        }
+
         const _cardId = this.cardId;
-        const token = response.data.token;
+
         const api = `${baseURL}api/v2/leave/leave-requests/${_cardId}/leaves?limit=50&offset=0`;
         const headers = {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${storedToken}`,
         };
-        const dataResponse = await axios.get(api, { headers });
 
-        console.log("staging:", token);
-        console.log("IONIC:", localStorage.getItem("_token"));
+        const dataResponse = await axios.get(api, { headers });
 
         return dataResponse.data;
       } catch (error) {
@@ -164,7 +171,7 @@ export default defineComponent({
       } ${data.meta.employee.lastName}`;
       this.leaveReqFor = `${data.data[0].dates.fromDate} - ${leaveData.dates.fromDate} `;
     }
-    console.log("Requests:", this.requests);
+
     this.store.commit("loader/updateLoader", false);
     this.loading = false;
   },

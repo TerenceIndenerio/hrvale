@@ -79,29 +79,9 @@ export default defineComponent({
   },
   async mounted() {
     console.log("mounted login");
-    if (localStorage.getItem("_token")) {
-      this.router.push("/tabs/home");
-      this.store.commit("loader/updateLoader", false);
-    }
-
-    this.store.commit("loader/updateLoader", true);
     await this.fetchTheme();
   },
   methods: {
-    async fetchToken() {
-      try {
-        const response = await axios.post(baseURL + "auth/token", {
-          clientId: "test_id",
-          clientSecret: "test_secret",
-          userId: 1,
-        });
-        const token = response.data.token;
-
-        localStorage.setItem("_token", token);
-      } catch (error) {
-        console.error("Error fetching authentication token: ", error);
-      }
-    },
     async fetchTheme() {
       try {
         const response = await axios.post(baseURL + "auth/token", {
@@ -109,6 +89,7 @@ export default defineComponent({
           clientSecret: "test_secret",
           userId: 1,
         });
+
         const token = response.data.token;
 
         if (!token) {
@@ -120,6 +101,7 @@ export default defineComponent({
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         };
+
         const apiUrl = baseURL + `api/v2/admin/theme`;
 
         const responseData = await axios.get(apiUrl, { headers });
@@ -156,7 +138,6 @@ export default defineComponent({
             `admin/theme/image/loginBanner?` +
             responseData.data.data.loginBanner.filename,
         };
-        console.log("theme:", this.themeData);
 
         setThemeData(this.themeData);
 
@@ -164,7 +145,6 @@ export default defineComponent({
 
         this.btnColorTheme = this.themeData.primaryColor;
 
-        console.log(this.bgTheme);
         this.loaded = true;
         this.store.commit("loader/updateLoader", false);
       } catch (error) {
@@ -173,10 +153,19 @@ export default defineComponent({
     },
     async OnLogin(value) {
       try {
-        await this.store.dispatch("token/generateToken");
-        this.store.commit("loader/updateLoader", true);
-        this.router.push("/tabs/home");
-        this.store.commit("loader/updateLoader", false);
+        const response = await this.store.dispatch("token/generateToken", {
+          username: value.username,
+          password: value.password,
+        });
+
+        const token = response.data.token;
+        if (token) {
+          localStorage.setItem("_token", token);
+          this.router.push("/tabs/home");
+        } else {
+          console.log("Invalid username and/or password");
+          await this.alertError();
+        }
       } catch (error) {
         console.error(error);
       }

@@ -84,22 +84,45 @@ export default defineComponent({
   },
   methods: {
     ...mapMutations("loader", ["updateLoader"]),
+
+    // Exppiration of token
+    async checkTokenExpiration() {
+      const storedToken = localStorage.getItem("_token");
+
+      if (!storedToken) {
+        console.error("Token not available.");
+        console.log("Token is missing. Redirecting to login...");
+        this.router.push("/login");
+        return;
+      }
+
+      const tokenData = JSON.parse(atob(storedToken.split(".")[1]));
+      const expirationTime = tokenData.exp * 1000;
+
+      if (Date.now() > expirationTime) {
+        console.log("Token expired. Redirecting to login...");
+        this.router.push("/login");
+      }
+    },
+
     async fetchData() {
       try {
         this.store.commit("loader/updateLoader", true);
-        const authPayload = {
-          clientId: "test_id",
-          clientSecret: "test_secret",
-          userId: 1,
-        };
-        const authResponse = await axios.post(
-          baseURL + "auth/token",
-          authPayload
-        );
-        const authToken = `Bearer ${authResponse.data.token}`;
+
+        await this.checkTokenExpiration();
+
+        const storedToken = localStorage.getItem("_token");
+
+        if (!storedToken) {
+          console.log("Token is missing. Redirecting to login...");
+          this.router.push("/login");
+          return;
+        }
+
         const apiUrl = baseURL + `api/v2/admin/organization`;
+
         const headers = {
-          Authorization: authToken,
+          Authorization: `Bearer ${storedToken}`,
         };
 
         const response = await axios.get(apiUrl, { headers });
@@ -107,7 +130,7 @@ export default defineComponent({
         const extractedData = response.data.data;
 
         this.extractedData = extractedData;
-        console.log(this.extractedData);
+
         this.store.commit("loader/updateLoader", false);
         this.loading = false;
       } catch (error) {
@@ -119,13 +142,13 @@ export default defineComponent({
 
   created() {
     this.updateLoader(false);
+    this.checkTokenExpiration();
     this.fetchData();
     const storedThemeData = getThemeData();
 
     if (storedThemeData) {
       this.theme = storedThemeData;
     }
-    this.theme = storedThemeData;
   },
 });
 </script>
