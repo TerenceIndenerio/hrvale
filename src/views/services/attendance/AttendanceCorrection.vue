@@ -9,7 +9,7 @@
     <ion-content :fullscreen="true" v-if="!loading">
       <Refresher />
       <ion-card class="card text-center">
-        <h3>Attendance Correction</h3>
+        <h3>Payroll Period</h3>
 
         <ion-select
           label="Select Payroll Period"
@@ -93,6 +93,7 @@ export default defineComponent({
       results: [],
       theme: {},
       loading: true,
+      storedToken: null,
     };
   },
   created() {
@@ -101,6 +102,26 @@ export default defineComponent({
     this.loading = false;
   },
   methods: {
+    // Exppiration of token
+    async checkTokenExpiration() {
+      const storedToken = localStorage.getItem("_token");
+
+      if (!storedToken) {
+        console.error("Token not available.");
+        console.log("Token is missing. Redirecting to login...");
+        this.router.push("/login");
+        return;
+      }
+
+      const tokenData = JSON.parse(atob(storedToken.split(".")[1]));
+      const expirationTime = tokenData.exp * 1000;
+
+      if (Date.now() > expirationTime) {
+        console.log("Token expired. Redirecting to login...");
+        this.router.push("/login");
+      }
+    },
+
     showErrorMessage(message) {
       this.$ionic.toastController
         .create({
@@ -115,19 +136,17 @@ export default defineComponent({
     },
     async fetchAuthToken() {
       try {
-        const response = await axios.post(baseURL + "auth/token", {
-          clientId: "test_id",
-          clientSecret: "test_secret",
-          userId: 1,
-        });
-        this.authToken = response.data.token;
-        localStorage.setItem("_token", this.authToken);
+        await this.checkTokenExpiration();
+
+        this.storedToken = localStorage.getItem("_token");
+
         this.fetchPayrollPeriodOptions();
       } catch (error) {
         console.error("Error fetching authentication token: ", error);
         this.showErrorMessage("An error occurred: " + error.message);
 
-        const errorMessage = error.response.data.error.message || "Failed to load data";
+        const errorMessage =
+          error.response.data.error.message || "Failed to load data";
         const fullErrorMessage = `An error occurred: ${errorMessage}`;
         const toast = await toastController.create({
           message: fullErrorMessage,
@@ -146,12 +165,8 @@ export default defineComponent({
     },
     async fetchPayrollPeriodOptions() {
       try {
-        if (!this.authToken) {
-          throw new Error("Authentication token is missing.");
-        }
-
         const headers = {
-          Authorization: `Bearer ${this.authToken}`,
+          Authorization: `Bearer ${this.storedToken}`,
         };
 
         const api = baseURL + "api/payroll/maintenance/payroll-period";
@@ -169,7 +184,8 @@ export default defineComponent({
         console.error("Error fetching payroll period options: ", error);
         this.showErrorMessage("An error occurred: " + error.message);
 
-        const errorMessage = error.response.data.error.message || "Failed to load data";
+        const errorMessage =
+          error.response.data.error.message || "Failed to load data";
         const fullErrorMessage = `Failed to load data, ${errorMessage}`;
         const toast = await toastController.create({
           message: fullErrorMessage,
@@ -204,12 +220,9 @@ export default defineComponent({
     },
     async makeApiRequest(apiUrl) {
       try {
-        if (!this.authToken) {
-          throw new Error("Authentication token is missing.");
-        }
         this.$store.commit("loader/updateLoader", true);
         const headers = {
-          Authorization: `Bearer ${this.authToken}`,
+          Authorization: `Bearer ${this.storedToken}`,
         };
 
         const response = await axios.get(apiUrl, { headers });
@@ -248,7 +261,8 @@ export default defineComponent({
         this.noResult = true;
         this.$store.commit("loader/updateLoader", false);
 
-        const errorMessage = error.response.data.error.message || "Failed to load data";
+        const errorMessage =
+          error.response.data.error.message || "Failed to load data";
         const fullErrorMessage = `Failed to load data, ${errorMessage}`;
         const toast = await toastController.create({
           message: fullErrorMessage,

@@ -3,7 +3,6 @@
     <HeaderReturn
       v-if="!loading"
       :headerTitle="headerTitle"
-      router-direction="none"
       :headerColor="theme.primaryColor"
       :headerTextColor="theme.primaryFontColor"
     ></HeaderReturn>
@@ -129,22 +128,45 @@ export default defineComponent({
     };
   },
   methods: {
+    // Exppiration of token
+    async checkTokenExpiration() {
+      const storedToken = localStorage.getItem("_token");
+
+      if (!storedToken) {
+        console.error("Token not available.");
+        console.log("Token is missing. Redirecting to login...");
+        this.router.push("/login");
+        return;
+      }
+
+      const tokenData = JSON.parse(atob(storedToken.split(".")[1]));
+      const expirationTime = tokenData.exp * 1000;
+
+      if (Date.now() > expirationTime) {
+        console.log("Token expired. Redirecting to login...");
+        this.router.push("/login");
+      }
+    },
+
     async fetchData() {
       try {
         this.store.commit("loader/updateLoader", true);
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        const response = await axios.post(baseURL + "auth/token", {
-          clientId: "test_id",
-          clientSecret: "test_secret",
-          userId: 1,
-        });
-        const token = response.data.token;
+
+        const storedToken = localStorage.getItem("_token");
+
+        if (!storedToken) {
+          console.log("Token is missing. Redirecting to login...");
+          this.router.push("/login");
+          return;
+        }
+
         const api =
           baseURL +
           "api/v2/leave/leave-requests?limit=50&offset=0&includeEmployees=onlyCurrent";
         const headers = {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${storedToken}`,
         };
+
         const dataResponse = await axios.get(api, { headers });
 
         return dataResponse.data;
@@ -199,6 +221,7 @@ export default defineComponent({
   },
 
   async created() {
+    this.checkTokenExpiration();
     try {
       this.store.commit("loader/updateLoader", true);
       const data = await this.fetchData();

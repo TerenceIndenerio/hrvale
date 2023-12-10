@@ -4,6 +4,7 @@
       name="arrow-back-outline"
       class="icon1"
       @click="navigateBack"
+      router-direction="forward"
     ></ion-icon>
 
     <h2 class="title">{{ headerTitle }}</h2>
@@ -21,29 +22,83 @@
         fill="white"
       />
     </svg> -->
-    <ion-icon color="light" name="settings" class="settings-icon"></ion-icon>
+    <ion-icon
+      color="light"
+      name="settings"
+      class="settings-icon"
+      @click="openPopover($event)"
+      router-direction="forward"
+    ></ion-icon>
   </div>
+  <ion-popover
+    :is-open="popoverOpen"
+    :event="event"
+    @didDismiss="popoverOpen = false"
+    class="ion-popover-container"
+  >
+    <div class="popup-container">
+      <ion-button class="btn" fill="clear" expand="full"
+        ><ion-icon name="person-circle-outline"></ion-icon> Profile</ion-button
+      >
+      <ion-button
+        class="btn logout-btn"
+        expand="full"
+        color="none"
+        @click="logout"
+        :style="{ backgroundColor: headerColor }"
+        ><ion-icon name="exit-outline"></ion-icon> Log Out</ion-button
+      >
+    </div>
+  </ion-popover>
 </template>
 
 <script>
-import { IonHeader, IonIcon } from "@ionic/vue";
+import { IonHeader, IonIcon, IonPopover, IonButton } from "@ionic/vue";
+import { useRoute, useRouter } from "vue-router";
+import { ref } from "vue";
+import { defineProps, defineComponent } from "vue";
 
-export default {
+export default defineComponent({
   components: {
     IonHeader,
     IonIcon,
+    IonPopover,
+    IonButton,
   },
   props: {
     headerTitle: String,
     headerColor: String,
     headerTextColor: String,
   },
+  setup() {
+    const router = useRouter();
+    const popoverOpen = ref(false);
+    const event = ref(null);
+
+    const openPopover = (e) => {
+      event.value = e;
+      popoverOpen.value = true;
+    };
+
+    const logout = () => {
+      localStorage.removeItem("_token");
+      router.push("/login");
+      popoverOpen.value = false;
+    };
+
+    return {
+      popoverOpen,
+      openPopover,
+      logout,
+      event,
+    };
+  },
   methods: {
     navigateBack() {
       this.$router.go(-1);
     },
   },
-};
+});
 </script>
 
 <style scoped>
@@ -75,9 +130,7 @@ export default {
   font-size: 30px;
   color: var(--ion-color-primary-contrast);
 }
-.btn {
-  width: fit-content;
-}
+
 .title {
   color: var(--ion-color-primary-contrast);
   text-align: center;
@@ -89,5 +142,17 @@ export default {
 }
 .settings-icon {
   font-size: 25px;
+}
+
+ion-popover {
+  --width: fit-content;
+}
+.btn {
+  margin: 0;
+  height: 50px;
+  width: 150px;
+}
+.logout-btn {
+  background-color: #12a3da;
 }
 </style>

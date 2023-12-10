@@ -358,6 +358,7 @@ export default defineComponent({
   },
   setup() {
     return {
+      router: useRouter(),
       store: useStore(),
     };
   },
@@ -645,9 +646,6 @@ export default defineComponent({
         (option) => option.name === selectedOption
       );
 
-      console.log(selectedOption);
-      console.log(selectedLeave);
-
       if (selectedLeave) {
         this.selectedLeaveID = selectedLeave.id;
         this.selectedLeaveType = selectedOption;
@@ -657,18 +655,6 @@ export default defineComponent({
       }
 
       this.fetchLeaveBalance(this.selectedLeaveID);
-
-      // if (this.selectedLeaveType === "LWOP") {
-      //   this.fetchLeaveBalance(3);
-      // } else if (this.selectedLeaveType === "Vacation Leave") {
-      //   this.fetchLeaveBalance(1);
-      // } else if (this.selectedLeaveType === "Sick Leave") {
-      //   this.fetchLeaveBalance(2);
-      // } else if (this.selectedLeaveType === "BIRTHDAY LEAVE") {
-      //   this.fetchLeaveBalance(9);
-      // } else {
-      //   this.leaveBalance = 0;
-      // }
     },
     async fetchLeaveBalance(leaveTypeId) {
       const token = localStorage.getItem("_token");
@@ -692,8 +678,6 @@ export default defineComponent({
           entitled,
           balance,
         };
-
-        // this.leaveBalance = response.data.data.balance.balance;
       } catch (error) {
         console.error("Error fetching leave balance:", error);
       }

@@ -104,60 +104,43 @@ export default defineComponent({
   },
 
   methods: {
-    async fetchAuthToken() {
-      try {
-        const response = await axios.post(baseURL + "auth/token", {
-          clientId: "test_id",
-          clientSecret: "test_secret",
-          userId: 1,
-        });
-        this.authToken = response.data.token;
-        localStorage.setItem("_token", this.authToken);
-      } catch (error) {
-        console.error("Error fetching authentication token: ", error);
-        this.showErrorMessage("An error occurred: " + error.message);
+    // Exppiration of token
+    async checkTokenExpiration() {
+      const storedToken = localStorage.getItem("_token");
 
-        const errorMessage = error.response.data.error.message;
-        const fullErrorMessage = `An error occurred: ${errorMessage}`;
-        const toast = await toastController.create({
-          message: fullErrorMessage,
-          duration: 3000,
-          position: "bottom",
-          icon: "alert-circle-outline",
-          buttons: [
-            {
-              icon: "close-outline",
-              role: "cancel",
-            },
-          ],
-        });
-        await toast.present();
+      if (!storedToken) {
+        console.error("Token not available.");
+        console.log("Token is missing. Redirecting to login...");
+        this.router.push("/login");
+        return;
+      }
+
+      const tokenData = JSON.parse(atob(storedToken.split(".")[1]));
+      const expirationTime = tokenData.exp * 1000;
+
+      if (Date.now() > expirationTime) {
+        console.log("Token expired. Redirecting to login...");
+        this.router.push("/login");
       }
     },
 
     async fetchRequest() {
       try {
         this.store.commit("loader/updateLoader", true);
-        await this.fetchAuthToken();
 
-        if (!this.authToken) {
-          throw new Error("Authentication token is missing.");
-        }
+        await this.checkTokenExpiration();
+
+        const storedToken = localStorage.getItem("_token");
 
         const headers = {
-          Authorization: `Bearer ${this.authToken}`,
+          Authorization: `Bearer ${storedToken}`,
         };
 
         const api = baseURL + `api/v2/benefit-packages/5?limit=50&offset=0`;
         const dataResponse = await axios.get(api, { headers });
 
-        const {
-          id,
-          payGradeName,
-          jobCategoryName,
-          name,
-          packageItems,
-        } = dataResponse.data.data;
+        const { id, payGradeName, jobCategoryName, name, packageItems } =
+          dataResponse.data.data;
 
         const mappedPackageItems = packageItems.map((item) => ({
           benefitType: item.benefitType,
@@ -181,26 +164,6 @@ export default defineComponent({
         console.error("Error fetching benefit package: ", error);
 
         this.showErrorMessage("An error occurred: " + error.message);
-
-        const errorMessage = error.response
-          ? error.response.data.error.message
-          : "Unknown error";
-        const fullErrorMessage = `Failed to load data, ${errorMessage}`;
-
-        const toast = await toastController.create({
-          message: fullErrorMessage,
-          duration: 3000,
-          position: "bottom",
-          icon: "alert-circle-outline",
-          buttons: [
-            {
-              icon: "close-outline",
-              role: "cancel",
-            },
-          ],
-        });
-
-        await toast.present();
       }
     },
 
@@ -209,7 +172,7 @@ export default defineComponent({
         const toast = await toastController.create({
           message: message,
           duration: 3000,
-          position: "bottom",
+          position: "top",
           color: "danger",
           buttons: [
             {
@@ -244,6 +207,7 @@ export default defineComponent({
     },
   },
   created() {
+    this.checkTokenExpiration();
     this.getTheme();
     this.fetchRequest();
     this.loading = false;

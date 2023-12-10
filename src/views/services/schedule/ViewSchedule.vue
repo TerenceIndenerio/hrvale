@@ -3,7 +3,6 @@
     <HeaderReturn
       v-if="!loading"
       :headerTitle="headerTitle"
-      router-direction="none"
       :headerColor="theme.primaryColor"
       :headerTextColor="theme.primaryFontColor"
     ></HeaderReturn>
@@ -52,10 +51,13 @@ import Refresher from "@/components/refresher/Refresher.vue";
 import { IonDatetime } from "@ionic/vue";
 import { defineComponent } from "vue";
 import axios from "axios";
+import { useStore } from "vuex";
+import { useRouter } from "vue-router";
 import { GlobalConstants } from "@/config/constants";
 import { getThemeData } from "@/theme/theme";
 
 const baseURL = GlobalConstants.HOST_URL;
+const empNumber = GlobalConstants.USER_ID;
 
 export default defineComponent({
   components: {
@@ -67,13 +69,18 @@ export default defineComponent({
     IonCard,
     Refresher,
   },
+  setup() {
+    return {
+      router: useRouter(),
+      store: useStore(),
+    };
+  },
   data() {
     return {
       selectedMonth: new Date().toISOString(),
       selectedDate: new Date().toISOString(),
       headerTitle: "Schedule",
       buttonText: "Request Schedule",
-      empNumber: 1,
       month: 0,
       scheduleData: [],
       regularWorkHourStart: "00:00",
@@ -91,19 +98,36 @@ export default defineComponent({
     },
   },
   methods: {
+    // Exppiration of token
+    async checkTokenExpiration() {
+      const storedToken = localStorage.getItem("_token");
+
+      if (!storedToken) {
+        console.error("Token not available.");
+        console.log("Token is missing. Redirecting to login...");
+        this.router.push("/login");
+        return;
+      }
+
+      const tokenData = JSON.parse(atob(storedToken.split(".")[1]));
+      const expirationTime = tokenData.exp * 1000;
+
+      if (Date.now() > expirationTime) {
+        console.log("Token expired. Redirecting to login...");
+        this.router.push("/login");
+      }
+    },
+
     async requestData() {
       try {
-        const authPayload = {
-          clientId: "test_id",
-          clientSecret: "test_secret",
-          userId: 1,
-        };
-        const authResponse = await axios.post(baseURL + "auth/token", authPayload);
-        const authToken = `Bearer ${authResponse.data.token}`;
+        await this.checkTokenExpiration();
+        const storedToken = localStorage.getItem("_token");
+
+        const authToken = `Bearer ${storedToken}`;
         const currentMonth = new Date().getMonth() + 1;
         const apiUrl =
           baseURL +
-          `api/v2/ess/employee-schedule?empNumber=${this.empNumber}&month=${this.month}`;
+          `api/v2/ess/employee-schedule?empNumber=${empNumber}&month=${this.month}`;
         const headers = {
           Authorization: authToken,
         };
@@ -161,10 +185,40 @@ export default defineComponent({
       }
       this.theme = storedThemeData;
     },
+    // Run On Start
+    async requestData2(currentMonth) {
+      try {
+        await this.checkTokenExpiration();
+        const storedToken = localStorage.getItem("_token");
+
+        const authToken = `Bearer ${storedToken}`;
+        const apiUrl =
+          baseURL +
+          `api/v2/ess/employee-schedule?empNumber=${empNumber}&month=${currentMonth}`;
+        const headers = {
+          Authorization: authToken,
+        };
+
+        const response = await axios.get(apiUrl, { headers });
+
+        this.scheduleData = response.data.data;
+
+        const extractedData = this.scheduleData.map((entry) => ({
+          regularWorkHourStart: entry.regularWorkHourStart,
+          regularWorkHourEnd: entry.regularWorkHourEnd,
+          scheduleColor: entry.workShift.scheduleColor,
+          date: entry.scheduleDate.date.split(" ")[0],
+        }));
+      } catch (error) {
+        console.error("Error:", error);
+      }
+    },
   },
   async created() {
     this.getTheme();
-    const data = await this.requestData();
+    const currentMonth = new Date().getMonth() + 1;
+
+    const data = await this.requestData2(currentMonth);
     this.loading = false;
   },
 });

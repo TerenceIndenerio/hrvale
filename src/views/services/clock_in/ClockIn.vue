@@ -39,7 +39,6 @@ import { GlobalConstants } from "@/config/constants";
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
 import axios from "axios";
-// import { Geolocation } from "@capacitor/geolocation";
 import { getThemeData } from "@/theme/theme";
 
 const baseURL = GlobalConstants.HOST_URL;
@@ -80,10 +79,30 @@ export default defineComponent({
     };
   },
   methods: {
+    // Exppiration of token
+    async checkTokenExpiration() {
+      const storedToken = localStorage.getItem("_token");
+
+      if (!storedToken) {
+        console.error("Token not available.");
+        console.log("Token is missing. Redirecting to login...");
+        this.router.push("/login");
+        return;
+      }
+
+      const tokenData = JSON.parse(atob(storedToken.split(".")[1]));
+      const expirationTime = tokenData.exp * 1000;
+
+      if (Date.now() > expirationTime) {
+        console.log("Token expired. Redirecting to login...");
+        this.router.push("/login");
+      }
+    },
     async checkState() {
       try {
         this.store.commit("loader/updateLoader", true);
-        await this.fetchToken();
+
+        await this.checkTokenExpiration();
 
         const token = localStorage.getItem("_token");
         if (!token) {
@@ -102,10 +121,8 @@ export default defineComponent({
         this.clockin = getStateResponse.data?.data?.punchIn?.userTime;
         this.clockout = getStateResponse.data?.data?.punchOut?.userTime;
 
-        // Check if the utcDate is not equal to today's date
         const currentDate = new Date().toISOString().split("T")[0];
 
-        // Check if the utcDate is not equal to today's date
         if (getStateResponse.data?.data?.punchIn?.userDate !== currentDate) {
           this.clockin = "00:00";
         }
@@ -136,21 +153,6 @@ export default defineComponent({
         } else {
           console.error("Error making the GET request:", error);
         }
-      }
-    },
-
-    async fetchToken() {
-      try {
-        const response = await axios.post(baseURL + "auth/token", {
-          clientId: "test_id",
-          clientSecret: "test_secret",
-          userId: 1,
-        });
-        const token = response.data.token;
-
-        localStorage.setItem("_token", token);
-      } catch (error) {
-        console.error("Error fetching authentication token: ", error);
       }
     },
 
@@ -192,7 +194,8 @@ export default defineComponent({
     async handleClockInData(data) {
       try {
         const dataData = data.date;
-        await this.fetchToken();
+
+        await this.checkTokenExpiration();
 
         const token = localStorage.getItem("_token");
         const headers = {
@@ -210,19 +213,19 @@ export default defineComponent({
 
         await this.getState(dataData);
 
+        let toastMessage = "";
         if (this.employeeAlreadyPunchedIn) {
           this.btnText = "Clock In";
+          toastMessage = "Clocked Out";
           await axios.put(apiUrl, payload, { headers });
         } else {
           this.btnText = "Clock Out";
+          toastMessage = "Clocked In";
           await axios.post(apiUrl, payload, { headers });
         }
 
-        // const coordinates = await Geolocation.getCurrentPosition();
-        // console.log("Current position:", coordinates);
-
         const toast = await toastController.create({
-          message: "Successfully Sent!",
+          message: `Successfully ${toastMessage}!`,
           duration: 3000,
           position: "top",
           icon: "alert-circle-outline",
@@ -241,7 +244,8 @@ export default defineComponent({
           error.response?.data?.error?.message
         );
 
-        const errorMessage = error.response.data.error.message || "Failed to load data";
+        const errorMessage =
+          error.response.data.error.message || "Failed to load data";
         const fullErrorMessage = `Failed to load data, ${errorMessage}`;
         const toast = await toastController.create({
           message: fullErrorMessage,
@@ -258,10 +262,6 @@ export default defineComponent({
         await toast.present();
       }
     },
-    async printCurrentPosition() {
-      // const coordinates = await Geolocation.getCurrentPosition();
-      // console.log("Current position:", coordinates);
-    },
     getTheme() {
       const storedThemeData = getThemeData();
 
@@ -269,10 +269,10 @@ export default defineComponent({
         this.theme = storedThemeData;
       }
       this.theme = storedThemeData;
-      console.log(this.theme);
     },
   },
   async created() {
+    this.checkTokenExpiration();
     await this.checkState();
     this.getTheme();
   },

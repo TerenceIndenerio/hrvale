@@ -30,8 +30,16 @@
           fill="#F2994A"
           stroke="#3C3636"
         />
-        <path d="M23.7526 7.49194V0.899628" stroke="#3B3636" stroke-linecap="round" />
-        <path d="M23.7526 43.7822V37.1899" stroke="#3B3636" stroke-linecap="round" />
+        <path
+          d="M23.7526 7.49194V0.899628"
+          stroke="#3B3636"
+          stroke-linecap="round"
+        />
+        <path
+          d="M23.7526 43.7822V37.1899"
+          stroke="#3B3636"
+          stroke-linecap="round"
+        />
         <path
           d="M39.7066 22.3409L46.7896 22.3409"
           stroke="#3B3636"
@@ -194,11 +202,6 @@ export default defineComponent({
       const timeZone = new Intl.DateTimeFormat("en-US", {
         timeZoneName: "short",
       }).resolvedOptions().timeZone;
-
-      console.log("date:", formattedDate);
-      console.log("time:", formattedTime);
-      console.log("timezoneName:", timeZone);
-      console.log("timezoneOffset:", offsetSign + Math.abs(timeZoneOffsetMinutes) / 60);
 
       this.$emit("clockInData", {
         date: formattedDate,

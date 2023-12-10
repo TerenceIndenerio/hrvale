@@ -40,122 +40,122 @@
 
         <ion-card class="card result-container">
           <h4 class="text-center outlineColor">Result</h4>
-          <div v-for="(result, index) in results" :key="index">
-            <OTCard
-              :date="result.date"
-              :status="result.status"
-              :scheduleIn="result.scheduleIn"
-              :scheduleOut="result.scheduleOut"
-              :actualIn="result.actualIn"
-              :actualOut="result.actualOut"
-              :day="result.day"
-              :fixedOtIn="result.fixedOtIn"
-              :fixedOtOut="result.fixedOtOut"
-              :otHours="result.otHours"
-              :reason="result.reason"
-              @view="handleView(result)"
-            />
 
-            <ion-modal :is-open="isOpen" id="example-modal">
-              <div class="modal-header">
-                <h4>View Details</h4>
+          <OTCard
+            v-for="result in results"
+            :date="result.date"
+            :status="result.status"
+            :scheduleIn="result.scheduleIn"
+            :scheduleOut="result.scheduleOut"
+            :actualIn="result.actualIn"
+            :actualOut="result.actualOut"
+            :day="result.day"
+            :fixedOtIn="result.fixedOtIn"
+            :fixedOtOut="result.fixedOtOut"
+            :otHours="result.otHours"
+            :reason="result.reason"
+            @view="handleView(result)"
+          />
 
-                <ion-button
-                  @click="setOpen(false)"
-                  color="dark"
-                  fill="clear"
-                  style="border-radius: 20px"
-                >
-                  <ion-icon name="close"></ion-icon>
-                </ion-button>
-              </div>
+          <ion-modal :is-open="isOpen" id="example-modal">
+            <div class="modal-header">
+              <h4>View Details</h4>
 
-              <ion-card class="card-modal">
-                <ion-grid>
-                  <ion-row>
-                    <ion-col>
-                      <p><strong>Date:</strong></p>
-                    </ion-col>
-                    <ion-col>
-                      <p>{{ selectedResult.date }}</p>
-                    </ion-col>
-                  </ion-row>
+              <ion-button
+                @click="isOpen = false"
+                color="dark"
+                fill="clear"
+                style="border-radius: 20px"
+              >
+                <ion-icon name="close"></ion-icon>
+              </ion-button>
+            </div>
 
-                  <ion-row>
-                    <ion-col>
-                      <p><strong>OT Hours:</strong></p>
-                    </ion-col>
-                    <ion-col>
-                      <p>{{ selectedResult.otHours }}</p>
-                    </ion-col>
-                  </ion-row>
+            <ion-card class="card-modal">
+              <ion-grid>
+                <ion-row>
+                  <ion-col>
+                    <p><strong>Date:</strong></p>
+                  </ion-col>
+                  <ion-col>
+                    <p>{{ selectedResult.date }}</p>
+                  </ion-col>
+                </ion-row>
 
-                  <ion-row>
-                    <ion-col>
-                      <p><strong>Schedule In:</strong></p>
-                    </ion-col>
-                    <ion-col>
-                      <p>{{ selectedResult.scheduleIn }}</p>
-                    </ion-col>
-                  </ion-row>
+                <ion-row>
+                  <ion-col>
+                    <p><strong>OT Hours:</strong></p>
+                  </ion-col>
+                  <ion-col>
+                    <p>{{ selectedResult.otHours }}</p>
+                  </ion-col>
+                </ion-row>
 
-                  <ion-row>
-                    <ion-col>
-                      <p><strong>Schedule Out:</strong></p>
-                    </ion-col>
-                    <ion-col>
-                      <p>{{ selectedResult.scheduleOut }}</p>
-                    </ion-col>
-                  </ion-row>
+                <ion-row>
+                  <ion-col>
+                    <p><strong>Schedule In:</strong></p>
+                  </ion-col>
+                  <ion-col>
+                    <p>{{ selectedResult.scheduleIn }}</p>
+                  </ion-col>
+                </ion-row>
 
-                  <ion-row>
-                    <ion-col>
-                      <p><strong>Actual In:</strong></p>
-                    </ion-col>
-                    <ion-col>
-                      <p>{{ selectedResult.actualIn }}</p>
-                    </ion-col>
-                  </ion-row>
+                <ion-row>
+                  <ion-col>
+                    <p><strong>Schedule Out:</strong></p>
+                  </ion-col>
+                  <ion-col>
+                    <p>{{ selectedResult.scheduleOut }}</p>
+                  </ion-col>
+                </ion-row>
 
-                  <ion-row>
-                    <ion-col>
-                      <p><strong>Actual Out:</strong></p>
-                    </ion-col>
-                    <ion-col>
-                      <p>{{ selectedResult.actualOut }}</p>
-                    </ion-col>
-                  </ion-row>
+                <ion-row>
+                  <ion-col>
+                    <p><strong>Actual In:</strong></p>
+                  </ion-col>
+                  <ion-col>
+                    <p>{{ selectedResult.actualIn }}</p>
+                  </ion-col>
+                </ion-row>
 
-                  <ion-row>
-                    <ion-col>
-                      <p><strong>Fixed OT:</strong></p>
-                    </ion-col>
-                    <ion-col>
-                      <p>{{ selectedResult.fixedOtIn }}</p>
-                    </ion-col>
-                  </ion-row>
+                <ion-row>
+                  <ion-col>
+                    <p><strong>Actual Out:</strong></p>
+                  </ion-col>
+                  <ion-col>
+                    <p>{{ selectedResult.actualOut }}</p>
+                  </ion-col>
+                </ion-row>
 
-                  <ion-row>
-                    <ion-col>
-                      <p><strong>Fixed OT:</strong></p>
-                    </ion-col>
-                    <ion-col>
-                      <p>{{ selectedResult.fixedOtOut }}</p>
-                    </ion-col>
-                  </ion-row>
+                <ion-row>
+                  <ion-col>
+                    <p><strong>Fixed OT:</strong></p>
+                  </ion-col>
+                  <ion-col>
+                    <p>{{ selectedResult.fixedOtIn }}</p>
+                  </ion-col>
+                </ion-row>
 
-                  <ion-row>
-                    <ion-col>
-                      <p><strong>Reason:</strong></p>
-                    </ion-col>
-                    <ion-col>
-                      <p>{{ selectedResult.reason }}</p>
-                    </ion-col>
-                  </ion-row>
-                </ion-grid>
-              </ion-card>
-            </ion-modal>
-          </div>
+                <ion-row>
+                  <ion-col>
+                    <p><strong>Fixed OT:</strong></p>
+                  </ion-col>
+                  <ion-col>
+                    <p>{{ selectedResult.fixedOtOut }}</p>
+                  </ion-col>
+                </ion-row>
+
+                <ion-row>
+                  <ion-col>
+                    <p><strong>Reason:</strong></p>
+                  </ion-col>
+                  <ion-col>
+                    <p>{{ selectedResult.reason }}</p>
+                  </ion-col>
+                </ion-row>
+              </ion-grid>
+            </ion-card>
+          </ion-modal>
         </ion-card>
       </div>
     </ion-content>
@@ -382,7 +382,6 @@ export default defineComponent({
           });
         }
 
-        console.log(this.results);
         this.store.commit("loader/updateLoader", false);
       } catch (error) {
         this.store.commit("loader/updateLoader", false);
@@ -413,14 +412,11 @@ export default defineComponent({
 
     handleView(result) {
       this.selectedResult = result;
-      console.log("Selected", this.selectedResult);
-      console.log("Selected", result);
+
+      // this.isOpen = true;
       this.isOpen = true;
     },
 
-    setOpen(val) {
-      this.isOpen = val;
-    },
     getTheme() {
       const storedThemeData = getThemeData();
 

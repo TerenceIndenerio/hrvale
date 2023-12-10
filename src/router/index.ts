@@ -5,7 +5,6 @@ import Leave from '@/views/services/leave/LeaveDashboard.vue'
 import ApplyLeave from '@/views/services/leave/ApplyLeave.vue'
 import LeaveRequest from '@/views/services/leave/LeaveRequest.vue'
 import ClockIn from '@/views/services/clock_in/ClockIn.vue'
-import Attendance from '@/views/services/attendance/Attendance.vue'
 import AttendanceCorrection from '@/views/services/attendance/AttendanceCorrection.vue'
 import OTRequest from '@/views/services/ot/OTRequest.vue'
 import Login from '@/views/login/Login.vue'
@@ -75,10 +74,6 @@ const routes: Array<RouteRecordRaw> = [
       {
         path: '/viewschedule',
         component: ViewSchedule
-      },
-      {
-        path: '/attendance',
-        component: Attendance
       },
       {
         path: '/attendancecorrection',

@@ -1,8 +1,16 @@
 <template>
-  <ion-header class="header" color="none" :style="{ backgroundColor: headerColor }">
+  <ion-header
+    class="header"
+    color="none"
+    :style="{ backgroundColor: headerColor }"
+  >
     <img :src="imgLogo" alt="Logo" class="logo" />
     <!-- <h2 class="title">{{ headerTitle }}</h2> -->
-    <ion-icon name="settings" class="icon1" @click="openPopover($event)"></ion-icon>
+    <ion-icon
+      name="settings"
+      class="icon1"
+      @click="openPopover($event)"
+    ></ion-icon>
     <!-- <svg
       xmlns="http://www.w3.org/2000/svg"
       width="26"
@@ -41,7 +49,13 @@
 </template>
 
 <script>
-import { IonHeader, IonIcon, IonPopover, IonContent, IonButton } from "@ionic/vue";
+import {
+  IonHeader,
+  IonIcon,
+  IonPopover,
+  IonContent,
+  IonButton,
+} from "@ionic/vue";
 import { ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { defineProps, defineComponent } from "vue";
@@ -130,6 +144,9 @@ ion-popover {
   margin: 0;
   height: 50px;
   width: 150px;
+}
+.pop-container {
+  width: fit-content;
 }
 .logout-btn {
   background-color: #12a3da;

@@ -55,7 +55,7 @@
           <p>No Action</p>
         </ion-col>
       </ion-row>
-      <ion-button expand="full" color="light" class="border">Edit</ion-button>
+      <!-- <ion-button expand="full" color="light" class="border">Edit</ion-button> -->
     </ion-grid>
   </ion-card>
 </template>

@@ -3,7 +3,6 @@
     <HeaderReturn
       v-if="!loading"
       :headerTitle="headerTitle"
-      router-direction="none"
       :headerColor="theme.primaryColor"
       :headerTextColor="theme.primaryFontColor"
     ></HeaderReturn>
@@ -76,6 +75,7 @@ export default defineComponent({
   },
   setup() {
     return {
+      router: useRouter(),
       store: useStore(),
     };
   },

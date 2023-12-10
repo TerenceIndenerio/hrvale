@@ -2,7 +2,6 @@
   <ion-page>
     <HeaderReturn
       :headerTitle="headerTitle"
-      router-direction="none"
       :headerColor="theme.primaryColor"
       :headerTextColor="theme.primaryFontColor"
     ></HeaderReturn>

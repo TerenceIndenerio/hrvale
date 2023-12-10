@@ -2,8 +2,13 @@
   <div v-if="isLoading" class="container">
     <div class="flex-center">
       <div class="box">
-        <h1 class="custom-loading" :style="{ color: theme.primaryColor }">Suy Sing</h1>
-        <ion-spinner name="circular" :style="{ color: theme.primaryColor }"></ion-spinner>
+        <h1 class="custom-loading" :style="{ color: theme.primaryColor }">
+          Loading
+        </h1>
+        <ion-spinner
+          name="circular"
+          :style="{ color: theme.primaryColor }"
+        ></ion-spinner>
       </div>
     </div>
   </div>
@@ -17,7 +22,7 @@ export default {
   template: `
       <div class="container">
         <div class="flex-center">
-          <h1 class="custom-loading">Suy Sing</h1>
+          <h1 class="custom-loading">Loading</h1>
           <ion-spinner name="circular"></ion-spinner>
         </div>
       </div>

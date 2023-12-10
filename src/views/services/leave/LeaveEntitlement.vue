@@ -3,7 +3,6 @@
     <HeaderReturn
       v-if="!loading"
       :headerTitle="headerTitle"
-      router-direction="none"
       :headerColor="theme.primaryColor"
       :headerTextColor="theme.primaryFontColor"
     ></HeaderReturn>
@@ -49,6 +48,7 @@ import LeaveEntitlementCard from "@/views/services/leave/components/LeaveEntitle
 import Refresher from "@/components/refresher/Refresher.vue";
 import { defineComponent, ref, onMounted, watch } from "vue";
 import { useStore } from "vuex";
+import { useRouter } from "vue-router";
 import axios from "axios";
 import { GlobalConstants } from "@/config/constants";
 import { getThemeData } from "@/theme/theme";
@@ -69,6 +69,7 @@ export default defineComponent({
   },
   setup() {
     return {
+      router: useRouter(),
       store: useStore(),
     };
   },

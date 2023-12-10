@@ -5,7 +5,7 @@
       :headerColor="theme.primaryColor"
       :imgLogo="theme.clientLogo"
     ></HeaderUser>
-    <ion-content :fullscreen="true">
+    <ion-content :fullscreen="true" v-if="!loading">
       <Refresher />
       <CardWImg :cardHeader="cardHeader" :cardText="cardText" />
 
@@ -32,7 +32,6 @@ import {
   IonContent,
   IonIcon,
   IonCard,
-  IonCard,
 } from "@ionic/vue";
 import CardWImg from "@/components/cards/CardWImg.vue";
 import ServicesGroupButton from "@/components/buttons/ServicesGroupButton.vue";
@@ -40,6 +39,7 @@ import HeaderUser from "@/components/header/HeaderUser.vue";
 import Refresher from "@/components/refresher/Refresher.vue";
 import { defineComponent } from "vue";
 import { getThemeData } from "@/theme/theme";
+import { useRouter } from "vue-router";
 
 export default defineComponent({
   components: {
@@ -54,8 +54,14 @@ export default defineComponent({
     Refresher,
     IonCard,
   },
+  setup() {
+    return {
+      router: useRouter(),
+    };
+  },
   data() {
     return {
+      loading: true,
       headerTitle: "Services",
       cardHeader: "Services",
       cardText: "is simply dummy text of the printing & typesetting industry.",
@@ -92,6 +98,7 @@ export default defineComponent({
       this.theme = storedThemeData;
     }
     this.theme = storedThemeData;
+    this.loading = false;
   },
 });
 </script>
