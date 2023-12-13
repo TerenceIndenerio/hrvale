@@ -9,36 +9,71 @@
     <ion-content :fullscreen="true" v-if="!loading">
       <Refresher />
       <ion-card class="card text-center">
-        <h3>Payroll Period</h3>
+        <h3>Logs</h3>
 
-        <ion-select
-          label="Select Payroll Period"
-          label-placement="floating"
+        <!-- Use input date for selecting payroll start date -->
+        <input
+          type="date"
+          v-model="startDate"
           class="box-container select-option"
-          @ionChange="handlePayrollPeriodChange"
+          @input="handleDateChange"
+        />
+
+        <!-- Use input date for selecting payroll end date -->
+        <input
+          type="date"
+          v-model="endDate"
+          class="box-container select-option"
+          @input="handleDateChange"
+        />
+        <!-- Button for search -->
+        <ion-button
+          expand="full"
+          class="pos-right search-btn-container"
+          color="none"
+          :style="{ backgroundColor: theme.secondaryColor }"
+          @click="fetchData"
         >
-          <ion-select-option
-            v-for="option in payrollPeriodOption"
-            :key="option.value"
-            :value="option.value"
-            class="non-center"
-          >
-            {{ option.label }}
-          </ion-select-option>
-        </ion-select>
+          Search
+        </ion-button>
       </ion-card>
 
-      <ion-card class="card">
-        <h4 class="text-center outlineColor">Result</h4>
-        <div v-for="(result, index) in results" :key="index">
-          <AttendanceCard
-            :userDate="result.userDate"
-            :punchIn="result.punchIn"
-            :punchOut="result.punchOut"
-            :schedIn="result.timeIn"
-            :schedOut="result.timeOut"
-          />
-        </div>
+      <ion-card class="card" v-for="(result, index) in results" :key="index">
+        <ion-card-header>
+          <ion-card-subtitle>{{ result.day }} - {{ result.date }}</ion-card-subtitle>
+        </ion-card-header>
+
+        <ion-card-content>
+          <ion-grid>
+            <ion-row>
+              <ion-col size="6">
+                <!-- Adjust the size based on your preference -->
+                <p>Schedule In:</p>
+                <p>Schedule Out:</p>
+                <p>Fixed OT In:</p>
+                <p>Fixed OT Out:</p>
+              </ion-col>
+              <ion-col size="6">
+                <!-- Display the corresponding values in the right column -->
+                <p>{{ result.scheduleIn }}</p>
+                <p>{{ result.scheduleOut }}</p>
+                <p>{{ result.fixedOtIn }}</p>
+                <p>{{ result.fixedOtOut }}</p>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+
+          <!-- Add a button below the grid -->
+          <ion-button
+            expand="full"
+            color="light"
+            class="edit-btn"
+            router-link="/AttendanceCorrectionEdit"
+            @click="handleButtonClick"
+          >
+            Edit
+          </ion-button>
+        </ion-card-content>
       </ion-card>
     </ion-content>
   </ion-page>
@@ -56,12 +91,19 @@ import {
   IonCol,
   IonToast,
   toastController,
+  IonButton,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonCardSubtitle,
 } from "@ionic/vue";
 import Refresher from "@/components/refresher/Refresher.vue";
 import HeaderReturn from "@/components/header/HeaderReturn.vue";
 import AttendanceCard from "@/views/services/attendance/components/AttendanceCard.vue";
 import { defineComponent } from "vue";
 import axios from "axios";
+import { useStore } from "vuex";
+import { useRouter } from "vue-router";
 import { GlobalConstants } from "@/config/constants";
 import { mapState } from "vuex";
 import { getThemeData } from "@/theme/theme";
@@ -83,6 +125,17 @@ export default defineComponent({
     AttendanceCard,
     IonToast,
     toastController,
+    IonButton,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCardSubtitle,
+  },
+  setup() {
+    return {
+      router: useRouter(),
+      store: useStore(),
+    };
   },
   data() {
     return {
@@ -94,13 +147,15 @@ export default defineComponent({
       theme: {},
       loading: true,
       storedToken: null,
+      startDate: new Date().toISOString().split("T")[0],
+      endDate: new Date().toISOString().split("T")[0],
     };
   },
   created() {
-    this.fetchAuthToken();
     this.getTheme();
     this.loading = false;
   },
+
   methods: {
     // Exppiration of token
     async checkTokenExpiration() {
@@ -122,6 +177,25 @@ export default defineComponent({
       }
     },
 
+    getTheme() {
+      const storedThemeData = getThemeData();
+
+      if (storedThemeData) {
+        this.theme = storedThemeData;
+      }
+      this.theme = storedThemeData;
+    },
+
+    handleDateChange() {
+      // Update the startDate and endDate based on the selectedPayrollDate
+      const startDate = new Date(this.startDate).toISOString().split("T")[0];
+      const endDate = new Date(this.endDate).toISOString().split("T")[0];
+
+      // Now you can use startDate and endDate as needed
+      console.log("Selected Start Date:", startDate);
+      console.log("Selected End Date:", endDate);
+    },
+
     showErrorMessage(message) {
       this.$ionic.toastController
         .create({
@@ -134,58 +208,39 @@ export default defineComponent({
           toast.present();
         });
     },
-    async fetchAuthToken() {
+
+    async fetchData() {
       try {
         await this.checkTokenExpiration();
 
         this.storedToken = localStorage.getItem("_token");
-
-        this.fetchPayrollPeriodOptions();
-      } catch (error) {
-        console.error("Error fetching authentication token: ", error);
-        this.showErrorMessage("An error occurred: " + error.message);
-
-        const errorMessage =
-          error.response.data.error.message || "Failed to load data";
-        const fullErrorMessage = `An error occurred: ${errorMessage}`;
-        const toast = await toastController.create({
-          message: fullErrorMessage,
-          duration: 3000,
-          position: "bottom",
-          icon: "alert-circle-outline",
-          buttons: [
-            {
-              icon: "close-outline",
-              role: "cancel",
-            },
-          ],
-        });
-        await toast.present();
-      }
-    },
-    async fetchPayrollPeriodOptions() {
-      try {
+        console.log(this.sharedToken);
         const headers = {
           Authorization: `Bearer ${this.storedToken}`,
         };
 
-        const api = baseURL + "api/payroll/maintenance/payroll-period";
+        const api =
+          baseURL +
+          `api/v2/daily-logs?limit=50&offset=0&date=${this.startDate}&dateEnd=${this.endDate}`;
         const dataResponse = await axios.get(api, { headers });
 
         if (dataResponse.data && Array.isArray(dataResponse.data.data)) {
-          this.payrollPeriodOption = dataResponse.data.data.map((period) => ({
-            value: period.PayrollPeriodId,
-            startDate: period.rawPayrollperiodFrom,
-            endDate: period.rawPayrollperiodTo,
-            label: `${period.PayrollPeriodFrom} - ${period.payrollperiodTo}`,
+          this.results = dataResponse.data.data.map((period) => ({
+            name: period.name,
+            date: period.date,
+            scheduleIn: period.scheduleIn,
+            scheduleOut: period.scheduleOut,
+            day: period.day,
+            fixedOt: period.fixedOt,
+            fixedOtIn: period.fixedOtIn,
+            fixedOtOut: period.fixedOtOut,
           }));
         }
       } catch (error) {
         console.error("Error fetching payroll period options: ", error);
         this.showErrorMessage("An error occurred: " + error.message);
 
-        const errorMessage =
-          error.response.data.error.message || "Failed to load data";
+        const errorMessage = error.response.data.error.message || "Failed to load data";
         const fullErrorMessage = `Failed to load data, ${errorMessage}`;
         const toast = await toastController.create({
           message: fullErrorMessage,
@@ -201,93 +256,49 @@ export default defineComponent({
         });
         await toast.present();
       }
-    },
-    handlePayrollPeriodChange(event) {
-      const selectedValue = event.detail.value;
-      const selectedPeriod = this.payrollPeriodOption.find(
-        (option) => option.value === selectedValue
-      );
-
-      if (selectedPeriod) {
-        const apiUrl =
-          baseURL +
-          `api/v2/attendance/employees/1/records?date=${selectedPeriod.startDate}&endDate=${selectedPeriod.endDate}`;
-
-        this.makeApiRequest(apiUrl);
-      } else {
-        this.noResult = true;
-      }
-    },
-    async makeApiRequest(apiUrl) {
-      try {
-        this.$store.commit("loader/updateLoader", true);
-        const headers = {
-          Authorization: `Bearer ${this.storedToken}`,
-        };
-
-        const response = await axios.get(apiUrl, { headers });
-
-        this.results = response.data.data.map((record) => {
-          return {
-            id: record.id,
-            userDate: record.punchIn.userDate,
-            punchIn: record.punchIn.userTime,
-            punchOut: record.punchOut.userTime,
-            timeIn: record.schedule.timeIn,
-            timeOut: record.schedule.timeOut,
-          };
-        });
-
-        const toast = await toastController.create({
-          message: "Successfully Loaded!",
-          duration: 3000,
-          position: "bottom",
-          icon: "alert-circle-outline",
-          buttons: [
-            {
-              icon: "close-outline",
-              role: "cancel",
-            },
-          ],
-        });
-
-        await toast.present();
-
-        this.$store.commit("loader/updateLoader", false);
-      } catch (error) {
-        console.error("Error making the API request: ", error);
-        this.showErrorMessage("An error occurred: " + error.message);
-        this.results = [];
-        this.noResult = true;
-        this.$store.commit("loader/updateLoader", false);
-
-        const errorMessage =
-          error.response.data.error.message || "Failed to load data";
-        const fullErrorMessage = `Failed to load data, ${errorMessage}`;
-        const toast = await toastController.create({
-          message: fullErrorMessage,
-          duration: 3000,
-          position: "bottom",
-          icon: "alert-circle-outline",
-          buttons: [
-            {
-              icon: "close-outline",
-              role: "cancel",
-            },
-          ],
-        });
-        await toast.present();
-      }
-    },
-    getTheme() {
-      const storedThemeData = getThemeData();
-
-      if (storedThemeData) {
-        this.theme = storedThemeData;
-      }
-      this.theme = storedThemeData;
     },
   },
+
+  // async fetchPayrollPeriodOptions() {
+  //   try {
+  //     const headers = {
+  //       Authorization: `Bearer ${this.storedToken}`,
+  //     };
+
+  //     const api =
+  //       baseURL +
+  //       `api/v2/daily-logs?limit=50&offset=0&date=${this.startDate}&dateEnd=${this.endDate}`;
+  //     const dataResponse = await axios.get(api, { headers });
+
+  //     if (dataResponse.data && Array.isArray(dataResponse.data.data)) {
+  //       this.payrollPeriodOption = dataResponse.data.data.map((period) => ({
+  //         value: period.PayrollPeriodId,
+  //         startDate: period.rawPayrollperiodFrom,
+  //         endDate: period.rawPayrollperiodTo,
+  //         label: `${period.PayrollPeriodFrom} - ${period.payrollperiodTo}`,
+  //       }));
+  //     }
+  //   } catch (error) {
+  //     console.error("Error fetching payroll period options: ", error);
+  //     this.showErrorMessage("An error occurred: " + error.message);
+
+  //     const errorMessage = error.response.data.error.message || "Failed to load data";
+  //     const fullErrorMessage = `Failed to load data, ${errorMessage}`;
+  //     const toast = await toastController.create({
+  //       message: fullErrorMessage,
+  //       duration: 3000,
+  //       position: "bottom",
+  //       icon: "alert-circle-outline",
+  //       buttons: [
+  //         {
+  //           icon: "close-outline",
+  //           role: "cancel",
+  //         },
+  //       ],
+  //     });
+  //     await toast.present();
+  //   }
+  // },
 });
 </script>
 
@@ -302,8 +313,24 @@ export default defineComponent({
   text-align: center;
 }
 .card {
-  padding: 0 10px 20px 10px;
+  padding: 0 10px 5px 10px;
   border-radius: 20px;
+}
+.card ion-card-header {
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+.card ion-card-header ion-card-subtitle {
+  border: 1px solid gray;
+  padding: 10px 20px;
+  border-radius: 20px;
+  margin: 10px 0 0 0;
+}
+.card ion-card-content {
+  padding: 10px;
 }
 .card h5 {
   margin: 0;
@@ -346,10 +373,9 @@ export default defineComponent({
 .select-option {
   width: fit-content;
   min-width: 300px;
-  background-color: rgba(128, 128, 128, 0.184);
   border-radius: 10px;
-  padding: 0 10px;
-  margin: auto;
+  padding: 10px 10px;
+  margin: 5px;
 }
 .header-row {
   border-bottom: 1px solid #000;
@@ -359,5 +385,17 @@ export default defineComponent({
   border: 1px solid #828282;
   color: #828282;
   border-radius: 20px;
+}
+.pos-right {
+  float: right;
+  right: 10px;
+}
+.search-btn-container {
+  overflow: hidden;
+  border-radius: 20px;
+  padding: 0 20px;
+}
+.edit-btn {
+  padding: 0;
 }
 </style>

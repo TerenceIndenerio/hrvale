@@ -21,6 +21,7 @@ import leaveEntitlement from '@/views/services/leave/LeaveEntitlement.vue'
 import ViewSchedule from '@/views/services/schedule/ViewSchedule.vue'
 import Benefits from '@/views/services/benefits/Benefits.vue'
 import SoonPage from '@/views/SoonPage.vue'
+import AttendanceCorrectionEdit from '@/views/services/attendance/AttendanceCorrectionEdit.vue';
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -78,6 +79,10 @@ const routes: Array<RouteRecordRaw> = [
       {
         path: '/attendancecorrection',
         component: AttendanceCorrection
+      },
+      {
+        path: '/attendancecorrectionedit',
+        component: AttendanceCorrectionEdit
       },
       {
         path: '/ot',
