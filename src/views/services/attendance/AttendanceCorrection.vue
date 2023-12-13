@@ -99,7 +99,6 @@ import {
 } from "@ionic/vue";
 import Refresher from "@/components/refresher/Refresher.vue";
 import HeaderReturn from "@/components/header/HeaderReturn.vue";
-import AttendanceCard from "@/views/services/attendance/components/AttendanceCard.vue";
 import { defineComponent } from "vue";
 import axios from "axios";
 import { useStore } from "vuex";
@@ -122,7 +121,6 @@ export default defineComponent({
     IonGrid,
     IonRow,
     IonCol,
-    AttendanceCard,
     IonToast,
     toastController,
     IonButton,
