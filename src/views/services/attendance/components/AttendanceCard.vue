@@ -55,20 +55,19 @@
           <p>No Action</p>
         </ion-col>
       </ion-row>
-      <!-- <ion-button expand="full" color="light" class="border">Edit</ion-button> -->
+      <ion-button
+        expand="full"
+        color="light"
+        class="border"
+        router-link="/AttendanceCorrectionEdit"
+        >Edit</ion-button
+      >
     </ion-grid>
   </ion-card>
 </template>
 
 <script>
-import {
-  IonCard,
-  IonCol,
-  IonGrid,
-  IonRow,
-  IonIcon,
-  IonButton,
-} from "@ionic/vue";
+import { IonCard, IonCol, IonGrid, IonRow, IonIcon, IonButton } from "@ionic/vue";
 
 export default {
   components: {
