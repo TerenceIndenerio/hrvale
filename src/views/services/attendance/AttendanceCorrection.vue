@@ -69,7 +69,6 @@
             color="light"
             class="edit-btn"
             router-link="/AttendanceCorrectionEdit"
-            @click="handleButtonClick"
           >
             Edit
           </ion-button>
