@@ -6,7 +6,7 @@
       :imgLogo="theme.clientLogo"
     ></HeaderUser>
     <ion-content :fullscreen="true" v-if="!loading">
-      <!-- <Refresher /> -->
+      <Refresher />
       <CardWImg
         :cardHeader="extractedData.name"
         :cardText="extractedData.note"

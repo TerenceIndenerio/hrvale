@@ -1,30 +1,15 @@
 <template>
-  <ion-header
-    class="header"
-    color="none"
-    :style="{ backgroundColor: headerColor }"
-  >
-    <img :src="imgLogo" alt="Logo" class="logo" />
-    <!-- <h2 class="title">{{ headerTitle }}</h2> -->
-    <ion-icon
-      name="settings"
-      class="icon1"
-      @click="openPopover($event)"
-    ></ion-icon>
-    <!-- <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="26"
-      height="23"
-      viewBox="0 0 26 23"
-      fill="none"
-    >
-      <path
-        fill-rule="evenodd"
-        clip-rule="evenodd"
-        d="M16 18H20.5858C21.3668 18 22 17.3668 22 16.5858C22 16.2107 21.851 15.851 21.5858 15.5858L20.5858 14.5858C20.2107 14.2107 20 13.702 20 13.1716L20 9.97067C20 5.56859 16.4314 2 12.0293 2C7.61789 2 4.04543 5.58319 4.05867 9.9946L4.06814 13.1476C4.06977 13.6922 3.84928 14.2139 3.45759 14.5922L2.42864 15.586C2.15471 15.8506 2 16.2151 2 16.5959C2 17.3714 2.62863 18 3.40408 18H8C8 20.2091 9.79086 22 12 22C14.2091 22 16 20.2091 16 18ZM19.5251 15.6464L20.3787 16.5H3.64147L4.49967 15.6711C5.18513 15.009 5.57099 14.0961 5.56813 13.1431L5.55867 9.9901C5.54792 6.40887 8.44807 3.5 12.0293 3.5C15.603 3.5 18.5 6.39702 18.5 9.97067L18.5 13.1716C18.5 14.0998 18.8687 14.9901 19.5251 15.6464ZM14.5 18H9.5C9.5 19.3807 10.6193 20.5 12 20.5C13.3807 20.5 14.5 19.3807 14.5 18Z"
-        fill="white"
+  <ion-header class="header" color="none" :style="{ backgroundColor: headerColor }">
+    <div class="profile-img-container">
+      <img
+        src="https://hrp-staging-delta.bapplware.com/web/index.php/employee/photo/1"
+        alt=""
       />
-    </svg> -->
+    </div>
+
+    <img :src="imgLogo" alt="Logo" class="logo" />
+
+    <ion-icon name="settings" class="icon1" @click="openPopover($event)"></ion-icon>
   </ion-header>
   <ion-popover
     :is-open="popoverOpen"
@@ -34,7 +19,7 @@
   >
     <div class="popup-container">
       <ion-button class="btn" fill="clear" expand="full"
-        ><ion-icon name="person-circle-outline"></ion-icon> Profile</ion-button
+        ><ion-icon name="settings-outline"></ion-icon> Settings</ion-button
       >
       <ion-button
         class="btn logout-btn"
@@ -49,13 +34,7 @@
 </template>
 
 <script>
-import {
-  IonHeader,
-  IonIcon,
-  IonPopover,
-  IonContent,
-  IonButton,
-} from "@ionic/vue";
+import { IonHeader, IonIcon, IonPopover, IonContent, IonButton } from "@ionic/vue";
 import { ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { defineProps, defineComponent } from "vue";
@@ -114,14 +93,31 @@ export default defineComponent({
   justify-content: center;
   align-items: center;
   border-radius: 0 0 40px 40px;
-  padding: 0 29px;
+
   box-shadow: none;
   text-align: center;
+}
+.profile-img-container {
+  width: 40px;
+  height: 40px;
+  overflow: hidden;
+  border-radius: 50%;
+  outline: 3px solid white;
+  position: absolute;
+  left: 20px;
+  font-size: 25px;
+}
+.profile-img-container img {
+  width: 40px;
+  height: 40px;
 }
 .icon1 {
   position: absolute;
   right: 20px;
-  font-size: 25px;
+  font-size: 30px;
+  outline: 3px solid white;
+  border-radius: 100%;
+  padding: 3px;
   color: var(--ion-color-primary-contrast);
 }
 .icon2 {
@@ -153,5 +149,10 @@ ion-popover {
 }
 .logo {
   width: 250px;
+  position: absolute;
+  top: 40px;
+  left: 0;
+  right: 0;
+  margin: auto;
 }
 </style>
