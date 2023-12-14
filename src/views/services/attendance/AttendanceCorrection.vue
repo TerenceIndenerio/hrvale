@@ -240,6 +240,25 @@ export default defineComponent({
         const errorMessage = error.response.data.error.message || "Failed to load data";
       }
     },
+    async showErrorMessage(message) {
+      try {
+        const toast = await toastController.create({
+          message: message,
+          duration: 3000,
+          position: "bottom",
+          color: "danger",
+          buttons: [
+            {
+              icon: "close-outline",
+              role: "cancel",
+            },
+          ],
+        });
+        await toast.present();
+      } catch (error) {
+        console.error("Error displaying toast:", error);
+      }
+    },
   },
 });
 </script>
@@ -334,8 +353,7 @@ export default defineComponent({
 }
 .search-btn-container {
   overflow: hidden;
-  border-radius: 20px;
-  padding: 0 20px;
+  border-radius: 10px;
 }
 .edit-btn {
   padding: 0;

@@ -285,6 +285,13 @@ export default defineComponent({
     },
   },
   async created() {
+    // geolocation
+    const coordinates = await Geolocation.getCurrentPosition();
+
+    // Update the coordinatesText data property
+    this.coordinatesText = `Latitude: ${coordinates.coords.latitude}, Longitude: ${coordinates.coords.longitude}`;
+
+    console.log("Current position:", coordinates);
     this.checkTokenExpiration();
     await this.checkState();
     this.getTheme();

@@ -1,15 +1,14 @@
 <template>
   <ion-header class="header" color="none" :style="{ backgroundColor: headerColor }">
+    <img :src="imgLogo" alt="Logo" class="logo" />
+
+    <ion-icon name="settings" class="icon1" @click="openPopover($event)"></ion-icon>
     <div class="profile-img-container">
       <img
         src="https://hrp-staging-delta.bapplware.com/web/index.php/employee/photo/1"
         alt=""
       />
     </div>
-
-    <img :src="imgLogo" alt="Logo" class="logo" />
-
-    <ion-icon name="settings" class="icon1" @click="openPopover($event)"></ion-icon>
   </ion-header>
   <ion-popover
     :is-open="popoverOpen"

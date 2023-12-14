@@ -553,7 +553,7 @@ export default defineComponent({
 ion-textarea {
   box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
   border-radius: 10px;
-  padding: 5px;
+  padding: 0 5px;
   width: 300px;
   height: 100px;
 }
