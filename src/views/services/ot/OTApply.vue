@@ -11,22 +11,18 @@
       <div class="container">
         <ion-card class="card search-container">
           <ion-card class="card date-container">
-            <ion-item>
-              <ion-input
-                label="from:"
-                v-model="selectedDateFrom"
-                type="date"
-              ></ion-input>
-            </ion-item>
+            <ion-input label="from:" v-model="selectedDateFrom" type="date"></ion-input>
           </ion-card>
           <ion-card class="card date-container">
-            <ion-item>
-              <ion-input
-                label="to:"
-                v-model="selectedDateTo"
-                type="date"
-              ></ion-input>
-            </ion-item>
+            <ion-input label="to:" v-model="selectedDateTo" type="date"></ion-input>
+          </ion-card>
+
+          <ion-card class="card date-container">
+            <ion-input
+              label="Request Date:"
+              v-model="requestDate"
+              type="date"
+            ></ion-input>
           </ion-card>
 
           <ion-button
@@ -36,6 +32,19 @@
             :style="{ backgroundColor: theme.secondaryColor }"
             >Search</ion-button
           >
+        </ion-card>
+
+        <ion-card v-if="showCommentContainer" class="card comment-container">
+          <ion-textarea v-model="comment" placeholder="Enter your comment"></ion-textarea>
+          <br />
+          <ion-button
+            @click="handleSubmit"
+            class="flex-right btn-container"
+            color="none"
+            :style="{ backgroundColor: theme.secondaryColor }"
+          >
+            Submit
+          </ion-button>
         </ion-card>
 
         <ion-card class="card result-container">
@@ -158,6 +167,14 @@
           </ion-modal>
         </ion-card>
       </div>
+      <ion-button
+        @click="toggleCommentContainer"
+        class="flex-right btn-container comment-btn-container"
+        color="none"
+        :style="{ backgroundColor: theme.secondaryColor }"
+      >
+        Comment
+      </ion-button>
     </ion-content>
   </ion-page>
 </template>
@@ -180,6 +197,7 @@ import {
   IonRow,
   IonGrid,
   IonIcon,
+  IonTextarea,
 } from "@ionic/vue";
 import HeaderReturn from "@/components/header/HeaderReturn.vue";
 import { defineComponent } from "vue";
@@ -215,6 +233,7 @@ export default defineComponent({
     IonRow,
     IonGrid,
     IonIcon,
+    IonTextarea,
   },
   setup() {
     return {
@@ -232,56 +251,86 @@ export default defineComponent({
       headerTitle: "Apply OT",
       selectedDateFrom: formattedDate,
       selectedDateTo: formattedDate,
+      requestDate: formattedDate,
       isModalVisible: false,
       selectedResult: null,
       isOpen: false,
       theme: {},
       loading: true,
+      comment: "",
+      showCommentContainer: false,
+      storedToken: null,
     };
   },
 
   methods: {
-    async fetchAuthToken() {
-      try {
-        const response = await axios.post(baseURL + "auth/token", {
-          clientId: "test_id",
-          clientSecret: "test_secret",
-          userId: 1,
-        });
-        this.authToken = response.data.token;
-        localStorage.setItem("_token", this.authToken);
-      } catch (error) {
-        console.error("Error fetching authentication token: ", error);
-        this.showErrorMessage("An error occurred: " + error.message);
+    // Exppiration of token
+    async checkTokenExpiration() {
+      const storedToken = localStorage.getItem("_token");
 
-        const errorMessage = error.response.data.error.message;
-        const fullErrorMessage = `An error occurred: ${errorMessage}`;
-        const toast = await toastController.create({
-          message: fullErrorMessage,
-          duration: 3000,
-          position: "bottom",
-          icon: "alert-circle-outline",
-          buttons: [
-            {
-              icon: "close-outline",
-              role: "cancel",
-            },
-          ],
+      if (!storedToken) {
+        console.error("Token not available.");
+        console.log("Token is missing. Redirecting to login...");
+        this.router.push("/login");
+        return;
+      }
+
+      const tokenData = JSON.parse(atob(storedToken.split(".")[1]));
+      const expirationTime = tokenData.exp * 1000;
+
+      if (Date.now() > expirationTime) {
+        console.log("Token expired. Redirecting to login...");
+        this.router.push("/login");
+      }
+    },
+    toggleCommentContainer() {
+      this.showCommentContainer = !this.showCommentContainer;
+    },
+    async handleSubmit() {
+      try {
+        this.store.commit("loader/updateLoader", true);
+        console.log(this.selectedDateFrom, this.selectedDateTo, this.requestDate);
+        await this.checkTokenExpiration();
+
+        this.storedToken = localStorage.getItem("_token");
+
+        const apiUrl = baseURL + `api/v2/ess/overtime`;
+
+        const payload = {
+          comment: this.comment,
+          fromDate: this.selectedDateFrom,
+          reasons: [],
+          requestDate: this.requestDate,
+          toDate: this.selectedDateTo,
+        };
+
+        const response = await axios.post(apiUrl, payload, {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${this.storedToken}`,
+          },
         });
-        await toast.present();
+
+        console.log("Response:", response.data);
+      } catch (error) {
+        this.store.commit("loader/updateLoader", false);
+        console.error("Error submitting overtime request: ", error);
+        this.showErrorMessage("An error occurred: " + error.message);
+      } finally {
+        this.store.commit("loader/updateLoader", false);
       }
     },
 
     async fetchRequest() {
       try {
         this.store.commit("loader/updateLoader", true);
-        await this.fetchAuthToken();
-        if (!this.authToken) {
-          throw new Error("Authentication token is missing.");
-        }
+        await this.checkTokenExpiration();
+
+        this.storedToken = localStorage.getItem("_token");
+        console.log("token:", this.storedToken);
 
         const headers = {
-          Authorization: `Bearer ${this.authToken}`,
+          Authorization: `Bearer ${this.storedToken}`,
         };
 
         const currentDate = new Date();
@@ -321,35 +370,17 @@ export default defineComponent({
         this.store.commit("loader/updateLoader", false);
         console.error("Error fetching payroll period options: ", error);
         this.showErrorMessage("An error occurred: " + error.message);
-
         const errorMessage = error.response.data.error.message;
-        const fullErrorMessage = `Failed to load data, ${errorMessage}`;
-        const toast = await toastController.create({
-          message: fullErrorMessage,
-          duration: 3000,
-          position: "bottom",
-          icon: "alert-circle-outline",
-          buttons: [
-            {
-              icon: "close-outline",
-              role: "cancel",
-            },
-          ],
-        });
-        await toast.present();
       }
     },
 
     async handleSearch() {
       try {
         this.store.commit("loader/updateLoader", true);
-        await this.fetchAuthToken();
-        if (!this.authToken) {
-          throw new Error("Authentication token is missing.");
-        }
+        await this.checkTokenExpiration();
 
         const headers = {
-          Authorization: `Bearer ${this.authToken}`,
+          Authorization: `Bearer ${this.storedToken}`,
         };
 
         const api =
@@ -412,8 +443,6 @@ export default defineComponent({
 
     handleView(result) {
       this.selectedResult = result;
-
-      // this.isOpen = true;
       this.isOpen = true;
     },
 
@@ -489,10 +518,45 @@ export default defineComponent({
 .date-container {
   width: 300px;
   margin: 10px auto;
+  padding: 0 10px;
 }
 .search-container {
   min-width: 330px;
 }
+.comment-container {
+  width: fit-content;
+  height: fit-content;
+  padding: 10px;
+  margin: 0;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 100;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+}
+ion-textarea {
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  padding: 5px;
+  width: 300px;
+  height: 100px;
+}
+.comment-container ion-textarea ::after {
+  height: 70px;
+}
+.comment-container .btn-container {
+  margin: 0;
+}
+
+.comment-btn-container {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  /* transform: translateX(-50%); */
+  z-index: 999; /* Set a z-index to ensure it's above other elements */
+}
+
 ion-modal#example-modal {
   --width: 350px;
   --min-width: 250px;
