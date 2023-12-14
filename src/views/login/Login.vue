@@ -2,10 +2,7 @@
   <ion-page>
     <ion-content :fullscreen="true">
       <div v-if="loaded">
-        <div
-          class="container"
-          :style="{ backgroundColor: themeData.primaryColor }"
-        >
+        <div class="container" :style="{ backgroundColor: themeData.primaryColor }">
           <ion-text class="logo-banner">
             <img :src="imgLogo" alt="SUYSING" />
           </ion-text>
@@ -119,8 +116,7 @@ export default defineComponent({
           primaryColor: responseData.data.data.variables.primaryColor,
           primaryFontColor: responseData.data.data.variables.primaryFontColor,
           secondaryColor: responseData.data.data.variables.secondaryColor,
-          secondaryFontColor:
-            responseData.data.data.variables.secondaryFontColor,
+          secondaryFontColor: responseData.data.data.variables.secondaryFontColor,
           primaryGradientStartColor:
             responseData.data.data.variables.primaryGradientStartColor,
           primaryGradientEndColor:
@@ -174,8 +170,7 @@ export default defineComponent({
       const showAlert = async () => {
         const alert = await alertController.create({
           header: "Invalid Credentials",
-          message:
-            "The username or password you entered is incorrect. Please try again.",
+          message: "The username or password you entered is incorrect. Please try again.",
           buttons: [
             {
               text: "Close",

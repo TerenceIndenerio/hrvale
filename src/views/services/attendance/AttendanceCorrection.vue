@@ -241,47 +241,6 @@ export default defineComponent({
       }
     },
   },
-
-  // async fetchPayrollPeriodOptions() {
-  //   try {
-  //     const headers = {
-  //       Authorization: `Bearer ${this.storedToken}`,
-  //     };
-
-  //     const api =
-  //       baseURL +
-  //       `api/v2/daily-logs?limit=50&offset=0&date=${this.startDate}&dateEnd=${this.endDate}`;
-  //     const dataResponse = await axios.get(api, { headers });
-
-  //     if (dataResponse.data && Array.isArray(dataResponse.data.data)) {
-  //       this.payrollPeriodOption = dataResponse.data.data.map((period) => ({
-  //         value: period.PayrollPeriodId,
-  //         startDate: period.rawPayrollperiodFrom,
-  //         endDate: period.rawPayrollperiodTo,
-  //         label: `${period.PayrollPeriodFrom} - ${period.payrollperiodTo}`,
-  //       }));
-  //     }
-  //   } catch (error) {
-  //     console.error("Error fetching payroll period options: ", error);
-  //     this.showErrorMessage("An error occurred: " + error.message);
-
-  //     const errorMessage = error.response.data.error.message || "Failed to load data";
-  //     const fullErrorMessage = `Failed to load data, ${errorMessage}`;
-  //     const toast = await toastController.create({
-  //       message: fullErrorMessage,
-  //       duration: 3000,
-  //       position: "bottom",
-  //       icon: "alert-circle-outline",
-  //       buttons: [
-  //         {
-  //           icon: "close-outline",
-  //           role: "cancel",
-  //         },
-  //       ],
-  //     });
-  //     await toast.present();
-  //   }
-  // },
 });
 </script>
 
