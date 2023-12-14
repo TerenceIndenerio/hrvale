@@ -211,7 +211,7 @@ export default defineComponent({
         await this.checkTokenExpiration();
 
         this.storedToken = localStorage.getItem("_token");
-        console.log(this.sharedToken);
+
         const headers = {
           Authorization: `Bearer ${this.storedToken}`,
         };
@@ -238,20 +238,6 @@ export default defineComponent({
         this.showErrorMessage("An error occurred: " + error.message);
 
         const errorMessage = error.response.data.error.message || "Failed to load data";
-        const fullErrorMessage = `Failed to load data, ${errorMessage}`;
-        const toast = await toastController.create({
-          message: fullErrorMessage,
-          duration: 3000,
-          position: "bottom",
-          icon: "alert-circle-outline",
-          buttons: [
-            {
-              icon: "close-outline",
-              role: "cancel",
-            },
-          ],
-        });
-        await toast.present();
       }
     },
   },
