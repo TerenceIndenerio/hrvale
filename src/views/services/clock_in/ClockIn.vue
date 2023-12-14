@@ -17,6 +17,9 @@
         :btnColor="theme.primaryColor"
         :btnTextColor="theme.primaryFontColor"
       />
+      <ion-card class="flex-center" v-if="coordinatesText">
+        <p>{{ coordinatesText }}</p>
+      </ion-card>
     </ion-content>
   </ion-page>
 </template>
@@ -30,6 +33,7 @@ import {
   IonContent,
   IonToast,
   toastController,
+  IonCard,
 } from "@ionic/vue";
 import Refresher from "@/components/refresher/Refresher.vue";
 import ClockinCard from "@/views/services/clock_in/components/ClockinCard.vue";
@@ -40,6 +44,7 @@ import { useRouter } from "vue-router";
 import { useStore } from "vuex";
 import axios from "axios";
 import { getThemeData } from "@/theme/theme";
+import { Geolocation } from "@capacitor/geolocation";
 
 const baseURL = GlobalConstants.HOST_URL;
 
@@ -55,6 +60,7 @@ export default defineComponent({
     Refresher,
     IonToast,
     toastController,
+    IonCard,
   },
   setup() {
     return {
@@ -76,6 +82,7 @@ export default defineComponent({
       employeeAlreadyPunchedIn: false,
       theme: {},
       loading: true,
+      coordinatesText: "",
     };
   },
   methods: {
@@ -236,6 +243,13 @@ export default defineComponent({
             },
           ],
         });
+        // geolocation
+        const coordinates = await Geolocation.getCurrentPosition();
+
+        // Update the coordinatesText data property
+        this.coordinatesText = `Latitude: ${coordinates.coords.latitude}, Longitude: ${coordinates.coords.longitude}`;
+
+        console.log("Current position:", coordinates);
 
         await toast.present();
       } catch (error) {
@@ -244,8 +258,7 @@ export default defineComponent({
           error.response?.data?.error?.message
         );
 
-        const errorMessage =
-          error.response.data.error.message || "Failed to load data";
+        const errorMessage = error.response.data.error.message || "Failed to load data";
         const fullErrorMessage = `Failed to load data, ${errorMessage}`;
         const toast = await toastController.create({
           message: fullErrorMessage,
@@ -280,6 +293,10 @@ export default defineComponent({
 </script>
 
 <style scoped>
+.flex-center {
+  display: flex;
+  justify-content: center;
+}
 .margin-top {
   margin-top: 70px;
 }
