@@ -311,6 +311,20 @@ export default defineComponent({
           },
         });
 
+        const toast = await toastController.create({
+          message: "Successfully Sent!",
+          duration: 3000,
+          position: "bottom",
+          icon: "alert-circle-outline",
+          buttons: [
+            {
+              icon: "close-outline",
+              role: "cancel",
+            },
+          ],
+        });
+        await toast.present();
+
         console.log("Response:", response.data);
       } catch (error) {
         this.store.commit("loader/updateLoader", false);
@@ -318,6 +332,7 @@ export default defineComponent({
         this.showErrorMessage("An error occurred: " + error.message);
       } finally {
         this.store.commit("loader/updateLoader", false);
+        this.showCommentContainer = !this.showCommentContainer;
       }
     },
 
