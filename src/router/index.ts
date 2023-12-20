@@ -22,6 +22,7 @@ import ViewSchedule from '@/views/services/schedule/ViewSchedule.vue'
 import Benefits from '@/views/services/benefits/Benefits.vue'
 import SoonPage from '@/views/SoonPage.vue'
 import AttendanceCorrectionEdit from '@/views/services/attendance/AttendanceCorrectionEdit.vue';
+import Tenant from '@/views/Tenant.vue';
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -113,6 +114,10 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/login',
     component: Login
+  },
+  {
+    path: '/tenant',
+    component: Tenant
   },
   {
     path: '/flash',
