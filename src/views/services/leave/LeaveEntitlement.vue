@@ -24,10 +24,11 @@
 
         <div v-for="(entitlement, index) in entitlements" :key="index">
           <LeaveEntitlementCard
-            :leaveType="entitlement.leaveType.name"
+            :leaveType="entitlement.leaveType"
             :entitlement="entitlement.entitlement"
-            :daysUsed="entitlement.daysUsed"
-            :creditedDate="entitlement.creditedDate"
+            :validFrom="entitlement.validFrom"
+            :validTo="entitlement.validTo"
+            :days="entitlement.days"
           />
         </div>
       </div>
@@ -85,6 +86,25 @@ export default defineComponent({
     };
   },
   methods: {
+    // Exppiration of token
+    async checkTokenExpiration() {
+      const storedToken = localStorage.getItem("_token");
+
+      if (!storedToken) {
+        console.error("Token not available.");
+        console.log("Token is missing. Redirecting to login...");
+        this.router.push("/login");
+        return;
+      }
+
+      const tokenData = JSON.parse(atob(storedToken.split(".")[1]));
+      const expirationTime = tokenData.exp * 1000;
+
+      if (Date.now() > expirationTime) {
+        console.log("Token expired. Redirecting to login...");
+        this.router.push("/login");
+      }
+    },
     async fetchLeavePeriods() {
       try {
         this.store.commit("loader/updateLoader", true);
@@ -133,25 +153,35 @@ export default defineComponent({
         console.error(error);
       }
     },
-    async makeGetRequest(fromDate, toDate, token) {
+    async makeGetRequest(fromDate, toDate) {
       try {
         this.store.commit("loader/updateLoader", true);
+
+        const storedToken = localStorage.getItem("_token");
+
+        if (!storedToken) {
+          console.log("Token is missing. Redirecting to login...");
+          this.router.push("/login");
+          return;
+        }
+
         const apiUrl =
           baseURL +
           `api/v2/leave/leave-entitlements?limit=50&offset=0&fromDate=${fromDate}&toDate=${toDate}`;
 
         const headers = {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${storedToken}`,
         };
 
         const dataResponse = await axios.get(apiUrl, { headers });
 
         this.entitlements = dataResponse.data.data.map((entitlement) => {
           return {
-            leaveType: entitlement.leaveType,
-            entitlement: entitlement.entitlement,
-            daysUsed: entitlement.daysUsed,
-            creditedDate: entitlement.creditedDate,
+            leaveType: entitlement.leaveType.name,
+            entitlement: entitlement.entitlementType.name,
+            validFrom: entitlement.fromDate,
+            validTo: entitlement.toDate,
+            days: entitlement.entitlement,
           };
         });
 

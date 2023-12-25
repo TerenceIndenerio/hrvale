@@ -71,11 +71,11 @@ defineProps({
 
 .cardText {
   color: var(--ion-text-color);
-  font-size: 14px;
+  font-family: Open Sans;
+  font-size: 12px;
   font-style: normal;
   font-weight: 400;
   line-height: normal;
-  text-indent: 20px;
   text-align: justify;
 }
 .p-container {
@@ -90,7 +90,7 @@ defineProps({
   font-style: normal;
   font-weight: 700;
   line-height: normal;
-  text-indent: 10px;
+  text-align: center;
 }
 .img-container {
   display: flex;

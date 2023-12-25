@@ -32,7 +32,7 @@ export default defineComponent({
     IonCard,
   },
   data() {
-    return { headerTitle: "SuySing", theme: {} };
+    return { headerTitle: "Suy Sing", theme: {} };
   },
   methods: {
     getTheme() {

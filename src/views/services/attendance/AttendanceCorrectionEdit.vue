@@ -11,14 +11,15 @@
         <!-- Request Number -->
         <ion-card class="card">
           <p class="ion-text-center ion-margin-bottom">
-            <strong>Request Number:</strong> {{ requestNumber }}
+            <strong>Request Number:</strong>
+            {{ requestNumber }}
           </p>
         </ion-card>
 
         <!-- Work Shift -->
-        <div class="flex-center">
+        <div class="flex-center workshift-container">
           <ion-card class="ion-margin-bottom input-card work-shift">
-            <ion-label><strong>Work Shift</strong></ion-label>
+            <ion-label><strong>Work Shift*</strong></ion-label>
             <ion-card class="workshift-select-container">
               <ion-select
                 placeholder="Select Work Shift"
@@ -27,46 +28,46 @@
                 aria-label="Work Shift"
               >
                 <!-- Options for Work Shift -->
-                <ion-select-option value="option_1">Option 1</ion-select-option>
-                <ion-select-option value="option_2">Option 2</ion-select-option>
-                <ion-select-option value="option_3">Option 3</ion-select-option>
+                <ion-select-option
+                  v-for="option in workShiftOptions"
+                  :key="option.id"
+                  :value="option"
+                >
+                  {{ option.code }}
+                </ion-select-option>
               </ion-select>
             </ion-card>
           </ion-card>
         </div>
 
-        <!-- Schedule In and Out -->
-        <ion-card class="sched-card">
-          <ion-card-content>
-            <ion-grid>
-              <ion-row>
-                <!-- Left Column -->
-                <ion-col size="6">
-                  <p class="ion-margin-bottom"><strong>Schedule In:</strong></p>
-                  <p class="ion-margin-bottom"><strong>Schedule Out:</strong></p>
-                </ion-col>
+        <!-- Sched In and Out -->
+        <div class="time-container">
+          <ion-card class="ion-margin-bottom sched-container">
+            <ion-label><strong>Schedule In:</strong></ion-label>
+            <p class="ion-text-center">
+              {{ this.selectedWorkShift.regularWorkHourStart }}
+            </p>
+          </ion-card>
 
-                <!-- Right Column -->
-                <ion-col size="6">
-                  <p class="ion-text-center ion-margin-bottom">{{ scheduleIn }}</p>
-                  <p class="ion-text-center ion-margin-bottom">{{ scheduleOut }}</p>
-                </ion-col>
-              </ion-row>
-            </ion-grid>
-          </ion-card-content>
-        </ion-card>
+          <ion-card class="ion-margin-bottom sched-container">
+            <ion-label><strong>Schedule Out:</strong></ion-label>
+            <p class="ion-text-center">
+              {{ this.selectedWorkShift.regularWorkHourEnd }}
+            </p>
+          </ion-card>
+        </div>
 
-        <!-- Actual In and Out using input time -->
+        <!-- Actual In and Out -->
         <div class="time-container">
           <ion-card class="ion-margin-bottom actual-container">
-            <ion-label><strong>Actual In:</strong></ion-label>
+            <ion-label><strong>Actual In*:</strong></ion-label>
             <ion-card class="actual-input-container"
               ><input type="time" v-model="actualIn" class="actual-input"
             /></ion-card>
           </ion-card>
 
           <ion-card class="ion-margin-bottom actual-container">
-            <ion-label><strong>Actual Out:</strong></ion-label>
+            <ion-label><strong>Actual Out*:</strong></ion-label>
             <ion-card class="actual-input-container"
               ><input type="time" v-model="actualOut" class="actual-input"
             /></ion-card>
@@ -76,7 +77,7 @@
         <!-- Reason Dropdown -->
         <div class="flex-center">
           <ion-card class="ion-margin-bottom reason-card">
-            <ion-label>Reason</ion-label>
+            <ion-label>Reason*</ion-label>
             <ion-card class="reason-select-container">
               <ion-select
                 placeholder="Select Reason"
@@ -84,11 +85,13 @@
                 class="reason-select"
                 aria-label="Reason"
               >
-                <!-- Options for Reason -->
-
-                <ion-select-option value="option_1">Option 1</ion-select-option>
-                <ion-select-option value="option_2">Option 2</ion-select-option>
-                <ion-select-option value="option_3">Option 3</ion-select-option>
+                <ion-select-option
+                  v-for="option in reasonOptions"
+                  :key="option.value"
+                  :value="option"
+                >
+                  {{ option.type }}
+                </ion-select-option>
               </ion-select>
             </ion-card>
           </ion-card>
@@ -144,6 +147,8 @@ import { GlobalConstants } from "@/config/constants";
 import { mapState } from "vuex";
 import { getThemeData } from "@/theme/theme";
 import { toastController } from "@ionic/vue";
+import { useStore } from "vuex";
+import { useRouter } from "vue-router";
 
 const baseURL = GlobalConstants.HOST_URL;
 
@@ -165,11 +170,17 @@ export default defineComponent({
     IonRow,
     IonCardContent,
   },
+
+  setup() {
+    return {
+      router: useRouter(),
+      store: useStore(),
+    };
+  },
   data() {
     return {
       headerTitle: "Attendance",
-      requestNumber: "ABC123",
-      selectedWorkShift: null,
+      selectedWorkShift: [],
       scheduleIn: "8:00 AM",
       scheduleOut: "5:00 PM",
       actualIn: null,
@@ -178,6 +189,10 @@ export default defineComponent({
       comment: "",
       loading: true,
       storedToken: null,
+      requestNumber: null,
+      workShiftOptions: [],
+      reasonOptions: [],
+      dateVal: null,
     };
   },
   methods: {
@@ -200,8 +215,60 @@ export default defineComponent({
         this.router.push("/login");
       }
     },
+    async fetchWorkShiftOptions() {
+      try {
+        await this.checkTokenExpiration();
+
+        this.storedToken = localStorage.getItem("_token");
+
+        const headers = {
+          Authorization: `Bearer ${this.storedToken}`,
+        };
+
+        const api = baseURL + `api/v2/admin/work-shifts?limit=50&offset=0`;
+
+        const response = await axios.get(api, { headers });
+
+        this.workShiftOptions = response.data.data.map((item) => ({
+          id: item.id,
+          code: item.code,
+          regularWorkHourStart: item.regularWorkHourStart,
+          regularWorkHourEnd: item.regularWorkHourEnd,
+        }));
+      } catch (error) {
+        console.error("Error fetching work shift options:", error);
+      }
+    },
+
+    async fetchReasonOptions() {
+      try {
+        await this.checkTokenExpiration();
+
+        this.storedToken = localStorage.getItem("_token");
+
+        const headers = {
+          Authorization: `Bearer ${this.storedToken}`,
+        };
+
+        const api =
+          baseURL +
+          `api/v2/reasons?limit=50&offset=0&sortField=r.id&sortOrder=DESC`;
+
+        const response = await axios.get(api, { headers });
+
+        this.reasonOptions = response.data.data.map((item) => ({
+          id: item.id,
+          type: item.type,
+          content: item.content,
+        }));
+      } catch (error) {
+        console.error("Error fetching reason options:", error);
+      }
+    },
+
     async saveCorrection() {
       try {
+        this.store.commit("loader/updateLoader", true);
         await this.checkTokenExpiration();
 
         this.storedToken = localStorage.getItem("_token");
@@ -213,21 +280,34 @@ export default defineComponent({
         const api = baseURL + `api/v2/ess/apply-attendance-correction`;
 
         const payload = {
-          applyActualIn: "01:00",
-          applyActualOut: "01:00",
-          applyScheduleIn: "08:00",
-          applyScheduleOut: "18:00",
-          code: "S5",
+          applyActualIn: this.actualIn,
+          applyActualOut: this.actualOut,
+          applyScheduleIn: this.selectedWorkShift.regularWorkHourStart,
+          applyScheduleOut: this.selectedWorkShift.regularWorkHourEnd,
+          code: this.selectedWorkShift.code,
           comment: this.comment,
           empNumber: 1,
-          reason: "Testing APPLY CORRECTION",
-          reasonId: 2,
-          requestNo: "20231412-AC-3CGFD",
+          reason: this.selectedReason.content,
+          reasonId: this.selectedReason.id,
+          requestNo: this.requestNumber,
           status: "pending",
-          workShiftId: 2,
+          workShiftId: this.selectedWorkShift.id,
         };
 
         const dataResponse = await axios.post(api, payload, { headers });
+        const toast = await toastController.create({
+          message: "Attendance Correction Successfully Sent!",
+          duration: 3000,
+          position: "top",
+          icon: "alert-circle-outline",
+          buttons: [
+            {
+              icon: "close-outline",
+              role: "cancel",
+            },
+          ],
+        });
+        await toast.present();
       } catch (error) {
         const toast = await toastController.create({
           message: "An error occurred: " + error.message,
@@ -242,6 +322,9 @@ export default defineComponent({
           ],
         });
         await toast.present();
+      } finally {
+        this.store.commit("loader/updateLoader", false);
+        this.$router.go(-1);
       }
     },
     getTheme() {
@@ -252,9 +335,24 @@ export default defineComponent({
       }
       this.theme = storedThemeData;
     },
+
+    generateRandomString(length) {
+      return [...Array(length)]
+        .map(() => Math.random().toString(36)[2])
+        .join("");
+    },
   },
   created() {
     this.getTheme();
+    this.fetchWorkShiftOptions();
+    this.fetchReasonOptions();
+    this.dateVal = this.$route.query.date;
+
+    const dateValWithRandomString = (
+      this.generateRandomString(6) + this.dateVal
+    ).replace(/-/g, "");
+    this.requestNumber = dateValWithRandomString;
+
     this.loading = false;
   },
 });
@@ -271,11 +369,19 @@ export default defineComponent({
   width: fit-content;
 }
 .card {
-  border-radius: 20px;
+  border-radius: 10px;
 }
 .save-btn {
   margin: 0;
   height: 50px;
+}
+
+.sched-container {
+  min-width: 150px;
+  padding: 10px;
+  width: fit-content;
+  margin: 0;
+  border-radius: 10px;
 }
 .sched-card {
   padding: 0;
@@ -283,6 +389,10 @@ export default defineComponent({
 }
 .sched-card ion-card-content {
   padding: 0 10px;
+}
+
+.workshift-container {
+  margin-bottom: 20px;
 }
 .work-shift {
   padding: 10px;
@@ -295,6 +405,7 @@ export default defineComponent({
 }
 .workshift-select {
   width: fit-content;
+  min-width: 100px;
 }
 .time-container {
   display: flex;
@@ -312,8 +423,9 @@ export default defineComponent({
 }
 .actual-input-container {
   width: fit-content;
-  padding: 5px;
+  padding: 0;
   margin: 5px;
+  padding: 15px;
 }
 .actual-input {
   width: fit-content;
@@ -322,6 +434,7 @@ export default defineComponent({
 .reason-card {
   padding: 10px;
   width: fit-content;
+  min-width: 150px;
   margin: 0;
   border-radius: 10px;
 }
@@ -329,6 +442,7 @@ export default defineComponent({
   padding: 0 10px;
   margin: 5px 0;
   width: fit-content;
+  min-width: 150px;
   border-radius: 10px;
 }
 .reason-select {

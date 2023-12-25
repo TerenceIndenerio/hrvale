@@ -11,10 +11,18 @@
       <div class="container">
         <ion-card class="card search-container">
           <ion-card class="card date-container">
-            <ion-input label="from:" v-model="selectedDateFrom" type="date"></ion-input>
+            <ion-input
+              label="from:"
+              v-model="selectedDateFrom"
+              type="date"
+            ></ion-input>
           </ion-card>
           <ion-card class="card date-container">
-            <ion-input label="to:" v-model="selectedDateTo" type="date"></ion-input>
+            <ion-input
+              label="to:"
+              v-model="selectedDateTo"
+              type="date"
+            ></ion-input>
           </ion-card>
 
           <ion-card class="card date-container">
@@ -35,7 +43,10 @@
         </ion-card>
 
         <ion-card v-if="showCommentContainer" class="card comment-container">
-          <ion-textarea v-model="comment" placeholder="Enter your comment"></ion-textarea>
+          <ion-textarea
+            v-model="comment"
+            placeholder="Enter your comment"
+          ></ion-textarea>
           <br />
           <ion-button
             @click="handleSubmit"
@@ -289,7 +300,11 @@ export default defineComponent({
     async handleSubmit() {
       try {
         this.store.commit("loader/updateLoader", true);
-        console.log(this.selectedDateFrom, this.selectedDateTo, this.requestDate);
+        console.log(
+          this.selectedDateFrom,
+          this.selectedDateTo,
+          this.requestDate
+        );
         await this.checkTokenExpiration();
 
         this.storedToken = localStorage.getItem("_token");
@@ -299,6 +314,7 @@ export default defineComponent({
         const payload = {
           comment: this.comment,
           fromDate: this.selectedDateFrom,
+          // reasons: [{ date: null }, { reasonId: null }, { text: null }],
           reasons: [],
           requestDate: this.requestDate,
           toDate: this.selectedDateTo,
@@ -383,7 +399,7 @@ export default defineComponent({
         this.store.commit("loader/updateLoader", false);
       } catch (error) {
         this.store.commit("loader/updateLoader", false);
-        console.error("Error fetching payroll period options: ", error);
+
         this.showErrorMessage("An error occurred: " + error.message);
         const errorMessage = error.response.data.error.message;
       }
@@ -394,10 +410,15 @@ export default defineComponent({
         this.store.commit("loader/updateLoader", true);
         await this.checkTokenExpiration();
 
+        this.storedToken = localStorage.getItem("_token");
+        console.log("token:", this.storedToken);
+
         const headers = {
           Authorization: `Bearer ${this.storedToken}`,
         };
 
+        const currentDate = new Date();
+        const formattedDate = currentDate.toISOString().split("T")[0];
         const api =
           baseURL +
           `api/v2/ess/overtime?limit=50&offset=0&date=${this.selectedDateFrom}&dateEnd=${this.selectedDateTo}`;
@@ -431,7 +452,7 @@ export default defineComponent({
         this.store.commit("loader/updateLoader", false);
       } catch (error) {
         this.store.commit("loader/updateLoader", false);
-        console.error("Error fetching payroll period options: ", error);
+
         this.showErrorMessage("An error occurred: " + error.message);
       }
     },
@@ -441,7 +462,7 @@ export default defineComponent({
         const toast = await toastController.create({
           message: message,
           duration: 3000,
-          position: "bottom",
+          position: "top",
           color: "danger",
           buttons: [
             {

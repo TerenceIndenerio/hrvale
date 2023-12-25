@@ -51,7 +51,7 @@
       </ion-row>
       <ion-row>
         <ion-col expand="full" color="none">
-          <a href="/soon">
+          <a href="/OTApply">
             <div class="flex-center box-container">
               <ion-icon
                 name="calendar-clear"
@@ -75,7 +75,7 @@
       </ion-row>
       <ion-row>
         <ion-col class="card btn-text" expand="full" color="none">
-          <a href="/soon" disabled>
+          <a href="/benefits" disabled>
             <div class="flex-center box-container">
               <ion-icon
                 name="gift"

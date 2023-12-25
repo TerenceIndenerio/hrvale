@@ -1,8 +1,16 @@
 <template>
-  <ion-header class="header" color="none" :style="{ backgroundColor: headerColor }">
+  <ion-header
+    class="header"
+    color="none"
+    :style="{ backgroundColor: headerColor }"
+  >
     <img :src="imgLogo" alt="Logo" class="logo" />
 
-    <ion-icon name="settings" class="icon1" @click="openPopover($event)"></ion-icon>
+    <ion-icon
+      name="settings"
+      class="icon1"
+      @click="openPopover($event)"
+    ></ion-icon>
     <div class="profile-img-container">
       <img
         src="https://hrp-staging-delta.bapplware.com/web/index.php/employee/photo/1"
@@ -33,7 +41,13 @@
 </template>
 
 <script>
-import { IonHeader, IonIcon, IonPopover, IonContent, IonButton } from "@ionic/vue";
+import {
+  IonHeader,
+  IonIcon,
+  IonPopover,
+  IonContent,
+  IonButton,
+} from "@ionic/vue";
 import { ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { defineProps, defineComponent } from "vue";
@@ -97,23 +111,24 @@ export default defineComponent({
   text-align: center;
 }
 .profile-img-container {
-  width: 40px;
-  height: 40px;
+  width: 30px;
+  height: 30px;
   overflow: hidden;
   border-radius: 50%;
   outline: 3px solid white;
   position: absolute;
   left: 20px;
   font-size: 25px;
+  background-color: white;
 }
 .profile-img-container img {
-  width: 40px;
-  height: 40px;
+  width: 30px;
+  height: 30px;
 }
 .icon1 {
   position: absolute;
   right: 20px;
-  font-size: 30px;
+  font-size: 20px;
   outline: 3px solid white;
   border-radius: 100%;
   padding: 3px;

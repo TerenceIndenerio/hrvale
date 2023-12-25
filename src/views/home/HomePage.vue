@@ -7,8 +7,8 @@
     ></HeaderUser>
     <ion-content :fullscreen="true" v-if="!loading">
       <Refresher />
-      <CardWImg
-        :cardHeader="extractedData.name"
+      <CardWImgHome
+        :cardHeader="this.cardHeader"
         :cardText="extractedData.note"
         :img_src="img_src"
       />
@@ -33,7 +33,7 @@ import {
   IonRefresherContent,
 } from "@ionic/vue";
 import HeaderUser from "@/components/header/HeaderUser.vue";
-import CardWImg from "@/components/cards/CardWImg.vue";
+import CardWImgHome from "@/components/cards/CardWImgHome.vue";
 import ClockinCard from "@/components/cards/HomeClockInCard.vue";
 import HomeRandomCard from "@/components/cards/HomeRandomCard.vue";
 import Refresher from "@/components/refresher/Refresher.vue";
@@ -57,7 +57,7 @@ export default defineComponent({
     IonRefresher,
     IonRefresherContent,
     HeaderUser,
-    CardWImg,
+    CardWImgHome,
     ClockinCard,
     HomeRandomCard,
     Refresher,
@@ -71,8 +71,8 @@ export default defineComponent({
   data() {
     return {
       headerTitle: "Home",
-      cardHeader: "Update",
-      cardText: "is simply dummy text of the printing & typesetting industry.",
+      cardHeader: "SUY-SING COMMERCIAL CORPORATION",
+      cardText: "",
       img_src: "assets/images/card_img1.png",
       theme: {},
       btnText: "Clock In",
@@ -132,10 +132,11 @@ export default defineComponent({
         this.extractedData = extractedData;
 
         this.store.commit("loader/updateLoader", false);
-        this.loading = false;
       } catch (error) {
         console.error("Error:", error);
         this.store.commit("loader/updateLoader", false);
+      } finally {
+        this.loading = false;
       }
     },
   },

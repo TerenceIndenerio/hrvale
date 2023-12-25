@@ -11,22 +11,18 @@
       <ion-card class="card text-center">
         <h3>Logs</h3>
 
-        <!-- Use input date for selecting payroll start date -->
         <input
           type="date"
           v-model="startDate"
           class="box-container select-option"
-          @input="handleDateChange"
         />
 
-        <!-- Use input date for selecting payroll end date -->
         <input
           type="date"
           v-model="endDate"
           class="box-container select-option"
-          @input="handleDateChange"
         />
-        <!-- Button for search -->
+
         <ion-button
           expand="full"
           class="pos-right search-btn-container"
@@ -40,39 +36,36 @@
 
       <ion-card class="card" v-for="(result, index) in results" :key="index">
         <ion-card-header>
-          <ion-card-subtitle>{{ result.day }} - {{ result.date }}</ion-card-subtitle>
+          <ion-card-subtitle
+            >{{ result.day }} - {{ result.date }}</ion-card-subtitle
+          >
         </ion-card-header>
 
-        <ion-card-content>
-          <ion-grid>
-            <ion-row>
-              <ion-col size="6">
-                <!-- Adjust the size based on your preference -->
-                <p>Schedule In:</p>
-                <p>Schedule Out:</p>
-                <p>Fixed OT In:</p>
-                <p>Fixed OT Out:</p>
-              </ion-col>
-              <ion-col size="6">
-                <!-- Display the corresponding values in the right column -->
-                <p>{{ result.scheduleIn }}</p>
-                <p>{{ result.scheduleOut }}</p>
-                <p>{{ result.fixedOtIn }}</p>
-                <p>{{ result.fixedOtOut }}</p>
-              </ion-col>
-            </ion-row>
-          </ion-grid>
+        <ion-grid>
+          <ion-row>
+            <ion-col size="6">
+              <p>Schedule In:</p>
+              <p>Schedule Out:</p>
+              <p>Fixed OT In:</p>
+              <p>Fixed OT Out:</p>
+            </ion-col>
+            <ion-col size="6">
+              <p>{{ result.scheduleIn }}</p>
+              <p>{{ result.scheduleOut }}</p>
+              <p>{{ result.fixedOtIn }}</p>
+              <p>{{ result.fixedOtOut }}</p>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
 
-          <!-- Add a button below the grid -->
-          <ion-button
-            expand="full"
-            color="light"
-            class="edit-btn"
-            router-link="/AttendanceCorrectionEdit"
-          >
-            Edit
-          </ion-button>
-        </ion-card-content>
+        <ion-button
+          expand="full"
+          color="light"
+          class="edit-btn"
+          @click="navigateToEditPage(result.date)"
+        >
+          Edit
+        </ion-button>
       </ion-card>
     </ion-content>
   </ion-page>
@@ -107,6 +100,7 @@ import { mapState } from "vuex";
 import { getThemeData } from "@/theme/theme";
 
 const baseURL = GlobalConstants.HOST_URL;
+const empNumber = GlobalConstants.USER_ID;
 
 export default defineComponent({
   components: {
@@ -183,16 +177,6 @@ export default defineComponent({
       this.theme = storedThemeData;
     },
 
-    handleDateChange() {
-      // Update the startDate and endDate based on the selectedPayrollDate
-      const startDate = new Date(this.startDate).toISOString().split("T")[0];
-      const endDate = new Date(this.endDate).toISOString().split("T")[0];
-
-      // Now you can use startDate and endDate as needed
-      console.log("Selected Start Date:", startDate);
-      console.log("Selected End Date:", endDate);
-    },
-
     showErrorMessage(message) {
       this.$ionic.toastController
         .create({
@@ -208,6 +192,7 @@ export default defineComponent({
 
     async fetchData() {
       try {
+        this.store.commit("loader/updateLoader", true);
         await this.checkTokenExpiration();
 
         this.storedToken = localStorage.getItem("_token");
@@ -237,7 +222,10 @@ export default defineComponent({
         console.error("Error fetching payroll period options: ", error);
         this.showErrorMessage("An error occurred: " + error.message);
 
-        const errorMessage = error.response.data.error.message || "Failed to load data";
+        const errorMessage =
+          error.response.data.error.message || "Failed to load data";
+      } finally {
+        this.store.commit("loader/updateLoader", false);
       }
     },
     async showErrorMessage(message) {
@@ -259,6 +247,14 @@ export default defineComponent({
         console.error("Error displaying toast:", error);
       }
     },
+    navigateToEditPage(dateVal) {
+      this.$router.push({
+        path: "/attendancecorrectionedit",
+        query: {
+          date: dateVal,
+        },
+      });
+    },
   },
 });
 </script>
@@ -275,7 +271,7 @@ export default defineComponent({
 }
 .card {
   padding: 0 10px 5px 10px;
-  border-radius: 20px;
+  border-radius: 10px;
 }
 .card ion-card-header {
   padding: 0;
