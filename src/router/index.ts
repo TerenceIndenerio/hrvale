@@ -19,10 +19,15 @@ import OTApply from '@/views/services/ot/OTApply.vue';
 import Vale from '@/views/services/vale/Vale.vue';
 import leaveEntitlement from '@/views/services/leave/LeaveEntitlement.vue'
 import ViewSchedule from '@/views/services/schedule/ViewSchedule.vue'
+import ViewSchedule2 from '@/views/services/schedule/ViewSchedule2.vue'
 import Benefits from '@/views/services/benefits/Benefits.vue'
 import SoonPage from '@/views/SoonPage.vue'
 import AttendanceCorrectionEdit from '@/views/services/attendance/AttendanceCorrectionEdit.vue';
 import Tenant from '@/views/Tenant.vue';
+import ViewPayslip from '@/views/services/view_payslip/ViewPayslip.vue'
+import GPSOffline from '@/views/GPSOffline.vue'
+import PinCode from '@/views/pincode/PinCode.vue'
+
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -45,13 +50,14 @@ const routes: Array<RouteRecordRaw> = [
         path: 'services',
         component: () => import('@/views/services/Services.vue')
       },
+      
       {
         path: 'tab3',
         component: () => import('@/views/approval/Approval.vue')
       },
       {
-        path: 'tab4',
-        component: () => import('@/views/more/Tab4Page.vue')
+        path: 'accsettings',
+        component: () => import('@/views/AccountSettings.vue')
       },
       {
         path: '/leave',
@@ -76,6 +82,10 @@ const routes: Array<RouteRecordRaw> = [
       {
         path: '/viewschedule',
         component: ViewSchedule
+      },
+      {
+        path: '/viewschedule2',
+        component: ViewSchedule2
       },
       {
         path: '/attendancecorrection',
@@ -106,8 +116,16 @@ const routes: Array<RouteRecordRaw> = [
         component: SoonPage
       },
       {
+        path: '/gpsoff',
+        component: GPSOffline
+      },
+      {
         path: '/benefits',
         component: Benefits
+      },
+      {
+        path: '/viewpayslip',
+        component: ViewPayslip
       },
     ]
   },
@@ -142,7 +160,13 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/createpin',
     component: CreatePin
+  },
+  {
+    path: '/pincode',
+    component: PinCode
   }
+ 
+  
   
 ]
 

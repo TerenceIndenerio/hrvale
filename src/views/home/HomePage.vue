@@ -8,12 +8,11 @@
     <ion-content :fullscreen="true" v-if="!loading">
       <Refresher />
       <CardWImgHome
-        :cardHeader="this.cardHeader"
+        :cardHeader="extractedData.name"
         :cardText="extractedData.note"
         :img_src="img_src"
       />
       <ClockinCard
-        :btnText="btnText"
         :btnColor="theme.primaryColor"
         :btnTextColor="theme.primaryFontColor"
       />

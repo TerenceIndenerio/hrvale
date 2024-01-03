@@ -10,15 +10,15 @@
       <CardWImg :cardHeader="cardHeader" :cardText="cardText" />
 
       <div class="flex-center">
-        <ion-card class="services-card">
+        <div class="services-card">
           <ion-text>
-            <h2 class="title">Check Services</h2>
+            <h2 class="title">Services</h2>
           </ion-text>
           <ServicesGroupButton
             :btnColor="theme.primaryColor"
             :btnTextColor="theme.primaryColor"
           />
-        </ion-card>
+        </div>
       </div>
     </ion-content>
   </ion-page>
@@ -44,7 +44,7 @@ import { useStore } from "vuex";
 import { GlobalConstants } from "@/config/constants";
 import axios from "axios";
 const baseURL = GlobalConstants.HOST_URL;
-const empNumber = GlobalConstants.USER_ID;
+const empNumber = GlobalConstants.EMPLOYEE_ID;
 
 export default defineComponent({
   components: {
@@ -156,9 +156,10 @@ export default defineComponent({
   justify-content: center;
   width: 100%;
 }
+
 ion-text .title {
   width: 120px;
-  margin: 10px 0;
+  margin: 0;
   color: var(--ion-text-color);
   font-family: Open Sans;
   font-size: 16px;
@@ -336,5 +337,6 @@ ion-text .title {
   padding: 10px;
   width: fit-content;
   min-width: 350px;
+  margin-top: 10px;
 }
 </style>

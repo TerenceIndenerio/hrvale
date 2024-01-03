@@ -1,5 +1,5 @@
 <template>
-  <ion-card>
+  <div class="btn-container">
     <ion-grid class="button-container">
       <ion-row>
         <ion-col expand="full" color="none">
@@ -99,7 +99,7 @@
       </ion-row>
       <ion-row>
         <ion-col class="card btn-text" expand="full" color="none">
-          <a href="/soon" disabled>
+          <a href="/viewpayslip" disabled>
             <div class="flex-center box-container">
               <ion-icon
                 name="receipt"
@@ -111,7 +111,7 @@
         </ion-col>
       </ion-row>
     </ion-grid>
-  </ion-card>
+  </div>
 </template>
 
 <script lang="ts">
@@ -206,5 +206,14 @@ ion-card {
 }
 .icon-btn {
   font-size: 30px;
+}
+.btn-container {
+  box-shadow: 8px 8px 16px rgba(0, 0, 0, 0.1),
+    -8px -8px 16px rgba(255, 255, 255, 0.8),
+    inset 8px 8px 10px rgba(0, 0, 0, 0.1);
+  border: 5px solid white;
+  overflow: hidden;
+  border-radius: 20px;
+  margin: 0 10px;
 }
 </style>

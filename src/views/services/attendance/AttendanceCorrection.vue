@@ -11,17 +11,13 @@
       <ion-card class="card text-center">
         <h3>Logs</h3>
 
-        <input
-          type="date"
-          v-model="startDate"
-          class="box-container select-option"
-        />
+        <ion-card class="select-option">
+          <ion-input label="from:" type="date" v-model="startDate" />
+        </ion-card>
 
-        <input
-          type="date"
-          v-model="endDate"
-          class="box-container select-option"
-        />
+        <ion-card class="select-option">
+          <ion-input label="to:" type="date" v-model="endDate" />
+        </ion-card>
 
         <ion-button
           expand="full"
@@ -34,38 +30,89 @@
         </ion-button>
       </ion-card>
 
-      <ion-card class="card" v-for="(result, index) in results" :key="index">
-        <ion-card-header>
-          <ion-card-subtitle
-            >{{ result.day }} - {{ result.date }}</ion-card-subtitle
+      <ion-card class="card result-container">
+        <h4 class="text-center outlineColor">Result</h4>
+        <ion-card class="card" v-for="(result, index) in results" :key="index">
+          <ion-card-header>
+            <ion-card-subtitle
+              >{{ result.day }} - {{ result.date }}</ion-card-subtitle
+            >
+            <div>
+              <p></p>
+            </div>
+          </ion-card-header>
+
+          <ion-grid>
+            <ion-col size="6">
+              <ion-row>
+                <ion-col size="6">
+                  <p>Schedule In:</p>
+                </ion-col>
+                <ion-col size="6">
+                  <p>{{ result.scheduleIn }}</p>
+                </ion-col>
+              </ion-row>
+
+              <ion-row>
+                <ion-col size="6">
+                  <p>Schedule Out:</p>
+                </ion-col>
+                <ion-col size="6">
+                  <p>{{ result.scheduleOut }}</p>
+                </ion-col>
+              </ion-row>
+
+              <ion-row>
+                <ion-col size="6">
+                  <p>Fixed OT In:</p>
+                </ion-col>
+                <ion-col size="6">
+                  <p>{{ result.fixedOtIn }}</p>
+                </ion-col>
+              </ion-row>
+
+              <ion-row>
+                <ion-col size="6">
+                  <p>Fixed OT Out:</p>
+                </ion-col>
+                <ion-col size="6">
+                  <p>{{ result.fixedOtOut }}</p>
+                </ion-col>
+              </ion-row>
+
+              <ion-row>
+                <ion-col size="6">
+                  <p>Actual In:</p>
+                </ion-col>
+                <ion-col size="6">
+                  <p>{{ result.actualIn }}</p>
+                </ion-col>
+              </ion-row>
+
+              <ion-row>
+                <ion-col size="6">
+                  <p>Actual Out:</p>
+                </ion-col>
+                <ion-col size="6">
+                  <p>{{ result.actualOut }}</p>
+                </ion-col>
+              </ion-row>
+            </ion-col>
+
+            <ion-col size="6">
+              <!-- Second column with data -->
+            </ion-col>
+          </ion-grid>
+
+          <ion-button
+            expand="full"
+            color="light"
+            class="edit-btn"
+            @click="navigateToEditPage(result.date)"
           >
-        </ion-card-header>
-
-        <ion-grid>
-          <ion-row>
-            <ion-col size="6">
-              <p>Schedule In:</p>
-              <p>Schedule Out:</p>
-              <p>Fixed OT In:</p>
-              <p>Fixed OT Out:</p>
-            </ion-col>
-            <ion-col size="6">
-              <p>{{ result.scheduleIn }}</p>
-              <p>{{ result.scheduleOut }}</p>
-              <p>{{ result.fixedOtIn }}</p>
-              <p>{{ result.fixedOtOut }}</p>
-            </ion-col>
-          </ion-row>
-        </ion-grid>
-
-        <ion-button
-          expand="full"
-          color="light"
-          class="edit-btn"
-          @click="navigateToEditPage(result.date)"
-        >
-          Edit
-        </ion-button>
+            Edit
+          </ion-button>
+        </ion-card>
       </ion-card>
     </ion-content>
   </ion-page>
@@ -88,6 +135,7 @@ import {
   IonCardHeader,
   IonCardTitle,
   IonCardSubtitle,
+  IonInput,
 } from "@ionic/vue";
 import Refresher from "@/components/refresher/Refresher.vue";
 import HeaderReturn from "@/components/header/HeaderReturn.vue";
@@ -100,7 +148,7 @@ import { mapState } from "vuex";
 import { getThemeData } from "@/theme/theme";
 
 const baseURL = GlobalConstants.HOST_URL;
-const empNumber = GlobalConstants.USER_ID;
+const empNumber = GlobalConstants.EMPLOYEE_ID;
 
 export default defineComponent({
   components: {
@@ -121,6 +169,7 @@ export default defineComponent({
     IonCardHeader,
     IonCardTitle,
     IonCardSubtitle,
+    IonInput,
   },
   setup() {
     return {
@@ -135,6 +184,7 @@ export default defineComponent({
       authToken: null,
       noResult: false,
       results: [],
+      onLoadResult: [],
       theme: {},
       loading: true,
       storedToken: null,
@@ -144,6 +194,7 @@ export default defineComponent({
   },
   created() {
     this.getTheme();
+    this.applyAttendanceCorrection();
     this.loading = false;
   },
 
@@ -189,6 +240,43 @@ export default defineComponent({
           toast.present();
         });
     },
+    async applyAttendanceCorrection() {
+      try {
+        this.store.commit("loader/updateLoader", true);
+        await this.checkTokenExpiration();
+
+        this.storedToken = localStorage.getItem("_token");
+
+        const headers = {
+          Authorization: `Bearer ${this.storedToken}`,
+        };
+        const api =
+          baseURL +
+          `api/v2/ess/apply-attendance-correction?empNumber=${empNumber}`;
+
+        const dataResponse = await axios.get(api, { headers });
+
+        if (dataResponse.data && Array.isArray(dataResponse.data.data)) {
+          this.results = dataResponse.data.data.map((period) => ({
+            date: period.date,
+            scheduleIn: period.applyScheduleIn,
+            scheduleOut: period.applyScheduleOut,
+            day: period.day,
+            fixedOt: period.fixedOt,
+            fixedOtIn: period.fixedOtIn,
+            fixedOtOut: period.fixedOtOut,
+            actualIn: period.applyActualIn,
+            actualOut: period.applyActualOut,
+            status: period.status,
+          }));
+        }
+      } catch (error) {
+        console.error("Error fetching payroll period options: ", error);
+        this.showErrorMessage("An error occurred: " + error.message);
+      } finally {
+        this.store.commit("loader/updateLoader", false);
+      }
+    },
 
     async fetchData() {
       try {
@@ -216,6 +304,8 @@ export default defineComponent({
             fixedOt: period.fixedOt,
             fixedOtIn: period.fixedOtIn,
             fixedOtOut: period.fixedOtOut,
+            actualIn: period.actualIn,
+            actualOut: period.actualOut,
           }));
         }
       } catch (error) {
@@ -233,7 +323,7 @@ export default defineComponent({
         const toast = await toastController.create({
           message: message,
           duration: 3000,
-          position: "bottom",
+          position: "top",
           color: "danger",
           buttons: [
             {
@@ -261,6 +351,10 @@ export default defineComponent({
 
 <style scoped>
 @import url("https://fonts.googleapis.com/css?family=Open+Sans");
+p {
+  margin: 0;
+}
+
 .flex-h {
   display: flex;
   justify-content: space-around;
@@ -270,8 +364,10 @@ export default defineComponent({
   text-align: center;
 }
 .card {
-  padding: 0 10px 5px 10px;
-  border-radius: 10px;
+  padding: 0 10px 0 10px;
+  border-radius: 20px;
+  box-shadow: 8px 8px 16px rgba(0, 0, 0, 0.1),
+    -8px -8px 16px rgba(255, 255, 255, 0.8), 0px -4px 8px rgba(0, 0, 0, 0.05);
 }
 .card ion-card-header {
   padding: 0;
@@ -291,6 +387,11 @@ export default defineComponent({
 }
 .card h5 {
   margin: 0;
+}
+.result-container {
+  width: fit-content;
+  min-width: 300px;
+  margin: 0 auto;
 }
 .payroll-container {
   width: fit-content;
@@ -328,11 +429,12 @@ export default defineComponent({
   line-height: normal;
 }
 .select-option {
-  width: fit-content;
   min-width: 300px;
-  border-radius: 10px;
-  padding: 10px 10px;
+  border-radius: 20px;
+  padding: 0 20px;
   margin: 5px;
+  box-shadow: 8px 8px 16px rgba(0, 0, 0, 0.1),
+    -8px -8px 16px rgba(255, 255, 255, 0.8), 0px -4px 8px rgba(0, 0, 0, 0.05);
 }
 .header-row {
   border-bottom: 1px solid #000;
@@ -353,5 +455,8 @@ export default defineComponent({
 }
 .edit-btn {
   padding: 0;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 10px;
 }
 </style>

@@ -1,45 +1,14 @@
 <template>
   <div class="header" :style="{ backgroundColor: headerColor }">
     <ion-icon
-      name="arrow-back-outline"
+      name="arrow-back-circle"
       class="icon1"
       @click="navigateBack"
       router-direction="forward"
     ></ion-icon>
 
     <h2 class="title">{{ headerTitle }}</h2>
-    <ion-icon
-      color="light"
-      name="settings"
-      class="settings-icon"
-      @click="openPopover($event)"
-      router-direction="forward"
-    ></ion-icon>
   </div>
-  <ion-popover
-    :is-open="popoverOpen"
-    :event="event"
-    @didDismiss="popoverOpen = false"
-    class="ion-popover-container"
-  >
-    <div class="popup-container">
-      <ion-button
-        class="btn"
-        fill="clear"
-        expand="full"
-        @click="navigateAcctSettings()"
-        ><ion-icon name="settings-outline"></ion-icon> Settings</ion-button
-      >
-      <ion-button
-        class="btn logout-btn"
-        expand="full"
-        color="none"
-        @click="logout()"
-        :style="{ backgroundColor: headerColor }"
-        ><ion-icon name="exit-outline"></ion-icon> Log Out</ion-button
-      >
-    </div>
-  </ion-popover>
 </template>
 
 <script>
@@ -112,9 +81,13 @@ export default defineComponent({
     -8px -8px 16px rgba(255, 255, 255, 0.8), 0px -4px 8px rgba(0, 0, 0, 0.1);
 }
 .icon1 {
-  font-size: 30px;
+  font-size: 40px;
   color: var(--ion-color-primary-contrast);
   transition: transform 0.2s ease;
+  position: absolute;
+  margin-top: 5px;
+  left: 20px;
+  z-index: 100;
 }
 .icon1:hover {
   transform: scale(0.5);
@@ -132,6 +105,9 @@ export default defineComponent({
   font-style: normal;
   font-weight: 700;
   line-height: normal;
+  position: absolute;
+  left: 0;
+  right: 0;
 }
 .settings-icon {
   font-size: 25px;

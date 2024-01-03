@@ -246,6 +246,8 @@ ion-card {
   border-radius: 20px;
   width: 90%;
   margin: 10px auto;
+  box-shadow: 8px 8px 16px rgba(0, 0, 0, 0.1),
+    -8px -8px 16px rgba(255, 255, 255, 0.8), 0px -4px 8px rgba(0, 0, 0, 0.05);
 }
 .username-text,
 .leave-text {

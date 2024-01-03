@@ -22,7 +22,7 @@
           <p class="leave-bal">Leave Balance: <strong>0</strong> Day(s)</p>
         </ion-card>
 
-        <div class="card emp-detail-container">
+        <div class="ion-padding emp-detail-container">
           <ion-card class="card emp-detail flex-center">
             <p>Employee Code</p>
 
@@ -62,7 +62,7 @@
         </ion-card>
 
         <!-- details -->
-        <div class="card emp-detail-container">
+        <div class="ion-padding emp-detail-container">
           <ion-card class="card emp-detail flex-center">
             <p>Allocated Days:</p>
             <p v-if="employeeDetail2">
@@ -514,26 +514,25 @@ export default defineComponent({
           this.router.push("/login");
           return;
         }
-
+        const authToken = `Bearer ${storedToken}`;
+        const apiUrl = baseURL + `api/v2/leave/leave-types`;
         const headers = {
-          Authorization: `Bearer ${storedToken}`,
+          Authorization: authToken,
         };
+        const response = await axios.get(apiUrl, { headers });
 
-        const api = baseURL + "api/v2/leave/leave-types";
-        const dataResponse = await axios.get(api, { headers });
-
-        this.loading = false;
-        this.store.commit("loader/updateLoader", false);
-
-        return dataResponse.data.data.map((leaveData) => ({
+        return response.data.data.map((leaveData) => ({
           name: leaveData.name,
           id: leaveData.id,
         }));
       } catch (error) {
+        console.error(error.message);
+        this.showErrorMessage(
+          "An error occurred: " + error.response?.data?.error?.message
+        );
+      } finally {
         this.loading = false;
         this.store.commit("loader/updateLoader", false);
-        console.error("Error fetching token or data:", error);
-        return null;
       }
     },
 
@@ -589,22 +588,6 @@ export default defineComponent({
 
         const response = await axios.post(api, requestData, { headers });
 
-        const toast = await toastController.create({
-          message: "Leave request sent successfully!",
-          duration: 3000,
-          position: "top",
-          color: "success",
-          icon: "alert-circle-outline",
-          buttons: [
-            {
-              icon: "close-outline",
-              role: "cancel",
-            },
-          ],
-        });
-
-        await toast.present();
-
         this.fromDate = null;
         this.toDate = null;
         this.reason = null;
@@ -620,15 +603,15 @@ export default defineComponent({
         this.store.commit("loader/updateLoader", false);
       } catch (error) {
         console.error("Error sending leave request:", error);
-        this.checkTokenExpiration();
-        const errorMessage =
-          error.response.data.error.message || "Failed to send leave request";
-        const fullErrorMessage = `Failed to Submit Leave Request, ${errorMessage}`;
-
+        this.showErrorMessage(
+          "An error occurred: " + error.response?.data?.error?.message
+        );
+      } finally {
         const toast = await toastController.create({
-          message: fullErrorMessage,
+          message: "Leave request sent successfully!",
           duration: 3000,
           position: "top",
+          color: "success",
           icon: "alert-circle-outline",
           buttons: [
             {
@@ -637,6 +620,7 @@ export default defineComponent({
             },
           ],
         });
+
         await toast.present();
       }
     },
@@ -680,6 +664,7 @@ export default defineComponent({
         };
       } catch (error) {
         console.error("Error fetching leave balance:", error);
+        this.showErrorMessage("Error fetching leave balance: " + error.message);
       }
     },
     getTheme() {
@@ -689,6 +674,27 @@ export default defineComponent({
         this.theme = storedThemeData;
       }
       this.theme = storedThemeData;
+    },
+
+    async showErrorMessage(message) {
+      try {
+        const toast = await toastController.create({
+          message: message,
+          duration: 3000,
+          position: "top",
+          color: "danger",
+          icon: "alert-circle-outline",
+          buttons: [
+            {
+              icon: "close-outline",
+              role: "cancel",
+            },
+          ],
+        });
+        await toast.present();
+      } catch (error) {
+        console.error("Error displaying toast:", error);
+      }
     },
 
     // Exppiration of token
@@ -748,11 +754,15 @@ export default defineComponent({
 .card-container {
   border-radius: 20px;
   padding: 10px 0 20px 0;
+  box-shadow: 8px 8px 16px rgba(0, 0, 0, 0.1),
+    -8px -8px 16px rgba(255, 255, 255, 0.8), 0px -4px 8px rgba(0, 0, 0, 0.05);
 }
 .card {
   border-radius: 20px;
   padding: 10px;
   margin: 5px 10px;
+  box-shadow: 8px 8px 16px rgba(0, 0, 0, 0.1),
+    -8px -8px 16px rgba(255, 255, 255, 0.8), 0px -4px 8px rgba(0, 0, 0, 0.05);
 }
 .date-container {
   width: fit-content;

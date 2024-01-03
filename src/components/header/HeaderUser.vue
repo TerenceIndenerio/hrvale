@@ -12,10 +12,7 @@
       @click="openPopover($event)"
     ></ion-icon>
     <div class="profile-img-container">
-      <img
-        src="https://hrp-staging-delta.bapplware.com/web/index.php/employee/photo/1"
-        alt=""
-      />
+      <img :src="profileImg" alt="" />
     </div>
   </ion-header>
   <ion-popover
@@ -25,7 +22,11 @@
     class="ion-popover-container"
   >
     <div class="popup-container">
-      <ion-button class="btn" fill="clear" expand="full"
+      <ion-button
+        class="btn"
+        fill="clear"
+        expand="full"
+        @click="navigateAcctSettings"
         ><ion-icon name="settings-outline"></ion-icon> Settings</ion-button
       >
       <ion-button
@@ -51,6 +52,9 @@ import {
 import { ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { defineProps, defineComponent } from "vue";
+import { GlobalConstants } from "@/config/constants";
+
+const empNumber = GlobalConstants.EMPLOYEE_ID;
 
 export default defineComponent({
   components: {
@@ -60,35 +64,41 @@ export default defineComponent({
     IonContent,
     IonButton,
   },
-
   props: {
     headerTitle: String,
     headerColor: String,
     imgLogo: String,
   },
-
-  setup() {
-    const router = useRouter();
-    const popoverOpen = ref(false);
-    const event = ref(null);
-
-    const openPopover = (e) => {
-      event.value = e;
-      popoverOpen.value = true;
-    };
-
-    const logout = () => {
-      localStorage.removeItem("_token");
-      router.push("/login");
-      popoverOpen.value = false;
-    };
-
+  data() {
     return {
-      popoverOpen,
-      openPopover,
-      logout,
-      event,
+      popoverOpen: false,
+      event: null,
+      profile: `https://hrp-staging-delta.bapplware.com/web/index.php/employee/photo/${empNumber}`,
+      defaultProfile: `https://ionicframework.com/docs/img/demos/avatar.svg`,
+      profileImg: "",
     };
+  },
+  methods: {
+    openPopover(e) {
+      this.event = e;
+      this.popoverOpen = true;
+    },
+    logout() {
+      localStorage.removeItem("_token");
+      localStorage.removeItem("pincodeId");
+      this.$router.push("/login");
+      this.popoverOpen = false;
+    },
+    hasProfile() {
+      this.profileImg = this.profile ? this.defaultProfile : this.profile;
+    },
+    navigateAcctSettings() {
+      this.$router.push("/tabs/accsettings");
+      this.popoverOpen = false;
+    },
+  },
+  created() {
+    this.hasProfile();
   },
 });
 </script>
@@ -106,9 +116,10 @@ export default defineComponent({
   justify-content: center;
   align-items: center;
   border-radius: 0 0 40px 40px;
-
   box-shadow: none;
   text-align: center;
+  box-shadow: 8px 8px 16px rgba(0, 0, 0, 0.2),
+    -8px -8px 16px rgba(255, 255, 255, 0.8), 0px -4px 8px rgba(0, 0, 0, 0.1);
 }
 .profile-img-container {
   width: 30px;
@@ -120,6 +131,8 @@ export default defineComponent({
   left: 20px;
   font-size: 25px;
   background-color: white;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.8),
+    0 2px 4px -1px rgba(0, 0, 0, 0.6);
 }
 .profile-img-container img {
   width: 30px;
@@ -133,7 +146,15 @@ export default defineComponent({
   border-radius: 100%;
   padding: 3px;
   color: var(--ion-color-primary-contrast);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.8),
+    0 2px 4px -1px rgba(0, 0, 0, 0.6);
+  transition: transform 0.7s ease;
 }
+
+.icon1:hover {
+  transform: rotate(360deg);
+}
+
 .icon2 {
   font-size: 30px;
   color: var(--ion-color-primary-contrast);

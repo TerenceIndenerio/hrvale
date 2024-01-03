@@ -163,7 +163,9 @@ export default defineComponent({
         this.store.commit("loader/updateLoader", false);
         console.error("Error fetching benefit package: ", error);
 
-        this.showErrorMessage("An error occurred: " + error.message);
+        this.showErrorMessage(
+          "An error occurred: " + error.response?.data?.error?.message
+        );
       }
     },
 

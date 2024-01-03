@@ -28,6 +28,7 @@
                 aria-label="Work Shift"
               >
                 <!-- Options for Work Shift -->
+                <div slot="label">Select work-shift:</div>
                 <ion-select-option
                   v-for="option in workShiftOptions"
                   :key="option.id"
@@ -85,6 +86,7 @@
                 class="reason-select"
                 aria-label="Reason"
               >
+                <div slot="label">Select Reason:</div>
                 <ion-select-option
                   v-for="option in reasonOptions"
                   :key="option.value"
@@ -112,9 +114,10 @@
         <!-- Save Button -->
         <ion-button
           expand="full"
-          color="primary"
+          color="none"
           @click="saveCorrection"
           class="save-btn"
+          :style="{ backgroundColor: theme.secondaryColor }"
         >
           Save
         </ion-button>

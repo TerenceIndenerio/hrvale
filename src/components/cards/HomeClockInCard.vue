@@ -1,5 +1,5 @@
 <template>
-  <ion-card>
+  <ion-card class="card">
     <div class="img space">
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -30,8 +30,16 @@
           fill="#F2994A"
           stroke="#3C3636"
         />
-        <path d="M23.7526 7.49194V0.899628" stroke="#3B3636" stroke-linecap="round" />
-        <path d="M23.7526 43.7822V37.1899" stroke="#3B3636" stroke-linecap="round" />
+        <path
+          d="M23.7526 7.49194V0.899628"
+          stroke="#3B3636"
+          stroke-linecap="round"
+        />
+        <path
+          d="M23.7526 43.7822V37.1899"
+          stroke="#3B3636"
+          stroke-linecap="round"
+        />
         <path
           d="M39.7066 22.3409L46.7896 22.3409"
           stroke="#3B3636"
@@ -193,6 +201,10 @@ export default defineComponent({
 <style scoped>
 @import url("https://fonts.googleapis.com/css?family=Open+Sans");
 
+.card {
+  box-shadow: 8px 8px 16px rgba(0, 0, 0, 0.1),
+    -8px -8px 16px rgba(255, 255, 255, 0.8), 0px -4px 8px rgba(0, 0, 0, 0.05);
+}
 .space {
   margin: 7px;
 }

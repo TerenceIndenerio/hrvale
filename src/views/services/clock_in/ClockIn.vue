@@ -12,11 +12,12 @@
       <Refresher />
       <div class="margin-top"></div>
       <ClockinCard
-        @clockInData="handleClockInData"
+        @clockInClicked="handleClockInData"
         :btnText="btnText"
         :btnColor="theme.primaryColor"
         :btnTextColor="theme.primaryFontColor"
       />
+
       <ion-card class="flex-center" v-if="coordinatesText">
         <p>{{ coordinatesText }}</p>
       </ion-card>
@@ -105,6 +106,56 @@ export default defineComponent({
         this.router.push("/login");
       }
     },
+    async getCurrentDatetime() {
+      try {
+        const token = localStorage.getItem("_token");
+        if (!token) {
+          console.error("Token not available.");
+          return;
+        }
+
+        const headers = {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        };
+
+        const apiUrl = baseURL + `api/v2/attendance/current-datetime`;
+
+        const response = await axios.get(apiUrl, { headers });
+
+        if (response.data && response.data.data) {
+          const { utcDate, utcTime } = response.data.data;
+          const utcDateTimeString = `${utcDate}T${utcTime}Z`;
+          const utcDateTime = new Date(utcDateTimeString);
+          const timezoneName = "Asia/Manila";
+          const timezoneOffset = 8;
+          const localDateString = `${utcDateTime.getFullYear()}-${String(
+            utcDateTime.getMonth() + 1
+          ).padStart(2, "0")}-${String(utcDateTime.getDate()).padStart(
+            2,
+            "0"
+          )}`;
+
+          const localTimeString = `${String(utcDateTime.getHours()).padStart(
+            2,
+            "0"
+          )}:${String(utcDateTime.getMinutes()).padStart(2, "0")}`;
+
+          // this.date = "2023-01-01";
+          // this.time = "16:08";
+          this.date = localDateString;
+          this.time = localTimeString;
+          this.timezoneName = timezoneName;
+          this.timezoneOffset = timezoneOffset;
+        }
+      } catch (error) {
+        console.error(
+          "Error fetching current datetime:",
+          error.response?.data?.error?.message || error.message
+        );
+      }
+    },
+
     async checkState() {
       try {
         this.store.commit("loader/updateLoader", true);
@@ -133,6 +184,7 @@ export default defineComponent({
         if (getStateResponse.data?.data?.punchIn?.userDate !== currentDate) {
           this.clockin = "00:00";
         }
+
         if (getStateResponse.data?.data?.punchOut?.userDate !== currentDate) {
           this.clockout = "00:00";
         }
@@ -140,6 +192,7 @@ export default defineComponent({
         if (this.clockin === null) {
           this.clockin = "00:00";
         }
+
         if (this.clockout === null) {
           this.clockout = "00:00";
         }
@@ -175,7 +228,7 @@ export default defineComponent({
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         };
-        const apiUrl = baseURL + `api/v2/attendance/records/latest`;
+        const apiUrl = baseURL + `api/v3/attendance/employees/records`;
         const payload = {
           date: dataData,
         };
@@ -198,9 +251,10 @@ export default defineComponent({
       }
     },
 
-    async handleClockInData(data) {
+    async handleClockInData() {
       try {
-        const dataData = data.date;
+        console.log("Clock in button clicked!");
+        // const dataData = data.date;
 
         await this.checkTokenExpiration();
 
@@ -209,16 +263,22 @@ export default defineComponent({
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         };
-        const apiUrl = baseURL + `api/v2/attendance/records`;
+        const apiUrl = baseURL + `api/v3/attendance/employees/records`;
+
+        // Get current coordinates
+        const coordinates = await Geolocation.getCurrentPosition();
+
         const payload = {
-          date: data.date,
-          time: data.time,
-          timezoneName: data.timezoneName,
-          timezoneOffset: data.timezoneOffset,
+          date: this.date,
+          time: this.time,
+          timezoneName: this.timezoneName,
+          timezoneOffset: this.timezoneOffset,
           note: null,
+          latitude: coordinates.coords.latitude,
+          longitude: coordinates.coords.longitude,
         };
 
-        await this.getState(dataData);
+        // await this.getState(dataData);
 
         let toastMessage = "";
         if (this.employeeAlreadyPunchedIn) {
@@ -243,10 +303,7 @@ export default defineComponent({
             },
           ],
         });
-        // geolocation
-        const coordinates = await Geolocation.getCurrentPosition();
 
-        // Update the coordinatesText data property
         this.coordinatesText = `Latitude: ${coordinates.coords.latitude}, Longitude: ${coordinates.coords.longitude}`;
 
         console.log("Current position:", coordinates);
@@ -258,13 +315,19 @@ export default defineComponent({
           error.response?.data?.error?.message
         );
 
-        const errorMessage = error.response.data.error.message || "Failed to load data";
-        const fullErrorMessage = `Failed to load data, ${errorMessage}`;
+        this.showErrorMessage(
+          "An error occurred: " + error.response?.data?.error?.message
+        );
+      }
+    },
+
+    async showErrorMessage(message) {
+      try {
         const toast = await toastController.create({
-          message: fullErrorMessage,
+          message: message,
           duration: 3000,
           position: "top",
-          icon: "alert-circle-outline",
+          color: "danger",
           buttons: [
             {
               icon: "close-outline",
@@ -273,8 +336,11 @@ export default defineComponent({
           ],
         });
         await toast.present();
+      } catch (error) {
+        console.error("Error displaying toast:", error);
       }
     },
+
     getTheme() {
       const storedThemeData = getThemeData();
 
@@ -285,14 +351,17 @@ export default defineComponent({
     },
   },
   async created() {
-    // geolocation
-    const coordinates = await Geolocation.getCurrentPosition();
+    try {
+      const coordinates = await Geolocation.getCurrentPosition();
+      this.coordinatesText = `Latitude: ${coordinates.coords.latitude}, Longitude: ${coordinates.coords.longitude}`;
+    } catch (error) {
+      console.error("Error getting coordinates:", error.message);
+      this.$router.push("/gpsoff");
+      return;
+    }
 
-    // Update the coordinatesText data property
-    this.coordinatesText = `Latitude: ${coordinates.coords.latitude}, Longitude: ${coordinates.coords.longitude}`;
-
-    console.log("Current position:", coordinates);
     this.checkTokenExpiration();
+    await this.getCurrentDatetime();
     await this.checkState();
     this.getTheme();
   },
@@ -305,6 +374,6 @@ export default defineComponent({
   justify-content: center;
 }
 .margin-top {
-  margin-top: 70px;
+  margin-top: 50px;
 }
 </style>

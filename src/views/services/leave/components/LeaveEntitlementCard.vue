@@ -99,6 +99,8 @@ p {
   padding: 5px 10px;
   margin: 10px 7%;
   border-radius: 10px;
+  box-shadow: 8px 8px 16px rgba(0, 0, 0, 0.1),
+    -8px -8px 16px rgba(255, 255, 255, 0.8), 0px -4px 8px rgba(0, 0, 0, 0.05);
 }
 .icon1 {
   font-size: 30px;

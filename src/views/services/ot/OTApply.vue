@@ -358,7 +358,6 @@ export default defineComponent({
         await this.checkTokenExpiration();
 
         this.storedToken = localStorage.getItem("_token");
-        console.log("token:", this.storedToken);
 
         const headers = {
           Authorization: `Bearer ${this.storedToken}`,
@@ -411,7 +410,6 @@ export default defineComponent({
         await this.checkTokenExpiration();
 
         this.storedToken = localStorage.getItem("_token");
-        console.log("token:", this.storedToken);
 
         const headers = {
           Authorization: `Bearer ${this.storedToken}`,
@@ -507,12 +505,16 @@ export default defineComponent({
 .card {
   border-radius: 20px;
   width: fit-content;
+  box-shadow: 8px 8px 16px rgba(0, 0, 0, 0.1),
+    -8px -8px 16px rgba(255, 255, 255, 0.8), 0px -4px 8px rgba(0, 0, 0, 0.05);
 }
 
 .card-modal {
   border-radius: 20px;
   max-width: 400px;
   margin-top: 0;
+  box-shadow: 8px 8px 16px rgba(0, 0, 0, 0.1),
+    -8px -8px 16px rgba(255, 255, 255, 0.8), 0px -4px 8px rgba(0, 0, 0, 0.05);
 }
 .result-container {
   padding: 10px 0;

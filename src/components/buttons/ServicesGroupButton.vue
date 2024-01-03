@@ -47,7 +47,9 @@
               class="icon-btn"
               :style="{ color: btnColor }"
             ></ion-icon>
-            <h4 :style="{ color: btnTextColor }">Attendance <br />Correction</h4>
+            <h4 :style="{ color: btnTextColor }">
+              Attendance <br />Correction
+            </h4>
           </span>
         </a>
       </ion-col>
@@ -106,7 +108,7 @@
     </ion-row>
     <ion-row>
       <ion-col class="card btn-text" expand="full" color="none">
-        <a @click="navigateSoon" disabled>
+        <a @click="navigateViewPayslip" disabled>
           <span class="ion-text-left">
             <ion-icon
               name="receipt"
@@ -151,6 +153,9 @@ export default defineComponent({
     },
     navigateBenefits() {
       this.$router.push("/benefits");
+    },
+    navigateViewPayslip() {
+      this.$router.push("/viewpayslip");
     },
   },
 });
@@ -204,7 +209,9 @@ a {
   height: 50px;
   border-radius: 10px;
   margin: 10px;
-  box-shadow: 0px 2px 5px 0px rgb(175, 175, 175);
+  /* box-shadow: 0px 2px 5px 0px rgb(175, 175, 175); */
+  box-shadow: 8px 8px 16px rgba(0, 0, 0, 0.1),
+    -8px -8px 16px rgba(255, 255, 255, 0.8);
   overflow: hidden;
   display: flex;
   justify-content: left;
