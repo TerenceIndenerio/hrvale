@@ -8,8 +8,6 @@
     ></HeaderReturn>
     <ion-content :fullscreen="true" v-if="!loading">
       <Refresher />
-
-      <!-- Use :options binding to pass the options to FullCalendar -->
       <FullCalendar :options="options" />
     </ion-content>
   </ion-page>
@@ -76,7 +74,7 @@ export default defineComponent({
       headerTitle: "Attendance",
       loading: true,
       theme: {},
-      // Use :options binding to pass the options to FullCalendar
+
       options: {
         plugins: [dayGridPlugin, timeGridPlugin, listPlugin, interactionPlugin],
         initialView: "dayGridMonth",
@@ -84,7 +82,6 @@ export default defineComponent({
       calendarEvents: [
         { title: "Event 1", start: "2023-01-01" },
         { title: "Event 2", start: "2023-01-02" },
-        // Add more events as needed
       ],
     };
   },
@@ -95,8 +92,6 @@ export default defineComponent({
       if (storedThemeData) {
         this.theme = storedThemeData;
       }
-      // Remove the redundant assignment
-      // this.theme = storedThemeData;
     },
   },
   async created() {
@@ -110,7 +105,6 @@ export default defineComponent({
 </script>
 
 <style scoped>
-/* Example: Add some styling to the grids */
 .fc-dayGridMonth-view .fc-day-header {
   background-color: #f2f2f2;
 }
