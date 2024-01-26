@@ -573,7 +573,6 @@ export default defineComponent({
 </script>
 
 <style scoped>
-@import url("https://fonts.googleapis.com/css?family=Open+Sans");
 .card {
   border-radius: 20px;
   display: flex;
@@ -582,11 +581,6 @@ export default defineComponent({
   flex-direction: column;
   box-shadow: 8px 8px 16px rgba(0, 0, 0, 0.1),
     -8px -8px 16px rgba(255, 255, 255, 0.8);
-}
-
-.card h1 {
-  font-size: 70px;
-  font-family: "Open Sans";
 }
 
 .select-option {

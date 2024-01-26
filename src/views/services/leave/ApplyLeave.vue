@@ -10,7 +10,7 @@
     <ion-content :fullscreen="true">
       <Refresher />
 
-      <ion-card class="card-container" v-if="!loading">
+      <ion-card class="card-container" v-if="!loading && hasLeaveType">
         <!-- Leave Balance Card -->
         <ion-card v-if="employeeDetail2" class="card leaveBal-container">
           <p class="leave-bal">
@@ -393,6 +393,7 @@ export default defineComponent({
       reason: null,
       employeeDetail: null,
       employeeDetail2: null,
+      hasLeaveType: true,
 
       durations: [
         { key: "full_day", label: "Full Day" },
@@ -527,9 +528,8 @@ export default defineComponent({
         }));
       } catch (error) {
         console.error(error.message);
-        this.showErrorMessage(
-          "An error occurred: " + error.response?.data?.error?.message
-        );
+        this.showErrorMessage("No Leave Type!");
+        this.hasLeaveType = false;
       } finally {
         this.loading = false;
         this.store.commit("loader/updateLoader", false);
@@ -682,8 +682,7 @@ export default defineComponent({
           message: message,
           duration: 3000,
           position: "top",
-          color: "danger",
-          icon: "alert-circle-outline",
+          color: "light",
           buttons: [
             {
               icon: "close-outline",

@@ -44,7 +44,7 @@ import { useStore } from "vuex";
 import { GlobalConstants } from "@/config/constants";
 import axios from "axios";
 const baseURL = GlobalConstants.HOST_URL;
-const empNumber = GlobalConstants.EMPLOYEE_ID;
+// const empNumber = GlobalConstants.EMPLOYEE_ID;
 
 export default defineComponent({
   components: {
@@ -74,6 +74,7 @@ export default defineComponent({
       img_src: "assets/images/card_img2.png",
       theme: {},
       firstName: "User",
+      empNumber: ""
     };
   },
   methods: {
@@ -107,7 +108,7 @@ export default defineComponent({
         };
 
         const api =
-          baseURL + `api/v2/pim/employees/${empNumber}/personal-details`;
+          baseURL + `api/v2/pim/employees/${this.empNumber}/personal-details`;
         const dataResponse = await axios.get(api, { headers });
 
         if (
@@ -134,14 +135,13 @@ export default defineComponent({
     },
   },
   created() {
+    this.empNumber = localStorage.getItem('empNumber');
     this.checkTokenExpiration();
     const storedThemeData = getThemeData();
 
-    if (storedThemeData) {
-      this.theme = storedThemeData;
-    }
-    this.userDetails(this.firstName);
     this.theme = storedThemeData;
+
+    this.userDetails(this.firstName);
   },
 });
 </script>

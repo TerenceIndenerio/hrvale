@@ -111,7 +111,7 @@ import { GlobalConstants } from "@/config/constants";
 import { getThemeData } from "@/theme/theme";
 
 const baseURL = GlobalConstants.HOST_URL;
-const empNumber = GlobalConstants.EMPLOYEE_ID;
+// const empNumber = GlobalConstants.EMPLOYEE_ID;
 
 export default defineComponent({
   components: {
@@ -151,6 +151,8 @@ export default defineComponent({
       firstDate: "",
       endDate: "",
       loading: true,
+      year: "",
+      empNumber: "",
     };
   },
   computed: {
@@ -219,14 +221,20 @@ export default defineComponent({
         const storedToken = localStorage.getItem("_token");
 
         const authToken = `Bearer ${storedToken}`;
-        const apiUrl =
-          baseURL +
-          `api/v2/ess/employee-schedule?empNumber=${empNumber}&month=${this.month}`;
+        const apiUrl = new URL(baseURL + 'api/v2/ess/employee-schedule');
+        const queryParams = new URLSearchParams({
+          empNumber: this.empNumber,
+          month: this.month,
+          year: this.year,
+        });
+
+        apiUrl.search = queryParams.toString();
+
         const headers = {
           Authorization: authToken,
         };
 
-        const response = await axios.get(apiUrl, { headers });
+        const response = await axios.get(apiUrl.toString(), { headers });
 
         this.scheduleData = response.data.data;
 
@@ -276,11 +284,13 @@ export default defineComponent({
       const day = selectedDate.getDate();
       const month = selectedDate.getMonth() + 1;
       const selectedMonth = event.detail.value;
+      const year = selectedDate.getFullYear();
 
       this.selectedDate = datePart;
       this.day = day;
       this.month = month;
       this.selectedMonth = selectedMonth;
+      this.year = year; 
 
       const selectedData = this.scheduleData.find(
         (entry) => entry.scheduleDate.date.split(" ")[0] === datePart
@@ -313,7 +323,7 @@ export default defineComponent({
 
         const apiUrl =
           baseURL +
-          `api/v2/attendance/employees/${empNumber}/records?date=${this.firstDate}&endDate=${this.endDate}`;
+          `api/v2/attendance/employees/${this.empNumber}/records?date=${this.firstDate}&endDate=${this.endDate}`;
         const headers = {
           Authorization: authToken,
         };
@@ -372,6 +382,7 @@ export default defineComponent({
     // },
   },
   async created() {
+    this.empNumber = localStorage.getItem('empNumber');
     this.getTheme();
     const currentMonth = new Date().getMonth() + 1;
 

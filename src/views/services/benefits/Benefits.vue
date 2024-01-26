@@ -89,7 +89,6 @@ export default defineComponent({
     const formattedDate = currentDate.toISOString().split("T")[0];
 
     return {
-      headerTitle: "Approval",
       results: [],
       headerTitle: "Benefits",
       selectedDateFrom: formattedDate,
@@ -100,6 +99,8 @@ export default defineComponent({
       theme: {},
       loading: true,
       totalRec: 0,
+      paygradeId: 0,
+      empNumber: "",
     };
   },
 
@@ -124,6 +125,28 @@ export default defineComponent({
       }
     },
 
+    async fetchPaygrade() {
+      try {
+        await this.checkTokenExpiration();
+
+        const storedToken = localStorage.getItem("_token");
+
+        const headers = {
+          Authorization: `Bearer ${storedToken}`,
+        };
+
+        const api =
+          baseURL + `api/v2/ess/employee/benefit-package/${this.empNumber}`;
+
+        const dataResponse = await axios.get(api, { headers });
+
+        this.paygradeId = dataResponse.data.data.id;
+        this.fetchRequest();
+      } catch (error) {
+        this.showErrorMessage(error.response?.data?.error?.message);
+      }
+    },
+
     async fetchRequest() {
       try {
         this.store.commit("loader/updateLoader", true);
@@ -136,7 +159,9 @@ export default defineComponent({
           Authorization: `Bearer ${storedToken}`,
         };
 
-        const api = baseURL + `api/v2/benefit-packages/5?limit=50&offset=0`;
+        const api =
+          baseURL +
+          `api/v2/benefit-packages/${this.paygradeId}?limit=50&offset=0`;
         const dataResponse = await axios.get(api, { headers });
 
         const { id, payGradeName, jobCategoryName, name, packageItems } =
@@ -163,9 +188,7 @@ export default defineComponent({
         this.store.commit("loader/updateLoader", false);
         console.error("Error fetching benefit package: ", error);
 
-        this.showErrorMessage(
-          "An error occurred: " + error.response?.data?.error?.message
-        );
+        this.showErrorMessage(error.response?.data?.error?.message);
       }
     },
 
@@ -175,7 +198,7 @@ export default defineComponent({
           message: message,
           duration: 3000,
           position: "top",
-          color: "danger",
+          color: "light",
           buttons: [
             {
               icon: "close-outline",
@@ -209,9 +232,11 @@ export default defineComponent({
     },
   },
   created() {
+    this.empNumber = localStorage.getItem("empNumber");
     this.checkTokenExpiration();
     this.getTheme();
-    this.fetchRequest();
+    this.fetchPaygrade();
+
     this.loading = false;
   },
 });

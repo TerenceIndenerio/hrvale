@@ -1,15 +1,17 @@
 <template>
   <ion-page>
     <HeaderReturn
-      v-if="!loading"
       :headerTitle="headerTitle"
       :headerColor="theme.primaryColor"
       :headerTextColor="theme.primaryFontColor"
     />
     <ion-content :fullscreen="true" v-if="!loading">
       <Refresher />
-      <ion-card class="card text-center">
-        <h3>Logs</h3>
+      <ion-card
+        class="card text-center"
+        :style="{ backgroundColor: theme.primaryColor }"
+      >
+        <h3 :style="{ color: theme.primaryFontColor }">Logs</h3>
 
         <ion-card class="select-option">
           <ion-input label="from:" type="date" v-model="startDate" />
@@ -30,9 +32,24 @@
         </ion-button>
       </ion-card>
 
-      <ion-card class="card result-container">
-        <h4 class="text-center outlineColor">Result</h4>
-        <ion-card class="card" v-for="(result, index) in results" :key="index">
+      <ion-card
+        class="card result-container"
+        :style="{ backgroundColor: theme.primaryColor }"
+      >
+        <h4
+          class="text-center outlineColor result-text"
+          :style="{
+            color: theme.primaryFontColor,
+            border: `2px solid` + theme.primaryFontColor,
+          }"
+        >
+          Result
+        </h4>
+        <ion-card
+          class="card-inner"
+          v-for="(result, index) in results"
+          :key="index"
+        >
           <ion-card-header>
             <ion-card-subtitle
               >{{ result.day }} - {{ result.date }}</ion-card-subtitle
@@ -98,10 +115,6 @@
                 </ion-col>
               </ion-row>
             </ion-col>
-
-            <ion-col size="6">
-              <!-- Second column with data -->
-            </ion-col>
           </ion-grid>
 
           <ion-button
@@ -110,7 +123,7 @@
             class="edit-btn"
             @click="navigateToEditPage(result.date)"
           >
-            Edit
+            <ion-icon name="create-outline"></ion-icon> Edit
           </ion-button>
         </ion-card>
       </ion-card>
@@ -148,7 +161,6 @@ import { mapState } from "vuex";
 import { getThemeData } from "@/theme/theme";
 
 const baseURL = GlobalConstants.HOST_URL;
-const empNumber = GlobalConstants.EMPLOYEE_ID;
 
 export default defineComponent({
   components: {
@@ -190,9 +202,11 @@ export default defineComponent({
       storedToken: null,
       startDate: new Date().toISOString().split("T")[0],
       endDate: new Date().toISOString().split("T")[0],
+      empNumber: "",
     };
   },
   created() {
+    this.empNumber = localStorage.getItem("empNumber");
     this.getTheme();
     this.applyAttendanceCorrection();
     this.loading = false;
@@ -252,7 +266,7 @@ export default defineComponent({
         };
         const api =
           baseURL +
-          `api/v2/ess/apply-attendance-correction?empNumber=${empNumber}`;
+          `api/v2/ess/apply-attendance-correction?empNumber=${this.empNumber}`;
 
         const dataResponse = await axios.get(api, { headers });
 
@@ -324,7 +338,7 @@ export default defineComponent({
           message: message,
           duration: 3000,
           position: "top",
-          color: "danger",
+          color: "light",
           buttons: [
             {
               icon: "close-outline",
@@ -389,8 +403,7 @@ p {
   margin: 0;
 }
 .result-container {
-  width: fit-content;
-  min-width: 300px;
+  max-width: 350px;
   margin: 0 auto;
 }
 .payroll-container {
@@ -433,16 +446,12 @@ p {
   border-radius: 20px;
   padding: 0 20px;
   margin: 5px;
-  box-shadow: 8px 8px 16px rgba(0, 0, 0, 0.1),
-    -8px -8px 16px rgba(255, 255, 255, 0.8), 0px -4px 8px rgba(0, 0, 0, 0.05);
 }
 .header-row {
   border-bottom: 1px solid #000;
   margin-bottom: 20px;
 }
 .outlineColor {
-  border: 1px solid #828282;
-  color: #828282;
   border-radius: 20px;
 }
 .pos-right {
@@ -452,11 +461,15 @@ p {
 .search-btn-container {
   overflow: hidden;
   border-radius: 10px;
+  margin-bottom: 10px;
 }
 .edit-btn {
   padding: 0;
   border-radius: 10px;
   overflow: hidden;
   margin-bottom: 10px;
+}
+.result-text {
+  margin: 15px;
 }
 </style>

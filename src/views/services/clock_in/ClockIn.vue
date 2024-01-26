@@ -84,6 +84,8 @@ export default defineComponent({
       theme: {},
       loading: true,
       coordinatesText: "",
+      toastMessage: "",
+      hasClockedIn: false,
     };
   },
   methods: {
@@ -106,53 +108,28 @@ export default defineComponent({
         this.router.push("/login");
       }
     },
-    async getCurrentDatetime() {
+
+    getCurrentTime() {
       try {
-        const token = localStorage.getItem("_token");
-        if (!token) {
-          console.error("Token not available.");
-          return;
-        }
+        const currentTime = new Date();
+        const timezoneName = "Asia/Manila";
+        const timezoneOffset = currentTime.getTimezoneOffset() / 60;
 
-        const headers = {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        };
+        const localDateString = `${currentTime.getFullYear()}-${String(
+          currentTime.getMonth() + 1
+        ).padStart(2, "0")}-${String(currentTime.getDate()).padStart(2, "0")}`;
 
-        const apiUrl = baseURL + `api/v2/attendance/current-datetime`;
+        const localTimeString = `${String(currentTime.getHours()).padStart(
+          2,
+          "0"
+        )}:${String(currentTime.getMinutes()).padStart(2, "0")}`;
 
-        const response = await axios.get(apiUrl, { headers });
-
-        if (response.data && response.data.data) {
-          const { utcDate, utcTime } = response.data.data;
-          const utcDateTimeString = `${utcDate}T${utcTime}Z`;
-          const utcDateTime = new Date(utcDateTimeString);
-          const timezoneName = "Asia/Manila";
-          const timezoneOffset = 8;
-          const localDateString = `${utcDateTime.getFullYear()}-${String(
-            utcDateTime.getMonth() + 1
-          ).padStart(2, "0")}-${String(utcDateTime.getDate()).padStart(
-            2,
-            "0"
-          )}`;
-
-          const localTimeString = `${String(utcDateTime.getHours()).padStart(
-            2,
-            "0"
-          )}:${String(utcDateTime.getMinutes()).padStart(2, "0")}`;
-
-          // this.date = "2023-01-01";
-          // this.time = "16:08";
-          this.date = localDateString;
-          this.time = localTimeString;
-          this.timezoneName = timezoneName;
-          this.timezoneOffset = timezoneOffset;
-        }
+        this.date = localDateString;
+        this.time = localTimeString;
+        this.timezoneName = timezoneName;
+        this.timezoneOffset = timezoneOffset;
       } catch (error) {
-        console.error(
-          "Error fetching current datetime:",
-          error.response?.data?.error?.message || error.message
-        );
+        console.error("Error fetching current time:", error.message);
       }
     },
 
@@ -197,13 +174,17 @@ export default defineComponent({
           this.clockout = "00:00";
         }
 
+        console.log(
+          "current state: ",
+          getStateResponse.data?.data?.state?.name
+        );
         if (getStateResponse.data?.data?.state?.name === "Punched Out") {
           this.btnText = "Clock In";
+          this.toastMessage = "Clocked In";
         } else {
           this.btnText = "Clock Out";
+          this.toastMessage = "Clocked Out";
         }
-        this.store.commit("loader/updateLoader", false);
-        this.loading = false;
       } catch (error) {
         this.loading = false;
         if (error.response && error.response.status === 401) {
@@ -213,6 +194,9 @@ export default defineComponent({
         } else {
           console.error("Error making the GET request:", error);
         }
+      } finally {
+        this.store.commit("loader/updateLoader", false);
+        this.loading = false;
       }
     },
 
@@ -253,9 +237,6 @@ export default defineComponent({
 
     async handleClockInData() {
       try {
-        console.log("Clock in button clicked!");
-        // const dataData = data.date;
-
         await this.checkTokenExpiration();
 
         const token = localStorage.getItem("_token");
@@ -264,8 +245,6 @@ export default defineComponent({
           "Content-Type": "application/json",
         };
         const apiUrl = baseURL + `api/v3/attendance/employees/records`;
-
-        // Get current coordinates
         const coordinates = await Geolocation.getCurrentPosition();
 
         const payload = {
@@ -278,21 +257,28 @@ export default defineComponent({
           longitude: coordinates.coords.longitude,
         };
 
-        // await this.getState(dataData);
-
-        let toastMessage = "";
         if (this.employeeAlreadyPunchedIn) {
-          this.btnText = "Clock In";
-          toastMessage = "Clocked Out";
           await axios.put(apiUrl, payload, { headers });
         } else {
-          this.btnText = "Clock Out";
-          toastMessage = "Clocked In";
           await axios.post(apiUrl, payload, { headers });
         }
 
+        this.checkState();
+        this.showAlert(this.toastMessage);
+      } catch (error) {
+        console.error(
+          "Error making the API request: ",
+          error.response?.data?.error?.message
+        );
+
+        this.showErrorMessage(error.response?.data?.error?.message);
+      }
+    },
+
+    async showAlert(message) {
+      try {
         const toast = await toastController.create({
-          message: `Successfully ${toastMessage}!`,
+          message: `Successfully ${message}!`,
           duration: 3000,
           position: "top",
           icon: "alert-circle-outline",
@@ -303,21 +289,9 @@ export default defineComponent({
             },
           ],
         });
-
-        this.coordinatesText = `Latitude: ${coordinates.coords.latitude}, Longitude: ${coordinates.coords.longitude}`;
-
-        console.log("Current position:", coordinates);
-
         await toast.present();
       } catch (error) {
-        console.error(
-          "Error making the API request: ",
-          error.response?.data?.error?.message
-        );
-
-        this.showErrorMessage(
-          "An error occurred: " + error.response?.data?.error?.message
-        );
+        console.log(error.message);
       }
     },
 
@@ -327,7 +301,7 @@ export default defineComponent({
           message: message,
           duration: 3000,
           position: "top",
-          color: "danger",
+          color: "light",
           buttons: [
             {
               icon: "close-outline",
@@ -360,10 +334,17 @@ export default defineComponent({
       return;
     }
 
+    this.getCurrentTime();
+
+    setInterval(this.getCurrentTime, 1000);
+
     this.checkTokenExpiration();
-    await this.getCurrentDatetime();
+
     await this.checkState();
     this.getTheme();
+  },
+  beforeDestroy() {
+    clearInterval(this.updateInterval);
   },
 });
 </script>

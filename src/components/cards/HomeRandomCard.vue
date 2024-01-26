@@ -61,8 +61,8 @@
             </div>
           </a>
         </ion-col>
-        <ion-col class="card btn-text" expand="full" color="none">
-          <a href="/soon" disabled>
+        <ion-col expand="full" color="none">
+          <a href="/vale" disabled>
             <div class="flex-center box-container">
               <ion-icon
                 name="pricetags"
@@ -74,7 +74,7 @@
         </ion-col>
       </ion-row>
       <ion-row>
-        <ion-col class="card btn-text" expand="full" color="none">
+        <ion-col expand="full" color="none">
           <a href="/benefits" disabled>
             <div class="flex-center box-container">
               <ion-icon
@@ -85,8 +85,8 @@
             </div>
           </a>
         </ion-col>
-        <ion-col class="card btn-text" expand="full" color="none">
-          <a href="/soon" disabled>
+        <ion-col expand="full" color="none">
+          <a href="/loanbalance" disabled>
             <div class="flex-center box-container">
               <ion-icon
                 name="cash"
@@ -98,8 +98,8 @@
         </ion-col>
       </ion-row>
       <ion-row>
-        <ion-col class="card btn-text" expand="full" color="none">
-          <a href="/viewpayslip" disabled>
+        <ion-col expand="full" color="none">
+          <a href="/pincode" disabled>
             <div class="flex-center box-container">
               <ion-icon
                 name="receipt"

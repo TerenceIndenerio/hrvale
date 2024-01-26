@@ -30,6 +30,7 @@ import {
   IonContent,
   IonRefresher,
   IonRefresherContent,
+  toastController,
 } from "@ionic/vue";
 import HeaderUser from "@/components/header/HeaderUser.vue";
 import CardWImgHome from "@/components/cards/CardWImgHome.vue";
@@ -43,6 +44,7 @@ import { getThemeData } from "@/theme/theme";
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
 import { GlobalConstants } from "@/config/constants";
+import { PushNotifications } from '@capacitor/push-notifications';
 
 const baseURL = GlobalConstants.HOST_URL;
 
@@ -60,6 +62,7 @@ export default defineComponent({
     ClockinCard,
     HomeRandomCard,
     Refresher,
+    toastController
   },
   setup() {
     return {
@@ -136,6 +139,26 @@ export default defineComponent({
         this.store.commit("loader/updateLoader", false);
       } finally {
         this.loading = false;
+      }
+    },
+
+    async showErrorMessage(message) {
+      try {
+        const toast = await toastController.create({
+          message: message,
+          duration: 3000,
+          position: "top",
+          color: "light",
+          buttons: [
+            {
+              icon: "close-outline",
+              role: "cancel",
+            },
+          ],
+        });
+        await toast.present();
+      } catch (error) {
+        console.error("Error displaying toast:", error);
       }
     },
   },

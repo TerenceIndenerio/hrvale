@@ -51,6 +51,11 @@ export default {
 </script>
 
 <style scoped>
+
+.text-center {
+  text-align: center;
+  margin: auto;
+}
 .inline-v {
   display: flex;
   flex-direction: column;

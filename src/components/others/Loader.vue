@@ -59,6 +59,7 @@ export default {
   justify-content: center;
   align-items: center;
   width: 100%;
+  padding: 20px;
 }
 .box {
   display: flex;
@@ -70,10 +71,9 @@ export default {
   height: 150px;
   width: 200px;
   background-color: rgb(255, 255, 255);
-  box-shadow: 3px 8px 25px 0px rgba(0, 0, 0, 0.5);
-  -webkit-box-shadow: 3px 8px 25px 0px rgba(0, 0, 0, 0.5);
-  -moz-box-shadow: 3px 8px 25px 0px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1), 0 4px 8px rgba(0, 0, 0, 0.1), 0 8px 16px rgba(0, 0, 0, 0.1);
 }
+
 .custom-loading {
   font-weight: bold;
   color: var(--ion-color-blue-theme);

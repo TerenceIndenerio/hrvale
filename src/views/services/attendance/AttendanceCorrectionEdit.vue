@@ -7,10 +7,16 @@
       :headerTextColor="theme.primaryFontColor"
     />
     <ion-content>
-      <ion-card class="card">
+      <ion-card class="card-content">
         <!-- Request Number -->
-        <ion-card class="card">
-          <p class="ion-text-center ion-margin-bottom">
+        <ion-card
+          class="card-req"
+          :style="{ backgroundColor: theme.primaryColor }"
+        >
+          <p
+            class="ion-text-center ion-margin"
+            :style="{ color: theme.primaryFontColor }"
+          >
             <strong>Request Number:</strong>
             {{ requestNumber }}
           </p>
@@ -18,8 +24,13 @@
 
         <!-- Work Shift -->
         <div class="flex-center workshift-container">
-          <ion-card class="ion-margin-bottom input-card work-shift">
-            <ion-label><strong>Work Shift*</strong></ion-label>
+          <ion-card
+            class="ion-margin-bottom input-card work-shift"
+            :style="{ backgroundColor: theme.primaryColor }"
+          >
+            <ion-label :style="{ color: theme.primaryFontColor }"
+              ><strong>Work Shift*</strong></ion-label
+            >
             <ion-card class="workshift-select-container">
               <ion-select
                 placeholder="Select Work Shift"
@@ -43,16 +54,32 @@
 
         <!-- Sched In and Out -->
         <div class="time-container">
-          <ion-card class="ion-margin-bottom sched-container">
-            <ion-label><strong>Schedule In:</strong></ion-label>
-            <p class="ion-text-center">
+          <ion-card
+            class="ion-margin-bottom sched-container"
+            :style="{ backgroundColor: theme.primaryColor }"
+          >
+            <ion-label :style="{ color: theme.primaryFontColor }"
+              ><strong>Schedule In:</strong></ion-label
+            >
+            <p
+              class="ion-text-center"
+              :style="{ color: theme.primaryFontColor }"
+            >
               {{ this.selectedWorkShift.regularWorkHourStart }}
             </p>
           </ion-card>
 
-          <ion-card class="ion-margin-bottom sched-container">
-            <ion-label><strong>Schedule Out:</strong></ion-label>
-            <p class="ion-text-center">
+          <ion-card
+            class="ion-margin-bottom sched-container"
+            :style="{ backgroundColor: theme.primaryColor }"
+          >
+            <ion-label :style="{ color: theme.primaryFontColor }"
+              ><strong>Schedule Out:</strong></ion-label
+            >
+            <p
+              class="ion-text-center"
+              :style="{ color: theme.primaryFontColor }"
+            >
               {{ this.selectedWorkShift.regularWorkHourEnd }}
             </p>
           </ion-card>
@@ -60,15 +87,25 @@
 
         <!-- Actual In and Out -->
         <div class="time-container">
-          <ion-card class="ion-margin-bottom actual-container">
-            <ion-label><strong>Actual In*:</strong></ion-label>
+          <ion-card
+            class="ion-margin-bottom actual-container"
+            :style="{ backgroundColor: theme.primaryColor }"
+          >
+            <ion-label :style="{ color: theme.primaryFontColor }"
+              ><strong>Actual In*:</strong></ion-label
+            >
             <ion-card class="actual-input-container"
               ><input type="time" v-model="actualIn" class="actual-input"
             /></ion-card>
           </ion-card>
 
-          <ion-card class="ion-margin-bottom actual-container">
-            <ion-label><strong>Actual Out*:</strong></ion-label>
+          <ion-card
+            class="ion-margin-bottom actual-container"
+            :style="{ backgroundColor: theme.primaryColor }"
+          >
+            <ion-label :style="{ color: theme.primaryFontColor }"
+              ><strong>Actual Out*:</strong></ion-label
+            >
             <ion-card class="actual-input-container"
               ><input type="time" v-model="actualOut" class="actual-input"
             /></ion-card>
@@ -77,8 +114,14 @@
 
         <!-- Reason Dropdown -->
         <div class="flex-center">
-          <ion-card class="ion-margin-bottom reason-card">
-            <ion-label>Reason*</ion-label>
+          <ion-card
+            class="ion-margin-bottom reason-card"
+            :style="{ backgroundColor: theme.primaryColor }"
+          >
+            <ion-label :style="{ color: theme.primaryFontColor }">
+              Reason*
+            </ion-label>
+
             <ion-card class="reason-select-container">
               <ion-select
                 placeholder="Select Reason"
@@ -92,7 +135,7 @@
                   :key="option.value"
                   :value="option"
                 >
-                  {{ option.type }}
+                  {{ option.content }}
                 </ion-select-option>
               </ion-select>
             </ion-card>
@@ -100,8 +143,15 @@
         </div>
 
         <!-- Comment Textarea -->
-        <ion-card class="ion-margin-bottom comment">
-          <ion-label position="stacked"><strong>Comment:</strong></ion-label>
+        <ion-card
+          class="ion-margin-bottom comment"
+          :style="{ backgroundColor: theme.primaryColor }"
+        >
+          <ion-label
+            position="stacked"
+            :style="{ color: theme.primaryFontColor }"
+            ><strong>Comment:</strong></ion-label
+          >
           <ion-textarea
             v-model="comment"
             rows="4"
@@ -362,6 +412,9 @@ export default defineComponent({
 </script>
 
 <style scoped>
+.card-content {
+  border-radius: 20px;
+}
 .flex-center {
   display: flex;
   justify-content: center;
@@ -371,12 +424,12 @@ export default defineComponent({
   border-radius: 20px;
   width: fit-content;
 }
-.card {
-  border-radius: 10px;
+.card-req {
+  border-radius: 20px;
 }
 .save-btn {
   margin: 0;
-  height: 50px;
+  height: 45px;
 }
 
 .sched-container {
@@ -459,5 +512,6 @@ export default defineComponent({
   box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
   border-radius: 10px;
   padding: 0 5px;
+  background-color: #fff;
 }
 </style>

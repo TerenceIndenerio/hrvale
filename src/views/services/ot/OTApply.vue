@@ -9,15 +9,18 @@
     <ion-content :fullscreen="true" v-if="!loading">
       <Refresher />
       <div class="container">
-        <ion-card class="card search-container">
-          <ion-card class="card date-container">
+        <ion-card
+          class="card search-container"
+          :style="{ backgroundColor: theme.primaryColor }"
+        >
+          <ion-card class="card-inner date-container">
             <ion-input
               label="from:"
               v-model="selectedDateFrom"
               type="date"
             ></ion-input>
           </ion-card>
-          <ion-card class="card date-container">
+          <ion-card class="card-inner date-container">
             <ion-input
               label="to:"
               v-model="selectedDateTo"
@@ -25,7 +28,7 @@
             ></ion-input>
           </ion-card>
 
-          <ion-card class="card date-container">
+          <ion-card class="card-inner date-container">
             <ion-input
               label="Request Date:"
               v-model="requestDate"
@@ -58,8 +61,16 @@
           </ion-button>
         </ion-card>
 
-        <ion-card class="card result-container">
-          <h4 class="text-center outlineColor">Result</h4>
+        <ion-card
+          class="card result-container"
+          :style="{ backgroundColor: theme.primaryColor }"
+        >
+          <h4
+            class="text-center outlineColor"
+            :style="{ color: theme.primaryFontColor, border: `2px solid` + theme.primaryFontColor  }"
+          >
+            Result
+          </h4>
 
           <OTCard
             v-for="result in results"
@@ -345,7 +356,7 @@ export default defineComponent({
       } catch (error) {
         this.store.commit("loader/updateLoader", false);
         console.error("Error submitting overtime request: ", error);
-        this.showErrorMessage("An error occurred: " + error.message);
+        this.showErrorMessage(error.response?.data?.error?.message);
       } finally {
         this.store.commit("loader/updateLoader", false);
         this.showCommentContainer = !this.showCommentContainer;
@@ -399,7 +410,7 @@ export default defineComponent({
       } catch (error) {
         this.store.commit("loader/updateLoader", false);
 
-        this.showErrorMessage("An error occurred: " + error.message);
+        this.showErrorMessage(error.response?.data?.error?.message);
         const errorMessage = error.response.data.error.message;
       }
     },
@@ -451,7 +462,7 @@ export default defineComponent({
       } catch (error) {
         this.store.commit("loader/updateLoader", false);
 
-        this.showErrorMessage("An error occurred: " + error.message);
+        this.showErrorMessage(error.response?.data?.error?.message);
       }
     },
 
@@ -461,7 +472,7 @@ export default defineComponent({
           message: message,
           duration: 3000,
           position: "top",
-          color: "danger",
+          color: "light",
           buttons: [
             {
               icon: "close-outline",
@@ -505,8 +516,6 @@ export default defineComponent({
 .card {
   border-radius: 20px;
   width: fit-content;
-  box-shadow: 8px 8px 16px rgba(0, 0, 0, 0.1),
-    -8px -8px 16px rgba(255, 255, 255, 0.8), 0px -4px 8px rgba(0, 0, 0, 0.05);
 }
 
 .card-modal {

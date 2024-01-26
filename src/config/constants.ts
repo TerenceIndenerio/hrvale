@@ -6,6 +6,6 @@ export class GlobalConstants {
   public static CLIENT_ID: string = 'test_id';
   public static CLIENT_SECRET: string = 'test_secret';
   /** Static user ID, to be removed later when actual user authentication is implemented. */
-  public static USER_ID: number = 53;
-  public static EMPLOYEE_ID: number = 96;
+  public static USER_ID: number = 57;
+  // public static EMPLOYEE_ID: number = 96;
 }

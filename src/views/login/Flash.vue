@@ -4,7 +4,7 @@
             <div class="container">
                 <ion-text class="logo-name">
                     <h1>
-                        Suy Sing
+                       HR VALE
                     </h1>
                 </ion-text>
                 <div class="bg-container">

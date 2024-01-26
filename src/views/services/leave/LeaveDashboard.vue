@@ -1,7 +1,6 @@
 <template>
   <ion-page>
     <HeaderReturn
-      v-if="!loading"
       :headerTitle="headerTitle"
       :headerColor="theme.primaryColor"
       :headerTextColor="theme.primaryFontColor"
@@ -9,7 +8,7 @@
     <ion-content :fullscreen="true">
       <Refresher />
 
-      <div v-if="showComponent">
+      <div>
         <div class="result-container">
           <div class="le-btn-contianer">
             <ion-button
@@ -23,19 +22,28 @@
             </ion-button>
           </div>
 
-          <div v-for="item in requests" :key="item.id">
-            <LeaveDashboardCard
-              :cardTitle="item.leaveType.name"
-              :appliedDuration="
-                item.dates.fromDate + ' to ' + item.dates.toDate
-              "
-              :reason="item.lastComment ? item.lastComment.comment : ''"
-              :typeOfLeave="item.leaveType.name"
-              :status="item.leaveBreakdown[0].name"
-              :colorBadge="getStatusColor(item.leaveBreakdown[0].name)"
-              @view-details-clicked="navigateToLeaveRequests(item)"
-            />
+          <div>
+            <div v-if="!this.hasRecord">
+              <div class="outline-container">
+                <h4>No Record Found</h4>
+              </div>
+
+            </div>
+            <div v-else>
+              <div v-for="item in requests" :key="item.id">
+                <LeaveDashboardCard
+                  :cardTitle="item.leaveType.name"
+                  :appliedDuration="item.dates.fromDate + ' to ' + item.dates.toDate"
+                  :reason="item.lastComment ? item.lastComment.comment : ''"
+                  :typeOfLeave="item.leaveType.name"
+                  :status="item.leaveBreakdown[0].name"
+                  :colorBadge="getStatusColor(item.leaveBreakdown[0].name)"
+                  @view-details-clicked="navigateToLeaveRequests(item)"
+                />
+              </div>
+            </div>
           </div>
+
           <div class="margin-bottom"></div>
         </div>
 
@@ -105,6 +113,7 @@ export default defineComponent({
   },
   data() {
     return {
+      hasRecord: false,
       showComponent: false,
       leavesLength: 0,
       requests: [],
@@ -168,11 +177,9 @@ export default defineComponent({
         };
 
         const dataResponse = await axios.get(api, { headers });
-
         return dataResponse.data;
       } catch (error) {
         console.error(error);
-        return null;
       }
     },
     getTimeOfDay() {
@@ -221,11 +228,13 @@ export default defineComponent({
   },
 
   async created() {
+    this.getTheme();
     this.checkTokenExpiration();
+    
     try {
       this.store.commit("loader/updateLoader", true);
       const data = await this.fetchData();
-
+      
       if (data && data.data.length > 0) {
         this.requests = data.data;
         this.showComponent = true;
@@ -235,14 +244,16 @@ export default defineComponent({
           leaveData.employee.middleName || ""
         } ${leaveData.employee.lastName}`;
         this.cardData.leaveBalance = leaveData.leaveBalances[0].balance.balance;
-        this.getTheme();
-
-        this.store.commit("loader/updateLoader", false);
-        this.loading = false;
+        
+      } else {
+        this.hasRecord = false
       }
     } catch (error) {
       this.loading = false;
       console.error(error);
+    } finally {
+      this.store.commit("loader/updateLoader", false);
+      this.loading = false;
     }
   },
 });
@@ -305,5 +316,23 @@ export default defineComponent({
   width: 80%;
   height: 50px;
   margin: 10px 0;
+}
+.outline-container {
+  margin: auto;
+  border: 1px solid #828282;
+  color: #828282;
+  border-radius: 20px;
+  width: 70%;
+  text-align: center;
+}
+.outline-container h4 {
+  margin: 0;
+}
+
+.outlineColor {
+  border: 1px solid #828282;
+  color: #828282;
+  border-radius: 20px;
+  width: 90%;
 }
 </style>

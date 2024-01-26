@@ -8,12 +8,14 @@
     ></ion-icon>
 
     <h2 class="title">{{ headerTitle }}</h2>
-    <ion-icon
-      color="light"
-      name="settings"
-      class="settings-icon"
-      @click="openPopover($event)"
-      router-direction="forward"
+
+    <ion-icon 
+    name="notifications" 
+    class="icon2" 
+    color="light"
+    @click="rotateIcon"
+    :class="{ 'rotateIcon': rotationState === 'rotateIcon' }"
+    :key="rotationState"
     ></ion-icon>
   </div>
   <ion-popover
@@ -64,6 +66,7 @@ export default defineComponent({
     return {
       popoverOpen: false,
       event: null,
+      rotationState: 'initial'
     };
   },
   methods: {
@@ -83,6 +86,11 @@ export default defineComponent({
       console.log("changed");
       this.$router.push("/tabs/accsettings");
       this.popoverOpen = false;
+    },
+    async rotateIcon() {
+      this.rotationState = 'rotateIcon';
+      await new Promise(resolve => setTimeout(resolve, 300));
+      this.rotationState = 'initial';
     },
   },
 });
@@ -111,17 +119,24 @@ export default defineComponent({
   box-shadow: 8px 8px 16px rgba(0, 0, 0, 0.2),
     -8px -8px 16px rgba(255, 255, 255, 0.8), 0px -4px 8px rgba(0, 0, 0, 0.1);
 }
-.icon1 {
-  font-size: 30px;
-  color: var(--ion-color-primary-contrast);
-  transition: transform 0.2s ease;
-}
+  .icon1 {
+    font-size: 30px;
+    color: var(--ion-color-primary-contrast);
+    transition: transform 0.2s ease;
+  }
 .icon1:hover {
   transform: scale(0.5);
 }
 .icon2 {
-  font-size: 30px;
+  
+  right: 20px;
+  font-size: 25px;
+  /* outline: 3px solid white; */
+  border-radius: 100%;
+  padding: 3px;
   color: var(--ion-color-primary-contrast);
+  
+  transition: transform 0.7s ease;
 }
 
 .title {
@@ -152,5 +167,21 @@ ion-popover {
 }
 .logout-btn {
   background-color: #12a3da;
+}
+
+.rotateIcon {
+  animation: rotateKeyframes .3s ease-in-out;
+}
+
+@keyframes rotateKeyframes {
+  0% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(-20deg);
+  }
+  100% {
+    transform: rotate(20deg);
+  }
 }
 </style>

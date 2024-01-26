@@ -8,15 +8,13 @@
     <ion-content :fullscreen="true" v-if="!loading">
       <Refresher />
 
-      <ion-card
-        v-for="(result, index) in cardData"
-        :key="index"
-        class="result-container"
-      >
-        <div class="result-text">
-          <h3><strong>Result</strong></h3>
-        </div>
-        <ion-card class="card-container">
+      <!-- <h4 class="text-center outlineColor">Result</h4> -->
+      <div class="container">
+        <ion-card
+          class="card-container"
+          v-for="(result, index) in cardData"
+          :key="index"
+        >
           <ion-grid>
             <ion-row>
               <ion-col class="col-name">
@@ -57,12 +55,14 @@
           <ion-button
             expand="full"
             class="download-btn"
+            color="none"
             @click="downloadPayslip(result.id)"
+            :style="{ backgroundColor: theme.secondaryColor }"
           >
-            Download Payslip
+            <ion-icon name="download"></ion-icon> Download Payslip
           </ion-button>
         </ion-card>
-      </ion-card>
+      </div>
     </ion-content>
   </ion-page>
 </template>
@@ -79,8 +79,9 @@ import {
   IonRow,
   IonGrid,
   toastController,
+  IonIcon,
 } from "@ionic/vue";
-import HeaderReturn from "@/components/header/HeaderReturnPayslip.vue";
+import HeaderReturn from "@/components/header/HeaderReturn.vue";
 import Refresher from "@/components/refresher/Refresher.vue";
 import { IonDatetime } from "@ionic/vue";
 import { defineComponent } from "vue";
@@ -117,6 +118,7 @@ export default defineComponent({
     FileOpener,
     Directory,
     Filesystem,
+    IonIcon,
   },
   setup() {
     return {
@@ -188,7 +190,7 @@ export default defineComponent({
           error.response.data.error.message ===
             "Employee does not have a pincode"
         ) {
-          this.$router.push("/pincode");
+          this.$router.push("/pincodesetup");
         } else {
           this.showErrorMessage(
             "An error occurred: " + error.response?.data?.error?.message
@@ -304,9 +306,9 @@ export default defineComponent({
       try {
         const toast = await toastController.create({
           message: message,
-          duration: 9000, //change this back to 3s
+          duration: 3000,
           position: "top",
-          color: "danger",
+          color: "light",
           buttons: [
             {
               icon: "close-outline",
@@ -359,6 +361,10 @@ export default defineComponent({
 </script>
 
 <style scoped>
+.text-center {
+  text-align: center;
+}
+
 p {
   margin: 0;
 }
@@ -366,25 +372,23 @@ p {
   text-align: center;
   margin-bottom: 20px;
 }
-.result-container {
-  margin: 20px 10px;
-  min-width: 330px;
-  border-radius: 10px;
-  padding-bottom: 10px;
-  box-shadow: 8px 8px 16px rgba(0, 0, 0, 0.1),
-    -8px -8px 16px rgba(255, 255, 255, 0.8), 0px -4px 8px rgba(0, 0, 0, 0.05);
-}
-.card-container {
-  margin: 10px auto;
-  padding: 0;
-  max-width: 310px;
-  border-radius: 10px;
-  overflow: hidden;
-  box-shadow: 8px 8px 16px rgba(0, 0, 0, 0.1),
-    -8px -8px 16px rgba(255, 255, 255, 0.8), 0px -4px 8px rgba(0, 0, 0, 0.05);
-}
+
 .download-btn {
   margin: 0;
   height: 50px;
+}
+
+.outlineColor {
+  border: 1px solid #828282;
+  color: #828282;
+  border-radius: 20px;
+}
+.card-container {
+  box-shadow: 8px 8px 16px rgba(0, 0, 0, 0.1),
+    -8px -8px 16px rgba(255, 255, 255, 0.8), 0px -4px 8px rgba(0, 0, 0, 0.05);
+}
+.container {
+  max-width: 500px;
+  margin: 20px auto;
 }
 </style>

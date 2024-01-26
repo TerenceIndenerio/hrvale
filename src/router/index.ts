@@ -1,178 +1,172 @@
-import { createRouter, createWebHistory } from '@ionic/vue-router';
-import { RouteRecordRaw } from 'vue-router'
-import TabsPage from '../views/TabsPage.vue'
-import Leave from '@/views/services/leave/LeaveDashboard.vue'
-import ApplyLeave from '@/views/services/leave/ApplyLeave.vue'
-import LeaveRequest from '@/views/services/leave/LeaveRequest.vue'
-import ClockIn from '@/views/services/clock_in/ClockIn.vue'
-import AttendanceCorrection from '@/views/services/attendance/AttendanceCorrection.vue'
-import OTRequest from '@/views/services/ot/OTRequest.vue'
-import Login from '@/views/login/Login.vue'
-import Flash from '@/views/login/Flash.vue'
-import ChangePassword from '@/views/forgot_password/ChangePassword.vue'
-import ForgotPassword from '@/views/forgot_password/ForgotPassword.vue'
-import ForgotPin from '@/views/forgot_password/ForgotPin.vue'
-import ChangePin from '@/views/forgot_password/ChangePin.vue'
-import CreatePin from '@/views/forgot_password/CreatePin.vue'
-import OT from '@/views/services/ot/OT.vue';
-import OTApply from '@/views/services/ot/OTApply.vue';
-import Vale from '@/views/services/vale/Vale.vue';
-import leaveEntitlement from '@/views/services/leave/LeaveEntitlement.vue'
-import ViewSchedule from '@/views/services/schedule/ViewSchedule.vue'
-import ViewSchedule2 from '@/views/services/schedule/ViewSchedule2.vue'
-import Benefits from '@/views/services/benefits/Benefits.vue'
-import SoonPage from '@/views/SoonPage.vue'
-import AttendanceCorrectionEdit from '@/views/services/attendance/AttendanceCorrectionEdit.vue';
-import Tenant from '@/views/Tenant.vue';
-import ViewPayslip from '@/views/services/view_payslip/ViewPayslip.vue'
-import GPSOffline from '@/views/GPSOffline.vue'
-import PinCode from '@/views/pincode/PinCode.vue'
+import { createRouter, createWebHistory } from "@ionic/vue-router";
+import { RouteRecordRaw } from "vue-router";
+import TabsPage from "../views/TabsPage.vue";
+import Leave from "@/views/services/leave/LeaveDashboard.vue";
+import ApplyLeave from "@/views/services/leave/ApplyLeave.vue";
+import LeaveRequest from "@/views/services/leave/LeaveRequest.vue";
+import ClockIn from "@/views/services/clock_in/ClockIn.vue";
+import AttendanceCorrection from "@/views/services/attendance/AttendanceCorrection.vue";
+import Login from "@/views/login/Login.vue";
+import Flash from "@/views/login/Flash.vue";
+import OTApply from "@/views/services/ot/OTApply.vue";
+import Vale from "@/views/services/vale/Vale.vue";
+import ValeView from "@/views/services/vale/ValeView.vue";
+import ApplyVale from "@/views/services/vale/ApplyVale.vue";
+import leaveEntitlement from "@/views/services/leave/LeaveEntitlement.vue";
+import ViewSchedule from "@/views/services/schedule/ViewSchedule.vue";
+import Benefits from "@/views/services/benefits/Benefits.vue";
+import SoonPage from "@/views/SoonPage.vue";
+import AttendanceCorrectionEdit from "@/views/services/attendance/AttendanceCorrectionEdit.vue";
+import Tenant from "@/views/Tenant.vue";
+import ViewPayslip from "@/views/services/view_payslip/ViewPayslip.vue";
+import GPSOffline from "@/views/GPSOffline.vue";
+import PinCode from "@/views/pincode/PinCode.vue";
+import PinCodeSetup from "@/views/pincode/PinCodeSetup.vue";
+import PinCodeAccountSettings from "@/views/pincode/PinCodeAccountSettings.vue";
+import LoanBalance from "@/views/services/loanBalance/loanBalance.vue";
+import LoanBalanceView from "@/views/services/loanBalance/LoanBalanceView.vue";
 
+import NotifToken from "@/views/dev/NotifToken.vue";
 
 const routes: Array<RouteRecordRaw> = [
   {
-    path: '/',
-    redirect: '/login'
+    path: "/",
+    redirect: "/login",
   },
   {
-    path: '/tabs/',
+    path: "/tabs/",
     component: TabsPage,
     children: [
       {
-        path: '',
-        redirect: '/tabs/home'
+        path: "",
+        redirect: "/tabs/home",
       },
       {
-        path: 'home',
-        component: () => import('@/views/home/HomePage.vue')
+        path: "home",
+        component: () => import("@/views/home/HomePage.vue"),
       },
       {
-        path: 'services',
-        component: () => import('@/views/services/Services.vue')
+        path: "services",
+        component: () => import("@/views/services/Services.vue"),
+      },
+
+      {
+        path: "approval",
+        component: () => import("@/views/approval/Approval.vue"),
+      },
+      {
+        path: "accsettings",
+        component: () => import("@/views/AccountSettings.vue"),
+      },
+      {
+        path: "/leave",
+        component: Leave,
+      },
+      {
+        path: "/applyLeave",
+        component: ApplyLeave,
+      },
+      {
+        path: "/leaveRequest",
+        component: LeaveRequest,
+      },
+      {
+        path: "/leaveEntitlement",
+        component: leaveEntitlement,
+      },
+      {
+        path: "/clockin",
+        component: ClockIn,
+      },
+      {
+        path: "/viewschedule",
+        component: ViewSchedule,
+      },
+      {
+        path: "/attendancecorrection",
+        component: AttendanceCorrection,
+      },
+      {
+        path: "/attendancecorrectionedit",
+        component: AttendanceCorrectionEdit,
       },
       
       {
-        path: 'tab3',
-        component: () => import('@/views/approval/Approval.vue')
+        path: "/otapply",
+        component: OTApply,
+      },
+      
+      {
+        path: "/loanbalance",
+        component: LoanBalance,
       },
       {
-        path: 'accsettings',
-        component: () => import('@/views/AccountSettings.vue')
+        path: "/loanbalanceview",
+        component: LoanBalanceView,
       },
       {
-        path: '/leave',
-        component: Leave
+        path: "/vale",
+        component: Vale,
       },
       {
-        path: '/applyLeave',
-        component: ApplyLeave
+        path: "/viewvale",
+        component: ValeView,
       },
       {
-        path: '/leaveRequest',
-        component: LeaveRequest
+        path: "/applyvale",
+        component: ApplyVale,
       },
       {
-        path: '/leaveEntitlement',
-        component: leaveEntitlement
+        path: "/soon",
+        component: SoonPage,
       },
       {
-        path: '/clockin',
-        component: ClockIn
+        path: "/gpsoff",
+        component: GPSOffline,
       },
       {
-        path: '/viewschedule',
-        component: ViewSchedule
+        path: "/benefits",
+        component: Benefits,
       },
       {
-        path: '/viewschedule2',
-        component: ViewSchedule2
+        path: "/viewpayslip",
+        component: ViewPayslip,
       },
-      {
-        path: '/attendancecorrection',
-        component: AttendanceCorrection
-      },
-      {
-        path: '/attendancecorrectionedit',
-        component: AttendanceCorrectionEdit
-      },
-      {
-        path: '/ot',
-        component: OT
-      },
-      {
-        path: '/otapply',
-        component: OTApply
-      },
-      {
-        path: '/otrequest',
-        component: OTRequest
-      },
-      {
-        path: '/vale',
-        component: Vale
-      },
-      {
-        path: '/soon',
-        component: SoonPage
-      },
-      {
-        path: '/gpsoff',
-        component: GPSOffline
-      },
-      {
-        path: '/benefits',
-        component: Benefits
-      },
-      {
-        path: '/viewpayslip',
-        component: ViewPayslip
-      },
-    ]
+    ],
   },
   {
-    path: '/login',
-    component: Login
+    path: "/login",
+    component: Login,
   },
   {
-    path: '/tenant',
-    component: Tenant
+    path: "/tenant",
+    component: Tenant,
   },
   {
-    path: '/flash',
-    component: Flash
+    path: "/flash",
+    component: Flash,
   },
   {
-    path: '/changepw',
-    component: ChangePassword
+    path: "/pincode",
+    component: PinCode,
   },
   {
-    path: '/forgotpw',
-    component: ForgotPassword
+    path: "/pincodesetup",
+    component: PinCodeSetup,
   },
   {
-    path: '/forgotpin',
-    component: ForgotPin
+    path: "/pincodeaccsettings",
+    component: PinCodeAccountSettings,
   },
   {
-    path: '/changepin',
-    component: ChangePin
+    path: "/notiftoken",
+    component: NotifToken,
   },
-  {
-    path: '/createpin',
-    component: CreatePin
-  },
-  {
-    path: '/pincode',
-    component: PinCode
-  }
- 
-  
-  
-]
+];
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
-  routes
-})
+  routes,
+});
 
-export default router
+export default router;

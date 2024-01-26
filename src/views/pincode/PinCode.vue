@@ -9,6 +9,9 @@
           <h1 class="title" :style="{ color: themeData.primaryFontColor }">
             Enter PIN
           </h1>
+          <h1 class="title-icon" :style="{ color: themeData.primaryFontColor }">
+            <ion-icon name="document-lock-outline"></ion-icon>
+          </h1>
         </div>
       </div>
 
@@ -17,15 +20,15 @@
           <h4 class="input-title">Enter PIN to proceed to payslip</h4>
           <div class="pincode-circle-container">
             <input
-              v-for="(input, index) in inputs"
-              :key="index"
-              :id="`input-${index}`"
-              v-model="inputs[index]"
-              @input="handleInput(index)"
-              maxlength="1"
+              v-model="inputs"
+              maxlength="4"
               class="otp-input"
+              type="tel"
+              placeholder="####"
             />
-          </div>
+        </div>
+
+
           <div class="btn-container">
             <ion-button
               class="send-btn"
@@ -58,6 +61,7 @@ import {
   IonText,
   IonButton,
   toastController,
+  IonIcon,
 } from "@ionic/vue";
 import ChangePinBottomInputContainer from "@/components/others/ChangePinBottomInputContainer.vue";
 import { defineComponent, ref } from "vue";
@@ -81,6 +85,7 @@ export default defineComponent({
     ChangePinBottomInputContainer,
     IonButton,
     toastController,
+    IonIcon,
   },
   setup() {
     return {
@@ -93,8 +98,8 @@ export default defineComponent({
       headerTitle: "Suy Sing",
       theme: {},
       buttonText: "Submit",
-      inputs: ["", "", "", "", ""],
       themeData: {},
+      inputs: null
     };
   },
   methods: {
@@ -120,12 +125,39 @@ export default defineComponent({
 
     handleInput(index) {
       if (index < this.inputs.length - 1 && this.inputs[index].length === 1) {
-        const nextInput = document.getElementById(`input-${index + 1}`);
+        const nextInput = document.getElementById(`pin-${index + 1}`);
         if (nextInput) {
           nextInput.focus();
         }
       }
     },
+
+    async hasPincode() {
+      try {
+        this.store.commit("loader/updateLoader", true);
+        this.checkTokenExpiration();
+        const storedToken = localStorage.getItem("_token");
+
+        const authToken = `Bearer ${storedToken}`;
+
+        const apiUrl = baseURL + `api/ess/pincode`;
+        const headers = {
+          Authorization: authToken,
+        };
+
+        const response = await axios.get(apiUrl, { headers });
+
+        if (!response.data.data.pincode) {
+          this.$router.push("/pincodesetup");
+        }
+
+      } catch (error) {
+        this.showErrorMessage(error.response?.data?.error?.message);
+      } finally {
+        this.store.commit("loader/updateLoader", false);
+      }
+    },
+
     async saveButtonClicked() {
       try {
         this.store.commit("loader/updateLoader", true);
@@ -139,32 +171,33 @@ export default defineComponent({
           Authorization: authToken,
         };
 
-        const pincode = parseInt(this.inputs.join(""), 10);
-
-        const response = await axios.post(
-          apiUrl,
-          {
-            pincode,
-          },
-          {
-            headers,
-          }
-        );
+        const response = await axios.get(apiUrl, { headers });
 
         if (response.status === 200) {
-          this.$router.push("/viewpayslip");
+          if (this.inputs === response.data.data.pincode) {
+            this.$router.push("/viewpayslip");
+          } else {
+            console.error(
+              "Entered PIN code does not match the stored PIN code"
+            );
+            this.showErrorMessage("PIN codes do not match!");
+          }
         } else {
           console.error("API request failed:", response.status, response.data);
         }
       } catch (error) {
-        this.showErrorMessage(
-          "An error occurred: " + error.response?.data?.error?.message
-        );
+        this.showErrorMessage(error.response?.data?.error?.message);
       } finally {
         this.store.commit("loader/updateLoader", false);
-        this.inputs = Array.from({ length: this.inputs.length }, () => "");
+
+        this.inputs = null
       }
     },
+
+    resetClicked() {
+      this.inputs = Array.from({ length: this.inputs.length }, () => "");
+    },
+
     async showErrorMessage(message) {
       try {
         const toast = await toastController.create({
@@ -192,11 +225,11 @@ export default defineComponent({
       }
 
       this.themeData = storedThemeData;
-      // console.log(this.theme);
     },
   },
   created() {
     this.getTheme();
+    this.hasPincode();
   },
 });
 </script>
@@ -208,7 +241,6 @@ export default defineComponent({
   padding: 0;
 }
 .container {
-  /* background-color: #12a3da; */
   height: 40vh;
 }
 .logo-name h1 {
@@ -237,7 +269,7 @@ export default defineComponent({
 }
 .container {
   border-top: 1px solid rgb(157, 157, 157);
-  /* height: 60vh; */
+
   width: 100%;
 }
 
@@ -254,12 +286,13 @@ export default defineComponent({
   line-height: normal;
 }
 .otp-input {
-  width: 50px;
+  width: 200px;
   height: 50px;
-  border-radius: 50%;
+  border-radius: 30px;
   text-align: center;
   background-color: #e8e8e8;
   margin: 5px;
+  font-size: 20px;
 }
 .verify-container {
   width: 100%;
@@ -285,13 +318,13 @@ export default defineComponent({
   align-items: center;
   flex-direction: column;
   gap: 20px;
-  height: 35%;
 }
 .title-container {
   display: flex;
   justify-content: center;
   align-items: center;
   height: 80%;
+  flex-direction: column;
 }
 .title {
   height: 50px;
@@ -302,8 +335,12 @@ export default defineComponent({
   line-height: normal;
   border: none;
 }
+.title-icon {
+  font-size: 70px;
+}
 .btn-container {
   width: 50%;
+  margin-top: 20px;
 }
 .send-btn {
   border-radius: 15px;
@@ -315,10 +352,22 @@ export default defineComponent({
   font-weight: 700;
   line-height: normal;
   border: none;
+  margin: 5px 0;
+}
+.reset-btn {
+  border-radius: 15px;
+  height: 50px;
+  overflow: hidden;
+  font-family: Open Sans;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+  border: none;
+  color: #8b8b8b;
+  margin: 5px 0;
 }
 .bottom-text {
-  /* width: 100%; */
-  /* margin: 10% 0; */
   padding: 0;
   position: absolute;
   bottom: 50px;

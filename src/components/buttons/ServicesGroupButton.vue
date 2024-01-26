@@ -68,7 +68,7 @@
         </a>
       </ion-col>
       <ion-col class="card btn-text" expand="full" color="none">
-        <a @click="navigateSoon" disabled>
+        <a @click="navigateVale" disabled>
           <span class="ion-text-left">
             <ion-icon
               name="pricetags"
@@ -94,7 +94,7 @@
         </a>
       </ion-col>
       <ion-col class="card btn-text" expand="full" color="none">
-        <a @click="navigateSoon" disabled>
+        <a @click="navigateloanBal" disabled>
           <span class="ion-text-left">
             <ion-icon
               name="cash"
@@ -151,11 +151,17 @@ export default defineComponent({
     navigateOTApply() {
       this.$router.push("/OTApply");
     },
+    navigateloanBal() {
+      this.$router.push("/loanbalance");
+    },
     navigateBenefits() {
       this.$router.push("/benefits");
     },
     navigateViewPayslip() {
-      this.$router.push("/viewpayslip");
+      this.$router.push("/pincode");
+    },
+    navigateVale() {
+      this.$router.push("/vale");
     },
   },
 });
@@ -209,7 +215,6 @@ a {
   height: 50px;
   border-radius: 10px;
   margin: 10px;
-  /* box-shadow: 0px 2px 5px 0px rgb(175, 175, 175); */
   box-shadow: 8px 8px 16px rgba(0, 0, 0, 0.1),
     -8px -8px 16px rgba(255, 255, 255, 0.8);
   overflow: hidden;

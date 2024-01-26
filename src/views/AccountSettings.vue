@@ -1,17 +1,17 @@
 <template>
   <ion-page>
-    <HeaderReturn
+    <HeaderUser
       :headerTitle="headerTitle"
       :headerColor="theme.primaryColor"
-      :headerTextColor="theme.primaryFontColor"
-    ></HeaderReturn>
+      :imgLogo="theme.clientLogo"
+    ></HeaderUser>
     <ion-content :fullscreen="true" v-if="!loading">
       <Refresher />
 
       <div class="btn-container">
         <h4><strong>Security</strong></h4>
 
-        <div class="button-container" @click="navigateTo('AppSecurity')">
+        <div class="button-container" @click="navigateTo('pincodeaccsettings')">
           <ion-icon
             class="btn-icon"
             name="shield"
@@ -20,7 +20,7 @@
               color: theme.primaryFontColor,
             }"
           ></ion-icon>
-          <span>App Security</span>
+          <span>Setup Pin Code</span>
         </div>
 
         <h4><strong>Support</strong></h4>
@@ -75,6 +75,20 @@
           <span>Privacy Policy</span>
         </div>
 
+        <h4><strong>Developer</strong></h4>
+
+        <div class="button-container" @click="navigateTo('notiftoken')">
+          <ion-icon
+            class="btn-icon"
+            name="key"
+            :style="{
+              backgroundColor: theme.primaryColor,
+              color: theme.primaryFontColor,
+            }"
+          ></ion-icon>
+          <span>Notification Token</span>
+        </div>
+
         <br />
 
         <div class="button-container" @click="logout">
@@ -106,7 +120,7 @@ import {
   toastController,
   IonIcon,
 } from "@ionic/vue";
-import HeaderReturn from "@/components/header/HeaderAccountSettings.vue";
+import HeaderUser from "@/components/header/HeaderUser.vue";
 import Refresher from "@/components/refresher/Refresher.vue";
 import { defineComponent } from "vue";
 import axios from "axios";
@@ -122,7 +136,7 @@ export default defineComponent({
   components: {
     IonPage,
     IonContent,
-    HeaderReturn,
+    HeaderUser,
     IonButton,
     IonCard,
     Refresher,
@@ -169,9 +183,10 @@ export default defineComponent({
     },
 
     navigateTo(page) {
-      // Implement your navigation logic based on the button clicked
       console.log(`Navigating to ${page}`);
+      this.$router.push(`/${page}`);
     },
+
     logout() {
       localStorage.removeItem("_token");
       this.$router.push("/login");

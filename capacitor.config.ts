@@ -2,7 +2,7 @@ import { CapacitorConfig } from "@capacitor/cli";
 
 const config: CapacitorConfig = {
   appId: "io.ionic.starter",
-  appName: "SuySing",
+  appName: "HRVale",
   webDir: "dist",
   server: {
     androidScheme: "https",
@@ -13,6 +13,11 @@ const config: CapacitorConfig = {
     },
     App: {
       web: "src/js/capacitor-app.js",
+    },
+    plugins: {
+      "PushNotifications": {
+        "presentationOptions": ["badge", "sound", "alert"]
+      }
     },
   },
 };

@@ -7,14 +7,18 @@
     <img :src="imgLogo" alt="Logo" class="logo" />
 
     <ion-icon
-      name="settings"
-      class="icon1"
-      @click="openPopover($event)"
-    ></ion-icon>
+    name="notifications"
+    class="icon1"
+    @click="rotateIcon"
+    :class="{ 'rotateIcon': rotationState === 'rotateIcon' }"
+    :key="rotationState"
+  ></ion-icon>
+
     <div class="profile-img-container">
       <img :src="profileImg" alt="" />
     </div>
   </ion-header>
+  
   <ion-popover
     :is-open="popoverOpen"
     :event="event"
@@ -24,19 +28,12 @@
     <div class="popup-container">
       <ion-button
         class="btn"
-        fill="clear"
-        expand="full"
-        @click="navigateAcctSettings"
-        ><ion-icon name="settings-outline"></ion-icon> Settings</ion-button
-      >
-      <ion-button
-        class="btn logout-btn"
-        expand="full"
         color="none"
-        @click="logout"
+        expand="full"
         :style="{ backgroundColor: headerColor }"
-        ><ion-icon name="exit-outline"></ion-icon> Log Out</ion-button
+        @click="navigateAcctSettings"
       >
+      <ion-icon name="key-outline"></ion-icon> Token</ion-button>
     </div>
   </ion-popover>
 </template>
@@ -53,8 +50,6 @@ import { ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { defineProps, defineComponent } from "vue";
 import { GlobalConstants } from "@/config/constants";
-
-const empNumber = GlobalConstants.EMPLOYEE_ID;
 
 export default defineComponent({
   components: {
@@ -73,9 +68,11 @@ export default defineComponent({
     return {
       popoverOpen: false,
       event: null,
-      profile: `https://hrp-staging-delta.bapplware.com/web/index.php/employee/photo/${empNumber}`,
+      profile: "",
       defaultProfile: `https://ionicframework.com/docs/img/demos/avatar.svg`,
       profileImg: "",
+      empNumber: "",
+      rotationState: 'initial'
     };
   },
   methods: {
@@ -90,15 +87,23 @@ export default defineComponent({
       this.popoverOpen = false;
     },
     hasProfile() {
+      this.profile = `https://hrp-staging-delta.bapplware.com/web/index.php/employee/photo/${this.empNumber}`
       this.profileImg = this.profile ? this.defaultProfile : this.profile;
     },
     navigateAcctSettings() {
       this.$router.push("/tabs/accsettings");
       this.popoverOpen = false;
     },
+    async rotateIcon() {
+      this.rotationState = 'rotateIcon';
+      await new Promise(resolve => setTimeout(resolve, 300));
+      this.rotationState = 'initial';
+    },
   },
   created() {
+    this.empNumber = localStorage.getItem('empNumber');
     this.hasProfile();
+    
   },
 });
 </script>
@@ -148,11 +153,7 @@ export default defineComponent({
   color: var(--ion-color-primary-contrast);
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.8),
     0 2px 4px -1px rgba(0, 0, 0, 0.6);
-  transition: transform 0.7s ease;
-}
-
-.icon1:hover {
-  transform: rotate(360deg);
+  transition: transform 0.3s ease-out;
 }
 
 .icon2 {
@@ -189,5 +190,21 @@ ion-popover {
   left: 0;
   right: 0;
   margin: auto;
+}
+
+.rotateIcon {
+  animation: rotateKeyframes .3s ease-in-out;
+}
+
+@keyframes rotateKeyframes {
+  0% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(-20deg);
+  }
+  100% {
+    transform: rotate(20deg);
+  }
 }
 </style>

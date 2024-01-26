@@ -8,6 +8,7 @@
     ></ion-icon>
 
     <h2 class="title">{{ headerTitle }}</h2>
+    
   </div>
 </template>
 
