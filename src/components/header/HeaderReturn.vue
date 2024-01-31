@@ -128,10 +128,8 @@ export default defineComponent({
   transform: scale(0.5);
 }
 .icon2 {
-  
   right: 20px;
   font-size: 25px;
-  /* outline: 3px solid white; */
   border-radius: 100%;
   padding: 3px;
   color: var(--ion-color-primary-contrast);

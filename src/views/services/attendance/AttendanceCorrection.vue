@@ -51,9 +51,9 @@
           :key="index"
         >
           <ion-card-header>
-            <ion-card-subtitle
-              >{{ result.day }} - {{ result.date }}</ion-card-subtitle
-            >
+            <ion-card-subtitle>
+              {{ result.day }} - {{ result.date }}
+            </ion-card-subtitle>
             <div>
               <p></p>
             </div>
@@ -149,6 +149,7 @@ import {
   IonCardTitle,
   IonCardSubtitle,
   IonInput,
+  IonIcon,
 } from "@ionic/vue";
 import Refresher from "@/components/refresher/Refresher.vue";
 import HeaderReturn from "@/components/header/HeaderReturn.vue";
@@ -182,6 +183,7 @@ export default defineComponent({
     IonCardTitle,
     IonCardSubtitle,
     IonInput,
+    IonIcon,
   },
   setup() {
     return {

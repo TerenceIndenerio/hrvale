@@ -75,20 +75,6 @@
           <span>Privacy Policy</span>
         </div>
 
-        <h4><strong>Developer</strong></h4>
-
-        <div class="button-container" @click="navigateTo('notiftoken')">
-          <ion-icon
-            class="btn-icon"
-            name="key"
-            :style="{
-              backgroundColor: theme.primaryColor,
-              color: theme.primaryFontColor,
-            }"
-          ></ion-icon>
-          <span>Notification Token</span>
-        </div>
-
         <br />
 
         <div class="button-container" @click="logout">

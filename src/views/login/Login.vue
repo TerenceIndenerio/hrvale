@@ -43,6 +43,7 @@ import { mapGetters, mapActions, mapState } from "vuex";
 import { GlobalConstants } from "@/config/constants";
 import axios from "axios";
 import { getThemeData, setThemeData } from "@/theme/theme";
+import { runBackgroundScript } from '@/notification/Notification.ts';
 
 const baseURL = GlobalConstants.HOST_URL;
 
@@ -162,10 +163,12 @@ export default defineComponent({
         if (token) {
           localStorage.setItem("_token", token);
           this.router.push("/tabs/home");
+          await runBackgroundScript();
         } else {
           console.log("Invalid username and/or password");
           await this.alertError();
         }
+        
       } catch (error) {
         console.error(error);
       }

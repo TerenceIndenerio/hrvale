@@ -31,6 +31,7 @@
     "@fullcalendar/interaction": "^6.1.10",
     "@fullcalendar/list": "^6.1.10",
     "@fullcalendar/timegrid": "^6.1.10",
+    "@fullcalendar/vue": "^6.1.10",
     "@fullcalendar/vue3": "^6.1.10",
     "@ionic-native/file-opener": "^5.36.0",
     "@ionic/vue": "^7.5.7",

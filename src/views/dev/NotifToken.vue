@@ -42,6 +42,9 @@
   import { PushNotifications } from '@capacitor/push-notifications';
   import { getThemeData } from '@/theme/theme';
   import axios from "axios";
+  import { GlobalConstants } from "@/config/constants";
+
+  const baseURL = GlobalConstants.HOST_URL;
   
   export default {
     components: {
@@ -107,7 +110,7 @@
 
             const authToken = `Bearer ${storedToken}`;
 
-            const apiUrl = `https://hrp-staging-delta.bapplware.com/web/index.php/api/v2/push-notification`;
+            const apiUrl = baseURL + `api/v2/push-notification`;
             const headers = {
                 Authorization: authToken,
             };

@@ -4,7 +4,7 @@
       <div class="inline-v">
         <h1 class="text-center shout-text">Let’s work!</h1>
       </div>
-      <div class="inline-v">
+      <div class="inline-v center">
         <h4 class="input-title">Username</h4>
         <div class="box-container text-pad">
           <ion-input
@@ -83,6 +83,10 @@ a {
   text-decoration: none;
   color: #000;
 }
+.center {
+  margin: auto;
+  width: fit-content;
+}
 .margin-top {
   margin: 10% 0;
 }
@@ -134,6 +138,7 @@ a {
   border-radius: 50px;
   background-color: #e8e8e8;
   overflow: hidden;
+  width: 300px;
 }
 .input-title {
   color: #3b3c3e;
@@ -149,7 +154,7 @@ a {
 }
 .btn {
   border-radius: 15px;
-  width: 70%;
+  width: 500px;
   height: 50px;
   overflow: hidden;
   font-family: Open Sans;

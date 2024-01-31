@@ -125,6 +125,7 @@ ion-col p {
   padding: 0;
   margin: 0;
   border-radius: 50px;
+  margin: auto;
 }
 .leave-type p {
   padding: 5px 10px;

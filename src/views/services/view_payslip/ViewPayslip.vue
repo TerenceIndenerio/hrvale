@@ -8,8 +8,20 @@
     <ion-content :fullscreen="true" v-if="!loading">
       <Refresher />
 
-      <!-- <h4 class="text-center outlineColor">Result</h4> -->
       <div class="container">
+        <ion-card
+          class="card result-container"
+          :style="{ backgroundColor: theme.primaryColor }"
+        >
+          <h4
+            class="text-center outlineColor result-text"
+            :style="{
+              color: theme.primaryFontColor,
+              border: `2px solid` + theme.primaryFontColor,
+            }"
+          >{{ cardData.length }} Record Found</h4>
+        
+        
         <ion-card
           class="card-container"
           v-for="(result, index) in cardData"
@@ -62,6 +74,7 @@
             <ion-icon name="download"></ion-icon> Download Payslip
           </ion-button>
         </ion-card>
+      </ion-card>
       </div>
     </ion-content>
   </ion-page>
@@ -81,7 +94,7 @@ import {
   toastController,
   IonIcon,
 } from "@ionic/vue";
-import HeaderReturn from "@/components/header/HeaderReturn.vue";
+import HeaderReturn from "@/components/header/HeaderReturnPayslip.vue";
 import Refresher from "@/components/refresher/Refresher.vue";
 import { IonDatetime } from "@ionic/vue";
 import { defineComponent } from "vue";
@@ -370,9 +383,11 @@ p {
 }
 .result-text {
   text-align: center;
-  margin-bottom: 20px;
+  margin: 10px;
 }
-
+.result-container {
+  padding: 0 10px;
+}
 .download-btn {
   margin: 0;
   height: 50px;
@@ -384,11 +399,10 @@ p {
   border-radius: 20px;
 }
 .card-container {
-  box-shadow: 8px 8px 16px rgba(0, 0, 0, 0.1),
-    -8px -8px 16px rgba(255, 255, 255, 0.8), 0px -4px 8px rgba(0, 0, 0, 0.05);
+  border-radius: 20px;
 }
 .container {
   max-width: 500px;
-  margin: 20px auto;
+  margin: auto;
 }
 </style>

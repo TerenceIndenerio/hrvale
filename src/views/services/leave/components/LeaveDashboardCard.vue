@@ -1,5 +1,5 @@
 <template>
-  <ion-card class="card-top card" style="border-radius: 10px">
+  <ion-card class="card-top" style="border-radius: 10px">
     <ion-badge class="status" v-bind:color="colorBadge">{{ status }}</ion-badge>
     <ion-list lines="none">
       <ion-item lines="none">

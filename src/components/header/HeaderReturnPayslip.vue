@@ -8,38 +8,18 @@
     ></ion-icon>
 
     <h2 class="title">{{ headerTitle }}</h2>
-    <ion-icon
+
+    <ion-icon 
+      name="notifications" 
+      class="icon2" 
       color="light"
-      name="settings"
-      class="settings-icon"
-      @click="openPopover($event)"
-      router-direction="forward"
+      @click="rotateIcon"
+      :class="{ 'rotateIcon': rotationState === 'rotateIcon' }"
+      :key="rotationState"
     ></ion-icon>
   </div>
-  <ion-popover
-    :is-open="popoverOpen"
-    :event="event"
-    @didDismiss="popoverOpen = false"
-    class="ion-popover-container"
-  >
-    <div class="popup-container">
-      <ion-button
-        class="btn"
-        fill="clear"
-        expand="full"
-        @click="navigateAcctSettings()"
-        ><ion-icon name="settings-outline"></ion-icon> Settings</ion-button
-      >
-      <ion-button
-        class="btn logout-btn"
-        expand="full"
-        color="none"
-        @click="logout()"
-        :style="{ backgroundColor: headerColor }"
-        ><ion-icon name="exit-outline"></ion-icon> Log Out</ion-button
-      >
-    </div>
-  </ion-popover>
+  
+  
 </template>
 
 <script>
@@ -64,6 +44,7 @@ export default defineComponent({
     return {
       popoverOpen: false,
       event: null,
+      rotationState: 'initial'
     };
   },
   methods: {
@@ -84,6 +65,11 @@ export default defineComponent({
       console.log("changed");
       this.$router.push("/tabs/accsettings");
       this.popoverOpen = false;
+    },
+    async rotateIcon() {
+      this.rotationState = 'rotateIcon';
+      await new Promise(resolve => setTimeout(resolve, 300));
+      this.rotationState = 'initial';
     },
   },
 });
@@ -121,8 +107,13 @@ export default defineComponent({
   transform: scale(0.5);
 }
 .icon2 {
-  font-size: 30px;
+  right: 20px;
+  font-size: 25px;
+  border-radius: 100%;
+  padding: 3px;
   color: var(--ion-color-primary-contrast);
+  
+  transition: transform 0.7s ease;
 }
 
 .title {
@@ -153,5 +144,21 @@ ion-popover {
 }
 .logout-btn {
   background-color: #12a3da;
+}
+
+.rotateIcon {
+  animation: rotateKeyframes .3s ease-in-out;
+}
+
+@keyframes rotateKeyframes {
+  0% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(-20deg);
+  }
+  100% {
+    transform: rotate(20deg);
+  }
 }
 </style>

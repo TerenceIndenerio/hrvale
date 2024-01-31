@@ -23,17 +23,18 @@
           </div>
 
           <div>
-            <div v-if="!this.hasRecord">
+            <div v-if="this.hasRecord">
               <div class="outline-container">
                 <h4>No Record Found</h4>
               </div>
-
             </div>
             <div v-else>
               <div v-for="item in requests" :key="item.id">
                 <LeaveDashboardCard
                   :cardTitle="item.leaveType.name"
-                  :appliedDuration="item.dates.fromDate + ' to ' + item.dates.toDate"
+                  :appliedDuration="
+                    item.dates.fromDate + ' to ' + item.dates.toDate
+                  "
                   :reason="item.lastComment ? item.lastComment.comment : ''"
                   :typeOfLeave="item.leaveType.name"
                   :status="item.leaveBreakdown[0].name"
@@ -230,11 +231,11 @@ export default defineComponent({
   async created() {
     this.getTheme();
     this.checkTokenExpiration();
-    
+
     try {
       this.store.commit("loader/updateLoader", true);
       const data = await this.fetchData();
-      
+
       if (data && data.data.length > 0) {
         this.requests = data.data;
         this.showComponent = true;
@@ -244,9 +245,8 @@ export default defineComponent({
           leaveData.employee.middleName || ""
         } ${leaveData.employee.lastName}`;
         this.cardData.leaveBalance = leaveData.leaveBalances[0].balance.balance;
-        
       } else {
-        this.hasRecord = false
+        this.hasRecord = false;
       }
     } catch (error) {
       this.loading = false;
