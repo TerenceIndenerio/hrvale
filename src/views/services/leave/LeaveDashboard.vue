@@ -40,6 +40,7 @@
                   :status="item.leaveBreakdown[0].name"
                   :colorBadge="getStatusColor(item.leaveBreakdown[0].name)"
                   @view-details-clicked="navigateToLeaveRequests(item)"
+                  @retract-clicked="navigateToRetractLeave(item)"
                 />
               </div>
             </div>
@@ -201,6 +202,13 @@ export default defineComponent({
         query: { cardId: this.cardId },
       });
     },
+    navigateToRetractLeave(item) {
+      this.cardId = item.id;
+      this.$router.push({
+        path: "/retractleave",
+        query: { cardId: this.cardId },
+      });
+    },
     navigateToApplyLeave() {
       this.$router.push("/applyLeave");
     },
@@ -210,7 +218,7 @@ export default defineComponent({
     getStatusColor(status) {
       if (status === "Pending Approval") {
         return "warning";
-      } else if (status === "Reject") {
+      } else if (status === "Rejected") {
         return "danger";
       } else if (status === "Taken") {
         return "primary";

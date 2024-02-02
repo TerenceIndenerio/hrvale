@@ -66,9 +66,20 @@
       </ion-item>
     </ion-list>
 
-    <ion-button expand="full" color="light" @click="redirectToApplyLeave"
-      >View Details</ion-button
-    >
+    <div class="action-btns">
+      <ion-button expand="full" color="primary" @click="redirectToApplyLeave">
+        View
+      </ion-button>
+
+      <ion-button
+        expand="full"
+        color="danger"
+        @click="redirectToRetractLeave"
+        :disabled="status === 'Rejected'"
+      >
+        Retract
+      </ion-button>
+    </div>
   </ion-card>
 </template>
 
@@ -103,6 +114,9 @@ export default {
   methods: {
     redirectToApplyLeave() {
       this.$emit("view-details-clicked");
+    },
+    redirectToRetractLeave() {
+      this.$emit("retract-clicked");
     },
   },
 };
@@ -168,5 +182,16 @@ ion-card {
   font-style: normal;
   font-weight: 600;
   line-height: normal;
+}
+.action-btns {
+  display: flex;
+  justify-content: center;
+  flex-direction: row;
+  margin: 0;
+  padding: 0;
+  gap: 0;
+}
+.action-btns ion-button {
+  width: 100%;
 }
 </style>

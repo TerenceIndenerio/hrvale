@@ -12,32 +12,51 @@
 
       <ion-card class="card-container" v-if="!loading && hasLeaveType">
         <!-- Leave Balance Card -->
-        <ion-card v-if="employeeDetail2" class="card leaveBal-container">
+        <div v-if="employeeDetail2" class="leaveBal-container">
           <p class="leave-bal">
             Leave Balance: <strong>{{ employeeDetail2.balance }}</strong> Day(s)
           </p>
-        </ion-card>
+        </div>
 
-        <ion-card v-else class="card leaveBal-container">
+        <div v-else class="leaveBal-container">
           <p class="leave-bal">Leave Balance: <strong>0</strong> Day(s)</p>
-        </ion-card>
+        </div>
 
-        <div class="ion-padding emp-detail-container">
-          <ion-card class="card emp-detail flex-center">
-            <p>Employee Code</p>
+        <!-- details -->
+        <div class="ion-padding">
+          <div class="emp-detail-container">
+            <div class="emp-detail flex-center">
+              <p>Allocated Days:</p>
+              <p v-if="employeeDetail2">
+                <strong>{{ employeeDetail2.entitled }}</strong>
+              </p>
+            </div>
 
-            <p v-if="employeeDetail">
-              <strong>{{ employeeDetail.employeeId }}</strong>
-            </p>
-          </ion-card>
-          <ion-card class="card emp-detail flex-center">
-            <p>Name</p>
-            <p v-if="employeeDetail">
-              <strong
-                >{{ employeeDetail.firstName }} {{ employeeDetail.lastName }}
-              </strong>
-            </p>
-          </ion-card>
+            <div class="emp-detail flex-center">
+              <p>Total Days:</p>
+              <p>
+                <strong>{{ dateDifference }}</strong>
+              </p>
+            </div>
+          </div>
+
+          <div class="emp-detail-container">
+            <div class="emp-detail flex-center">
+              <p>Employee Code</p>
+
+              <p v-if="employeeDetail">
+                <strong>{{ employeeDetail.employeeId }}</strong>
+              </p>
+            </div>
+            <div class="emp-detail flex-center">
+              <p>Name</p>
+              <p v-if="employeeDetail">
+                <strong
+                  >{{ employeeDetail.firstName }} {{ employeeDetail.lastName }}
+                </strong>
+              </p>
+            </div>
+          </div>
         </div>
 
         <!-- Leave Type Card -->
@@ -60,22 +79,8 @@
             </ion-select-option>
           </ion-select>
         </ion-card>
+        <br />
 
-        <!-- details -->
-        <div class="ion-padding emp-detail-container">
-          <ion-card class="card emp-detail flex-center">
-            <p>Allocated Days:</p>
-            <p v-if="employeeDetail2">
-              <strong>{{ employeeDetail2.entitled }}</strong>
-            </p>
-          </ion-card>
-          <ion-card class="card emp-detail flex-center">
-            <p>Total Days:</p>
-            <p>
-              <strong>{{ dateDifference }}</strong>
-            </p>
-          </ion-card>
-        </div>
         <!-- Duration -->
         <ion-card class="card" id="duration">
           <p class="margin-l">Duration</p>
@@ -121,7 +126,7 @@
         <div class="flex-center">
           <ion-button
             class="btn"
-            @click="sendLeaveRequest"
+            @click="applyAndRetract"
             color="none"
             :style="{
               backgroundColor: theme.primaryColor,
@@ -184,7 +189,7 @@ export default defineComponent({
     return {
       theme: {},
       loading: true,
-      headerTitle: "Apply Leave",
+      headerTitle: "Retract Leave",
       leaveOptionsWithIds: [],
       fromDate: null,
       toDate: null,
@@ -209,8 +214,8 @@ export default defineComponent({
       selectedLeaveType: null,
       selectedLeaveID: null,
       reason: null,
-      employeeDetail: null,
-      employeeDetail2: null,
+      employeeDetail: { firstName: "-", employeeId: "-" },
+      employeeDetail2: { entitled: "-", balance: "0" },
       hasLeaveType: true,
       durations: [
         { key: "full_day", label: "Full Day" },
@@ -218,6 +223,7 @@ export default defineComponent({
       ],
       disabledDates_: [],
       selectedDates_: [],
+      cardId: null,
     };
   },
   watch: {
@@ -296,6 +302,11 @@ export default defineComponent({
   },
 
   methods: {
+    async applyAndRetract() {
+      await this.sendLeaveRequest();
+      await this.sendRetract();
+      this.router.push("/applyLeave2");
+    },
     updateSelectedDates({ selectedDates, month, year }) {
       this.selectedDates_ = selectedDates;
       this.fetchCalendarDisable(month, year);
@@ -364,6 +375,54 @@ export default defineComponent({
       }
     },
 
+    async fetchRetract() {
+      try {
+        const storedToken = localStorage.getItem("_token");
+
+        if (!storedToken) {
+          console.error("Token not available.");
+          console.log("Token is missing. Redirecting to login...");
+          this.router.push("/login");
+          return;
+        }
+
+        const authToken = `Bearer ${storedToken}`;
+        const apiUrl = baseURL + `api/v2/leave/retract/${this.cardId}`;
+        const headers = {
+          Authorization: authToken,
+        };
+        const response = await axios.get(apiUrl, { headers });
+      } catch (error) {
+        console.error(error.message);
+      }
+    },
+
+    async sendRetract() {
+      try {
+        const storedToken = localStorage.getItem("_token");
+
+        if (!storedToken) {
+          console.error("Token not available.");
+          console.log("Token is missing. Redirecting to login...");
+          this.router.push("/login");
+          return;
+        }
+
+        const payload = {
+          leaveRequestId: this.cardId,
+        };
+
+        const authToken = `Bearer ${storedToken}`;
+        const apiUrl = baseURL + `api/v2/leave/retract`;
+        const headers = {
+          Authorization: authToken,
+        };
+        const response = await axios.post(apiUrl, payload, { headers });
+      } catch (error) {
+        console.error(error.message);
+      }
+    },
+
     async sendLeaveRequest() {
       try {
         const token = localStorage.getItem("_token");
@@ -391,7 +450,7 @@ export default defineComponent({
         );
       } finally {
         const toast = await toastController.create({
-          message: "Leave request sent successfully!",
+          message: "Retracted Leave sent successfully!",
           duration: 3000,
           position: "top",
           color: "light",
@@ -509,8 +568,10 @@ export default defineComponent({
     this.fetchCalendarDisable();
     const data = await this.fetchData();
     this.leaveOptionsWithIds = data;
+    this.cardId = this.$route.query.cardId;
     this.getTheme();
     this.store.commit("loader/updateLoader", false);
+    this.fetchRetract();
   },
 });
 </script>
@@ -566,7 +627,7 @@ export default defineComponent({
   margin: 0 auto;
 }
 .leave-bal {
-  font-size: 12px;
+  font-size: 14px;
 }
 .emp-detail-container {
   display: flex;

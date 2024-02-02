@@ -49,11 +49,10 @@ export default defineComponent({
           year,
         });
       } else {
-        // Handle the case where selectedDates is undefined or empty
         emit("selectedDatesChanged", {
           selectedDates: [],
-          month: undefined, // or set to a default value
-          year: undefined, // or set to a default value
+          month: undefined,
+          year: undefined,
         });
       }
     };

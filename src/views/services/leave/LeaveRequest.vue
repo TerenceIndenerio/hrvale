@@ -32,6 +32,7 @@
             :status="cardData.status"
             :comment="cardData.comment"
             :outlineColor="cardData.outlineColor"
+            :lengthDays="cardData.lengthDays"
           />
         </div>
       </div>
@@ -101,6 +102,7 @@ export default defineComponent({
         status: "",
         comment: "",
         outlineColor: "",
+        lengthDays: "",
       },
     };
   },
@@ -117,9 +119,9 @@ export default defineComponent({
           return;
         }
 
-        const _cardId = this.cardId;
-
-        const api = `${baseURL}api/v2/leave/leave-requests/${_cardId}/leaves?limit=50&offset=0`;
+        const api =
+          baseURL +
+          `api/v2/leave/leave-requests/${this.cardId}/leaves?limit=50&offset=0`;
         const headers = {
           Authorization: `Bearer ${storedToken}`,
         };
@@ -160,6 +162,7 @@ export default defineComponent({
         duration: leaveData.lengthHours.toString(),
         status: leaveData.leaveStatus.name,
         comment: leaveData.lastComment,
+        lengthDays: leaveData.leaveStatus.lengthDays,
         outlineColor:
           leaveData.leaveType.name === "Vacation Leave"
             ? "border: 1px solid #27AE60; color: #27AE60;"

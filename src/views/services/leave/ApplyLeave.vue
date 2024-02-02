@@ -12,32 +12,51 @@
 
       <ion-card class="card-container" v-if="!loading && hasLeaveType">
         <!-- Leave Balance Card -->
-        <ion-card v-if="employeeDetail2" class="card leaveBal-container">
+        <div v-if="employeeDetail2" class="leaveBal-container">
           <p class="leave-bal">
             Leave Balance: <strong>{{ employeeDetail2.balance }}</strong> Day(s)
           </p>
-        </ion-card>
+        </div>
 
-        <ion-card v-else class="card leaveBal-container">
+        <div v-else class="leaveBal-container">
           <p class="leave-bal">Leave Balance: <strong>0</strong> Day(s)</p>
-        </ion-card>
+        </div>
 
-        <div class="ion-padding emp-detail-container">
-          <ion-card class="card emp-detail flex-center">
-            <p>Employee Code</p>
+        <!-- details -->
+        <div class="ion-padding">
+          <div class="emp-detail-container">
+            <div class="emp-detail flex-center">
+              <p>Allocated Days:</p>
+              <p v-if="employeeDetail2">
+                <strong>{{ employeeDetail2.entitled }}</strong>
+              </p>
+            </div>
 
-            <p v-if="employeeDetail">
-              <strong>{{ employeeDetail.employeeId }}</strong>
-            </p>
-          </ion-card>
-          <ion-card class="card emp-detail flex-center">
-            <p>Name</p>
-            <p v-if="employeeDetail">
-              <strong
-                >{{ employeeDetail.firstName }} {{ employeeDetail.lastName }}
-              </strong>
-            </p>
-          </ion-card>
+            <div class="emp-detail flex-center">
+              <p>Total Days:</p>
+              <p>
+                <strong>{{ dateDifference }}</strong>
+              </p>
+            </div>
+          </div>
+
+          <div class="emp-detail-container">
+            <div class="emp-detail flex-center">
+              <p>Employee Code</p>
+
+              <p v-if="employeeDetail">
+                <strong>{{ employeeDetail.employeeId }}</strong>
+              </p>
+            </div>
+            <div class="emp-detail flex-center">
+              <p>Name</p>
+              <p v-if="employeeDetail">
+                <strong
+                  >{{ employeeDetail.firstName }} {{ employeeDetail.lastName }}
+                </strong>
+              </p>
+            </div>
+          </div>
         </div>
 
         <!-- Leave Type Card -->
@@ -60,87 +79,10 @@
             </ion-select-option>
           </ion-select>
         </ion-card>
+        <br />
 
-        <!-- details -->
-        <div class="ion-padding emp-detail-container">
-          <ion-card class="card emp-detail flex-center">
-            <p>Allocated Days:</p>
-            <p v-if="employeeDetail2">
-              <strong>{{ employeeDetail2.entitled }}</strong>
-            </p>
-          </ion-card>
-          <ion-card class="card emp-detail flex-center">
-            <p>Total Days:</p>
-            <p>
-              <strong>{{ dateDifference }}</strong>
-            </p>
-          </ion-card>
-        </div>
-
-        <!-- Date Range Card -->
-        <div class="flex-w">
-          <ion-card class="card date-container">
-            <p class="margin-l">From Date*</p>
-            <input
-              type="date"
-              name="fromDate"
-              id="fromDate"
-              class="date-picker"
-              v-model="fromDate"
-            />
-          </ion-card>
-
-          <ion-card class="card date-container">
-            <p class="margin-l">To Date*</p>
-            <input
-              type="date"
-              name="toDate"
-              id="toDate"
-              class="date-picker"
-              v-model="toDate"
-            />
-          </ion-card>
-        </div>
-
-        <!-- Partial Days Card -->
-        <ion-card class="card" id="partialDay" v-show="showPartialDays">
-          <p class="margin-l">Partial Days</p>
-          <ion-select
-            label="Select Partial Days"
-            label-placement="floating"
-            v-model="partialSelectedValue"
-            class="box-container select-option"
-          >
-            <ion-select-option
-              v-for="option in partialDaysOptions"
-              :key="option.value"
-              :value="option.value"
-            >
-              {{ option.label }}
-            </ion-select-option>
-          </ion-select>
-        </ion-card>
-
-        <ion-card class="card" id="duration" v-show="showStartDayOnly">
-          <p class="margin-l">Start Day</p>
-          <ion-select
-            label="Select Duration"
-            label-placement="floating"
-            v-model="durationSelectedValue"
-            class="box-container select-option"
-          >
-            <ion-select-option
-              v-for="duration in durations2"
-              :key="duration.key"
-              :value="duration.key"
-            >
-              {{ duration.label }}
-            </ion-select-option>
-          </ion-select>
-        </ion-card>
-
-        <!-- Duration Card -->
-        <ion-card class="card" id="duration" v-show="showDuration">
+        <!-- Duration -->
+        <ion-card class="card" id="duration">
           <p class="margin-l">Duration</p>
           <ion-select
             label="Select Duration"
@@ -158,131 +100,10 @@
           </ion-select>
         </ion-card>
 
-        <!-- Duration2 Card -->
-        <ion-card class="card" id="duration2" v-show="showDuration2">
-          <p class="margin-l">Duration*</p>
-          <ion-select
-            label="Select Duration"
-            label-placement="floating"
-            v-model="durationSelectedValue"
-            class="box-container select-option"
-          >
-            <ion-select-option
-              v-for="duration in durations2"
-              :key="duration.key"
-              :value="duration.key"
-            >
-              {{ duration.label }}
-            </ion-select-option>
-          </ion-select>
-        </ion-card>
-
-        <ion-card class="card" id="specificTime" v-show="showsSpecificTime">
-          <p class="margin-l">Specific Time</p>
-          <div class="specific-time-container">
-            <ion-card class="card specific-time-card">
-              <label for="fromTimeDuration">From*:</label>
-              <input
-                type="time"
-                id="fromTimeDuration"
-                name="fromTimeDuration"
-                class="specific-time"
-                v-model="fromTimeDuration"
-              />
-            </ion-card>
-            <ion-card class="card specific-time-card">
-              <label for="toTimeDuration">To*:</label>
-              <input
-                type="time"
-                id="toTimeDuration"
-                name="toTimeDuration"
-                class="specific-time"
-                v-model="toTimeDuration"
-              />
-            </ion-card>
-          </div>
-        </ion-card>
-
-        <!-- Specific Time (Start Day) Card -->
-        <ion-card
-          class="card"
-          id="specificTime"
-          v-show="showsSpecificTimeStartDay"
-        >
-          <p class="margin-l">Specific Time</p>
-          <div class="specific-time-container">
-            <ion-card class="card specific-time-card">
-              <label for="fromTimeStartDay">From*:</label>
-              <input
-                type="time"
-                id="fromTimeStartDay"
-                name="fromTimeStartDay"
-                class="specific-time"
-                v-model="fromTimeStartDay"
-              />
-            </ion-card>
-            <ion-card class="card specific-time-card">
-              <label for="toTimeStartDay">To*:</label>
-              <input
-                type="time"
-                id="toTimeStartDay"
-                name="toTimeStartDay"
-                class="specific-time"
-                v-model="toTimeStartDay"
-              />
-            </ion-card>
-          </div>
-        </ion-card>
-
-        <!-- End Day Only Card -->
-        <ion-card class="card" id="endDayOnly" v-show="showEndDayOnly">
-          <p class="margin-l">End Day</p>
-          <ion-select
-            label="Select"
-            label-placement="floating"
-            v-model="endDaySelectedValue"
-            class="box-container select-option"
-          >
-            <ion-select-option
-              v-for="option in endDayOptions"
-              :key="option.value"
-              :value="option.value"
-            >
-              {{ option.label }}
-            </ion-select-option>
-          </ion-select>
-        </ion-card>
-
-        <!-- Specific Time (End Day) Card -->
-        <ion-card
-          class="card"
-          id="specificTime"
-          v-show="showsSpecificTimeEndDay"
-        >
-          <p class="margin-l">Specific Time</p>
-          <div class="specific-time-container">
-            <ion-card class="card specific-time-card">
-              <label for="fromTimeEndDay">From*:</label>
-              <input
-                type="time"
-                id="fromTimeEndDay"
-                name="fromTimeEndDay"
-                class="specific-time"
-                v-model="fromTimeEndDay"
-              />
-            </ion-card>
-            <ion-card class="card specific-time-card">
-              <label for="toTimeEndDay">To*:</label>
-              <input
-                type="time"
-                id="toTimeEndDay"
-                name="toTimeEndDay"
-                class="specific-time"
-                v-model="toTimeEndDay"
-              />
-            </ion-card>
-          </div>
-        </ion-card>
+        <Calendar
+          :disabledDates="this.disabledDates_"
+          @selectedDatesChanged="updateSelectedDates"
+        />
 
         <!-- Reason Card -->
         <ion-card class="card">
@@ -331,6 +152,7 @@ import {
   IonToast,
   toastController,
 } from "@ionic/vue";
+import Calendar from "@/views/services/leave/components/Calendar.vue";
 import HeaderReturn from "@/components/header/HeaderReturn.vue";
 import { defineComponent, ref } from "vue";
 import Refresher from "@/components/refresher/Refresher.vue";
@@ -355,6 +177,7 @@ export default defineComponent({
     IonTextarea,
     IonToast,
     toastController,
+    Calendar,
   },
   setup() {
     return {
@@ -391,37 +214,15 @@ export default defineComponent({
       selectedLeaveType: null,
       selectedLeaveID: null,
       reason: null,
-      employeeDetail: null,
-      employeeDetail2: null,
+      employeeDetail: { firstName: "-", employeeId: "-" },
+      employeeDetail2: { entitled: "-", balance: "0" },
       hasLeaveType: true,
-
       durations: [
         { key: "full_day", label: "Full Day" },
-        { key: "half_day_morning", label: "Half Day - Morning" },
-        { key: "half_day_afternoon", label: "Half Day - Afternoon" },
-        { key: "specify_time", label: "Specific Time" },
+        { key: "half_day", label: "Half Day" },
       ],
-      durations2: [
-        { key: "half_day_morning", label: "Half Day - Morning" },
-        { key: "half_day_afternoon", label: "Half Day - Afternoon" },
-        { key: "specify_time", label: "Specific Time" },
-      ],
-      partialDaysOptions: [
-        { value: "all", label: "All Days" },
-        { value: "start", label: "Start Day Only" },
-        { value: "end", label: "End Day Only" },
-        { value: "start_end", label: "Start and End Day" },
-      ],
-      endDayOptions: [
-        { value: "half_day_morning", label: "Half Day - Morning" },
-        { value: "half_day_afternoon", label: "Half Day - Afternoon" },
-        { value: "specify_time", label: "Specific Time" },
-      ],
-      startDayOptions: [
-        { value: "half_day_morning", label: "Half Day - Morning" },
-        { value: "half_day_afternoon", label: "Half Day - Afternoon" },
-        { value: "specify_time", label: "Specific Time" },
-      ],
+      disabledDates_: [],
+      selectedDates_: [],
     };
   },
   watch: {
@@ -470,21 +271,18 @@ export default defineComponent({
   },
   computed: {
     dateDifference() {
-      // Calculate the date difference in days
-      if (this.fromDate && this.toDate) {
-        const from = new Date(this.fromDate);
-        const to = new Date(this.toDate);
+      let differenceInDays = this.selectedDates_
+        ? this.selectedDates_.length
+        : 0;
 
-        const differenceInMilliseconds = Math.abs(to - from);
-        const differenceInDays = Math.ceil(
-          differenceInMilliseconds / (1000 * 60 * 60 * 24)
-        );
-
-        return differenceInDays;
-      } else {
-        return 0;
+      if (this.durationSelectedValue === "half_day") {
+        differenceInDays *= 0.5;
+      } else if (this.durationSelectedValue === "full_day") {
       }
+
+      return differenceInDays;
     },
+
     showPartialDays() {
       if (this.fromDate && this.toDate) {
         const fromDateObj = new Date(this.fromDate);
@@ -503,6 +301,10 @@ export default defineComponent({
   },
 
   methods: {
+    updateSelectedDates({ selectedDates, month, year }) {
+      this.selectedDates_ = selectedDates;
+      this.fetchCalendarDisable(month, year);
+    },
     async fetchData() {
       try {
         this.store.commit("loader/updateLoader", true);
@@ -536,6 +338,37 @@ export default defineComponent({
       }
     },
 
+    async fetchCalendarDisable(month, year) {
+      try {
+        const storedToken = localStorage.getItem("_token");
+
+        if (month === undefined || year === undefined) {
+          const currentDate = new Date();
+          month = currentDate.getMonth() + 1;
+          year = currentDate.getFullYear();
+        }
+
+        if (!storedToken) {
+          console.error("Token not available.");
+          console.log("Token is missing. Redirecting to login...");
+          this.router.push("/login");
+          return;
+        }
+
+        const authToken = `Bearer ${storedToken}`;
+        const apiUrl =
+          baseURL + `api/v2/leave/disabledDates?month=${month}&year=${year}`;
+        const headers = {
+          Authorization: authToken,
+        };
+        const response = await axios.get(apiUrl, { headers });
+
+        this.disabledDates_ = response.data.data;
+      } catch (error) {
+        console.error(error.message);
+      }
+    },
+
     async sendLeaveRequest() {
       try {
         const token = localStorage.getItem("_token");
@@ -544,61 +377,16 @@ export default defineComponent({
           "Content-Type": "application/json",
         };
 
-        const api = baseURL + "api/v2/leave/leave-requests";
+        const api = baseURL + "api/v3/leave/leave-requests";
 
         const requestData = {
-          fromDate: this.fromDate,
-          toDate: this.toDate,
+          filedDates: this.selectedDates_,
+          duration: this.durationSelectedValue,
           comment: this.reason,
           leaveTypeId: this.selectedLeaveID,
-          partialOption: this.partialSelectedValue,
         };
 
-        if (
-          this.durationSelectedValue !== null &&
-          this.durationSelectedValue !== undefined
-        ) {
-          requestData.duration = {
-            type: this.durationSelectedValue,
-          };
-          if (this.fromTimeDuration !== null && this.toTimeDuration !== null) {
-            requestData.duration.fromTime = this.fromTimeDuration;
-            requestData.duration.toTime = this.toTimeDuration;
-          }
-        }
-
-        if (
-          this.endDaySelectedValue !== null &&
-          this.endDaySelectedValue !== undefined
-        ) {
-          requestData.endDuration = {
-            type: this.endDaySelectedValue,
-          };
-          if (this.fromTimeEndDay !== null && this.toTimeEndDay !== null) {
-            requestData.endDuration.fromTime = this.fromTimeEndDay;
-            requestData.endDuration.toTime = this.toTimeEndDay;
-          }
-        }
-
-        for (const key in requestData) {
-          if (requestData[key] === null || requestData[key] === undefined) {
-            delete requestData[key];
-          }
-        }
-
         const response = await axios.post(api, requestData, { headers });
-
-        this.fromDate = null;
-        this.toDate = null;
-        this.reason = null;
-        this.durationSelectedValue = null;
-        this.fromTimeDuration = null;
-        this.toTimeDuration = null;
-        this.selectedLeaveID = null;
-        this.selectedLeaveType = null;
-        this.partialSelectedValue = null;
-        this.startDaySelectedValue = null;
-        this.endDaySelectedValue = null;
 
         this.store.commit("loader/updateLoader", false);
       } catch (error) {
@@ -611,7 +399,7 @@ export default defineComponent({
           message: "Leave request sent successfully!",
           duration: 3000,
           position: "top",
-          color: "success",
+          color: "light",
           icon: "alert-circle-outline",
           buttons: [
             {
@@ -620,6 +408,11 @@ export default defineComponent({
             },
           ],
         });
+
+        this.reason = null;
+        this.durationSelectedValue = null;
+        this.selectedLeaveID = null;
+        this.selectedDates_ = null;
 
         await toast.present();
       }
@@ -718,6 +511,7 @@ export default defineComponent({
   },
   async created() {
     this.checkTokenExpiration();
+    this.fetchCalendarDisable();
     const data = await this.fetchData();
     this.leaveOptionsWithIds = data;
     this.getTheme();
@@ -777,7 +571,7 @@ export default defineComponent({
   margin: 0 auto;
 }
 .leave-bal {
-  font-size: 12px;
+  font-size: 14px;
 }
 .emp-detail-container {
   display: flex;

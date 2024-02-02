@@ -46,7 +46,28 @@
           <p>{{ duration }}</p>
         </ion-col>
       </ion-row>
-      <ion-row class="pad-w">
+
+      <!-- <ion-row class="pad-w">
+        <ion-col class="col-name">
+          <p>Number of Days:</p>
+        </ion-col>
+
+        <ion-col class="col-data">
+          <p></p>
+        </ion-col>
+      </ion-row> -->
+
+      <!-- <ion-row class="pad-w">
+        <ion-col class="col-name">
+          <p>Leave With Pay:</p>
+        </ion-col>
+
+        <ion-col class="col-data">
+          <p></p>
+        </ion-col>
+      </ion-row> -->
+
+      <!-- <ion-row class="pad-w">
         <ion-col class="col-name">
           <p>Reason:</p>
         </ion-col>
@@ -54,7 +75,7 @@
         <ion-col class="col-data">
           <p>{{ comment }}</p>
         </ion-col>
-      </ion-row>
+      </ion-row> -->
     </ion-grid>
   </ion-card>
 </template>
@@ -82,6 +103,7 @@ export default {
     duration: String,
     comment: String,
     status: String,
+    lengthDays: Number,
   },
 };
 </script>
