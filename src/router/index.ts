@@ -3,7 +3,7 @@ import { RouteRecordRaw } from "vue-router";
 import TabsPage from "../views/TabsPage.vue";
 import Leave from "@/views/services/leave/LeaveDashboard.vue";
 import ApplyLeave from "@/views/services/leave/ApplyLeave.vue";
-import ApplyLeave2 from "@/views/services/leave/ApplyLeave2.vue";
+import RetractLeave from "@/views/services/leave/RetractLeave.vue";
 import LeaveRequest from "@/views/services/leave/LeaveRequest.vue";
 import ClockIn from "@/views/services/clock_in/ClockIn.vue";
 import AttendanceCorrection from "@/views/services/attendance/AttendanceCorrection.vue";
@@ -68,8 +68,8 @@ const routes: Array<RouteRecordRaw> = [
         component: ApplyLeave,
       },
       {
-        path: "/applyLeave2",
-        component: ApplyLeave2,
+        path: "/retractleave",
+        component: RetractLeave,
       },
       {
         path: "/leaveRequest",
@@ -95,12 +95,12 @@ const routes: Array<RouteRecordRaw> = [
         path: "/attendancecorrectionedit",
         component: AttendanceCorrectionEdit,
       },
-      
+
       {
         path: "/otapply",
         component: OTApply,
       },
-      
+
       {
         path: "/loanbalance",
         component: LoanBalance,

@@ -1,5 +1,5 @@
-import axios from 'axios';
-import { PushNotifications } from '@capacitor/push-notifications'; 
+import axios from "axios";
+import { PushNotifications } from "@capacitor/push-notifications";
 import { GlobalConstants } from "@/config/constants";
 
 const baseURL = GlobalConstants.HOST_URL;
@@ -9,7 +9,7 @@ export async function runBackgroundScript() {
     const storedToken = localStorage.getItem("_token");
 
     if (!storedToken) {
-      throw new Error('User not authenticated!');
+      throw new Error("User not authenticated!");
     }
 
     // const authToken = `Bearer ${storedToken}`;
@@ -18,38 +18,46 @@ export async function runBackgroundScript() {
     //   Authorization: authToken,
     // };
 
-    
     if (PushNotifications) {
       let permStatus = await PushNotifications.checkPermissions();
 
-      if (permStatus.receive === 'prompt') {
+      if (permStatus.receive === "prompt") {
         permStatus = await PushNotifications.requestPermissions();
       }
 
-      if (permStatus.receive !== 'granted') {
-        throw new Error('User denied permissions!');
+      if (permStatus.receive !== "granted") {
+        throw new Error("User denied permissions!");
       }
 
       await PushNotifications.register();
 
-      await PushNotifications.addListener('registration', (token) => {
-        console.info('Registration token: ', token.value);
+      await PushNotifications.addListener("registration", (token) => {
+        console.info("Registration token: ", token.value);
         sendNotifToken(token.value);
       });
 
-      await PushNotifications.addListener('pushNotificationReceived', (notification) => {
-        console.log('Push notification received: ', notification);
-      });
+      await PushNotifications.addListener(
+        "pushNotificationReceived",
+        (notification) => {
+          console.log("Push notification received: ", notification);
+        }
+      );
 
-      await PushNotifications.addListener('pushNotificationActionPerformed', (notification) => {
-        console.log('Push notification action performed', notification.actionId, notification.inputValue);
-      });
+      await PushNotifications.addListener(
+        "pushNotificationActionPerformed",
+        (notification) => {
+          console.log(
+            "Push notification action performed",
+            notification.actionId,
+            notification.inputValue
+          );
+        }
+      );
     } else {
-      console.warn('PushNotifications plugin is not available on the web.');
+      console.warn("PushNotifications plugin is not available on the web.");
     }
-
   } catch (error) {
-    console.error('Background script failed:', error.message);
+    console.error("Background script failed:", error.message);
   }
 }
 
@@ -58,7 +66,7 @@ async function sendNotifToken(notifToken: string) {
     const storedToken = localStorage.getItem("_token");
 
     if (!storedToken) {
-      throw new Error('User not authenticated!');
+      throw new Error("User not authenticated!");
     }
 
     const authToken = `Bearer ${storedToken}`;
@@ -73,10 +81,8 @@ async function sendNotifToken(notifToken: string) {
 
     const response = await axios.post(apiUrl, payload, { headers });
 
-    console.log('Notification token sent successfully:', response.data);
-
+    console.log("Notification token sent successfully:", response.data);
   } catch (error) {
-    console.error('Sending notification token failed:', error.message);
+    console.error("Sending notification token failed:", error.message);
   }
 }
-

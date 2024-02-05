@@ -168,7 +168,7 @@ export default defineComponent({
 
           this.results = dataResponse.data.data.map((period) => ({
             id: period.id,
-            employee: period.employee,
+            employee: period.employeeName,
             requestTypeId: period.requestTypeId,
             requestType: period.requestType,
             code: period.code,

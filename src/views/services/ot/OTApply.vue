@@ -9,10 +9,7 @@
     <ion-content :fullscreen="true" v-if="!loading">
       <Refresher />
       <div class="container">
-        <ion-card
-          class="card search-container"
-          :style="{ backgroundColor: theme.primaryColor }"
-        >
+        <ion-card class="card search-container">
           <ion-card class="card-inner date-container">
             <ion-input
               label="from:"
@@ -61,16 +58,8 @@
           </ion-button>
         </ion-card>
 
-        <ion-card
-          class="card result-container"
-          :style="{ backgroundColor: theme.primaryColor }"
-        >
-          <h4
-            class="text-center outlineColor"
-            :style="{ color: theme.primaryFontColor, border: `2px solid` + theme.primaryFontColor  }"
-          >
-            Result
-          </h4>
+        <ion-card class="card result-container">
+          <h4 class="text-center outlineColor">Result</h4>
 
           <OTCard
             v-for="result in results"
@@ -566,6 +555,8 @@ export default defineComponent({
   width: 300px;
   margin: 10px auto;
   padding: 0 10px;
+  box-shadow: 8px 8px 16px rgba(0, 0, 0, 0.1),
+    -8px -8px 16px rgba(255, 255, 255, 0.8), 0px -4px 8px rgba(0, 0, 0, 0.05);
 }
 .search-container {
   min-width: 330px;

@@ -5,6 +5,7 @@
     :value="selecteDates"
     :highlighted-dates="dates_"
     @ionChange="handleDateChange($event.detail.value)"
+    class="custom-datetime"
   ></ion-datetime>
 </template>
 

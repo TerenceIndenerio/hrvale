@@ -54,8 +54,11 @@
             color="light"
             class="btn"
             @click="handleCheckButtonClick"
-            ><ion-icon name="checkmark-sharp" class="btn-icon"></ion-icon
-          ></ion-button>
+            :disabled="status === 'Approved' || status === 'Rejected'"
+            v-if="status === 'Pending'"
+          >
+            <ion-icon name="checkmark-sharp" class="btn-icon"></ion-icon>
+          </ion-button>
         </ion-col>
 
         <ion-col class="col-data">
@@ -64,8 +67,11 @@
             color="light"
             class="btn"
             @click="handleCheckButtonClickReject"
-            ><ion-icon name="close-sharp" class="btn-icon"></ion-icon
-          ></ion-button>
+            :disabled="status === 'Approved' || status === 'Rejected'"
+            v-if="status === 'Pending'"
+          >
+            <ion-icon name="close-sharp" class="btn-icon"></ion-icon>
+          </ion-button>
         </ion-col>
       </ion-row>
     </ion-grid>
@@ -264,8 +270,10 @@ ion-grid {
   text-align: center;
 }
 .btn {
-  padding: 0;
-  margin: 0;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 8px 8px 16px rgba(0, 0, 0, 0.1),
+    -8px -8px 16px rgba(255, 255, 255, 0.8), 0px -4px 8px rgba(0, 0, 0, 0.05);
 }
 
 .btn-icon {
