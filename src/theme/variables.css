@@ -76,6 +76,99 @@ http://ionicframework.com/docs/theming/ */
   --ion-color-light-tint: #f5f6f9;
 
   /** Theme **/
-  --ion-color-blue-theme: #12A3DA;
+  --ion-color-blue-theme: #12a3da;
+
+  /* Nemorphism */
+
+  /* Neomorphism - Concave */
+  --neomorphism-concave-1: inset 6px 6px 12px #d9d9d9,
+    inset -6px -6px 12px #ffffff;
+  --neomorphism-concave-2: inset 2px 2px 4px #d9d9d9,
+    inset -2px -2px 4px #ffffff;
+  --neomorphism-concave-3: inset 8px 8px 16px #d9d9d9,
+    inset -8px -8px 16px #ffffff;
+  --neomorphism-concave-4: inset 4px 4px 4px #e5e5e5,
+    inset -3px -3px 20px #efefef;
+
+  /* Neomorphism - Convex */
+  --neomorphism-convex-1: 6px 6px 12px #d9d9d9, -6px -6px 12px #ffffff;
+  --neomorphism-convex-2: 4px 4px 8px #d9d9d9, -4px -4px 8px #ffffff;
+  --neomorphism-convex-3: 9px 9px 18px #cccccc, -9px -9px 18px #ffffff;
+  --neomorphism-convex-4: 8px 8px 16px rgba(0, 0, 0, 0.1),
+    -8px -8px 16px rgba(255, 255, 255, 0.8), 0px -4px 8px rgba(0, 0, 0, 0.05);
 }
 
+.neomorphic-btn-1 {
+  box-shadow: var(--neomorphism-convex-2);
+  border-radius: 30px;
+  border: none;
+  width: fit-content;
+  height: 50px;
+  overflow: hidden;
+  font-family: "Inter";
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 700;
+}
+
+.neomorphic-btn-2 {
+  box-shadow: var(--neomorphism-convex-2);
+  border-radius: 30px;
+  border: none;
+  width: fit-content;
+  height: 50px;
+  overflow: hidden;
+  font-family: "Inter";
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 700;
+}
+
+.neomorphic-card-1 {
+  box-shadow: var(--neomorphism-convex-1);
+  border-radius: 20px;
+  background: #ffffff;
+  padding: 5px 10px 10px 10px;
+  width: 100%;
+  width: fit-content;
+}
+
+.neomorphic-input-1 {
+  box-shadow: var(--neomorphism-concave-1);
+  background: #fdfdfd;
+  border-radius: 30px;
+  overflow: hidden;
+  padding: 0 10px;
+}
+
+.neomorphic-input-2 {
+  box-shadow: var(--neomorphism-concave-2);
+  background: #fdfdfd;
+  border-radius: 30px;
+  overflow: hidden;
+  padding: 0 10px;
+}
+
+.neomorphic-textarea-1 {
+  box-shadow: var(--neomorphism-concave-1);
+  background: #fdfdfd;
+  border-radius: 20px;
+  overflow: hidden;
+  height: 150px;
+  width: 330px;
+  overflow-y: scroll;
+  padding: 0 10px;
+}
+
+.neomorphic-datepicker-1 {
+  width: fit-content;
+  height: 50px;
+  margin: 10px auto;
+  padding: 10px;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  border-radius: 50px;
+  align-items: center;
+  box-shadow: var(--neomorphism-concave-2);
+}

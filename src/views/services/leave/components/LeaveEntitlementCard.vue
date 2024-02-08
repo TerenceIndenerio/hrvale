@@ -1,15 +1,9 @@
 <template>
-  <ion-card class="card">
-    <ion-grid>
-      <ion-row class="pad-w">
-        <ion-col class="col-name">
-          <p>Leave Type:</p>
-        </ion-col>
-        <ion-col class="col-data">
-          <p>{{ leaveType }}</p>
-        </ion-col>
-      </ion-row>
-
+  <ion-card class="neomorphic-card-1 leave-entitlement-card">
+    <div class="leave-type" :style="{ backgroundColor: theme.primaryColor }">
+      <p :style="{ color: theme.primaryFontColor }">{{ leaveType }}</p>
+    </div>
+    <ion-grid class="card-content">
       <ion-row class="pad-w">
         <ion-col class="col-name">
           <p>Entitlement Type:</p>
@@ -58,6 +52,7 @@ import {
   IonIcon,
   IonButton,
 } from "@ionic/vue";
+import { getThemeData } from "@/theme/theme";
 
 export default {
   components: {
@@ -74,6 +69,19 @@ export default {
     days: Number,
     validFrom: String,
     validTo: String,
+  },
+  data() {
+    return {
+      theme: {},
+    };
+  },
+  created() {
+    const storedThemeData = getThemeData();
+
+    if (storedThemeData) {
+      this.theme = storedThemeData;
+    }
+    this.theme = storedThemeData;
   },
 };
 </script>
@@ -107,11 +115,10 @@ p {
   color: black;
 }
 .leave-type {
-  padding: 0;
-  margin: 0;
-  border-radius: 50px;
-  width: 80%;
-  text-align: center;
+  position: absolute;
+  top: 0;
+  right: 0;
+  border-radius: 20px 0 0 20px;
 }
 .leave-type p {
   padding: 5px 10px;
@@ -182,5 +189,13 @@ p {
 .header-card {
   height: 40px;
   text-align: center;
+}
+
+.leave-entitlement-card {
+  width: 300px;
+  margin: 20px auto;
+}
+.card-content {
+  margin-top: 20px;
 }
 </style>

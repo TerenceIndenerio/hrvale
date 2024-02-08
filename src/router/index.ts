@@ -9,7 +9,7 @@ import ClockIn from "@/views/services/clock_in/ClockIn.vue";
 import AttendanceCorrection from "@/views/services/attendance/AttendanceCorrection.vue";
 import Login from "@/views/login/Login.vue";
 import Flash from "@/views/login/Flash.vue";
-import OTApply from "@/views/services/ot/OTApply.vue";
+import ApplyOT from "@/views/services/ot/ApplyOT.vue";
 import Vale from "@/views/services/vale/Vale.vue";
 import ValeView from "@/views/services/vale/ValeView.vue";
 import ApplyVale from "@/views/services/vale/ApplyVale.vue";
@@ -97,8 +97,8 @@ const routes: Array<RouteRecordRaw> = [
       },
 
       {
-        path: "/otapply",
-        component: OTApply,
+        path: "/applyot",
+        component: ApplyOT,
       },
 
       {

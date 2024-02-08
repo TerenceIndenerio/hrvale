@@ -51,7 +51,7 @@
       </ion-row>
       <ion-row>
         <ion-col expand="full" color="none">
-          <a href="/OTApply">
+          <a href="/applyot">
             <div class="flex-center box-container">
               <ion-icon
                 name="calendar-clear"

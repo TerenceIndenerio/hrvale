@@ -9,19 +9,17 @@
     <ion-content :fullscreen="true">
       <Refresher />
       <div v-if="showComponent">
-        <ion-card class="card-round">
-          <div class="flex-c">
-            <p class="username-text">
-              <strong>{{ employeeName }}</strong>
-            </p>
-          </div>
-          <div class="flex-h">
-            <p class="leave-text">Leave Request for:</p>
+        <ion-card class="card-round neomorphic-card-1">
+          <div class="leave-request neomorphic-input-2">
+            <p class="leave-text"><strong>Leave Request For:</strong></p>
+
             <p class="leave-text-val">
               <strong>{{ leaveReqFor }}</strong>
             </p>
           </div>
         </ion-card>
+
+        <Card1 :dataExample="dataExample" />
 
         <div v-for="(cardData, index) in requests" :key="index">
           <LeaveRequestCard
@@ -58,6 +56,7 @@ import { useRouter } from "vue-router";
 import axios from "axios";
 import { GlobalConstants } from "@/config/constants";
 import { getThemeData } from "@/theme/theme";
+import Card1 from "@/components/cards/CardExample1.vue";
 
 const baseURL = GlobalConstants.HOST_URL;
 
@@ -73,6 +72,7 @@ export default defineComponent({
     HeaderReturn,
     LeaveRequestCard,
     Refresher,
+    Card1,
   },
   setup() {
     return {
@@ -92,6 +92,7 @@ export default defineComponent({
       leaveReqFor: "",
       theme: {},
       loading: true,
+      dataExample: "example",
       cardData: {
         date: "",
         employeeName: "",
@@ -215,13 +216,17 @@ ion-card {
 .username-text,
 .leave-text {
   color: #000;
-  font-family: Open Sans;
+  font-family: "Inter";
   font-size: 16px;
   font-style: normal;
-  font-weight: 400;
+  font-weight: 900;
   line-height: normal;
 }
 .leave-text-val {
   margin-left: 0px;
+}
+.leave-request {
+  text-align: center;
+  padding: 10px 20px;
 }
 </style>

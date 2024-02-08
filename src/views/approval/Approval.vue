@@ -8,11 +8,11 @@
     <ion-content :fullscreen="true" v-if="!loading">
       <Refresher />
       <div id="header"></div>
-      <ion-card class="card">
+      <ion-card class="neomorphic-card-1 request-type-container">
         <ion-select
           label="Select Request Type"
           label-placement="floating"
-          class="box-container select-option"
+          class="select-option neomorphic-input-2"
           @ionChange="handleApprovalTypeChange($event.detail.value)"
         >
           <ion-select-option
@@ -26,24 +26,22 @@
         </ion-select>
       </ion-card>
 
-      <ion-card class="card">
-        <div
-          v-for="(result, index) in results"
-          :key="index"
-          class="card-container"
-        >
-          <ApprovalCard
-            :status="result.status"
-            :employeeName="result.employee"
-            :requestType="result.requestType"
-            :code="result.code"
-            :requestDataId="result.requestDataId"
-            :requestId="result.id"
-            :date="result.date"
-            @checkButtonClick="handleCheckButtonClick"
-          />
-        </div>
-      </ion-card>
+      <div
+        v-for="(result, index) in results"
+        :key="index"
+        class="card-container"
+      >
+        <ApprovalCard
+          :status="result.status"
+          :employeeName="result.employee"
+          :requestType="result.requestType"
+          :code="result.code"
+          :requestDataId="result.requestDataId"
+          :requestId="result.id"
+          :date="result.date"
+          @checkButtonClick="handleCheckButtonClick"
+        />
+      </div>
     </ion-content>
   </ion-page>
 </template>
@@ -156,7 +154,7 @@ export default defineComponent({
         if (dataResponse.data && Array.isArray(dataResponse.data.data)) {
           const uniqueRequestTypes = {};
           dataResponse.data.data.forEach((period) => {
-            uniqueRequestTypes[period.requestTypeId] = period.requestType;
+            uniqueRequestTypes[period.requestType] = period.requestType;
           });
 
           this.requestTypeOption = Object.values(uniqueRequestTypes).map(
@@ -174,7 +172,7 @@ export default defineComponent({
             code: period.code,
             requestDataId: period.requestDataId,
             status: period.status,
-            date: new Date(period.dateApplied.date).toLocaleDateString(),
+            date: period.dateApplied,
           }));
         }
 
@@ -226,27 +224,15 @@ export default defineComponent({
         const dataResponse = await axios.get(api, { headers });
 
         if (dataResponse.data && Array.isArray(dataResponse.data.data)) {
-          const uniqueRequestTypes = {};
-          dataResponse.data.data.forEach((period) => {
-            uniqueRequestTypes[period.requestTypeId] = period.requestType;
-          });
-
-          this.requestTypeOption = Object.values(uniqueRequestTypes).map(
-            (requestType) => ({
-              label: requestType,
-              value: requestType,
-            })
-          );
-
           this.results = dataResponse.data.data.map((period) => ({
             id: period.id,
-            employee: period.employee,
+            employee: period.employeeName,
             requestTypeId: period.requestTypeId,
             requestType: selectedRequestType,
             code: period.code,
             requestDataId: period.requestDataId,
             status: period.status,
-            date: new Date(period.dateApplied.date).toLocaleDateString(),
+            date: period.dateApplied,
           }));
         }
 
@@ -587,7 +573,7 @@ export default defineComponent({
   width: fit-content;
   min-width: 300px;
   background-color: rgba(128, 128, 128, 0.184);
-  border-radius: 10px;
+  border-radius: 20px;
   padding: 0 10px;
   margin: 10px auto;
 }
@@ -596,5 +582,9 @@ export default defineComponent({
   display: flex;
   justify-content: center;
   align-items: center;
+  padding: 0;
+}
+.request-type-container {
+  margin: 20px auto;
 }
 </style>

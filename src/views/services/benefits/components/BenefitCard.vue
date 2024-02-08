@@ -1,8 +1,8 @@
 <template>
-  <ion-card class="card-container">
+  <ion-card class="card-container neomorphic-card-1">
     <ion-grid>
       <ion-col class="flex-c">
-        <div class="leave-type outlineColor">
+        <div class="leave-type neomorphic-input-2">
           <p>{{ benefitType }}</p>
         </div>
       </ion-col>
@@ -51,7 +51,6 @@ export default {
 </script>
 
 <style scoped>
-
 .text-center {
   text-align: center;
   margin: auto;
@@ -83,6 +82,8 @@ p {
   padding: 10px;
   border-radius: 30px;
   height: fit-content;
+  width: 80%;
+  margin: 20px auto;
 }
 .icon1 {
   font-size: 30px;

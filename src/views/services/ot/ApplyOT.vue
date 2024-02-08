@@ -8,41 +8,52 @@
     />
     <ion-content :fullscreen="true" v-if="!loading">
       <Refresher />
-      <div class="container">
-        <ion-card class="card search-container">
-          <ion-card class="card-inner date-container">
-            <ion-input
-              label="from:"
-              v-model="selectedDateFrom"
-              type="date"
-            ></ion-input>
-          </ion-card>
-          <ion-card class="card-inner date-container">
-            <ion-input
-              label="to:"
-              v-model="selectedDateTo"
-              type="date"
-            ></ion-input>
-          </ion-card>
+      <div class="content-container">
+        <ion-card
+          class="neomorphic-card-1"
+          :style="{ color: theme.primaryColor }"
+        >
+          <div class="card-inner">
+            <!-- from -->
+            <div class="card-inner-inner">
+              <p :style="{ color: theme.primaryColor }" class="label">From</p>
+              <div class="neomorphic-datepicker-1 date-picker">
+                <ion-input v-model="selectedDateFrom" type="date"></ion-input>
+              </div>
+            </div>
 
-          <ion-card class="card-inner date-container">
-            <ion-input
-              label="Request Date:"
-              v-model="requestDate"
-              type="date"
-            ></ion-input>
-          </ion-card>
+            <!-- to -->
+            <div class="card-inner-inner">
+              <p :style="{ color: theme.primaryColor }" class="label">To</p>
+              <div class="neomorphic-datepicker-1 date-picker">
+                <ion-input v-model="selectedDateTo" type="date"></ion-input>
+              </div>
+            </div>
+          </div>
 
-          <ion-button
-            @click="handleSearch"
-            class="flex-right btn-container"
-            color="none"
-            :style="{ backgroundColor: theme.secondaryColor }"
-            >Search</ion-button
-          >
+          <div class="card-inner">
+            <div class="card-inner-inner">
+              <p :style="{ color: theme.primaryColor }" class="label">
+                Request Date
+              </p>
+              <div class="neomorphic-datepicker-1 date-picker">
+                <ion-input v-model="requestDate" type="date"></ion-input>
+              </div>
+            </div>
+            <div class="card-inner-inner">
+              <ion-button
+                @click="handleSearch"
+                class="neomorphic-btn-2 search-btn"
+                color="none"
+                :style="{ backgroundColor: theme.primaryColor }"
+                ><ion-icon name="search"></ion-icon>Search</ion-button
+              >
+            </div>
+          </div>
         </ion-card>
 
         <ion-card v-if="showCommentContainer" class="card comment-container">
+          <p :style="{ color: theme.primaryColor }" class="label">Comment</p>
           <ion-textarea
             v-model="comment"
             placeholder="Enter your comment"
@@ -58,11 +69,10 @@
           </ion-button>
         </ion-card>
 
-        <ion-card class="card result-container">
-          <h4 class="text-center outlineColor">Result</h4>
-
+        <div class="result-container" v-if="results">
           <OTCard
             v-for="result in results"
+            :key="result.id"
             :date="result.date"
             :status="result.status"
             :scheduleIn="result.scheduleIn"
@@ -76,113 +86,107 @@
             :reason="result.reason"
             @view="handleView(result)"
           />
-
-          <ion-modal :is-open="isOpen" id="example-modal">
-            <div class="modal-header">
-              <h4>View Details</h4>
-
-              <ion-button
-                @click="isOpen = false"
-                color="dark"
-                fill="clear"
-                style="border-radius: 20px"
-              >
-                <ion-icon name="close"></ion-icon>
-              </ion-button>
-            </div>
-
-            <ion-card class="card-modal">
-              <ion-grid>
-                <ion-row>
-                  <ion-col>
-                    <p><strong>Date:</strong></p>
-                  </ion-col>
-                  <ion-col>
-                    <p>{{ selectedResult.date }}</p>
-                  </ion-col>
-                </ion-row>
-
-                <ion-row>
-                  <ion-col>
-                    <p><strong>OT Hours:</strong></p>
-                  </ion-col>
-                  <ion-col>
-                    <p>{{ selectedResult.otHours }}</p>
-                  </ion-col>
-                </ion-row>
-
-                <ion-row>
-                  <ion-col>
-                    <p><strong>Schedule In:</strong></p>
-                  </ion-col>
-                  <ion-col>
-                    <p>{{ selectedResult.scheduleIn }}</p>
-                  </ion-col>
-                </ion-row>
-
-                <ion-row>
-                  <ion-col>
-                    <p><strong>Schedule Out:</strong></p>
-                  </ion-col>
-                  <ion-col>
-                    <p>{{ selectedResult.scheduleOut }}</p>
-                  </ion-col>
-                </ion-row>
-
-                <ion-row>
-                  <ion-col>
-                    <p><strong>Actual In:</strong></p>
-                  </ion-col>
-                  <ion-col>
-                    <p>{{ selectedResult.actualIn }}</p>
-                  </ion-col>
-                </ion-row>
-
-                <ion-row>
-                  <ion-col>
-                    <p><strong>Actual Out:</strong></p>
-                  </ion-col>
-                  <ion-col>
-                    <p>{{ selectedResult.actualOut }}</p>
-                  </ion-col>
-                </ion-row>
-
-                <ion-row>
-                  <ion-col>
-                    <p><strong>Fixed OT:</strong></p>
-                  </ion-col>
-                  <ion-col>
-                    <p>{{ selectedResult.fixedOtIn }}</p>
-                  </ion-col>
-                </ion-row>
-
-                <ion-row>
-                  <ion-col>
-                    <p><strong>Fixed OT:</strong></p>
-                  </ion-col>
-                  <ion-col>
-                    <p>{{ selectedResult.fixedOtOut }}</p>
-                  </ion-col>
-                </ion-row>
-
-                <ion-row>
-                  <ion-col>
-                    <p><strong>Reason:</strong></p>
-                  </ion-col>
-                  <ion-col>
-                    <p>{{ selectedResult.reason }}</p>
-                  </ion-col>
-                </ion-row>
-              </ion-grid>
-            </ion-card>
-          </ion-modal>
-        </ion-card>
+        </div>
       </div>
+      <ion-modal :is-open="isOpen" id="modal">
+        <ion-card class="card-modal">
+          <ion-icon
+            @click="isOpen = false"
+            name="close"
+            :style="{ color: theme.primaryColor }"
+            class="close-btn"
+          ></ion-icon>
+
+          <ion-grid class="modal-content">
+            <ion-row>
+              <ion-col>
+                <p><strong>Date:</strong></p>
+              </ion-col>
+              <ion-col>
+                <p>{{ selectedResult.date }}</p>
+              </ion-col>
+            </ion-row>
+
+            <ion-row>
+              <ion-col>
+                <p><strong>OT Hours:</strong></p>
+              </ion-col>
+              <ion-col>
+                <p>{{ selectedResult.otHours }}</p>
+              </ion-col>
+            </ion-row>
+
+            <ion-row>
+              <ion-col>
+                <p><strong>Schedule In:</strong></p>
+              </ion-col>
+              <ion-col>
+                <p>{{ selectedResult.scheduleIn }}</p>
+              </ion-col>
+            </ion-row>
+
+            <ion-row>
+              <ion-col>
+                <p><strong>Schedule Out:</strong></p>
+              </ion-col>
+              <ion-col>
+                <p>{{ selectedResult.scheduleOut }}</p>
+              </ion-col>
+            </ion-row>
+
+            <ion-row>
+              <ion-col>
+                <p><strong>Actual In:</strong></p>
+              </ion-col>
+              <ion-col>
+                <p>{{ selectedResult.actualIn }}</p>
+              </ion-col>
+            </ion-row>
+
+            <ion-row>
+              <ion-col>
+                <p><strong>Actual Out:</strong></p>
+              </ion-col>
+              <ion-col>
+                <p>{{ selectedResult.actualOut }}</p>
+              </ion-col>
+            </ion-row>
+
+            <ion-row>
+              <ion-col>
+                <p><strong>Fixed OT:</strong></p>
+              </ion-col>
+              <ion-col>
+                <p>{{ selectedResult.fixedOtIn }}</p>
+              </ion-col>
+            </ion-row>
+
+            <ion-row>
+              <ion-col>
+                <p><strong>Fixed OT:</strong></p>
+              </ion-col>
+              <ion-col>
+                <p>{{ selectedResult.fixedOtOut }}</p>
+              </ion-col>
+            </ion-row>
+
+            <ion-row>
+              <ion-col>
+                <p><strong>Reason:</strong></p>
+              </ion-col>
+              <ion-col>
+                <p>{{ selectedResult.reason }}</p>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </ion-card>
+      </ion-modal>
+
       <ion-button
         @click="toggleCommentContainer"
-        class="flex-right btn-container comment-btn-container"
+        class="flex-right comment-btn-container neomorphic-btn-2"
         color="none"
-        :style="{ backgroundColor: theme.secondaryColor }"
+        :style="{ backgroundColor: theme.primaryColor }"
       >
         Comment
       </ion-button>
@@ -314,7 +318,6 @@ export default defineComponent({
         const payload = {
           comment: this.comment,
           fromDate: this.selectedDateFrom,
-          // reasons: [{ date: null }, { reasonId: null }, { text: null }],
           reasons: [],
           requestDate: this.requestDate,
           toDate: this.selectedDateTo,
@@ -498,6 +501,9 @@ export default defineComponent({
 </script>
 
 <style scoped>
+* {
+  font-size: 14px;
+}
 .text-center {
   text-align: center;
   margin: auto;
@@ -510,13 +516,24 @@ export default defineComponent({
 .card-modal {
   border-radius: 20px;
   max-width: 400px;
-  margin-top: 0;
-  box-shadow: 8px 8px 16px rgba(0, 0, 0, 0.1),
-    -8px -8px 16px rgba(255, 255, 255, 0.8), 0px -4px 8px rgba(0, 0, 0, 0.05);
+  margin-top: 50%;
+  /* box-shadow: 8px 8px 16px rgba(0, 0, 0, 0.1),
+    -8px -8px 16px rgba(255, 255, 255, 0.8), 0px -4px 8px rgba(0, 0, 0, 0.05); */
+}
+.card-inner {
+  display: flex;
+  flex-direction: row;
+  gap: 5px;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0;
 }
 .result-container {
-  padding: 10px 0;
-  width: fit-content;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
   min-width: 300px;
 }
 .flex-right {
@@ -544,23 +561,14 @@ export default defineComponent({
   padding: 0 5px 0 20px;
 }
 
-.container {
-  width: 100%;
+.content-container {
   display: flex;
   justify-content: center;
   align-items: center;
   flex-direction: column;
+  margin: 0;
 }
-.date-container {
-  width: 300px;
-  margin: 10px auto;
-  padding: 0 10px;
-  box-shadow: 8px 8px 16px rgba(0, 0, 0, 0.1),
-    -8px -8px 16px rgba(255, 255, 255, 0.8), 0px -4px 8px rgba(0, 0, 0, 0.05);
-}
-.search-container {
-  min-width: 330px;
-}
+
 .comment-container {
   width: fit-content;
   height: fit-content;
@@ -573,6 +581,7 @@ export default defineComponent({
   z-index: 100;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
 }
+
 ion-textarea {
   box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
   border-radius: 10px;
@@ -591,14 +600,49 @@ ion-textarea {
   position: fixed;
   bottom: 0;
   right: 0;
-  /* transform: translateX(-50%); */
-  z-index: 999; /* Set a z-index to ensure it's above other elements */
+  z-index: 999;
 }
 
-ion-modal#example-modal {
-  --width: 350px;
-  --min-width: 250px;
-  --height: fit-content;
-  --border-radius: 20px;
+#modal {
+  --background: rgba(255, 0, 0, 0);
+}
+
+.search-btn {
+  width: 100%;
+  margin-top: 25px;
+  width: 130px;
+  height: 40px;
+}
+.label {
+  font-family: "Inter";
+  font-weight: 700;
+}
+.date-picker {
+  height: 40px;
+  width: 150px;
+  text-align: center;
+}
+.card-title {
+  text-align: center;
+  margin: 10px 0;
+  font-weight: bold;
+  font-family: "Inter";
+  font-size: 16px;
+}
+.close-btn {
+  position: absolute;
+  top: 5px;
+  right: 10px;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  margin: 0;
+  box-shadow: var(--neomorphism-convex-4);
+  border-radius: 50%;
+  background-color: rgb(246, 246, 246);
+  overflow: hidden;
+}
+.modal-content {
+  margin-top: 20px;
 }
 </style>

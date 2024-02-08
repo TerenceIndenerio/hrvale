@@ -1,5 +1,5 @@
 <template>
-  <ion-card class="card-top" style="border-radius: 10px">
+  <ion-card class="card-top neomorphic-card-1 leave-card">
     <ion-badge class="status" v-bind:color="colorBadge">{{ status }}</ion-badge>
     <ion-list lines="none">
       <ion-item lines="none">
@@ -67,7 +67,12 @@
     </ion-list>
 
     <div class="action-btns">
-      <ion-button expand="full" color="primary" @click="redirectToApplyLeave">
+      <ion-button
+        expand="full"
+        color="primary"
+        @click="redirectToApplyLeave"
+        class="neomorphic-card-1 leave-action-btn view-btn"
+      >
         View
       </ion-button>
 
@@ -76,6 +81,7 @@
         color="danger"
         @click="redirectToRetractLeave"
         :disabled="status === 'Rejected'"
+        class="neomorphic-card-1 leave-action-btn retract-btn"
       >
         Retract
       </ion-button>
@@ -191,7 +197,25 @@ ion-card {
   padding: 0;
   gap: 0;
 }
-.action-btns ion-button {
+.action-btns {
   width: 100%;
+}
+.leave-card {
+  width: 300px;
+  border-radius: 20px;
+  padding: 0;
+}
+.leave-action-btn {
+  padding: 0;
+  margin: 10px 5px;
+  overflow: hidden;
+  width: 100%;
+}
+.view-btn {
+  border-radius: 20px 0 0 20px;
+}
+
+.retract-btn {
+  border-radius: 0 20px 20px 0;
 }
 </style>

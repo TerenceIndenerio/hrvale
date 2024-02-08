@@ -9,72 +9,69 @@
       <Refresher />
 
       <div class="container">
-        <ion-card
-          class="card result-container"
-          :style="{ backgroundColor: theme.primaryColor }"
-        >
+        <ion-card class="card result-container">
           <h4
-            class="text-center outlineColor result-text"
+            class="text-center result-text neomorphic-input-2"
             :style="{
-              color: theme.primaryFontColor,
-              border: `2px solid` + theme.primaryFontColor,
+              color: theme.primaryColor,
             }"
-          >{{ cardData.length }} Record Found</h4>
-        
-        
-        <ion-card
-          class="card-container"
-          v-for="(result, index) in cardData"
-          :key="index"
-        >
-          <ion-grid>
-            <ion-row>
-              <ion-col class="col-name">
-                <p><strong>Month:</strong></p>
-              </ion-col>
-              <ion-col class="col-data">
-                <p>{{ result.month }}</p>
-              </ion-col>
-            </ion-row>
-
-            <ion-row>
-              <ion-col class="col-name">
-                <p><strong>Year:</strong></p>
-              </ion-col>
-              <ion-col class="col-data">
-                <p>{{ result.year }}</p>
-              </ion-col>
-            </ion-row>
-
-            <ion-row>
-              <ion-col class="col-name">
-                <p><strong>Frequency:</strong></p>
-              </ion-col>
-              <ion-col class="col-data">
-                <p>{{ result.frequency }}</p>
-              </ion-col>
-            </ion-row>
-
-            <ion-row>
-              <ion-col class="col-name">
-                <p><strong>Net Pay:</strong></p>
-              </ion-col>
-              <ion-col class="col-data">
-                <p>{{ result.net_pay }}</p>
-              </ion-col>
-            </ion-row>
-          </ion-grid>
-          <ion-button
-            expand="full"
-            class="download-btn"
-            color="none"
-            @click="downloadPayslip(result.id)"
-            :style="{ backgroundColor: theme.secondaryColor }"
           >
-            <ion-icon name="download"></ion-icon> Download Payslip
-          </ion-button>
+            {{ cardData.length }} Record Found
+          </h4>
+
+          <ion-card
+            class="card-container neomorphic-card-1"
+            v-for="(result, index) in cardData"
+            :key="index"
+          >
+            <ion-grid>
+              <ion-row>
+                <ion-col class="col-name">
+                  <p><strong>Month:</strong></p>
+                </ion-col>
+                <ion-col class="col-data">
+                  <p>{{ result.month }}</p>
+                </ion-col>
+              </ion-row>
+
+              <ion-row>
+                <ion-col class="col-name">
+                  <p><strong>Year:</strong></p>
+                </ion-col>
+                <ion-col class="col-data">
+                  <p>{{ result.year }}</p>
+                </ion-col>
+              </ion-row>
+
+              <ion-row>
+                <ion-col class="col-name">
+                  <p><strong>Frequency:</strong></p>
+                </ion-col>
+                <ion-col class="col-data">
+                  <p>{{ result.frequency }}</p>
+                </ion-col>
+              </ion-row>
+
+              <ion-row>
+                <ion-col class="col-name">
+                  <p><strong>Net Pay:</strong></p>
+                </ion-col>
+                <ion-col class="col-data">
+                  <p>{{ result.net_pay }}</p>
+                </ion-col>
+              </ion-row>
+            </ion-grid>
+            <ion-button
+              expand="full"
+              class="download-btn neomorphic-btn-2"
+              color="none"
+              @click="downloadPayslip(result.id)"
+              :style="{ backgroundColor: theme.secondaryColor }"
+            >
+              <ion-icon name="download"></ion-icon> Download Payslip
+            </ion-button>
+          </ion-card>
         </ion-card>
-      </ion-card>
       </div>
     </ion-content>
   </ion-page>
@@ -383,23 +380,22 @@ p {
 }
 .result-text {
   text-align: center;
-  margin: 10px;
+  margin: 10px auto;
+  padding: 5px 10px;
+  width: 60%;
 }
 .result-container {
   padding: 0 10px;
 }
 .download-btn {
-  margin: 0;
   height: 50px;
+  margin: 0 auto;
 }
 
-.outlineColor {
-  border: 1px solid #828282;
-  color: #828282;
-  border-radius: 20px;
-}
 .card-container {
   border-radius: 20px;
+  width: 270px;
+  margin: 20px auto;
 }
 .container {
   max-width: 500px;

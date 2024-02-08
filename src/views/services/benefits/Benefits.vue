@@ -8,17 +8,19 @@
     />
     <ion-content :fullscreen="true" v-if="!loading">
       <Refresher />
-      <div class="container">
-        <ion-card class="card result-container">
-          <h4 class="text-center outlineColor">{{ totalRec }} Record Found</h4>
-          <div v-for="(result, index) in results" :key="index">
-            <BenefitCard
-              :benefitCode="result.benefitCode"
-              :benefitName="result.benefitName"
-              :benefitType="result.benefitType"
-            />
-          </div>
-        </ion-card>
+
+      <div class="result-container neomorphic-card-1">
+        <h4 class="text-center neomorphic-input-2 record-label">
+          {{ totalRec }} Record Found
+        </h4>
+
+        <div v-for="(result, index) in results" :key="index">
+          <BenefitCard
+            :benefitCode="result.benefitCode"
+            :benefitName="result.benefitName"
+            :benefitType="result.benefitType"
+          />
+        </div>
       </div>
     </ion-content>
   </ion-page>
@@ -261,6 +263,7 @@ export default defineComponent({
   padding: 10px 0;
   width: fit-content;
   min-width: 300px;
+  margin: 0 auto;
 }
 .flex-right {
   float: right;
@@ -272,11 +275,11 @@ export default defineComponent({
   border-radius: 10px;
   overflow: hidden;
 }
-.outlineColor {
-  border: 1px solid #828282;
+.record-label {
   color: #828282;
   border-radius: 20px;
-  width: 90%;
+  padding: 5px 10px;
+  width: 60%;
 }
 
 .modal-header {

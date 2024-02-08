@@ -149,7 +149,7 @@ export default defineComponent({
       this.$router.push("/attendancecorrection");
     },
     navigateOTApply() {
-      this.$router.push("/OTApply");
+      this.$router.push("/applyot");
     },
     navigateloanBal() {
       this.$router.push("/loanbalance");

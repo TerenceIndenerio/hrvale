@@ -7,65 +7,62 @@
       :headerTextColor="theme.primaryFontColor"
     />
 
-    <ion-content :fullscreen="true">
+    <ion-content :fullscreen="true" v-if="!loading">
       <Refresher />
 
-      <ion-card class="card-container" v-if="!loading && hasLeaveType">
-        <!-- Leave Balance Card -->
-        <div v-if="employeeDetail2" class="leaveBal-container">
-          <p class="leave-bal">
-            Leave Balance: <strong>{{ employeeDetail2.balance }}</strong> Day(s)
+      <!-- Leave Balance Card -->
+      <ion-card class="leavebal-card neomorphic-card-1">
+        <!-- Leave Balance -->
+        <ion-row class="leave-bal">
+          <ion-col size="7">
+            <strong>
+              <p :style="{ color: theme.primaryColor }">Leave Balance:</p>
+            </strong>
+          </ion-col>
+          <ion-col size="4">
+            <p :style="{ color: theme.primaryColor }">
+              <strong>{{ employeeDetail2.balance }} day(s)</strong>
+            </p>
+          </ion-col>
+        </ion-row>
+
+        <!-- Allocated Days -->
+        <ion-row class="leave-bal-detail">
+          <ion-col size="7">
+            <p>Allocated Days:</p>
+          </ion-col>
+          <ion-col size="4">
+            <p>
+              <strong>{{ employeeDetail2.entitled }}</strong>
+            </p>
+          </ion-col>
+        </ion-row>
+
+        <!-- Total Days -->
+        <ion-row class="leave-bal-detail">
+          <ion-col size="7">
+            <p>Total Days:</p>
+          </ion-col>
+          <ion-col size="4">
+            <p>
+              <strong>{{ dateDifference }}</strong>
+            </p>
+          </ion-col>
+        </ion-row>
+      </ion-card>
+
+      <br />
+
+      <!-- Leave Type Card -->
+      <div class="dropdown-container">
+        <div class="dropdown">
+          <p class="dropdown-label" :style="{ color: theme.primaryColor }">
+            Leave Type
           </p>
-        </div>
-
-        <div v-else class="leaveBal-container">
-          <p class="leave-bal">Leave Balance: <strong>0</strong> Day(s)</p>
-        </div>
-
-        <!-- details -->
-        <div class="ion-padding">
-          <div class="emp-detail-container">
-            <div class="emp-detail flex-center">
-              <p>Allocated Days:</p>
-              <p v-if="employeeDetail2">
-                <strong>{{ employeeDetail2.entitled }}</strong>
-              </p>
-            </div>
-
-            <div class="emp-detail flex-center">
-              <p>Total Days:</p>
-              <p>
-                <strong>{{ dateDifference }}</strong>
-              </p>
-            </div>
-          </div>
-
-          <div class="emp-detail-container">
-            <div class="emp-detail flex-center">
-              <p>Employee Code</p>
-
-              <p v-if="employeeDetail">
-                <strong>{{ employeeDetail.employeeId }}</strong>
-              </p>
-            </div>
-            <div class="emp-detail flex-center">
-              <p>Name</p>
-              <p v-if="employeeDetail">
-                <strong
-                  >{{ employeeDetail.firstName }} {{ employeeDetail.lastName }}
-                </strong>
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Leave Type Card -->
-        <ion-card class="card leave-type">
-          <p class="margin-l">Leave Type</p>
           <ion-select
             label="Select Leave Type"
             label-placement="floating"
-            class="box-container select-option"
+            class="neomorphic-input-2"
             v-model="selectedLeaveType"
             @ionChange="updateSelectedLeave"
           >
@@ -78,17 +75,18 @@
               {{ option.name }}
             </ion-select-option>
           </ion-select>
-        </ion-card>
-        <br />
+        </div>
 
         <!-- Duration -->
-        <ion-card class="card" id="duration">
-          <p class="margin-l">Duration</p>
+        <div class="dropdown" id="duration">
+          <p class="dropdown-label" :style="{ color: theme.primaryColor }">
+            Duration
+          </p>
           <ion-select
             label="Select Duration"
             label-placement="floating"
             v-model="durationSelectedValue"
-            class="box-container select-option"
+            class="neomorphic-input-2"
           >
             <ion-select-option
               v-for="duration in durations"
@@ -98,44 +96,46 @@
               {{ duration.label }}
             </ion-select-option>
           </ion-select>
-        </ion-card>
+        </div>
+      </div>
 
+      <ion-card class="neomorphic-card-1 calendar-container">
         <Calendar
           :disabledDates="this.disabledDates_"
           @selectedDatesChanged="updateSelectedDates"
         />
-
-        <!-- Reason Card -->
-        <ion-card class="card">
-          <div class="inline-v">
-            <p class="margin-l">Reason</p>
-            <div class="box-container">
-              <ion-textarea
-                color="#E8E8E8"
-                label="Type your reason here"
-                labelPlacement="floating"
-                placeholder="Your reason..."
-                v-model="reason"
-                class="reason-container"
-              ></ion-textarea>
-            </div>
-          </div>
-        </ion-card>
-
-        <!-- Apply Leave Button -->
-        <div class="flex-center">
-          <ion-button
-            class="btn"
-            @click="applyAndRetract"
-            color="none"
-            :style="{
-              backgroundColor: theme.primaryColor,
-              color: theme.primaryFontColor,
-            }"
-            >Apply Leave</ion-button
-          >
-        </div>
       </ion-card>
+
+      <!-- Reason Card -->
+      <div class="reason-container">
+        <p class="reason-label" :style="{ color: theme.primaryColor }">
+          Reason
+        </p>
+
+        <ion-textarea
+          color="#E8E8E8"
+          label="Type your reason here"
+          labelPlacement="floating"
+          placeholder="Your reason..."
+          v-model="reason"
+          class="neomorphic-textarea-1"
+        ></ion-textarea>
+      </div>
+
+      <!-- Apply Leave Button -->
+      <div class="flex-center btn-container">
+        <ion-button
+          class="neomorphic-btn-1"
+          @click="sendLeaveRequest"
+          color="none"
+          :style="{
+            backgroundColor: theme.primaryColor,
+            color: theme.primaryFontColor,
+          }"
+        >
+          Apply Leave
+        </ion-button>
+      </div>
     </ion-content>
   </ion-page>
 </template>
@@ -151,6 +151,8 @@ import {
   IonTextarea,
   IonToast,
   toastController,
+  IonCol,
+  IonRow,
 } from "@ionic/vue";
 import Calendar from "@/views/services/leave/components/Calendar.vue";
 import HeaderReturn from "@/components/header/HeaderReturn.vue";
@@ -178,6 +180,8 @@ export default defineComponent({
     IonToast,
     toastController,
     Calendar,
+    IonCol,
+    IonRow,
   },
   setup() {
     return {
@@ -215,7 +219,7 @@ export default defineComponent({
       selectedLeaveID: null,
       reason: null,
       employeeDetail: { firstName: "-", employeeId: "-" },
-      employeeDetail2: { entitled: "-", balance: "0" },
+      employeeDetail2: { entitled: "--", balance: "0" },
       hasLeaveType: true,
       durations: [
         { key: "full_day", label: "Full Day" },
@@ -425,6 +429,17 @@ export default defineComponent({
 
     async sendLeaveRequest() {
       try {
+        if (
+          !this.selectedDates_ ||
+          !this.durationSelectedValue ||
+          !this.selectedLeaveID
+        ) {
+          this.showErrorMessage(
+            "Invalid Leave request. Please fill in all required fields."
+          );
+          return;
+        }
+
         const token = localStorage.getItem("_token");
         const headers = {
           Authorization: `Bearer ${token}`,
@@ -443,14 +458,8 @@ export default defineComponent({
         const response = await axios.post(api, requestData, { headers });
 
         this.store.commit("loader/updateLoader", false);
-      } catch (error) {
-        console.error("Error sending leave request:", error);
-        this.showErrorMessage(
-          "An error occurred: " + error.response?.data?.error?.message
-        );
-      } finally {
         const toast = await toastController.create({
-          message: "Retracted Leave sent successfully!",
+          message: "Leave request sent successfully!",
           duration: 3000,
           position: "top",
           color: "light",
@@ -469,6 +478,12 @@ export default defineComponent({
         this.selectedDates_ = null;
 
         await toast.present();
+        this.router.push("/leave");
+      } catch (error) {
+        console.error("Error sending leave request:", error);
+        this.showErrorMessage(
+          "An error occurred: " + error.response?.data?.error?.message
+        );
       }
     },
     updateSelectedLeave(event) {
@@ -577,44 +592,28 @@ export default defineComponent({
 </script>
 
 <style scoped>
+* {
+  font-size: 14px;
+  font-family: "Poppins", sans-serif;
+}
 .flex-center {
   display: flex;
   justify-content: center;
   align-items: center;
   flex-direction: column;
 }
-.flex-w {
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
-}
 .inline-v {
   display: flex;
   flex-direction: column;
-}
-.fit-w {
-  width: 100%;
-  height: fit-content;
-}
-.vh {
-  height: 50vh;
-}
-.card-container {
-  border-radius: 20px;
-  padding: 10px 0 20px 0;
-  box-shadow: 8px 8px 16px rgba(0, 0, 0, 0.1),
-    -8px -8px 16px rgba(255, 255, 255, 0.8), 0px -4px 8px rgba(0, 0, 0, 0.05);
 }
 .card {
   border-radius: 20px;
   padding: 10px;
   margin: 5px 10px;
-  box-shadow: 8px 8px 16px rgba(0, 0, 0, 0.1),
-    -8px -8px 16px rgba(255, 255, 255, 0.8), 0px -4px 8px rgba(0, 0, 0, 0.05);
+  box-shadow: 9px 9px 18px #cccccc, -9px -9px 18px #ffffff;
 }
-.date-container {
-  width: fit-content;
+.dropdown-label {
+  font-weight: bold;
 }
 
 .card p {
@@ -622,68 +621,40 @@ export default defineComponent({
   padding: 0;
   margin: 0 0 5px 0;
 }
-.leaveBal-container {
-  width: fit-content;
-  margin: 0 auto;
+
+.leavebal-card {
+  width: 100%;
+  max-width: 300px;
+  min-width: 270px;
+  margin: 20px auto 0 auto;
 }
-.leave-bal {
-  font-size: 14px;
+.leave-bal,
+.leave-bal p {
+  font-weight: bold;
 }
-.emp-detail-container {
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
+
+.leave-bal-detail p {
+  font-weight: bold;
   margin: 0;
 }
-.emp-detail {
-  margin: 5px;
-  min-width: 150px;
-  min-height: 50px;
-  justify-content: start;
-}
 
-.leave-type {
-  margin: 0 10px;
+.dropdown {
+  width: 50%;
+  max-width: 250px;
 }
-.date-picker {
-  border-radius: 20px;
-  padding: 5px 10px;
-  width: fit-content;
-  min-width: 100px;
-  height: 30px;
-  padding: 0;
-}
-.box-container {
-  border-radius: 9px;
-  background-color: #e8e8e8;
-}
-.input-title {
-  color: #3b3c3e;
-  font-family: Inter;
-  font-size: 19px;
-  font-style: normal;
-  font-weight: bold;
-  line-height: normal;
-}
-
-.select-option {
-  width: 100%;
-  padding: 0 10px;
-}
-.specific-time-card {
-  width: fit-content;
-}
-.specific-time {
-  border-radius: 10px;
-  width: fit-content;
-  min-width: 100px;
-}
-.specific-time-container {
+.dropdown-container {
   display: flex;
   flex-direction: row;
-  justify-content: center;
-  align-items: center;
+  gap: 10px;
+  justify-content: space-evenly;
+  margin: 0 10px 20px 10px;
 }
+.calendar-container {
+  margin: 20px auto;
+  height: 330px;
+  width: 330px;
+}
+
 .input-text {
   color: #3b3c3e;
   font-family: Inter;
@@ -692,23 +663,16 @@ export default defineComponent({
   line-height: normal;
   height: fit-content;
 }
-.reason-container {
-  height: 90px;
-  overflow-y: scroll;
-  padding: 0 10px;
-}
-.btn {
-  border-radius: 15px;
+.reason-label {
+  font-weight: bold;
   width: fit-content;
-  height: 50px;
-  overflow: hidden;
-  font-family: "Inter";
-  font-size: 20px;
-  font-style: normal;
-  font-weight: 700;
-  line-height: normal;
-  border: none;
-  margin-top: 20px;
-  --background: #12a3da;
+}
+.reason-container {
+  margin: 0 auto;
+  width: fit-content;
+}
+
+.btn-container {
+  margin: 20px 0 50px 0;
 }
 </style>

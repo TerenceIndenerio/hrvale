@@ -7,171 +7,150 @@
       :headerTextColor="theme.primaryFontColor"
     />
     <ion-content>
-      <ion-card class="card-content">
-        <!-- Request Number -->
-        <ion-card
-          class="card-req"
-          :style="{ backgroundColor: theme.primaryColor }"
-        >
-          <p
-            class="ion-text-center ion-margin"
-            :style="{ color: theme.primaryFontColor }"
-          >
-            <strong>Request Number:</strong>
-            {{ requestNumber }}
-          </p>
-        </ion-card>
+      <!-- Request Number -->
+      <ion-card class="card-req neomorphic-card-1">
+        <h4 class="ion-text-center ref-code">
+          {{ requestNumber }}
+        </h4>
 
-        <!-- Work Shift -->
-        <div class="flex-center workshift-container">
-          <ion-card
-            class="ion-margin-bottom input-card work-shift"
-            :style="{ backgroundColor: theme.primaryColor }"
-          >
-            <ion-label :style="{ color: theme.primaryFontColor }"
-              ><strong>Work Shift*</strong></ion-label
-            >
-            <ion-card class="workshift-select-container">
-              <ion-select
-                placeholder="Select Work Shift"
-                v-model="selectedWorkShift"
-                class="workshift-select"
-                aria-label="Work Shift"
-              >
-                <!-- Options for Work Shift -->
-                <div slot="label">Select work-shift:</div>
-                <ion-select-option
-                  v-for="option in workShiftOptions"
-                  :key="option.id"
-                  :value="option"
-                >
-                  {{ option.code }}
-                </ion-select-option>
-              </ion-select>
-            </ion-card>
-          </ion-card>
-        </div>
+        <p class="ion-text-center">
+          <span :style="{ color: theme.primaryColor }">
+            <strong> Request Number </strong>
+          </span>
+        </p>
 
-        <!-- Sched In and Out -->
         <div class="time-container">
-          <ion-card
-            class="ion-margin-bottom sched-container"
-            :style="{ backgroundColor: theme.primaryColor }"
-          >
-            <ion-label :style="{ color: theme.primaryFontColor }"
-              ><strong>Schedule In:</strong></ion-label
-            >
-            <p
-              class="ion-text-center"
-              :style="{ color: theme.primaryFontColor }"
-            >
+          <div class="ion-margin-bottom sched-container">
+            <ion-label :style="{ color: theme.primaryColor }">
+              <strong>Schedule In:</strong>
+            </ion-label>
+            <p class="ion-text-center sched-val neomorphic-input-2">
               {{ this.selectedWorkShift.regularWorkHourStart }}
             </p>
-          </ion-card>
+          </div>
 
-          <ion-card
-            class="ion-margin-bottom sched-container"
-            :style="{ backgroundColor: theme.primaryColor }"
-          >
-            <ion-label :style="{ color: theme.primaryFontColor }"
-              ><strong>Schedule Out:</strong></ion-label
-            >
-            <p
-              class="ion-text-center"
-              :style="{ color: theme.primaryFontColor }"
-            >
+          <div class="ion-margin-bottom sched-container">
+            <ion-label :style="{ color: theme.primaryColor }">
+              <strong>Schedule Out:</strong>
+            </ion-label>
+            <p class="ion-text-center sched-val neomorphic-input-2">
               {{ this.selectedWorkShift.regularWorkHourEnd }}
             </p>
-          </ion-card>
+          </div>
         </div>
+      </ion-card>
 
-        <!-- Actual In and Out -->
-        <div class="time-container">
-          <ion-card
-            class="ion-margin-bottom actual-container"
-            :style="{ backgroundColor: theme.primaryColor }"
-          >
-            <ion-label :style="{ color: theme.primaryFontColor }"
-              ><strong>Actual In*:</strong></ion-label
-            >
-            <ion-card class="actual-input-container"
-              ><input type="time" v-model="actualIn" class="actual-input"
-            /></ion-card>
-          </ion-card>
+      <!-- Sched In and Out -->
 
-          <ion-card
-            class="ion-margin-bottom actual-container"
-            :style="{ backgroundColor: theme.primaryColor }"
-          >
-            <ion-label :style="{ color: theme.primaryFontColor }"
-              ><strong>Actual Out*:</strong></ion-label
-            >
-            <ion-card class="actual-input-container"
-              ><input type="time" v-model="actualOut" class="actual-input"
-            /></ion-card>
-          </ion-card>
-        </div>
-
-        <!-- Reason Dropdown -->
-        <div class="flex-center">
-          <ion-card
-            class="ion-margin-bottom reason-card"
-            :style="{ backgroundColor: theme.primaryColor }"
-          >
-            <ion-label :style="{ color: theme.primaryFontColor }">
-              Reason*
-            </ion-label>
-
-            <ion-card class="reason-select-container">
-              <ion-select
-                placeholder="Select Reason"
-                v-model="selectedReason"
-                class="reason-select"
-                aria-label="Reason"
-              >
-                <div slot="label">Select Reason:</div>
-                <ion-select-option
-                  v-for="option in reasonOptions"
-                  :key="option.value"
-                  :value="option"
-                >
-                  {{ option.content }}
-                </ion-select-option>
-              </ion-select>
-            </ion-card>
-          </ion-card>
-        </div>
-
-        <!-- Comment Textarea -->
+      <!-- Work Shift -->
+      <div class="flex-center workshift-container">
         <ion-card
-          class="ion-margin-bottom comment"
-          :style="{ backgroundColor: theme.primaryColor }"
+          class="ion-margin-bottom input-card work-shift neomorphic-card-1"
         >
-          <ion-label
-            position="stacked"
-            :style="{ color: theme.primaryFontColor }"
-            ><strong>Comment:</strong></ion-label
+          <ion-label :style="{ color: theme.primaryColor }"
+            ><strong>Work Shift*</strong></ion-label
           >
-          <ion-textarea
-            v-model="comment"
-            rows="4"
-            class="textarea"
-            aria-label="Comment"
-            placeholder="Enter your comment here..."
-          ></ion-textarea>
+          <ion-card class="workshift-select-container neomorphic-input-2">
+            <ion-select
+              placeholder="Select Work Shift"
+              v-model="selectedWorkShift"
+              class="workshift-select"
+              aria-label="Work Shift"
+            >
+              <!-- Options for Work Shift -->
+              <div slot="label">Select work-shift:</div>
+              <ion-select-option
+                v-for="option in workShiftOptions"
+                :key="option.id"
+                :value="option"
+              >
+                {{ option.code }}
+              </ion-select-option>
+            </ion-select>
+          </ion-card>
+        </ion-card>
+      </div>
+
+      <!-- Actual In and Out -->
+      <div class="time-container">
+        <ion-card class="ion-margin-bottom actual-container neomorphic-card-1">
+          <ion-label :style="{ color: theme.primaryColor }"
+            ><strong>Actual In*:</strong></ion-label
+          >
+          <div class="actual-input-container">
+            <input
+              type="time"
+              v-model="actualIn"
+              class="actual-input neomorphic-input-2"
+            />
+          </div>
         </ion-card>
 
-        <!-- Save Button -->
-        <ion-button
-          expand="full"
-          color="none"
-          @click="saveCorrection"
-          class="save-btn"
-          :style="{ backgroundColor: theme.secondaryColor }"
+        <ion-card class="ion-margin-bottom actual-container neomorphic-card-1">
+          <ion-label :style="{ color: theme.primaryColor }"
+            ><strong>Actual Out*:</strong></ion-label
+          >
+          <div class="actual-input-container">
+            <input
+              type="time"
+              v-model="actualOut"
+              class="actual-input neomorphic-input-2"
+            />
+          </div>
+        </ion-card>
+      </div>
+
+      <!-- Reason Dropdown -->
+      <div class="flex-center">
+        <ion-card class="ion-margin-bottom reason-card neomorphic-card-1">
+          <ion-label :style="{ color: theme.primaryColor }">
+            <strong>Reason*</strong>
+          </ion-label>
+
+          <ion-card class="reason-select-container neomorphic-input-2">
+            <ion-select
+              placeholder="Select Reason"
+              v-model="selectedReason"
+              class="reason-select"
+              aria-label="Reason"
+            >
+              <div slot="label">Select Reason:</div>
+              <ion-select-option
+                v-for="option in reasonOptions"
+                :key="option.value"
+                :value="option"
+              >
+                {{ option.content }}
+              </ion-select-option>
+            </ion-select>
+          </ion-card>
+        </ion-card>
+      </div>
+
+      <!-- Comment Textarea -->
+      <div class="ion-margin-bottom comment">
+        <ion-label position="stacked" :style="{ color: theme.primaryColor }"
+          ><strong>Comment:</strong></ion-label
         >
-          Save
-        </ion-button>
-      </ion-card>
+        <ion-textarea
+          v-model="comment"
+          rows="4"
+          class="neomorphic-textarea-1"
+          aria-label="Comment"
+          placeholder="Enter your comment here..."
+        ></ion-textarea>
+      </div>
+
+      <!-- Save Button -->
+      <ion-button
+        expand="full"
+        color="none"
+        @click="saveCorrection"
+        class="save-btn neomorphic-btn-1"
+        :style="{ backgroundColor: theme.primaryColor }"
+      >
+        Save
+      </ion-button>
     </ion-content>
   </ion-page>
 </template>
@@ -394,27 +373,30 @@ export default defineComponent({
         .map(() => Math.random().toString(36)[2])
         .join("");
     },
+
+    requestNumberGenerator() {
+      const randomString = this.generateRandomString(6);
+      const currentDate = new Date();
+      const month = (currentDate.getMonth() + 1).toString().padStart(2, "0");
+      const day = currentDate.getDate().toString().padStart(2, "0");
+      const year = currentDate.getFullYear().toString().substr(2, 2);
+
+      const formattedDate = `${month}${day}${year}`;
+      this.requestNumber = randomString.toUpperCase() + formattedDate;
+    },
   },
   created() {
     this.getTheme();
     this.fetchWorkShiftOptions();
     this.fetchReasonOptions();
     this.dateVal = this.$route.query.date;
-
-    const dateValWithRandomString = (
-      this.generateRandomString(6) + this.dateVal
-    ).replace(/-/g, "");
-    this.requestNumber = dateValWithRandomString;
-
+    this.requestNumberGenerator();
     this.loading = false;
   },
 });
 </script>
 
 <style scoped>
-.card-content {
-  border-radius: 20px;
-}
 .flex-center {
   display: flex;
   justify-content: center;
@@ -426,10 +408,12 @@ export default defineComponent({
 }
 .card-req {
   border-radius: 20px;
+  margin: 20px auto;
+  padding: 0;
 }
 .save-btn {
-  margin: 0;
-  height: 45px;
+  margin: 20px auto;
+  width: 200px;
 }
 
 .sched-container {
@@ -438,6 +422,7 @@ export default defineComponent({
   width: fit-content;
   margin: 0;
   border-radius: 10px;
+  text-align: center;
 }
 .sched-card {
   padding: 0;
@@ -469,7 +454,8 @@ export default defineComponent({
   gap: 10px;
   justify-content: center;
   align-items: center;
-  margin-bottom: 20px;
+  padding: 0;
+  margin: 10px auto 20px auto;
 }
 .actual-container {
   padding: 10px;
@@ -480,11 +466,13 @@ export default defineComponent({
 .actual-input-container {
   width: fit-content;
   padding: 0;
-  margin: 5px;
-  padding: 15px;
+  margin: 0;
+  padding: 7px;
 }
 .actual-input {
   width: fit-content;
+  border: none;
+  padding: 5px 10px;
 }
 
 .reason-card {
@@ -507,11 +495,16 @@ export default defineComponent({
 .comment {
   padding: 5px;
   border-radius: 10px;
+  margin: 20px auto;
+  width: fit-content;
 }
-.textarea {
-  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
-  border-radius: 10px;
-  padding: 0 5px;
-  background-color: #fff;
+.sched-val {
+  color: gray;
+  height: 20px;
+}
+.ref-code {
+  margin: 10px auto 0 auto;
+  border-bottom: 2px solid rgb(171, 171, 171);
+  width: 60%;
 }
 </style>

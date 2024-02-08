@@ -9,8 +9,8 @@
     <ion-content :fullscreen="true">
       <Refresher />
       <div v-if="showComponent">
-        <ion-card class="select-date-container card-round">
-          <ion-select v-model="selectedApi">
+        <ion-card class="select-date-container neomorphic-card-1">
+          <ion-select v-model="selectedApi" class="neomorphic-input-2">
             <div slot="label">Select Date:</div>
             <ion-select-option
               v-for="(option, index) in leavePeriodOptions"
@@ -263,6 +263,8 @@ ion-card {
 }
 .select-date-container {
   height: fit-content;
-  padding: 0 20px;
+  width: fit-content;
+  margin: 10px auto;
+  padding: 20px;
 }
 </style>

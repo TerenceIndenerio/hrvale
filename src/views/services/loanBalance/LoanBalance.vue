@@ -8,13 +8,13 @@
     />
     <ion-content :fullscreen="true" v-if="!loading">
       <Refresher />
-      <ion-card class="card filter-container" :style="{backgroundColor: theme.primaryColor}">
+      <ion-card class="filter-container neomorphic-card-1">
         <ion-select
           v-model="selectedLoanType"
           @ionChange="searchByLoanType(selectedLoanType)"
           label-placement="floating"
           label="Select Loan Type"
-          class="box-container select-option"
+          class="select-option neomorphic-input-2"
         >
           <ion-select-option
             v-for="loanType in loanTypes"
@@ -26,11 +26,24 @@
         </ion-select>
       </ion-card>
 
-      <ion-card class="card result-container" :style="{backgroundColor: theme.primaryColor}">
-        <h4 class="text-center outlineColor" :style="{color: theme.primaryFontColor, border: '2px solid ' + theme.primaryFontColor}">Result</h4>
-        <ion-card class="card-inner" v-for="(result, index) in filteredResults" :key="index">
+      <div class="result-container">
+        <ion-card
+          class="card-content neomorphic-card-1"
+          v-for="(result, index) in filteredResults"
+          :key="index"
+        >
           <ion-grid>
-            <ion-col size="6">
+            <div
+              class="loan-type-badge"
+              :style="{
+                backgroundColor: theme.primaryColor,
+              }"
+            >
+              <p :style="{ color: theme.primaryFontColor }">
+                {{ result.loanType }}
+              </p>
+            </div>
+            <ion-col size="6" class="card-content">
               <ion-row>
                 <ion-col size="6">
                   <p>Loan Type:</p>
@@ -72,13 +85,13 @@
           <ion-button
             expand="full"
             color="light"
-            class="edit-btn"
+            class="edit-btn neomorphic-card-1"
             @click="navigateToViewPage(result)"
           >
-            View
+            View Details
           </ion-button>
         </ion-card>
-      </ion-card>
+      </div>
 
       <LoanBalanceModal
         :is-open="showModal"
@@ -169,7 +182,7 @@ export default defineComponent({
       selectedResult: null,
       loanTypes: [],
       selectedLoanType: null,
-      filteredResults: [],  
+      filteredResults: [],
     };
   },
 
@@ -210,7 +223,7 @@ export default defineComponent({
     },
 
     async navigateToViewPage(result) {
-      let id = result.id
+      let id = result.id;
       this.$router.push({ path: "/loanbalanceview", query: { id } });
     },
 
@@ -299,7 +312,8 @@ export default defineComponent({
 
 <style scoped>
 @import url("https://fonts.googleapis.com/css?family=Open+Sans");
-p {
+* {
+  padding: 0;
   margin: 0;
 }
 
@@ -339,7 +353,8 @@ p {
 .filter-container {
   display: flex;
   justify-content: center;
-  padding: 10px 5px;
+  padding: 10px;
+  margin: 10px auto;
 }
 
 .result-container {
@@ -388,8 +403,9 @@ p {
   min-width: 300px;
   background-color: rgba(255, 255, 255, 0.851);
   border-radius: 10px;
-  padding: 0 10px;
+  padding: 0 15px;
   margin: 10px auto;
+  border-radius: 30px;
 }
 .header-row {
   border-bottom: 1px solid #000;
@@ -408,8 +424,23 @@ p {
 }
 .edit-btn {
   padding: 0;
-  border-radius: 10px;
   overflow: hidden;
-  margin-bottom: 10px;
+  margin: 10px auto;
+  width: 100%;
+}
+.card-content {
+  margin: 20px auto;
+  padding: 20px 10px 0 10px;
+  width: 270px;
+}
+.loan-type-badge {
+  position: absolute;
+  right: 0;
+  top: 0;
+  padding: 5px 10px;
+  border-radius: 20px 0 0 20px;
+}
+.card-content {
+  padding: 30px 10px 0 10px;
 }
 </style>

@@ -1,12 +1,9 @@
 <template>
-  <ion-card class="card">
-    <ion-grid>
-      <ion-row>
-        <div class="leave-type outline" v-bind:style="outlineColor">
-          <p>{{ leaveType }}</p>
-        </div>
-      </ion-row>
-
+  <ion-card class="neomorphic-card-1 leave-request-card">
+    <div class="leave-type" :style="{ backgroundColor: theme.primaryColor }">
+      <p :style="{ color: theme.primaryFontColor }">{{ leaveType }}</p>
+    </div>
+    <ion-grid class="card-content">
       <ion-row class="pad-w">
         <ion-col class="col-name">
           <p>Status:</p>
@@ -46,42 +43,13 @@
           <p>{{ duration }}</p>
         </ion-col>
       </ion-row>
-
-      <!-- <ion-row class="pad-w">
-        <ion-col class="col-name">
-          <p>Number of Days:</p>
-        </ion-col>
-
-        <ion-col class="col-data">
-          <p></p>
-        </ion-col>
-      </ion-row> -->
-
-      <!-- <ion-row class="pad-w">
-        <ion-col class="col-name">
-          <p>Leave With Pay:</p>
-        </ion-col>
-
-        <ion-col class="col-data">
-          <p></p>
-        </ion-col>
-      </ion-row> -->
-
-      <!-- <ion-row class="pad-w">
-        <ion-col class="col-name">
-          <p>Reason:</p>
-        </ion-col>
-
-        <ion-col class="col-data">
-          <p>{{ comment }}</p>
-        </ion-col>
-      </ion-row> -->
     </ion-grid>
   </ion-card>
 </template>
 
 <script>
 import { IonCard, IonCol, IonGrid, IonRow, IonIcon } from "@ionic/vue";
+import { getThemeData } from "@/theme/theme";
 
 export default {
   components: {
@@ -104,6 +72,19 @@ export default {
     comment: String,
     status: String,
     lengthDays: Number,
+  },
+  data() {
+    return {
+      theme: {},
+    };
+  },
+  created() {
+    const storedThemeData = getThemeData();
+
+    if (storedThemeData) {
+      this.theme = storedThemeData;
+    }
+    this.theme = storedThemeData;
   },
 };
 </script>
@@ -146,8 +127,11 @@ ion-col p {
 .leave-type {
   padding: 0;
   margin: 0;
-  border-radius: 50px;
+  border-radius: 20px 0 0 20px;
   margin: auto;
+  position: absolute;
+  right: 0;
+  top: 0;
 }
 .leave-type p {
   padding: 5px 10px;
@@ -195,5 +179,12 @@ ion-col p {
   font-style: normal;
   font-weight: 600;
   line-height: 107.682%;
+}
+.card-content {
+  margin-top: 20px;
+}
+.leave-request-card {
+  width: 300px;
+  margin: 20px auto;
 }
 </style>

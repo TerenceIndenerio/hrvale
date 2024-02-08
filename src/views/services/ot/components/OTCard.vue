@@ -1,9 +1,11 @@
 <template>
-  <ion-card class="card-container">
+  <ion-card class="neomorphic-card-1 ot-card">
     <ion-grid>
       <ion-col class="flex-c">
-        <div class="leave-type outlineColor">
-          <p>{{ date }}</p>
+        <div class="date-outline">
+          <p :style="{ color: theme.primaryColor }" class="date-label">
+            {{ date }}
+          </p>
         </div>
       </ion-col>
 
@@ -50,8 +52,8 @@
       <div class="flex-row">
         <ion-button
           expand="full"
-          color="light"
-          class="border"
+          color="none"
+          class="neomorphic-btn-2 view-btn"
           @click="handleView"
         >
           View
@@ -63,6 +65,7 @@
 
 <script>
 import { IonCard, IonCol, IonGrid, IonRow, IonButton } from "@ionic/vue";
+import { getThemeData } from "@/theme/theme";
 
 export default {
   components: {
@@ -85,11 +88,28 @@ export default {
     reason: String,
     result: Object,
   },
+  data() {
+    return {
+      theme: {},
+    };
+  },
   methods: {
     handleView() {
       this.$emit("view", this.result);
       console.log("Clicked View");
     },
+    getTheme() {
+      const storedThemeData = getThemeData();
+
+      if (storedThemeData) {
+        this.theme = storedThemeData;
+      }
+      this.theme = storedThemeData;
+    },
+  },
+  created() {
+    this.getTheme();
+    console.log(this.theme);
   },
 };
 </script>
@@ -126,13 +146,6 @@ p {
 .icon1 {
   font-size: 30px;
   color: black;
-}
-.leave-type {
-  padding: 0;
-  margin: 0;
-  border-radius: 50px;
-  width: 80%;
-  text-align: center;
 }
 .leave-type p {
   padding: 5px 10px;
@@ -172,9 +185,13 @@ p {
   width: 40px;
   height: 30px;
 }
-.outlineColor {
-  border: 1px solid #828282;
-  color: #828282;
+.date-outline {
+  box-shadow: var(--neomorphism-concave-2);
+  padding: 0;
+  margin: 0;
+  border-radius: 50px;
+  width: 80%;
+  text-align: center;
 }
 .username-text {
   color: #000;
@@ -193,7 +210,7 @@ p {
   line-height: 107.682%;
 }
 .col-name p {
-  margin: 0;
+  margin: 0 0 0 15px;
 }
 .col-data {
   color: #0d0d0d;
@@ -214,5 +231,20 @@ p {
   width: 100%;
   border-radius: 20px;
   overflow: hidden;
+}
+.date-label {
+  font-family: "Inter";
+  font-weight: 700;
+}
+.ot-card {
+  width: 270px;
+}
+.view-btn {
+  width: 100%;
+  padding: 0;
+  border-radius: 20px;
+  height: fit-content;
+  color: #000000;
+  margin-top: 15px;
 }
 </style>

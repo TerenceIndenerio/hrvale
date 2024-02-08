@@ -1,12 +1,9 @@
 <template>
-  <ion-card class="card">
-    <ion-grid>
-      <ion-col class="flex-c">
-        <div class="leave-type outlineColor">
-          <p>{{ status }}</p>
-        </div>
-      </ion-col>
-
+  <ion-card class="neomorphic-card-1 approval-card">
+    <div class="leave-type" :style="{ backgroundColor: theme.primaryColor }">
+      <p :style="{ color: theme.primaryFontColor }">{{ status }}</p>
+    </div>
+    <ion-grid class="card-content">
       <ion-row class="pad-w">
         <ion-col class="col-name">
           <p>Date:</p>
@@ -88,6 +85,7 @@ import {
   IonButton,
   toastController,
 } from "@ionic/vue";
+import { getThemeData } from "@/theme/theme";
 
 export default {
   components: {
@@ -106,6 +104,11 @@ export default {
     requestDataId: Number,
     requestId: Number,
     date: String,
+  },
+  data() {
+    return {
+      theme: {},
+    };
   },
   methods: {
     async handleCheckButtonClick() {
@@ -152,6 +155,14 @@ export default {
       await toast.present();
     },
   },
+  created() {
+    const storedThemeData = getThemeData();
+
+    if (storedThemeData) {
+      this.theme = storedThemeData;
+    }
+    this.theme = storedThemeData;
+  },
 };
 </script>
 
@@ -189,9 +200,12 @@ ion-grid {
 .leave-type {
   padding: 0;
   margin: 0;
-  border-radius: 50px;
-  width: 80%;
+  border-radius: 20px 0 0 20px;
+  width: fit-content;
   text-align: center;
+  position: absolute;
+  top: 0;
+  right: 0;
 }
 .leave-type p {
   padding: 5px 10px;
@@ -283,5 +297,11 @@ ion-grid {
 }
 .action-container {
   margin-top: 10px;
+}
+.card-content {
+  margin-top: 25px;
+}
+.approval-card {
+  width: 300px;
 }
 </style>

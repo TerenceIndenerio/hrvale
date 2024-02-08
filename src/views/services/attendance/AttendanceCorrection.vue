@@ -7,60 +7,52 @@
     />
     <ion-content :fullscreen="true" v-if="!loading">
       <Refresher />
-      <ion-card
-        class="card text-center"
-        :style="{ backgroundColor: theme.primaryColor }"
-      >
-        <h3 :style="{ color: theme.primaryFontColor }">Logs</h3>
+      <ion-card class="neomorphic-card-1 search-container">
+        <h5 :style="{ color: theme.primaryColor }" class="search-title">
+          Select Date
+        </h5>
+        <div class="input-container">
+          <div class="container-inner">
+            <p :style="{ color: theme.primaryColor }" class="label">From</p>
+            <div class="select-option neomorphic-input-2">
+              <ion-input type="date" v-model="startDate" />
+            </div>
+          </div>
 
-        <ion-card class="select-option">
-          <ion-input label="from:" type="date" v-model="startDate" />
-        </ion-card>
-
-        <ion-card class="select-option">
-          <ion-input label="to:" type="date" v-model="endDate" />
-        </ion-card>
+          <div class="container-inner">
+            <p :style="{ color: theme.primaryColor }" class="label">To</p>
+            <div class="select-option neomorphic-input-2">
+              <ion-input type="date" v-model="endDate" />
+            </div>
+          </div>
+        </div>
 
         <ion-button
           expand="full"
-          class="pos-right search-btn-container"
+          class="pos-right search-btn-container neomorphic-btn-2"
           color="none"
-          :style="{ backgroundColor: theme.secondaryColor }"
+          :style="{ backgroundColor: theme.primaryColor }"
           @click="fetchData"
         >
           Search
         </ion-button>
       </ion-card>
 
-      <ion-card
-        class="card result-container"
-        :style="{ backgroundColor: theme.primaryColor }"
-      >
-        <h4
-          class="text-center outlineColor result-text"
-          :style="{
-            color: theme.primaryFontColor,
-            border: `2px solid` + theme.primaryFontColor,
-          }"
-        >
-          Result
-        </h4>
+      <div class="result-container">
         <ion-card
-          class="card-inner"
+          class="neomorphic-card-1 card-container"
           v-for="(result, index) in results"
           :key="index"
         >
-          <ion-card-header>
-            <ion-card-subtitle>
-              {{ result.day }} - {{ result.date }}
-            </ion-card-subtitle>
-            <div>
-              <p></p>
-            </div>
-          </ion-card-header>
+          <div
+            class="header-outline"
+            :style="{ backgroundColor: theme.primaryColor }"
+          >
+            <p class="header-label">{{ result.day }} - {{ result.date }}</p>
+          </div>
 
           <ion-grid>
-            <ion-col size="6">
+            <div class="card-content">
               <ion-row>
                 <ion-col size="6">
                   <p>Schedule In:</p>
@@ -114,19 +106,19 @@
                   <p>{{ result.actualOut }}</p>
                 </ion-col>
               </ion-row>
-            </ion-col>
+            </div>
           </ion-grid>
 
           <ion-button
             expand="full"
             color="light"
-            class="edit-btn"
+            class="edit-btn neomorphic-btn-2"
             @click="navigateToEditPage(result.date)"
           >
             <ion-icon name="create-outline"></ion-icon> Edit
           </ion-button>
         </ion-card>
-      </ion-card>
+      </div>
     </ion-content>
   </ion-page>
 </template>
@@ -398,8 +390,9 @@ p {
   border-radius: 20px;
   margin: 10px 0 0 0;
 }
-.card ion-card-content {
-  padding: 10px;
+.card-content {
+  padding: 0 0 0 20px;
+  margin-top: 30px;
 }
 .card h5 {
   margin: 0;
@@ -444,10 +437,14 @@ p {
   line-height: normal;
 }
 .select-option {
-  min-width: 300px;
   border-radius: 20px;
-  padding: 0 20px;
+  /* padding: 0 20px; */
   margin: 5px;
+  width: 150px;
+}
+.input-container {
+  display: flex;
+  flex-direction: row;
 }
 .header-row {
   border-bottom: 1px solid #000;
@@ -461,17 +458,51 @@ p {
   right: 10px;
 }
 .search-btn-container {
-  overflow: hidden;
-  border-radius: 10px;
-  margin-bottom: 10px;
+  height: 30px;
+  width: 100px;
 }
 .edit-btn {
-  padding: 0;
-  border-radius: 10px;
-  overflow: hidden;
-  margin-bottom: 10px;
+  width: 100%;
+  height: 30px;
+  margin: 0 auto 5px auto;
 }
 .result-text {
   margin: 15px;
+}
+
+.search-container {
+  margin: 10px auto 20px auto;
+  padding: 10px;
+}
+
+.search-title {
+  font-family: "Inter";
+  font-weight: bold;
+  text-align: center;
+  margin: 0 0 10px 0;
+}
+
+.label {
+  font-family: "Inter";
+  font-weight: bold;
+}
+.container-inner p {
+  padding-left: 20px;
+}
+.card-container {
+  width: 270px;
+  margin: 10px auto;
+}
+.header-outline {
+  border-radius: 20px 0 0 20px;
+  position: absolute;
+  right: 0;
+  top: 0;
+  padding: 10px;
+  width: fit-content;
+}
+.header-label {
+  color: #fff;
+  font-size: 12px;
 }
 </style>
