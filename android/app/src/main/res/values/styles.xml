@@ -17,6 +17,8 @@
 
 
     <style name="AppTheme.NoActionBarLaunch" parent="Theme.SplashScreen">
-        <item name="android:background">@drawable/hrvale_logo_light</item>
+        <item name="android:layout">@layout/splash_screen_layout</item>
+        <item name="android:background">@layout/splash_screen_layout</item>
     </style>
+
 </resources>
