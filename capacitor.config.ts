@@ -14,10 +14,19 @@ const config: CapacitorConfig = {
     App: {
       web: "src/js/capacitor-app.js",
     },
-    plugins: {
-      "PushNotifications": {
-        "presentationOptions": ["badge", "sound", "alert"]
-      }
+    PushNotifications: {
+      presentationOptions: ["badge", "sound", "alert"],
+    },
+    SplashScreen: {
+      launchShowDuration: 5000,
+      launchAutoHide: true,
+      launchFadeOutDuration: 3000,
+      backgroundColor: "#ffffffff",
+      androidSplashResourceName: "splash",
+      androidScaleType: "CENTER_INSIDE",
+      showSpinner: false,
+      splashFullScreen: true,
+      splashImmersive: true,
     },
   },
 };

@@ -143,7 +143,7 @@ export default defineComponent({
       theme: {},
       loading: true,
       payslipData: [],
-      carData: [],
+      cardData: [],
     };
   },
   methods: {
@@ -251,12 +251,14 @@ export default defineComponent({
       document.body.appendChild(downloadLink);
       downloadLink.click();
       document.body.removeChild(downloadLink);
+      this.showAlertMessage(
+        "Payslip Successfully Downloaded! Check the Documents."
+      );
     },
 
     async downloadOnMobile(blob) {
       try {
-        const payslipPath = "payslip.pdf";
-
+        const payslipPath = `payslip_${Date.now()}.pdf`;
         const base64String = await this.blobToBase64(blob);
 
         const writeResult = await Filesystem.writeFile({

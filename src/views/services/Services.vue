@@ -34,17 +34,16 @@ import {
   IonCard,
 } from "@ionic/vue";
 import CardWImg from "@/components/cards/CardWImg.vue";
-import ServicesGroupButton from "@/components/buttons/ServicesGroupButton.vue";
+import ServicesGroupButton from "@/views/services/components/ServicesGroupButton.vue";
 import HeaderUser from "@/components/header/HeaderUser.vue";
 import Refresher from "@/components/refresher/Refresher.vue";
 import { defineComponent } from "vue";
-import { getThemeData } from "@/theme/theme";
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
 import { GlobalConstants } from "@/config/constants";
 import axios from "axios";
+
 const baseURL = GlobalConstants.HOST_URL;
-// const empNumber = GlobalConstants.EMPLOYEE_ID;
 
 export default defineComponent({
   components: {
@@ -74,74 +73,42 @@ export default defineComponent({
       img_src: "assets/images/card_img2.png",
       theme: {},
       firstName: "User",
-      empNumber: ""
+      empNumber: "",
     };
   },
   methods: {
-    // Exppiration of token
-    async checkTokenExpiration() {
-      const storedToken = localStorage.getItem("_token");
+    async fetchTheme() {
+      const storedThemeData = localStorage.getItem("theme");
 
-      if (!storedToken) {
-        console.error("Token not available.");
-        console.log("Token is missing. Redirecting to login...");
-        this.router.push("/login");
-        return;
-      }
+      const themeData = storedThemeData ? JSON.parse(storedThemeData) : {};
 
-      const tokenData = JSON.parse(atob(storedToken.split(".")[1]));
-      const expirationTime = tokenData.exp * 1000;
-
-      if (Date.now() > expirationTime) {
-        console.log("Token expired. Redirecting to login...");
-        this.router.push("/login");
-      }
+      this.theme = themeData;
     },
-    async userDetails() {
+    servicesData() {
       try {
-        this.store.commit("loader/updateLoader", true);
-        await this.checkTokenExpiration();
+        const storedUser = localStorage.getItem("userDetails");
 
-        this.storedToken = localStorage.getItem("_token");
-        const headers = {
-          Authorization: `Bearer ${this.storedToken}`,
-        };
+        if (storedUser) {
+          const parsedUser = JSON.parse(storedUser);
 
-        const api =
-          baseURL + `api/v2/pim/employees/${this.empNumber}/personal-details`;
-        const dataResponse = await axios.get(api, { headers });
-
-        if (
-          dataResponse.data &&
-          dataResponse.data.data &&
-          dataResponse.data.data.firstName
-        ) {
-          this.firstName = dataResponse.data.data.firstName;
-        } else {
-          console.error(
-            "Error: Unable to retrieve first name from the response."
-          );
+          this.cardHeader = "Hello, " + parsedUser.firstName + "!";
+          this.cardText =
+            "Welcome to ESS (Employee Self-Service). Feel free to explore or ask any questions. Wishing you a wonderful day!";
         }
       } catch (error) {
-        console.error("Error fetching user details: ", error);
+        console.error("Error accessing user details: ", error);
       } finally {
-        this.cardHeader = "Hello, " + this.firstName + "!";
-        // incase there is another lines for this text here.
-        this.cardText =
-          "Welcome to ESS (Employee Self-Service). Feel free to explore or ask any questions. Wishing you a wonderful day!";
         this.store.commit("loader/updateLoader", false);
-        this.loading = false;
       }
     },
   },
   created() {
-    this.empNumber = localStorage.getItem('empNumber');
-    this.checkTokenExpiration();
-    const storedThemeData = getThemeData();
+    this.empNumber = localStorage.getItem("empNumber");
 
-    this.theme = storedThemeData;
+    this.fetchTheme();
+    this.servicesData();
 
-    this.userDetails(this.firstName);
+    this.loading = false;
   },
 });
 </script>

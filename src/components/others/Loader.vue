@@ -16,7 +16,6 @@
 
 <script>
 import { IonSpinner } from "@ionic/vue";
-import { getThemeData } from "@/theme/theme";
 
 export default {
   template: `
@@ -42,12 +41,16 @@ export default {
     };
   },
   created() {
-    const storedThemeData = getThemeData();
+    this.fetchTheme();
+  },
+  methods: {
+    async fetchTheme() {
+      const storedThemeData = localStorage.getItem("theme");
 
-    if (storedThemeData) {
-      this.theme = storedThemeData;
-    }
-    this.theme = storedThemeData;
+      const themeData = storedThemeData ? JSON.parse(storedThemeData) : {};
+
+      this.theme = themeData;
+    },
   },
 };
 </script>
@@ -71,7 +74,8 @@ export default {
   height: 150px;
   width: 200px;
   background-color: rgb(255, 255, 255);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1), 0 4px 8px rgba(0, 0, 0, 0.1), 0 8px 16px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1), 0 4px 8px rgba(0, 0, 0, 0.1),
+    0 8px 16px rgba(0, 0, 0, 0.1);
 }
 
 .custom-loading {

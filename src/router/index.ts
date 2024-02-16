@@ -40,11 +40,15 @@ const routes: Array<RouteRecordRaw> = [
     children: [
       {
         path: "",
-        redirect: "/tabs/home",
+        redirect: "/tabs/buzzfeed",
       },
       {
         path: "home",
         component: () => import("@/views/home/HomePage.vue"),
+      },
+      {
+        path: "buzzfeed",
+        component: () => import("@/views/home/BuzzFeed.vue"),
       },
       {
         path: "services",

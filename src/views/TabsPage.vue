@@ -5,27 +5,26 @@
       <ion-tab-bar class="tab-bar" color="none">
         <ion-tab-button
           tab="home"
-          href="/tabs/home"
+          href="/tabs/buzzfeed"
           @click="handleTabButtonClick('home')"
         >
           <div class="home" :class="{ clicked: clickedTab === 'home' }">
             <svg
               xmlns="http://www.w3.org/2000/svg"
+              class="ionicon icon-color"
               viewBox="0 0 512 512"
-              name="home"
-              class="icon-color"
               :style="{ fill: theme.primaryColor, width: '35px' }"
             >
               <path
-                d="M261.56 101.28a8 8 0 00-11.06 0L66.4 277.15a8 8 0 00-2.47 5.79L63.9 448a32 32 0 0032 32H192a16 16 0 0016-16V328a8 8 0 018-8h80a8 8 0 018 8v136a16 16 0 0016 16h96.06a32 32 0 0032-32V282.94a8 8 0 00-2.47-5.79z"
+                d="M439.91 112h-23.82a.09.09 0 00-.09.09V416a32 32 0 0032 32 32 32 0 0032-32V152.09A40.09 40.09 0 00439.91 112z"
               />
               <path
-                d="M490.91 244.15l-74.8-71.56V64a16 16 0 00-16-16h-48a16 16 0 00-16 16v32l-57.92-55.38C272.77 35.14 264.71 32 256 32c-8.68 0-16.72 3.14-22.14 8.63l-212.7 203.5c-6.22 6-7 15.87-1.34 22.37A16 16 0 0043 267.56L250.5 69.28a8 8 0 0111.06 0l207.52 198.28a16 16 0 0022.59-.44c6.14-6.36 5.63-16.86-.76-22.97z"
+                d="M384 416V72a40 40 0 00-40-40H72a40 40 0 00-40 40v352a56 56 0 0056 56h342.85a1.14 1.14 0 001.15-1.15 1.14 1.14 0 00-.85-1.1A64.11 64.11 0 01384 416zM96 128a16 16 0 0116-16h64a16 16 0 0116 16v64a16 16 0 01-16 16h-64a16 16 0 01-16-16zm208 272H112.45c-8.61 0-16-6.62-16.43-15.23A16 16 0 01112 368h191.55c8.61 0 16 6.62 16.43 15.23A16 16 0 01304 400zm0-64H112.45c-8.61 0-16-6.62-16.43-15.23A16 16 0 01112 304h191.55c8.61 0 16 6.62 16.43 15.23A16 16 0 01304 336zm0-64H112.45c-8.61 0-16-6.62-16.43-15.23A16 16 0 01112 240h191.55c8.61 0 16 6.62 16.43 15.23A16 16 0 01304 272zm0-64h-63.55c-8.61 0-16-6.62-16.43-15.23A16 16 0 01240 176h63.55c8.61 0 16 6.62 16.43 15.23A16 16 0 01304 208zm0-64h-63.55c-8.61 0-16-6.62-16.43-15.23A16 16 0 01240 112h63.55c8.61 0 16 6.62 16.43 15.23A16 16 0 01304 144z"
               />
             </svg>
           </div>
 
-          <ion-label :style="{ color: theme.primaryColor }">HOME</ion-label>
+          <ion-label :style="{ color: theme.primaryColor }">NEWS</ion-label>
         </ion-tab-button>
 
         <ion-tab-button
@@ -47,27 +46,6 @@
             </svg>
           </div>
           <ion-label :style="{ color: theme.primaryColor }">SERVICES</ion-label>
-        </ion-tab-button>
-
-        <ion-tab-button
-          tab="approval"
-          href="/tabs/approval"
-          @click="handleTabButtonClick('approval')"
-        >
-          <div class="approval" :class="{ clicked: clickedTab === 'approval' }">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 512 512"
-              name="checkmark-circle"
-              class="icon-color"
-              :style="{ fill: theme.primaryColor, width: '35px' }"
-            >
-              <path
-                d="M256 48C141.31 48 48 141.31 48 256s93.31 208 208 208 208-93.31 208-208S370.69 48 256 48zm108.25 138.29l-134.4 160a16 16 0 01-12 5.71h-.27a16 16 0 01-11.89-5.3l-57.6-64a16 16 0 1123.78-21.4l45.29 50.32 122.59-145.91a16 16 0 0124.5 20.58z"
-              />
-            </svg>
-          </div>
-          <ion-label :style="{ color: theme.primaryColor }">APPROVAL</ion-label>
         </ion-tab-button>
 
         <ion-tab-button
@@ -111,8 +89,8 @@ import { getThemeData } from "@/theme/theme";
 import { defineComponent } from "vue";
 import axios from "axios";
 import { GlobalConstants } from "@/config/constants";
+
 const baseURL = GlobalConstants.HOST_URL;
-// const empNumber = GlobalConstants.EMPLOYEE_ID;
 const id = GlobalConstants.USER_ID;
 
 export default defineComponent({
@@ -131,7 +109,7 @@ export default defineComponent({
       clickedTab: null,
       isApprovalButtonDisabled: true,
       adminUserDetails_: null,
-      empNumber: "",
+      empNumber: null,
     };
   },
   methods: {
@@ -143,10 +121,11 @@ export default defineComponent({
     },
     async adminUserDetails() {
       try {
-        const storedToken = localStorage.getItem("_token");
+        const storedToken = localStorage.getItem("token");
         const headers = {
           Authorization: `Bearer ${storedToken}`,
         };
+
         const api = baseURL + `api/v2/admin/users/${id}`;
         const dataResponse = await axios.get(api, { headers });
 
@@ -158,6 +137,7 @@ export default defineComponent({
           middleName: dataResponse.data.data.employee.middleName,
           terminationId: dataResponse.data.data.employee.terminationId,
         };
+
         localStorage.setItem("empNumber", this.adminUserDetails_.empNumber);
       } catch (error) {
         console.error("Error fetching user details: ", error);
@@ -168,7 +148,7 @@ export default defineComponent({
 
     async userDetails() {
       try {
-        const storedToken = localStorage.getItem("_token");
+        const storedToken = localStorage.getItem("token");
 
         const headers = {
           Authorization: `Bearer ${storedToken}`,
@@ -180,16 +160,17 @@ export default defineComponent({
         console.error("Error fetching user details: ", error);
       }
     },
+    fetchTheme() {
+      const storedThemeData = localStorage.getItem("theme");
+
+      const themeData = storedThemeData ? JSON.parse(storedThemeData) : {};
+
+      this.theme = themeData;
+    },
   },
   created() {
     this.empNumber = localStorage.getItem("empNumber");
-    this.adminUserDetails();
-
-    const storedThemeData = getThemeData();
-
-    if (storedThemeData) {
-      this.theme = storedThemeData;
-    }
+    this.fetchTheme();
   },
 });
 </script>

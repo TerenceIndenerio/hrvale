@@ -179,17 +179,16 @@ export default defineComponent({
       console.log("Logging out");
     },
 
-    getTheme() {
-      const storedThemeData = getThemeData();
+    fetchTheme() {
+      const storedThemeData = localStorage.getItem("theme");
 
-      if (storedThemeData) {
-        this.theme = storedThemeData;
-      }
-      this.theme = storedThemeData;
+      const themeData = storedThemeData ? JSON.parse(storedThemeData) : {};
+
+      this.theme = themeData;
     },
   },
   async created() {
-    this.getTheme();
+    this.fetchTheme();
     this.loading = false;
   },
 });

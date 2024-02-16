@@ -123,6 +123,29 @@ http://ionicframework.com/docs/theming/ */
   font-style: normal;
   font-weight: 700;
 }
+.neomorphic-btn-3 {
+  box-shadow: var(--neomorphism-convex-2);
+  border-radius: 50px;
+  border: none;
+  width: fit-content;
+  min-width: 50px;
+  height: 50px;
+  overflow: hidden;
+  font-family: "Open Sans";
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 700;
+  color: gray;
+  padding: 0;
+}
+
+.neomorphic-btn-3-inactive {
+  box-shadow: var(--neomorphism-concave-4);
+  background: #fdfdfd;
+  border-radius: 30px;
+  overflow: hidden;
+  padding: 0;
+}
 
 .neomorphic-card-1 {
   box-shadow: var(--neomorphism-convex-1);

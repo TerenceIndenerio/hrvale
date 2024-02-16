@@ -19,7 +19,7 @@
           </div>
         </ion-card>
 
-        <Card1 :dataExample="dataExample" />
+        <!-- <SampleCard :dataExample="dataExample" :badge="badge" /> -->
 
         <div v-for="(cardData, index) in requests" :key="index">
           <LeaveRequestCard
@@ -56,7 +56,7 @@ import { useRouter } from "vue-router";
 import axios from "axios";
 import { GlobalConstants } from "@/config/constants";
 import { getThemeData } from "@/theme/theme";
-import Card1 from "@/components/cards/CardExample1.vue";
+import SampleCard from "@/views/services/leave/components/SampleCard.vue";
 
 const baseURL = GlobalConstants.HOST_URL;
 
@@ -72,7 +72,7 @@ export default defineComponent({
     HeaderReturn,
     LeaveRequestCard,
     Refresher,
-    Card1,
+    SampleCard,
   },
   setup() {
     return {
@@ -92,7 +92,8 @@ export default defineComponent({
       leaveReqFor: "",
       theme: {},
       loading: true,
-      dataExample: "example",
+      dataExample: "Data Example...",
+      badge: "Badge Label",
       cardData: {
         date: "",
         employeeName: "",

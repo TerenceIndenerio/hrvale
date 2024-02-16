@@ -1,7 +1,7 @@
 <template>
   <ion-page>
-    <ion-content :fullscreen="true">
-      <div v-if="loaded">
+    <ion-content :fullscreen="true" v-if="loaded">
+      <div>
         <div
           class="container"
           :style="{ backgroundColor: themeData.primaryColor }"
@@ -43,9 +43,13 @@ import { mapGetters, mapActions, mapState } from "vuex";
 import { GlobalConstants } from "@/config/constants";
 import axios from "axios";
 import { getThemeData, setThemeData } from "@/theme/theme";
-import { runBackgroundScript } from '@/notification/Notification.ts';
+import { runBackgroundScript } from "@/notification/Notification.ts";
+import { myFunction, fetchConfigs } from "@/token/token";
+import { adminUserDetails, userDetails } from "@/store/login/onLoad";
+import generateToken from "@/store/token/accessToken.ts";
 
 const baseURL = GlobalConstants.HOST_URL;
+const id = GlobalConstants.USER_ID;
 
 export default defineComponent({
   components: {
@@ -76,103 +80,69 @@ export default defineComponent({
       themeData: {},
       bgTheme: "",
       loaded: false,
+      token: "",
+      newAccessToken: "",
+      configs: "",
     };
   },
   async mounted() {
-    console.log("mounted login");
-    await this.fetchTheme();
+    this.configs = await fetchConfigs();
+    this.fetchConfigsTheme();
+    this.loaded = true;
   },
   methods: {
-    async fetchTheme() {
+    async fetchToken() {
       try {
+        const storedToken = localStorage.getItem("access_token");
         const response = await axios.post(baseURL + "auth/token", {
-          clientId: "test_id",
-          clientSecret: "test_secret",
-          userId: 1,
+          secret: storedToken,
         });
 
-        const token = response.data.token;
-
-        if (!token) {
-          console.error("Token not available.");
-          return;
-        }
-
-        const headers = {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        };
-
-        const apiUrl = baseURL + `api/v2/admin/theme`;
-
-        const responseData = await axios.get(apiUrl, { headers });
-
-        this.themeData = responseData.data.data;
-        setThemeData(this.themeData);
-
-        this.imgLogo =
-          baseURL +
-          `admin/theme/image/loginBanner?` +
-          responseData.data.data.clientBanner.filename;
-
-        this.themeData = {
-          name: responseData.data.data.name,
-          primaryColor: responseData.data.data.variables.primaryColor,
-          primaryFontColor: responseData.data.data.variables.primaryFontColor,
-          secondaryColor: responseData.data.data.variables.secondaryColor,
-          secondaryFontColor:
-            responseData.data.data.variables.secondaryFontColor,
-          primaryGradientStartColor:
-            responseData.data.data.variables.primaryGradientStartColor,
-          primaryGradientEndColor:
-            responseData.data.data.variables.primaryGradientEndColor,
-          clientLogo:
-            baseURL +
-            `admin/theme/image/loginBanner?` +
-            responseData.data.data.clientLogo.filename,
-          clientBanner:
-            baseURL +
-            `admin/theme/image/loginBanner?` +
-            responseData.data.data.clientBanner.filename,
-          loginBanner:
-            baseURL +
-            `admin/theme/image/loginBanner?` +
-            responseData.data.data.loginBanner.filename,
-        };
-
-        setThemeData(this.themeData);
-
-        this.bgTheme = "background-color: " + this.themeData.primaryColor;
-
-        this.btnColorTheme = this.themeData.primaryColor;
-
-        this.loaded = true;
-        this.store.commit("loader/updateLoader", false);
+        localStorage.setItem("token", response.data.token);
       } catch (error) {
-        console.error("Error making the API request: ", error);
+        console.error(error.message);
       }
     },
+
+    async fetchConfigsTheme() {
+      try {
+        const storedConfigs = JSON.parse(
+          localStorage.getItem("configs") || "[]"
+        );
+        const theme = storedConfigs[0]?.configuration?.theme;
+
+        if (theme) {
+          this.themeData.primaryColor = theme.primaryColor;
+          this.themeData.secondaryColor = theme.secondaryColor;
+          this.themeData.primaryFontColor = theme.primaryFontColor;
+          this.themeData.secondaryFontColor = theme.secondaryFontColor;
+
+          localStorage.setItem("theme", JSON.stringify(this.themeData));
+        }
+      } catch (error) {
+        console.error("Error:", error);
+      }
+    },
+
     async OnLogin(value) {
       try {
-        const response = await this.store.dispatch("token/generateToken", {
-          username: value.username,
-          password: value.password,
-        });
-
-        const token = response.data.token;
+        const response = await generateToken(value.username, value.password);
+        console.log(response);
+        const token = response.data.access_token;
         if (token) {
-          localStorage.setItem("_token", token);
-          this.router.push("/tabs/home");
+          this.router.push("/tabs/buzzfeed");
+          await adminUserDetails(id);
+          await this.fetchToken();
           await runBackgroundScript();
         } else {
           console.log("Invalid username and/or password");
           await this.alertError();
         }
-        
       } catch (error) {
         console.error(error);
       }
     },
+
     async alertError() {
       const showAlert = async () => {
         const alert = await alertController.create({

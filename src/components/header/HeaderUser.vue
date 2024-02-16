@@ -7,35 +7,53 @@
     <img :src="imgLogo" alt="Logo" class="logo" />
 
     <ion-icon
-    name="notifications"
-    class="icon1"
-    @click="rotateIcon"
-    :class="{ 'rotateIcon': rotationState === 'rotateIcon' }"
-    :key="rotationState"
-  ></ion-icon>
+      name="notifications"
+      class="icon1"
+      @click="rotateIcon"
+      :class="{ rotateIcon: rotationState === 'rotateIcon' }"
+      :key="rotationState"
+    ></ion-icon>
 
-    <div class="profile-img-container">
-      <img :src="profileImg" alt="" />
+    <div class="profile-img-container" @click="openProfileModal">
+      <img :src="profileImageUrl" alt="" />
     </div>
   </ion-header>
-  
-  <ion-popover
-    :is-open="popoverOpen"
-    :event="event"
-    @didDismiss="popoverOpen = false"
-    class="ion-popover-container"
-  >
-    <div class="popup-container">
-      <ion-button
-        class="btn"
-        color="none"
-        expand="full"
-        :style="{ backgroundColor: headerColor }"
-        @click="navigateAcctSettings"
-      >
-      <ion-icon name="key-outline"></ion-icon> Token</ion-button>
-    </div>
-  </ion-popover>
+
+  <ion-modal :is-open="isOpen" id="modal">
+    <ion-card class="card-modal">
+      <ion-icon
+        @click="isOpen = false"
+        name="close"
+        color="danger"
+        class="close-btn"
+      ></ion-icon>
+
+      <div class="modal-content">
+        <h3>
+          {{ this.profileDetails.firstName }}
+          {{ this.profileDetails.middleName }}
+          {{ this.profileDetails.lastName }}
+        </h3>
+        <div>
+          <img :src="profileImageUrl" alt="" class="profile-img" />
+        </div>
+        <h5>{{ this.profileDetails.jobTitle }}</h5>
+        <div class="location-container">
+          <div>
+            <ion-icon name="location" class="location-icon"></ion-icon>
+          </div>
+          <div>
+            <p>
+              {{ this.profileDetails.subunit }}
+            </p>
+            <p>
+              {{ this.profileDetails.location }}
+            </p>
+          </div>
+        </div>
+      </div>
+    </ion-card>
+  </ion-modal>
 </template>
 
 <script>
@@ -45,11 +63,16 @@ import {
   IonPopover,
   IonContent,
   IonButton,
+  IonCard,
+  IonModal,
 } from "@ionic/vue";
 import { ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { defineProps, defineComponent } from "vue";
 import { GlobalConstants } from "@/config/constants";
+import axios from "axios";
+
+const baseURL = GlobalConstants.HOST_URL;
 
 export default defineComponent({
   components: {
@@ -58,6 +81,8 @@ export default defineComponent({
     IonPopover,
     IonContent,
     IonButton,
+    IonCard,
+    IonModal,
   },
   props: {
     headerTitle: String,
@@ -70,12 +95,30 @@ export default defineComponent({
       event: null,
       profile: "",
       defaultProfile: `https://ionicframework.com/docs/img/demos/avatar.svg`,
-      profileImg: "",
+      profileImageUrl: "",
       empNumber: "",
-      rotationState: 'initial'
+      rotationState: "initial",
+      isOpen: false,
+      firstName: "",
+      middleName: "",
+      lastName: "",
+      jobTitle: "",
+      subunit: "",
+      location: "",
+      profileDetails: "",
     };
   },
+  created() {
+    const empNumber = localStorage.getItem("empNumber");
+    // console.log(this.empNumber);
+    this.fetchProfilePhoto(empNumber);
+    this.hasProfile(empNumber);
+    // this.fetchProfileDirectory(empNumber);
+  },
   methods: {
+    openProfileModal() {
+      this.isOpen = true;
+    },
     openPopover(e) {
       this.event = e;
       this.popoverOpen = true;
@@ -86,24 +129,69 @@ export default defineComponent({
       this.$router.push("/login");
       this.popoverOpen = false;
     },
+    async fetchProfilePhoto(empNumber) {
+      try {
+        // const empNumber = localStorage.getItem("empNumber");
+        const storedToken = localStorage.getItem("token");
+
+        const apiUrl = `https://hrp-uat-app.bapplware.com/web/index.php/pim/viewPhoto/empNumber/${empNumber}`;
+
+        const headers = {
+          Authorization: `Bearer ${storedToken}`,
+        };
+
+        const response = await axios.get(apiUrl, {
+          headers,
+          responseType: "blob",
+        });
+        const blob = response.data;
+        this.profileImageUrl = URL.createObjectURL(blob);
+
+        localStorage.setItem("profileImageUrl", this.profileImageUrl);
+      } catch (error) {
+        console.error("Error:", error);
+        return null;
+      }
+    },
     hasProfile() {
-      this.profile = `https://hrp-staging-delta.bapplware.com/web/index.php/employee/photo/${this.empNumber}`
-      this.profileImg = this.profile ? this.defaultProfile : this.profile;
+      // const profileImageUrl = localStorage.getItem("profileImageUrl");
+      const profileImageUrl = "";
+      this.profileImg = profileImageUrl;
     },
     navigateAcctSettings() {
       this.$router.push("/tabs/accsettings");
       this.popoverOpen = false;
     },
-    async rotateIcon() {
-      this.rotationState = 'rotateIcon';
-      await new Promise(resolve => setTimeout(resolve, 300));
-      this.rotationState = 'initial';
+    async fetchProfileDirectory(empNumber) {
+      try {
+        const storedToken = localStorage.getItem("token");
+
+        const apiUrl =
+          baseURL + `api/v2/directory/employees/${empNumber}?model=detailed`;
+
+        const headers = {
+          Authorization: `Bearer ${storedToken}`,
+        };
+
+        const response = await axios.get(apiUrl, { headers });
+
+        this.profileDetails = {
+          firstName: response.data.data.firstName,
+          lastName: response.data.data.lastName,
+          middleName: response.data.data.middleName,
+          jobTitle: response.data.data.jobTitle.title,
+          subunit: response.data.data.subunit.name,
+          location: response.data.data.location.name,
+        };
+      } catch (error) {
+        console.error("Error:", error);
+      }
     },
-  },
-  created() {
-    this.empNumber = localStorage.getItem('empNumber');
-    this.hasProfile();
-    
+    async rotateIcon() {
+      this.rotationState = "rotateIcon";
+      await new Promise((resolve) => setTimeout(resolve, 300));
+      this.rotationState = "initial";
+    },
   },
 });
 </script>
@@ -193,7 +281,57 @@ ion-popover {
 }
 
 .rotateIcon {
-  animation: rotateKeyframes .3s ease-in-out;
+  animation: rotateKeyframes 0.3s ease-in-out;
+}
+
+.close-btn {
+  position: absolute;
+  top: 5px;
+  right: 10px;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  margin: 0;
+  box-shadow: var(--neomorphism-convex-4);
+  border-radius: 50%;
+  background-color: rgb(246, 246, 246);
+  overflow: hidden;
+}
+
+#modal {
+  --background: rgba(255, 0, 0, 0);
+}
+
+.card-modal {
+  border-radius: 20px;
+  max-width: 400px;
+  margin-top: 50%;
+  padding: 20px 30px;
+}
+
+.modal-content {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.profile-img {
+  border-radius: 50%;
+}
+
+.location-icon {
+  font-size: 40px;
+}
+.location-container {
+  display: flex;
+  align-items: center;
+  text-align: left;
+  background-color: rgb(239, 239, 239);
+  border-radius: 10px;
+  padding: 10px;
+}
+.location-container p {
+  margin: 0;
+  padding: 0;
 }
 
 @keyframes rotateKeyframes {
