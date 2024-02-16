@@ -127,7 +127,7 @@ export default defineComponent({
     async OnLogin(value) {
       try {
         const response = await generateToken(value.username, value.password);
-        console.log(response);
+
         const token = response.data.access_token;
         if (token) {
           this.router.push("/tabs/buzzfeed");

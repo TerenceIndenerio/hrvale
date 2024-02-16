@@ -29,15 +29,16 @@
       ></ion-icon>
 
       <div class="modal-content">
-        <h3>
-          {{ this.profileDetails.firstName }}
-          {{ this.profileDetails.middleName }}
-          {{ this.profileDetails.lastName }}
-        </h3>
+        <h3>{{ this.profileDetails.userName }}</h3>
         <div>
           <img :src="profileImageUrl" alt="" class="profile-img" />
         </div>
-        <h5>{{ this.profileDetails.jobTitle }}</h5>
+
+        <h3>
+          {{ this.profileDetails.employee.firstName }}
+          {{ this.profileDetails.employee.middleName }}
+          {{ this.profileDetails.employee.lastName }}
+        </h3>
         <div class="location-container">
           <div>
             <ion-icon name="location" class="location-icon"></ion-icon>
@@ -110,10 +111,9 @@ export default defineComponent({
   },
   created() {
     const empNumber = localStorage.getItem("empNumber");
-    // console.log(this.empNumber);
     this.fetchProfilePhoto(empNumber);
-    this.hasProfile(empNumber);
-    // this.fetchProfileDirectory(empNumber);
+
+    this.fetchProfileDirectory();
   },
   methods: {
     openProfileModal() {
@@ -131,7 +131,6 @@ export default defineComponent({
     },
     async fetchProfilePhoto(empNumber) {
       try {
-        // const empNumber = localStorage.getItem("empNumber");
         const storedToken = localStorage.getItem("token");
 
         const apiUrl = `https://hrp-uat-app.bapplware.com/web/index.php/pim/viewPhoto/empNumber/${empNumber}`;
@@ -153,36 +152,15 @@ export default defineComponent({
         return null;
       }
     },
-    hasProfile() {
-      // const profileImageUrl = localStorage.getItem("profileImageUrl");
-      const profileImageUrl = "";
-      this.profileImg = profileImageUrl;
-    },
+
     navigateAcctSettings() {
       this.$router.push("/tabs/accsettings");
       this.popoverOpen = false;
     },
-    async fetchProfileDirectory(empNumber) {
+    async fetchProfileDirectory() {
       try {
-        const storedToken = localStorage.getItem("token");
-
-        const apiUrl =
-          baseURL + `api/v2/directory/employees/${empNumber}?model=detailed`;
-
-        const headers = {
-          Authorization: `Bearer ${storedToken}`,
-        };
-
-        const response = await axios.get(apiUrl, { headers });
-
-        this.profileDetails = {
-          firstName: response.data.data.firstName,
-          lastName: response.data.data.lastName,
-          middleName: response.data.data.middleName,
-          jobTitle: response.data.data.jobTitle.title,
-          subunit: response.data.data.subunit.name,
-          location: response.data.data.location.name,
-        };
+        const adminUserDetails = localStorage.getItem("adminUserDetails");
+        this.profileDetails = JSON.parse(adminUserDetails);
       } catch (error) {
         console.error("Error:", error);
       }

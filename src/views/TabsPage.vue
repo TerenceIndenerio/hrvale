@@ -1,19 +1,28 @@
 <template>
   <ion-page color="none" style="background-color: #fff">
     <ion-tabs>
-      <ion-router-outlet></ion-router-outlet>
+      <ion-router-outlet ref="routerOutlet"></ion-router-outlet>
       <ion-tab-bar class="tab-bar" color="none">
         <ion-tab-button
           tab="home"
           href="/tabs/buzzfeed"
           @click="handleTabButtonClick('home')"
         >
-          <div class="home" :class="{ clicked: clickedTab === 'home' }">
+          <div
+            class="home"
+            :class="{
+              clicked: clickedTab === 'home',
+              'tab-btn': clickedTab !== 'home',
+            }"
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               class="ionicon icon-color"
               viewBox="0 0 512 512"
-              :style="{ fill: theme.primaryColor, width: '35px' }"
+              :style="{
+                fill: clickedTab === 'home' ? theme.primaryColor : 'gray',
+                width: '35px',
+              }"
             >
               <path
                 d="M439.91 112h-23.82a.09.09 0 00-.09.09V416a32 32 0 0032 32 32 32 0 0032-32V152.09A40.09 40.09 0 00439.91 112z"
@@ -32,13 +41,22 @@
           href="/tabs/services"
           @click="handleTabButtonClick('services')"
         >
-          <div class="services" :class="{ clicked: clickedTab === 'services' }">
+          <div
+            class="services"
+            :class="{
+              clicked: clickedTab === 'services',
+              'tab-btn': clickedTab !== 'services',
+            }"
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 512 512"
               name="grid"
               class="icon-color"
-              :style="{ fill: theme.primaryColor, width: '35px' }"
+              :style="{
+                fill: clickedTab === 'services' ? theme.primaryColor : 'gray',
+                width: '35px',
+              }"
             >
               <path
                 d="M204 240H68a36 36 0 01-36-36V68a36 36 0 0136-36h136a36 36 0 0136 36v136a36 36 0 01-36 36zM444 240H308a36 36 0 01-36-36V68a36 36 0 0136-36h136a36 36 0 0136 36v136a36 36 0 01-36 36zM204 480H68a36 36 0 01-36-36V308a36 36 0 0136-36h136a36 36 0 0136 36v136a36 36 0 01-36 36zM444 480H308a36 36 0 01-36-36V308a36 36 0 0136-36h136a36 36 0 0136 36v136a36 36 0 01-36 36z"
@@ -55,12 +73,19 @@
         >
           <div
             class="accsettings"
-            :class="{ clicked: clickedTab === 'accsettings' }"
+            :class="{
+              clicked: clickedTab === 'accsettings',
+              'tab-btn': clickedTab !== 'accsettings',
+            }"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               class="icon-color"
-              :style="{ fill: theme.primaryColor, width: '35px' }"
+              :style="{
+                fill:
+                  clickedTab === 'accsettings' ? theme.primaryColor : 'gray',
+                width: '35px',
+              }"
               viewBox="0 0 512 512"
             >
               <path
@@ -116,7 +141,7 @@ export default defineComponent({
     handleTabButtonClick(tabName) {
       this.clickedTab = tabName;
       setTimeout(() => {
-        this.clickedTab = null;
+        // this.clickedTab = null;
       }, 200);
     },
     async adminUserDetails() {
@@ -169,6 +194,7 @@ export default defineComponent({
     },
   },
   created() {
+    this.clickedTab = "home";
     this.empNumber = localStorage.getItem("empNumber");
     this.fetchTheme();
   },
@@ -208,7 +234,10 @@ ion-tab-bar {
   color: var(--ion-color-primary);
 }
 .clicked {
-  transform: scale(0.7);
+  transform: scale(1);
   transition: transform 0.2s ease;
+}
+.tab-btn {
+  transform: scale(0.7);
 }
 </style>

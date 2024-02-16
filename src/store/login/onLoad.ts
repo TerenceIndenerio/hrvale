@@ -15,8 +15,6 @@ async function adminUserDetails(id: string): Promise<void> {
     const api = baseURL + `api/v2/admin/users/${id}`;
     const dataResponse = await axios.get(api, { headers });
 
-    console.log(dataResponse);
-
     const adminUserDetails = {
       empNumber: dataResponse.data.data.employee.empNumber,
       employeeId: dataResponse.data.data.employee.employeeId,
@@ -27,6 +25,10 @@ async function adminUserDetails(id: string): Promise<void> {
     };
 
     localStorage.setItem("empNumber", adminUserDetails.empNumber);
+    localStorage.setItem(
+      "adminUserDetails",
+      JSON.stringify(dataResponse.data.data)
+    );
 
     empNumber = adminUserDetails.empNumber;
   } catch (error) {
@@ -53,8 +55,6 @@ async function userDetails(empNumber: string): Promise<void> {
 
     const storedUserString = localStorage.getItem("userDetails");
     const storedUser = storedUserString ? JSON.parse(storedUserString) : null;
-
-    console.log(storedUser);
   } catch (error) {
     console.error("Error fetching user details: ", error);
   }

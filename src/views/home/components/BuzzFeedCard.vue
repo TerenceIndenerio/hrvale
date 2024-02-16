@@ -27,11 +27,9 @@
       </div>
     </div>
     <div class="action-btn-container">
-      <div class="stats">
-        <div class="action-btn" @click="onLikeClick">
-          <ion-icon name="heart" class="action-icon"></ion-icon>
-          {{ numOfLikes }}
-        </div>
+      <div class="action-btn" @click="onLikeClick">
+        <ion-icon name="heart" class="action-icon"></ion-icon>
+        {{ numOfLikes }}
       </div>
     </div>
   </ion-card>
@@ -144,8 +142,10 @@ p {
   align-items: center;
 }
 .action-btn-container {
-  margin: 10px 20px;
+  margin: 10px 0;
   width: 100%;
+  display: flex;
+  justify-content: center;
 }
 .action-btn {
   display: flex;
@@ -186,10 +186,7 @@ p {
   overflow: hidden;
   box-shadow: var(--neomorphism-concave-2);
 }
-.stats {
-  display: flex;
-  gap: 10px;
-}
+
 .action-icon {
   font-size: 25px;
 }

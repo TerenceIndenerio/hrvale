@@ -5,7 +5,7 @@
       :headerColor="theme.primaryColor"
       :imgLogo="theme.clientLogo"
     ></HeaderUser>
-    <ion-content :fullscreen="true" v-if="!loading">
+    <ion-content :fullscreen="true">
       <Refresher />
 
       <div class="buzz-action-btn-container">
@@ -160,28 +160,9 @@ export default defineComponent({
   methods: {
     ...mapMutations("loader", ["updateLoader"]),
 
-    // Expiration of token
-    async checkTokenExpiration() {
-      const storedToken = localStorage.getItem("token");
-
-      if (!storedToken) {
-        console.error("Token not available.");
-        console.log("Token is missing. Redirecting to login...");
-        this.router.push("/login");
-        return;
-      }
-
-      const tokenData = JSON.parse(atob(storedToken.split(".")[1]));
-      const expirationTime = tokenData.exp * 1000;
-
-      if (Date.now() > expirationTime) {
-        console.log("Token expired. Redirecting to login...");
-        this.router.push("/login");
-      }
-    },
-
     async fetchNewsFeed(filterVal) {
       try {
+        this.store.commit("loader/updateLoader", true);
         const storedToken = localStorage.getItem("token");
 
         const apiUrl = baseURL + filterVal;
@@ -223,12 +204,13 @@ export default defineComponent({
         }
       } catch (error) {
         console.error("Error:", error);
+      } finally {
+        this.store.commit("loader/updateLoader", false);
       }
     },
 
     async fetchPhotoWithToken(photoIds) {
       try {
-        this.store.commit("loader/updateLoader", true);
         const storedToken = localStorage.getItem("token");
 
         const apiUrl = `https://hrp-uat-app.bapplware.com/web/index.php/buzz/photo/${photoIds}`;
@@ -249,8 +231,6 @@ export default defineComponent({
       } catch (error) {
         console.error("Error:", error);
         return null;
-      } finally {
-        this.store.commit("loader/updateLoader", false);
       }
     },
 
@@ -282,7 +262,7 @@ export default defineComponent({
       }
     },
 
-    async fetchShareID(postId) {
+    async getSharedData(postId) {
       try {
         const storedToken = localStorage.getItem("token");
 
@@ -298,8 +278,6 @@ export default defineComponent({
           Authorization: `Bearer ${storedToken}`,
         };
         const dataResponse = await axios.get(apiUrl, { headers });
-
-        // this.sendReact(postID)
       } catch (error) {
         console.error("Error:", error);
       }
@@ -320,7 +298,7 @@ export default defineComponent({
         const headers = {
           Authorization: `Bearer ${storedToken}`,
         };
-        const dataResponse = await axios.get(apiUrl, { headers });
+        const dataResponse = await axios.post(apiUrl, { headers });
       } catch (error) {
         console.error("Error:", error);
       }
@@ -328,10 +306,6 @@ export default defineComponent({
 
     async fetchData() {
       try {
-        this.store.commit("loader/updateLoader", true);
-
-        await this.checkTokenExpiration();
-
         const storedToken = localStorage.getItem("token");
 
         if (!storedToken) {
@@ -351,13 +325,8 @@ export default defineComponent({
         const extractedData = response.data.data;
 
         this.extractedData = extractedData;
-
-        this.store.commit("loader/updateLoader", false);
       } catch (error) {
         console.error("Error:", error);
-        this.store.commit("loader/updateLoader", false);
-      } finally {
-        this.loading = false;
       }
     },
 
@@ -365,7 +334,6 @@ export default defineComponent({
       try {
         this.empNumber = localStorage.getItem("empNumber");
         this.store.commit("loader/updateLoader", true);
-        await this.checkTokenExpiration();
 
         this.storedToken = localStorage.getItem("token");
         const headers = {
@@ -391,9 +359,6 @@ export default defineComponent({
         console.error("Error fetching user details: ", error);
       } finally {
         this.cardText = "Hello, " + this.firstName + "!";
-        // incase there is another lines for this text here.
-
-        this.store.commit("loader/updateLoader", false);
         this.loading = false;
       }
     },
@@ -449,12 +414,13 @@ export default defineComponent({
 
   created() {
     this.updateLoader(false);
-    this.checkTokenExpiration();
     this.fetchData();
     this.fetchNewsFeed(
       "api/v2/buzz/feed?limit=10&offset=0&sortOrder=DESC&sortField=share.numOfComments"
     );
     this.fetchTheme();
+
+    this.loading = false;
   },
 });
 </script>
