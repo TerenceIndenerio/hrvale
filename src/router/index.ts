@@ -8,6 +8,7 @@ import LeaveRequest from "@/views/services/leave/LeaveRequest.vue";
 import ClockIn from "@/views/services/clock_in/ClockIn.vue";
 import AttendanceCorrection from "@/views/services/attendance/AttendanceCorrection.vue";
 import Login from "@/views/login/Login.vue";
+import SetupLogin from "@/views/login/SetupLogin.vue";
 import Flash from "@/views/login/Flash.vue";
 import ApplyOT from "@/views/services/ot/ApplyOT.vue";
 import Vale from "@/views/services/vale/Vale.vue";
@@ -26,7 +27,6 @@ import PinCodeSetup from "@/views/pincode/PinCodeSetup.vue";
 import PinCodeAccountSettings from "@/views/pincode/PinCodeAccountSettings.vue";
 import LoanBalance from "@/views/services/loanBalance/loanBalance.vue";
 import LoanBalanceView from "@/views/services/loanBalance/LoanBalanceView.vue";
-
 import NotifToken from "@/views/dev/NotifToken.vue";
 
 const routes: Array<RouteRecordRaw> = [
@@ -146,6 +146,10 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: "/login",
     component: Login,
+  },
+  {
+    path: "/setuplogin",
+    component: SetupLogin,
   },
   {
     path: "/tenant",

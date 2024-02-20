@@ -11,7 +11,7 @@
           </ion-text>
         </div>
 
-        <PinCodeLogin
+        <LoginForm
           @login="OnLogin"
           :btnBackgroundColor="themeData.primaryColor"
           :btnColor="themeData.primaryFontColor"
@@ -33,19 +33,13 @@ import {
   IonSpinner,
   alertController,
 } from "@ionic/vue";
-import PinCodeLogin from "@/views/login/components/PinCodeLogin.vue";
-import SVGLoginImage from "@/views/login/components/Svg.vue";
+import LoginForm from "@/views/login/components/LoginForm.vue";
 import Alert2 from "@/components/alert/Alert2.vue";
 import { defineComponent } from "vue";
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
 import { mapGetters, mapActions, mapState } from "vuex";
 import { GlobalConstants } from "@/config/constants";
-import axios from "axios";
-import { getThemeData, setThemeData } from "@/theme/theme";
-import { runBackgroundScript } from "@/notification/Notification.ts";
-import { newToken } from "@/store/token/newToken.ts";
-import { adminUserDetails, userDetails } from "@/store/login/onLoad";
 import generateToken from "@/store/token/accessToken.ts";
 
 const baseURL = GlobalConstants.HOST_URL;
@@ -59,8 +53,7 @@ export default defineComponent({
     IonTitle,
     IonContent,
     IonText,
-    PinCodeLogin,
-    SVGLoginImage,
+    LoginForm,
     Alert2,
     IonAlert,
     IonSpinner,
@@ -85,76 +78,16 @@ export default defineComponent({
     };
   },
   async mounted() {
-    await this.fetchToken();
-    this.checkToken();
-    this.fetchStoredTheme();
     this.loaded = true;
   },
   methods: {
-    checkToken() {
-      const storedToken = localStorage.getItem("token");
-      const storedRefereshToken = localStorage.getItem("refresh_token");
-
-      if (storedToken) {
-        try {
-          const decodedToken = JSON.parse(atob(storedToken.split(".")[1]));
-          const currentTimestamp = Math.floor(Date.now() / 1000);
-
-          if (decodedToken.exp && decodedToken.exp < currentTimestamp) {
-            console.log("Token has expired");
-            newToken();
-            this.hasToken = true;
-          } else {
-            console.log("Token is still valid");
-            this.hasToken = true;
-          }
-        } catch (error) {
-          console.error("Error decoding token:", error);
-        }
-      } else {
-        console.log("No token found");
-      }
-    },
-
-    async fetchToken() {
-      try {
-        const storedToken = localStorage.getItem("access_token");
-
-        const response = await axios.post(baseURL + "auth/token", {
-          secret: storedToken,
-        });
-
-        localStorage.setItem("token", response.data.token);
-      } catch (error) {
-        console.error(error.message);
-      }
-    },
-
-    async fetchStoredTheme() {
-      try {
-        const storedToken = localStorage.getItem("token");
-        const apiUrl = baseURL + `api/v2/admin/theme`;
-
-        const headers = {
-          Authorization: `Bearer ${storedToken}`,
-        };
-
-        const response = await axios.get(apiUrl, {
-          headers,
-        });
-      } catch (error) {
-        console.error("Error:", error);
-      }
-    },
-
     async OnLogin(value) {
       try {
-        if (this.hasToken) {
-          await this.fetchToken();
-          await adminUserDetails(id);
-          await runBackgroundScript();
-          this.fetchStoredTheme();
-          this.router.push("/tabs/buzzfeed");
+        const response = await generateToken(value.username, value.password);
+        const token = response.data.access_token;
+
+        if (token) {
+          this.router.push("/login");
         } else {
           console.log("Invalid Credentials");
           await this.alertError();

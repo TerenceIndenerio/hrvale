@@ -363,6 +363,24 @@ export default defineComponent({
       }
     },
 
+    async fetchStoredTheme() {
+      try {
+        const storedToken = localStorage.getItem("token");
+
+        const apiUrl = baseURL + `api/v2/admin/theme`;
+
+        const headers = {
+          Authorization: `Bearer ${storedToken}`,
+        };
+
+        const response = await axios.get(apiUrl, { headers });
+
+        console.log(response);
+      } catch (error) {
+        console.error("Error:", error);
+      }
+    },
+
     async showErrorMessage(message) {
       try {
         const toast = await toastController.create({
@@ -413,13 +431,15 @@ export default defineComponent({
   },
 
   created() {
+    this.fetchStoredTheme();
     this.updateLoader(false);
     this.fetchData();
     this.fetchNewsFeed(
       "api/v2/buzz/feed?limit=10&offset=0&sortOrder=DESC&sortField=share.numOfComments"
     );
     this.fetchTheme();
-
+    const token = localStorage.getItem("access_token");
+    console.log(token);
     this.loading = false;
   },
 });

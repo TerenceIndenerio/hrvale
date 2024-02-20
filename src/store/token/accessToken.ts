@@ -1,24 +1,7 @@
-// import axios, { AxiosResponse } from "axios";
-
-// async function myFunction(): Promise<AxiosResponse> {
-//   const baseURL = `https://hrvale.bapplware.com/api`;
-//   return new Promise((resolve) => {
-//     axios
-//       .post(baseURL + "/login", {
-//         username: "Tester81-staging",
-//         password: "Tester@81",
-//       })
-//       .then((res) => {
-//         localStorage.setItem("access_token", res.data.access_token);
-//         localStorage.setItem("refresh_token", res.data.refresh_token);
-//         resolve(res);
-//       });
-//   });
-// }
-
-// export default myFunction;
-
-// export { myFunction };
+interface Config {
+  key: string;
+  value: any;
+}
 
 import axios, { AxiosResponse } from "axios";
 
@@ -36,6 +19,10 @@ async function generateToken(
       .then((res) => {
         localStorage.setItem("access_token", res.data.access_token);
         localStorage.setItem("refresh_token", res.data.refresh_token);
+
+        const configs: Config[] = res.data.configs;
+        localStorage.setItem("configs", JSON.stringify(configs));
+
         resolve(res);
       })
       .catch((error) => {

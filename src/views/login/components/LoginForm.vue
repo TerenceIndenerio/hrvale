@@ -163,6 +163,7 @@ a {
   font-weight: 700;
   line-height: normal;
   border: none;
+  background-color: gray;
 }
 .bottom-text {
   width: 100%;
