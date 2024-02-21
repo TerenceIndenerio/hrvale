@@ -1,22 +1,7 @@
 <template>
   <ion-page>
     <ion-content :fullscreen="true" v-if="loaded">
-      <div>
-        <div
-          class="container"
-          :style="{ backgroundColor: themeData.primaryColor }"
-        >
-          <ion-text class="logo-banner">
-            <img :src="imgLogo" alt="" />
-          </ion-text>
-        </div>
-
-        <PinCodeLogin
-          @login="OnLogin"
-          :btnBackgroundColor="themeData.primaryColor"
-          :btnColor="themeData.primaryFontColor"
-        />
-      </div>
+      <PinCodeLogin @login="OnLogin" :theme="theme" />
     </ion-content>
   </ion-page>
 </template>
@@ -75,7 +60,7 @@ export default defineComponent({
   data() {
     return {
       imgLogo: "",
-      themeData: {},
+      theme: {},
       bgTheme: "",
       loaded: false,
       token: "",
@@ -126,24 +111,32 @@ export default defineComponent({
 
         localStorage.setItem("token", response.data.token);
       } catch (error) {
-        console.error(error.message);
+        console.error("error", error.message);
+        if (error.message === "Request failed with status code 401") {
+          this.checkToken();
+        }
       }
     },
 
     async fetchStoredTheme() {
       try {
-        const storedToken = localStorage.getItem("token");
-        const apiUrl = baseURL + `api/v2/admin/theme`;
+        const storedThemeData = localStorage.getItem("configs");
+        const themeData = storedThemeData ? JSON.parse(storedThemeData) : {};
 
-        const headers = {
-          Authorization: `Bearer ${storedToken}`,
-        };
+        // Assuming themeData[1] is an object with a configuration property
+        const theme = themeData[1]?.configuration?.theme;
 
-        const response = await axios.get(apiUrl, {
-          headers,
-        });
+        if (theme) {
+          // Do not stringify the theme object before storing in localStorage
+          localStorage.setItem("themeData", JSON.stringify(theme));
+
+          // Assign the theme object directly to this.theme
+          this.theme = theme;
+        } else {
+          console.error("Theme not found in the configuration data.");
+        }
       } catch (error) {
-        console.error("Error:", error);
+        console.error("Error fetching or parsing theme data:", error);
       }
     },
 
@@ -153,7 +146,6 @@ export default defineComponent({
           await this.fetchToken();
           await adminUserDetails(id);
           await runBackgroundScript();
-          this.fetchStoredTheme();
           this.router.push("/tabs/buzzfeed");
         } else {
           console.log("Invalid Credentials");

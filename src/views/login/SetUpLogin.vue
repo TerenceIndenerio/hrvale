@@ -88,12 +88,10 @@ export default defineComponent({
 
         if (token) {
           this.router.push("/login");
-        } else {
-          console.log("Invalid Credentials");
-          await this.alertError();
         }
       } catch (error) {
-        console.error(error);
+        console.error(error.message);
+        await this.alertError();
       }
     },
 

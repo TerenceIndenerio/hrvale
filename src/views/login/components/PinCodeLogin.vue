@@ -1,11 +1,16 @@
 <template>
   <ion-page>
     <ion-content :fullscreen="true">
-      <div class="container">
+      <div class="container" :style="{ backgroundColor: theme.primaryColor }">
         <div class="title-container">
-          <h1 class="title">Enter PIN</h1>
+          <h1 class="title" :style="{ color: theme.primaryFontColor }">
+            Enter PIN
+          </h1>
           <h1 class="title-icon">
-            <ion-icon name="document-lock-outline"></ion-icon>
+            <ion-icon
+              name="document-lock-outline"
+              :style="{ color: theme.primaryFontColor }"
+            ></ion-icon>
           </h1>
         </div>
       </div>
@@ -29,6 +34,7 @@
               expand="block"
               color="none"
               @click="submitForm"
+              :style="{ backgroundColor: theme.primaryColor }"
               >{{ this.buttonText }}</ion-button
             >
           </div>
@@ -55,8 +61,7 @@ export default {
     IonContent,
   },
   props: {
-    btnBackgroundColor: String,
-    btnColor: String,
+    theme: Object,
   },
   data() {
     return {
