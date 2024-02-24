@@ -122,15 +122,13 @@ export default defineComponent({
       try {
         const storedThemeData = localStorage.getItem("configs");
         const themeData = storedThemeData ? JSON.parse(storedThemeData) : {};
-
-        // Assuming themeData[1] is an object with a configuration property
+        
         const theme = themeData[1]?.configuration?.theme;
+        console.log("Theme",theme)
 
         if (theme) {
-          // Do not stringify the theme object before storing in localStorage
           localStorage.setItem("themeData", JSON.stringify(theme));
 
-          // Assign the theme object directly to this.theme
           this.theme = theme;
         } else {
           console.error("Theme not found in the configuration data.");

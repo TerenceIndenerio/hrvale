@@ -2,13 +2,12 @@
   <ion-page>
     <div class="bottom container">
       <div class="inline-v">
-        <h1 class="text-center shout-text">Let’s work!</h1>
+        <h1 class="text-center shout-text">Log In</h1>
       </div>
       <div class="inline-v center">
-        <h4 class="input-title">Username</h4>
         <div class="box-container text-pad">
           <ion-input
-            label="Enter Username"
+            label="Username"
             v-model="form.username"
             labelPlacement="floating"
             placeholder="user@example.com"
@@ -16,10 +15,10 @@
             required
           ></ion-input>
         </div>
-        <h4 class="input-title">Password</h4>
+        <br />
         <div class="box-container text-pad">
           <ion-input
-            label="Enter password"
+            label="Password"
             v-model="form.password"
             labelPlacement="floating"
             type="password"
@@ -37,11 +36,12 @@
             backgroundColor: btnBackgroundColor,
             color: btnColor,
           }"
-          >{{ buttonText }}</ion-button
-        >
+          >{{ buttonText }}
+        </ion-button>
       </div>
+
       <div class="bottom-text">
-        <p>© 2023 BAPPLWARE Technologies, <br />Inc. All rights reserved.</p>
+        <p>© 2024 BAPPLWARE Technologies, <br />Inc. All rights reserved.</p>
       </div>
     </div>
   </ion-page>
@@ -79,16 +79,18 @@ export default {
 
 <style scoped>
 @import url("https://fonts.googleapis.com/css?family=Lato");
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
 a {
   text-decoration: none;
-  color: #000;
+  color: #034EA2;
 }
 .center {
   margin: auto;
   width: fit-content;
 }
 .margin-top {
-  margin: 10% 0;
+  margin: 5% 0;
 }
 .flex-center {
   display: flex;
@@ -111,14 +113,14 @@ a {
 }
 /* specifics */
 .shout-text {
-  color: #313536;
+  color: #008E9C;
   text-align: center;
-  font-family: Lato;
-  font-size: 35px;
+  font-family: Poppins;
+  font-size: 30px;
   font-style: normal;
-  font-weight: 600;
+  font-weight: 900;
   line-height: normal;
-  margin: 0;
+  margin: 10px;
 }
 .bottom {
   overflow-y: auto;
@@ -127,18 +129,22 @@ a {
   width: 100%;
   padding: 20px;
   background-color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
 }
 .container {
   border-top: 1px solid rgb(157, 157, 157);
   height: 65%;
   width: 100%;
-  border-radius: 50px 50px 0 0;
+  border-radius: 130px 130px 0 0;
 }
 .box-container {
-  border-radius: 50px;
-  background-color: #e8e8e8;
+  border-radius: 20px;
+  background-color: #baedf3;
   overflow: hidden;
   width: 300px;
+  display: flex;
 }
 .input-title {
   color: #3b3c3e;
@@ -149,22 +155,25 @@ a {
   line-height: normal;
 }
 .input-text {
-  color: gray;
+  color: #257178;
   margin-left: 10px;
+  font-family: Poppins;
+  font-size: 14px;
+  font-weight: 700;
+  opacity: 60%;
 }
 .btn {
-  border-radius: 15px;
-  width: 500px;
+  border-radius: 60px;
+  width: 250px;
   height: 50px;
   overflow: hidden;
-  font-family: Open Sans;
-  font-size: 20px;
+  font-family: Poppins;
+  font-size: 22px;
   font-style: normal;
-  font-weight: 700;
+  font-weight: 900;
   line-height: normal;
   border: none;
-  background-color: gray;
-}
+  background-image: linear-gradient(to right, #007682, #007a87, #007f8b, #008390, #008895, #038e9c, #0694a2, #099aa9, #10a3b2, #16acbc, #1cb6c5, #21bfcf);}
 .bottom-text {
   width: 100%;
   margin: 10% 0;
@@ -174,6 +183,17 @@ a {
   padding: 0;
   margin: 0;
   text-align: center;
-  color: rgba(128, 128, 128, 0.7);
+  color: #008E9C;
+  font-weight: 600;
+  font-family: Poppins;
+  font-size: 12px;
+}
+.margin-top-less {
+  margin-top: 0px; 
+  color: #062f5f;
+  font-weight: 900;
+  font-family: Poppins;
+  font-size: 16px;
+  text-decoration: none;
 }
 </style>
