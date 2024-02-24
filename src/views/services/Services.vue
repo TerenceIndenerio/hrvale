@@ -7,12 +7,24 @@
     ></HeaderUser>
     <ion-content :fullscreen="true" v-if="!loading">
       <Refresher />
-      <CardWImg :cardHeader="cardHeader" :cardText="cardText" />
+      <!-- <CardWImg :cardHeader="cardHeader" :cardText="cardText" /> -->
 
       <div class="flex-center">
-        <div class="services-card">
+         <div class="topservices-card">
           <ion-text>
-            <h2 class="title">Services</h2>
+            <h2 class="title"> TOP SERVICES </h2>
+          </ion-text>
+          <TopServices
+            :btnColor="theme.primaryColor"
+            :btnTextColor="theme.primaryFontColor"
+          />
+        </div>
+      </div>
+
+      <div class="flex-center">
+         <div class="services-card">
+          <ion-text>
+            <h2 class="title"> ALL SERVICES </h2>
           </ion-text>
           <ServicesGroupButton
             :btnColor="theme.primaryColor"
@@ -20,6 +32,7 @@
           />
         </div>
       </div>
+
     </ion-content>
   </ion-page>
 </template>
@@ -35,6 +48,7 @@ import {
 } from "@ionic/vue";
 import CardWImg from "@/components/cards/CardWImg.vue";
 import ServicesGroupButton from "@/views/services/components/ServicesGroupButton.vue";
+import TopServices from "@/views/services/components/TopServices.vue";
 import HeaderUser from "@/components/header/HeaderUser.vue";
 import Refresher from "@/components/refresher/Refresher.vue";
 import { defineComponent } from "vue";
@@ -54,6 +68,7 @@ export default defineComponent({
     IonIcon,
     CardWImg,
     ServicesGroupButton,
+    TopServices,
     HeaderUser,
     Refresher,
     IonCard,
@@ -78,11 +93,13 @@ export default defineComponent({
   },
   methods: {
     async fetchTheme() {
+      
       const storedThemeData = localStorage.getItem("theme");
 
       const themeData = storedThemeData ? JSON.parse(storedThemeData) : {};
 
       this.theme = themeData;
+      console.log(this.theme)
     },
     servicesData() {
       try {
@@ -117,6 +134,8 @@ export default defineComponent({
 @import url("https://fonts.googleapis.com/css?family=Inter");
 @import url("https://fonts.googleapis.com/css?family=Open+Sans");
 @import url("https://fonts.googleapis.com/css?family=Roboto");
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
 
 .flex-center {
   display: flex;
@@ -127,11 +146,11 @@ export default defineComponent({
 ion-text .title {
   width: 120px;
   margin: 0;
-  color: var(--ion-text-color);
-  font-family: Open Sans;
+  color: gray;
+  font-family: Poppins;
   font-size: 16px;
   font-style: normal;
-  font-weight: 700;
+  font-weight: 900;
 }
 .card {
   height: 55px;
@@ -300,6 +319,13 @@ ion-text .title {
   margin-top: 30px;
 }
 .services-card {
+  border-radius: 20px;
+  padding: 10px;
+  width: fit-content;
+  min-width: 350px;
+  margin-top: 10px;
+}
+.topservices-card {
   border-radius: 20px;
   padding: 10px;
   width: fit-content;
