@@ -51,12 +51,14 @@ export default defineComponent({
     IonSpinner,
     alertController,
   },
+
   setup() {
     return {
       router: useRouter(),
       store: useStore(),
     };
   },
+
   data() {
     return {
       imgLogo: "",
@@ -69,12 +71,20 @@ export default defineComponent({
       hasToken: false,
     };
   },
+
   async mounted() {
-    await this.fetchToken();
-    this.checkToken();
-    this.fetchStoredTheme();
+    const tokenFetched = await this.fetchToken();
+
+    if (tokenFetched) {
+      this.fetchStoredTheme();
+    } else {
+      console.log("Error fetching token");
+      this.router.push("/setuplogin");
+    }
+
     this.loaded = true;
   },
+
   methods: {
     checkToken() {
       const storedToken = localStorage.getItem("token");
@@ -122,19 +132,15 @@ export default defineComponent({
       try {
         const storedThemeData = localStorage.getItem("configs");
         const themeData = storedThemeData ? JSON.parse(storedThemeData) : {};
-
-        // Assuming themeData[1] is an object with a configuration property
         const theme = themeData[1]?.configuration?.theme;
+        const configs = localStorage.getItem("configs");
+        const config = configs ? JSON.parse(configs) : {};
+        const apiHost = config[1]?.configuration?.apiHost;
+        localStorage.setItem("baseUrl", apiHost);
 
-        if (theme) {
-          // Do not stringify the theme object before storing in localStorage
-          localStorage.setItem("themeData", JSON.stringify(theme));
-
-          // Assign the theme object directly to this.theme
-          this.theme = theme;
-        } else {
-          console.error("Theme not found in the configuration data.");
-        }
+        localStorage.setItem("themeData", JSON.stringify(theme));
+        this.theme = theme;
+        console.log("theme:", storedThemeData);
       } catch (error) {
         console.error("Error fetching or parsing theme data:", error);
       }

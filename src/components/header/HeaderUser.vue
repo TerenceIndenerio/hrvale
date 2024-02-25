@@ -4,7 +4,7 @@
     color="none"
     :style="{ backgroundColor: headerColor }"
   >
-    <img :src="imgLogo" alt="Logo" class="logo" />
+    <img :src="this.logo" alt="Logo" class="logo" />
 
     <ion-icon
       name="notifications"
@@ -73,8 +73,6 @@ import { defineProps, defineComponent } from "vue";
 import { GlobalConstants } from "@/config/constants";
 import axios from "axios";
 
-const baseURL = GlobalConstants.HOST_URL;
-
 export default defineComponent({
   components: {
     IonHeader,
@@ -88,7 +86,7 @@ export default defineComponent({
   props: {
     headerTitle: String,
     headerColor: String,
-    imgLogo: String,
+    // logo: String,
   },
   data() {
     return {
@@ -107,13 +105,14 @@ export default defineComponent({
       subunit: "",
       location: "",
       profileDetails: "",
+      logo: "",
     };
   },
   created() {
     const empNumber = localStorage.getItem("empNumber");
     this.fetchProfilePhoto(empNumber);
-
     this.fetchProfileDirectory();
+    this.fetchLogo();
   },
   methods: {
     openProfileModal() {
@@ -128,6 +127,10 @@ export default defineComponent({
       localStorage.removeItem("pincodeId");
       this.$router.push("/login");
       this.popoverOpen = false;
+    },
+    fetchLogo() {
+      const baseURL = "https://hrp-uat-app.bapplware.com/web/index.php/";
+      this.logo = baseURL + "admin/theme/image/clientBanner";
     },
     async fetchProfilePhoto(empNumber) {
       try {
@@ -181,7 +184,7 @@ export default defineComponent({
 
 .header {
   background-color: #12a3da;
-  height: 120px;
+  height: 100px;
   display: flex;
   flex-direction: row;
   justify-content: center;
@@ -252,7 +255,7 @@ ion-popover {
 .logo {
   width: 250px;
   position: absolute;
-  top: 40px;
+  top: 20px;
   left: 0;
   right: 0;
   margin: auto;

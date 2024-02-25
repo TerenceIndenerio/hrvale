@@ -3,7 +3,6 @@
     <HeaderUser
       :headerTitle="headerTitle"
       :headerColor="theme.primaryColor"
-      :imgLogo="theme.clientLogo"
     ></HeaderUser>
     <ion-content :fullscreen="true" v-if="!loading">
       <Refresher />

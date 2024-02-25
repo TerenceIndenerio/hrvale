@@ -26,8 +26,7 @@
               type="tel"
               placeholder="####"
             />
-        </div>
-
+          </div>
 
           <div class="btn-container">
             <ion-button
@@ -99,7 +98,7 @@ export default defineComponent({
       theme: {},
       buttonText: "Submit",
       themeData: {},
-      inputs: null
+      inputs: null,
     };
   },
   methods: {
@@ -150,7 +149,6 @@ export default defineComponent({
         if (!response.data.data.pincode) {
           this.$router.push("/pincodesetup");
         }
-
       } catch (error) {
         this.showErrorMessage(error.response?.data?.error?.message);
       } finally {
@@ -190,7 +188,7 @@ export default defineComponent({
       } finally {
         this.store.commit("loader/updateLoader", false);
 
-        this.inputs = null
+        this.inputs = null;
       }
     },
 
