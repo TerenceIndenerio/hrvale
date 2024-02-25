@@ -139,10 +139,7 @@ export default defineComponent({
         localStorage.setItem("baseUrl", apiHost);
 
         if (theme) {
-          // Do not stringify the theme object before storing in localStorage
           localStorage.setItem("themeData", JSON.stringify(theme));
-
-          // Assign the theme object directly to this.theme
           this.theme = theme;
         } else {
           console.error("Theme not found in the configuration data.");

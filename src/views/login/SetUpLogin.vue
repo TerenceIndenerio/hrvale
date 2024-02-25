@@ -4,10 +4,16 @@
       <div>
         <div
           class="container"
-          :style="{ 'background-image': 'linear-gradient(to right top, #008e9c, #00828f, #007782, #006b75, #006069)' }"
+          :style="{
+            'background-image':
+              'linear-gradient(to right top, #008e9c, #00828f, #007782, #006b75, #006069)',
+          }"
         >
           <ion-text class="logo-banner">
-            <img src= "assets/images/hrvale-official-logo-final.png" alt="logo">
+            <img
+              src="assets/images/hrvale-official-logo-final.png"
+              alt="logo"
+            />
           </ion-text>
         </div>
 
@@ -101,13 +107,10 @@ export default defineComponent({
       try {
         const storedThemeData = localStorage.getItem("configs");
         const themeData = storedThemeData ? JSON.parse(storedThemeData) : {};
-        
         const theme = themeData[1]?.configuration?.theme;
-        console.log("Theme",theme)
 
         if (theme) {
           localStorage.setItem("themeData", JSON.stringify(theme));
-
           this.theme = theme;
         } else {
           console.error("Theme not found in the configuration data.");
