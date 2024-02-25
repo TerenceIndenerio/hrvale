@@ -4,10 +4,10 @@
       <div>
         <div
           class="container"
-          :style="{ backgroundColor: themeData.primaryColor }"
+          :style="{ 'background-image': 'linear-gradient(to right top, #008e9c, #00828f, #007782, #006b75, #006069)' }"
         >
           <ion-text class="logo-banner">
-            <img :src="imgLogo" alt="" />
+            <img src= "assets/images/hrvale-official-logo-final.png" alt="logo">
           </ion-text>
         </div>
 
@@ -75,10 +75,12 @@ export default defineComponent({
       newAccessToken: "",
       configs: "",
       hasToken: false,
+      theme: {},
     };
   },
   async mounted() {
     this.loaded = true;
+    this.fetchStoredTheme();
   },
   methods: {
     async OnLogin(value) {
@@ -92,6 +94,26 @@ export default defineComponent({
       } catch (error) {
         console.error(error.message);
         await this.alertError();
+      }
+    },
+
+    async fetchStoredTheme() {
+      try {
+        const storedThemeData = localStorage.getItem("configs");
+        const themeData = storedThemeData ? JSON.parse(storedThemeData) : {};
+        
+        const theme = themeData[1]?.configuration?.theme;
+        console.log("Theme",theme)
+
+        if (theme) {
+          localStorage.setItem("themeData", JSON.stringify(theme));
+
+          this.theme = theme;
+        } else {
+          console.error("Theme not found in the configuration data.");
+        }
+      } catch (error) {
+        console.error("Error fetching or parsing theme data:", error);
       }
     },
 

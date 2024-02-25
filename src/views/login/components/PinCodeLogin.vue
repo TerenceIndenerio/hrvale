@@ -1,46 +1,90 @@
 <template>
   <ion-page>
     <ion-content :fullscreen="true">
-      <div class="container" :style="{ backgroundColor: theme.primaryColor }">
+      <div class="container-bg" :style="{ backgroundColor: theme.primaryColor }">
         <div class="title-container">
           <h1 class="title" :style="{ color: theme.primaryFontColor }">
-            Enter PIN
+            <img src= "https://hrp-uat-app.bapplware.com/web/index.php/admin/theme/image/loginBanner" alt="logo">
           </h1>
-          <h1 class="title-icon">
-            <ion-icon
-              name="document-lock-outline"
-              :style="{ color: theme.primaryFontColor }"
-            ></ion-icon>
-          </h1>
+            <h4 class="input-title">Enter your PIN</h4>
+            <br />
+              <div class="pincode-circle-container">
+                <input 
+                  v-model="inputs"
+                  maxlength="4"
+                  class="otp-input"
+                  type="tel"
+                  placeholder=""
+                />
+              </div>
+              <h4 class="dont-share">Never share your PIN with anyone.</h4>
+          
         </div>
       </div>
 
       <div class="bottom container">
         <div class="pincode-container">
-          <h4 class="input-title">Enter PIN</h4>
-          <div class="pincode-circle-container">
-            <input
-              v-model="inputs"
-              maxlength="4"
-              class="otp-input"
-              type="tel"
-              placeholder="####"
-            />
-          </div>
+
+          <!-- dito ko po inilagay numpad -->
 
           <div class="btn-container">
-            <ion-button
-              class="login-btn"
-              expand="block"
-              color="none"
-              @click="submitForm"
-              :style="{ backgroundColor: theme.primaryColor }"
-              >{{ this.buttonText }}</ion-button
-            >
+            <div id="numericPad" class="ion-padding">
+              <ion-row class= "numpad-column">
+                  <ion-col class= "numpad-row" size="4">
+                      <ion-button class="numeric-btn" expand="full" color="white" size="large" @click="appendDigit(1)">1</ion-button>
+                  </ion-col>
+                  <ion-col class= "numpad-row" size="4">
+                      <ion-button class="numeric-btn" expand="full" color="white" size="large" @click="appendDigit(2)">2</ion-button>
+                  </ion-col>
+                  <ion-col class= "numpad-row" size="4">
+                      <ion-button class="numeric-btn" expand="full" color="white" size="large" @click="appendDigit(3)">3</ion-button>
+                  </ion-col>
+              </ion-row>
+
+             <ion-row class= "numpad-column">
+                  <ion-col class= "numpad-row" size="4">
+                      <ion-button class="numeric-btn" expand="full" color="white" size="large" @click="appendDigit(4)">4</ion-button>
+                  </ion-col>
+                  <ion-col class= "numpad-row" size="4">
+                      <ion-button class="numeric-btn" expand="full" color="white" size="large" @click="appendDigit(5)">5</ion-button>
+                  </ion-col>
+                  <ion-col class= "numpad-row" size="4">
+                      <ion-button class="numeric-btn" expand="full" color="white" size="large" @click="appendDigit(6)">6</ion-button>
+                  </ion-col>
+              </ion-row>
+
+              <ion-row class= "numpad-column">
+                  <ion-col class= "numpad-row" size="4">
+                      <ion-button class="numeric-btn" expand="full" color="white" size="large" @click="appendDigit(7)">7</ion-button>
+                  </ion-col>
+                  <ion-col class= "numpad-row" size="4">
+                      <ion-button class="numeric-btn" expand="full" color="white" size="large" @click="appendDigit(8)">8</ion-button>
+                  </ion-col>
+                  <ion-col class= "numpad-row" size="4">
+                      <ion-button class="numeric-btn" expand="full" color="white" size="large" @click="appendDigit(9)">9</ion-button>
+                  </ion-col>
+              </ion-row>
+
+              <ion-row class= "numpad-column">
+                  <ion-col class= "numpad-row" size="4">
+                     <!-- blank on purpose -->
+                  </ion-col>
+                  <ion-col class= "numpad-row" size="4">
+                      <ion-button class="numeric-btn" expand="full" color="white" size="large" @click="appendDigit(0)">0</ion-button>
+                  </ion-col>
+                  <ion-col class= "numpad-row" size="4">
+                      <ion-button class="numeric-btn" expand="full" color="white" size="large" @click="backspace">
+                        <ion-icon name="backspace"></ion-icon>
+                      </ion-button>
+                  </ion-col>
+              </ion-row>
           </div>
+
+          </div>
+
         </div>
         <div class="bottom-text">
-          <p>© 2023 BAPPLWARE Technologies, <br />Inc. All rights reserved.</p>
+          <p>© 2024 BAPPLWARE Technologies, <br />Inc. All rights reserved.</p>
         </div>
       </div>
     </ion-content>
@@ -48,8 +92,9 @@
 </template>
 
 <script>
-import { IonInput, IonPage, IonButton, IonIcon, IonContent } from "@ionic/vue";
+import { IonInput, IonPage, IonButton, IonIcon, IonContent, IonRow, IonCol } from "@ionic/vue";
 import Button from "@/components/buttons/Button.vue";
+import { useRouter } from "vue-router";
 
 export default {
   components: {
@@ -59,9 +104,18 @@ export default {
     IonButton,
     IonIcon,
     IonContent,
+    IonRow,
+    IonCol,
   },
   props: {
     theme: Object,
+  },
+  setup() {
+    const router = useRouter();
+
+    return {
+      router,
+    };
   },
   data() {
     return {
@@ -71,9 +125,21 @@ export default {
     };
   },
   emits: ["login"],
+
   methods: {
-    submitForm() {
-      this.$emit("login", this.form);
+    appendDigit(digit) {
+      
+      if ((this.inputs || '').length < 4) {
+        this.inputs = (this.inputs || '') + '•';
+        console.log(this.inputs)
+        }
+      if (this.inputs && this.inputs.length === 4) {
+        console.log(this.inputs && this.inputs.length === 4)
+        this.router.push("/tabs/buzzfeed");
+      }
+      },
+    backspace() {
+      this.inputs = this.inputs.slice(0, -1);
     },
   },
 };
@@ -81,17 +147,19 @@ export default {
 
 <style scoped>
 @import url("https://fonts.googleapis.com/css?family=Alata");
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
 * {
   margin: 0;
   padding: 0;
 }
-.container {
-  height: 40vh;
+.container-bg {
+  height: 60vh;
 }
 .logo-name h1 {
   text-align: right;
   color: #fff;
-  font-family: Alata;
+  font-family: Poppins;
   font-size: 31.567px;
   font-style: normal;
   font-weight: 400;
@@ -109,12 +177,11 @@ export default {
   width: 100%;
   padding: 20px;
   background-color: white;
-  border-radius: 50px 50px 0 0;
-  height: 70vh;
+  border-radius: 50px 50px 50px 50px;
+  height: 55vh;
 }
 .container {
   border-top: 1px solid rgb(157, 157, 157);
-
   width: 100%;
 }
 
@@ -123,21 +190,35 @@ export default {
   background-color: #e8e8e8;
 }
 .input-title {
-  color: #3b3c3e;
-  font-family: Inter;
-  font-size: 19px;
+  color: white;
+  font-family: Poppins;
+  font-size: 20px;
   font-style: normal;
-  font-weight: bold;
+  font-weight: 800;
   line-height: normal;
+  opacity: 80%;
+  display: flex;
+  flex-direction: column;
+  column-gap: 10px;
+}
+.dont-share{
+  color: white;
+  font-family: Poppins;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: normal;
+  opacity: 70%;
 }
 .otp-input {
   width: 200px;
   height: 50px;
-  border-radius: 30px;
+  border-radius: 40px;
+  border: none;
   text-align: center;
-  background-color: #e8e8e8;
-  margin: 5px;
-  font-size: 20px;
+  font-size: 70px;
+  color: #034EA2;
+  background-color: white;                    
 }
 .verify-container {
   width: 100%;
@@ -156,6 +237,7 @@ export default {
 .pincode-circle-container {
   display: flex;
   justify-content: space-around;
+  flex-direction: column;
 }
 .pincode-container {
   display: flex;
@@ -166,17 +248,18 @@ export default {
 }
 .title-container {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  justify-content: space-evenly;
   align-items: center;
   height: 80%;
   flex-direction: column;
 }
 .title {
   height: 50px;
-  font-family: Open Sans;
+  font-family: Poppins;
   font-size: 30px;
   font-style: normal;
-  font-weight: 700;
+  font-weight: 900;
   line-height: normal;
   border: none;
 }
@@ -184,17 +267,17 @@ export default {
   font-size: 70px;
 }
 .btn-container {
-  width: 50%;
-  margin-top: 20px;
+  width: 100%;
+  margin-top: 5px;
 }
 .login-btn {
   border-radius: 15px;
-  height: 50px;
+  height: 70px;
   overflow: hidden;
-  font-family: Open Sans;
-  font-size: 20px;
+  font-family: Poppins;
+  font-size: 22px;
   font-style: normal;
-  font-weight: 700;
+  font-weight: 900;
   line-height: normal;
   border: none;
   margin: 5px 0;
@@ -224,6 +307,20 @@ export default {
   padding: 0;
   margin: 0;
   text-align: center;
-  color: rgba(128, 128, 128, 0.7);
+  color: #0f57a9;
+  font-weight: 600;
+  font-family: Poppins;
+  font-size: 12px;
+}
+.mumpad-column {
+  width: 100%;
+}
+.numeric-btn {
+  border-color: none;
+  font-family: Poppins;
+  color: #034EA2;
+  font-weight: 800;
+  border-radius: 30px;
+  border: none;
 }
 </style>

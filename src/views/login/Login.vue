@@ -138,9 +138,15 @@ export default defineComponent({
         const apiHost = config[1]?.configuration?.apiHost;
         localStorage.setItem("baseUrl", apiHost);
 
-        localStorage.setItem("themeData", JSON.stringify(theme));
-        this.theme = theme;
-        console.log("theme:", storedThemeData);
+        if (theme) {
+          // Do not stringify the theme object before storing in localStorage
+          localStorage.setItem("themeData", JSON.stringify(theme));
+
+          // Assign the theme object directly to this.theme
+          this.theme = theme;
+        } else {
+          console.error("Theme not found in the configuration data.");
+        }
       } catch (error) {
         console.error("Error fetching or parsing theme data:", error);
       }
