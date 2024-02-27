@@ -319,7 +319,7 @@ export default defineComponent({
       try {
         this.store.commit("loader/updateLoader", true);
 
-        const storedToken = localStorage.getItem("_token");
+        const storedToken = localStorage.getItem("token");
 
         if (!storedToken) {
           console.error("Token not available.");
@@ -350,7 +350,7 @@ export default defineComponent({
 
     async fetchCalendarDisable(month, year) {
       try {
-        const storedToken = localStorage.getItem("_token");
+        const storedToken = localStorage.getItem("token");
 
         if (month === undefined || year === undefined) {
           const currentDate = new Date();
@@ -381,7 +381,7 @@ export default defineComponent({
 
     async fetchRetract() {
       try {
-        const storedToken = localStorage.getItem("_token");
+        const storedToken = localStorage.getItem("token");
 
         if (!storedToken) {
           console.error("Token not available.");
@@ -403,7 +403,7 @@ export default defineComponent({
 
     async sendRetract() {
       try {
-        const storedToken = localStorage.getItem("_token");
+        const storedToken = localStorage.getItem("token");
 
         if (!storedToken) {
           console.error("Token not available.");
@@ -440,7 +440,7 @@ export default defineComponent({
           return;
         }
 
-        const token = localStorage.getItem("_token");
+        const token = localStorage.getItem("token");
         const headers = {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
@@ -503,7 +503,7 @@ export default defineComponent({
       this.fetchLeaveBalance(this.selectedLeaveID);
     },
     async fetchLeaveBalance(leaveTypeId) {
-      const token = localStorage.getItem("_token");
+      const token = localStorage.getItem("token");
       const headers = {
         Authorization: `Bearer ${token}`,
       };
@@ -529,13 +529,12 @@ export default defineComponent({
         this.showErrorMessage("Error fetching leave balance: " + error.message);
       }
     },
-    getTheme() {
-      const storedThemeData = getThemeData();
+    fetchTheme() {
+      const storedThemeData = localStorage.getItem("themeData");
 
-      if (storedThemeData) {
-        this.theme = storedThemeData;
-      }
-      this.theme = storedThemeData;
+      const themeData = storedThemeData ? JSON.parse(storedThemeData) : {};
+
+      this.theme = themeData;
     },
 
     async showErrorMessage(message) {
@@ -560,7 +559,7 @@ export default defineComponent({
 
     // Exppiration of token
     async checkTokenExpiration() {
-      const storedToken = localStorage.getItem("_token");
+      const storedToken = localStorage.getItem("token");
 
       if (!storedToken) {
         console.error("Token not available.");
@@ -584,7 +583,7 @@ export default defineComponent({
     const data = await this.fetchData();
     this.leaveOptionsWithIds = data;
     this.cardId = this.$route.query.cardId;
-    this.getTheme();
+    this.fetchTheme();
     this.store.commit("loader/updateLoader", false);
     this.fetchRetract();
   },

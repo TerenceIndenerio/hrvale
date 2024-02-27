@@ -1,109 +1,109 @@
 <template>
   <ion-grid class="button-container">
     <ion-row>
-      <ion-col class="card btn-text" expand="full" color="none">
-        <a @click="navigateLeave">
-          <span class="ion-text-left">
-            <ion-icon
-              name="exit"
-              class="icon-btn"
-              :style="{ color: btnColor }"
-            ></ion-icon>
-            <h4 :style="{ color: btnTextColor }">Leave</h4>
-          </span>
+      <ion-col class="card btn-text neomorphic-card-1" expand="full">
+        <a @click="navigateLeave" :style="{ backgroundColor: btnColor }">
+          <ion-icon
+            name="exit"
+            class="icon-btn"
+            :style="{ color: btnSecondaryColor }"
+          ></ion-icon>
+          <h4 :style="{ color: btnTextColor }">Leave</h4>
         </a>
       </ion-col>
       <ion-col class="card btn-text" expand="full" color="none">
-        <a @click="navigateviewschedule">
-          <span class="ion-text-left">
-            <ion-icon
-              name="calendar"
-              class="icon-btn"
-              :style="{ color: btnColor }"
-            ></ion-icon>
-            <h4 :style="{ color: btnTextColor }">Schedule</h4>
-          </span>
+        <a @click="navigateviewschedule" :style="{ backgroundColor: btnColor }">
+          <ion-icon
+            name="calendar"
+            class="icon-btn"
+            :style="{ color: btnSecondaryColor }"
+          ></ion-icon>
+          <h4 :style="{ color: btnTextColor }">Schedule</h4>
         </a>
       </ion-col>
       <ion-col class="card btn-text" expand="full" color="none">
-        <a @click="navigateattendancecorrection">
-          <span class="ion-text-left">
-            <ion-icon
-              name="today"
-              class="icon-btn"
-              :style="{ color: btnColor }"
-            ></ion-icon>
-            <h4 :style="{ color: btnTextColor }">
-              Attendance
-            </h4>
-          </span>
+        <a
+          @click="navigateattendancecorrection"
+          :style="{ backgroundColor: btnColor }"
+        >
+          <ion-icon
+            name="today"
+            class="icon-btn"
+            :style="{ color: btnSecondaryColor }"
+          ></ion-icon>
+          <h4 :style="{ color: btnTextColor }">Attendance</h4>
         </a>
       </ion-col>
       <ion-col class="card btn-text" expand="full" color="none">
-        <a @click="navigateOTApply">
-          <span class="ion-text-left">
-            <ion-icon
-              name="calendar-clear"
-              class="icon-btn"
-              :style="{ color: btnColor }"
-            ></ion-icon>
-            <h4 :style="{ color: btnTextColor }">OT</h4>
-          </span>
+        <a @click="navigateOTApply" :style="{ backgroundColor: btnColor }">
+          <ion-icon
+            name="calendar-clear"
+            class="icon-btn"
+            :style="{ color: btnSecondaryColor }"
+          ></ion-icon>
+          <h4 :style="{ color: btnTextColor }">OT</h4>
         </a>
       </ion-col>
     </ion-row>
 
     <ion-row>
       <ion-col class="card btn-text" expand="full" color="none">
-        <a @click="navigateViewPayslip" disabled>
-          <span class="ion-text-left">
-            <ion-icon
-              name="receipt"
-              class="icon-btn"
-              :style="{ color: btnColor }"
-            ></ion-icon>
-            <h4 :style="{ color: btnTextColor }">Payslip</h4>
-          </span>
+        <a
+          @click="navigateViewPayslip"
+          :style="{ backgroundColor: btnColor }"
+          disabled
+        >
+          <ion-icon
+            name="receipt"
+            class="icon-btn"
+            :style="{ color: btnSecondaryColor }"
+          ></ion-icon>
+          <h4 :style="{ color: btnTextColor }">Payslip</h4>
         </a>
       </ion-col>
       <ion-col class="card btn-text" expand="full" color="none">
-        <a @click="navigateBenefits" disabled>
-          <span class="ion-text-left">
-            <ion-icon
-              name="gift"
-              class="icon-btn"
-              :style="{ color: btnColor }"
-            ></ion-icon>
-            <h4 :style="{ color: btnTextColor }">Benefits</h4>
-          </span>
+        <a
+          @click="navigateBenefits"
+          :style="{ backgroundColor: btnColor }"
+          disabled
+        >
+          <ion-icon
+            name="gift"
+            class="icon-btn"
+            :style="{ color: btnSecondaryColor }"
+          ></ion-icon>
+          <h4 :style="{ color: btnTextColor }">Benefits</h4>
         </a>
       </ion-col>
       <ion-col class="card btn-text" expand="full" color="none">
-        <a @click="navigateloanBal" disabled>
-          <span class="ion-text-left">
-            <ion-icon
-              name="cash"
-              class="icon-btn"
-              :style="{ color: btnColor }"
-            ></ion-icon>
-            <h4 :style="{ color: btnTextColor }">Loan</h4>
-          </span>
+        <a
+          @click="navigateloanBal"
+          :style="{ backgroundColor: btnColor }"
+          disabled
+        >
+          <ion-icon
+            name="cash"
+            class="icon-btn"
+            :style="{ color: btnSecondaryColor }"
+          ></ion-icon>
+          <h4 :style="{ color: btnTextColor }">Loan</h4>
         </a>
       </ion-col>
       <ion-col class="card btn-text" expand="full" color="none">
-        <a @click="navigateViewPayslip" disabled>
-          <span class="ion-text-left">
-            <ion-icon
-              name="checkbox"
-              class="icon-btn"
-              :style="{ color: btnColor }"
-            ></ion-icon>
-            <h4 :style="{ color: btnTextColor }">Approval</h4>
-          </span>
+        <a
+          @click="navigateApproval"
+          :style="{ backgroundColor: btnColor }"
+          disabled
+        >
+          <ion-icon
+            name="checkbox"
+            class="icon-btn"
+            :style="{ color: btnSecondaryColor }"
+          ></ion-icon>
+          <h4 :style="{ color: btnTextColor }">Approval</h4>
         </a>
       </ion-col>
     </ion-row>
-
   </ion-grid>
 </template>
 <script>
@@ -115,6 +115,7 @@ export default defineComponent({
   props: {
     btnColor: String,
     btnTextColor: String,
+    btnSecondaryColor: String,
   },
   methods: {
     navigateSoon() {
@@ -147,13 +148,16 @@ export default defineComponent({
     navigateVale() {
       this.$router.push("/vale");
     },
+    navigateApproval() {
+      this.$router.push("/tabs/approval");
+    },
   },
 });
 </script>
 
 <style scoped>
 @import url("https://fonts.googleapis.com/css?family=Open+Sans");
-@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
 
 a {
   text-decoration: none;
@@ -162,7 +166,7 @@ a {
 }
 .button-container {
   margin: 0;
-  padding-top: 20px;
+  padding-top: 10px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -199,8 +203,8 @@ a {
 .card {
   padding: 0;
   height: 100px;
-  border-radius: 20px;
-  margin: 10px;
+  border-radius: 30px;
+  margin: 5px;
   box-shadow: 8px 8px 16px rgba(0, 0, 0, 0.1),
     -8px -8px 16px rgba(255, 255, 255, 0.637);
   overflow: hidden;
@@ -217,6 +221,13 @@ a {
   font-size: 10px;
   font-style: normal;
   font-weight: 700;
+}
+.btn-text a {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  gap: 20px;
 }
 .icon-circle {
   border-radius: 100%;

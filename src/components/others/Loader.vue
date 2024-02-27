@@ -44,12 +44,16 @@ export default {
     this.fetchTheme();
   },
   methods: {
-    async fetchTheme() {
-      const storedThemeData = localStorage.getItem("theme");
+    fetchTheme() {
+      try {
+        const storedThemeData = localStorage.getItem("themeData");
 
-      const themeData = storedThemeData ? JSON.parse(storedThemeData) : {};
+        const themeData = storedThemeData ? JSON.parse(storedThemeData) : {};
 
-      this.theme = themeData;
+        this.theme = themeData;
+      } catch (error) {
+        console.log(error.message);
+      }
     },
   },
 };

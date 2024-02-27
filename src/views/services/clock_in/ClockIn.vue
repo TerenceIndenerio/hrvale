@@ -44,7 +44,6 @@ import { GlobalConstants } from "@/config/constants";
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
 import axios from "axios";
-import { getThemeData } from "@/theme/theme";
 import { Geolocation } from "@capacitor/geolocation";
 
 const baseURL = GlobalConstants.HOST_URL;
@@ -91,7 +90,7 @@ export default defineComponent({
   methods: {
     // Exppiration of token
     async checkTokenExpiration() {
-      const storedToken = localStorage.getItem("_token");
+      const storedToken = localStorage.getItem("token");
 
       if (!storedToken) {
         console.error("Token not available.");
@@ -139,7 +138,7 @@ export default defineComponent({
 
         await this.checkTokenExpiration();
 
-        const token = localStorage.getItem("_token");
+        const token = localStorage.getItem("token");
         if (!token) {
           console.error("Token not available.");
           return;
@@ -202,7 +201,7 @@ export default defineComponent({
 
     async getState(dataData) {
       try {
-        const token = localStorage.getItem("_token");
+        const token = localStorage.getItem("token");
         if (!token) {
           console.error("Token not available.");
           return;
@@ -239,7 +238,7 @@ export default defineComponent({
       try {
         await this.checkTokenExpiration();
 
-        const token = localStorage.getItem("_token");
+        const token = localStorage.getItem("token");
         const headers = {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
@@ -315,13 +314,12 @@ export default defineComponent({
       }
     },
 
-    getTheme() {
-      const storedThemeData = getThemeData();
+    fetchTheme() {
+      const storedThemeData = localStorage.getItem("themeData");
 
-      if (storedThemeData) {
-        this.theme = storedThemeData;
-      }
-      this.theme = storedThemeData;
+      const themeData = storedThemeData ? JSON.parse(storedThemeData) : {};
+
+      this.theme = themeData;
     },
   },
   async created() {
@@ -341,7 +339,7 @@ export default defineComponent({
     this.checkTokenExpiration();
 
     await this.checkState();
-    this.getTheme();
+    this.fetchTheme();
   },
   beforeDestroy() {
     clearInterval(this.updateInterval);

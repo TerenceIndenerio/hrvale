@@ -19,8 +19,6 @@
           </div>
         </ion-card>
 
-        <!-- <SampleCard :dataExample="dataExample" :badge="badge" /> -->
-
         <div v-for="(cardData, index) in requests" :key="index">
           <LeaveRequestCard
             :dateText="cardData.date"
@@ -56,7 +54,6 @@ import { useRouter } from "vue-router";
 import axios from "axios";
 import { GlobalConstants } from "@/config/constants";
 import { getThemeData } from "@/theme/theme";
-import SampleCard from "@/views/services/leave/components/SampleCard.vue";
 
 const baseURL = GlobalConstants.HOST_URL;
 
@@ -72,7 +69,6 @@ export default defineComponent({
     HeaderReturn,
     LeaveRequestCard,
     Refresher,
-    SampleCard,
   },
   setup() {
     return {
@@ -113,7 +109,7 @@ export default defineComponent({
       try {
         this.store.commit("loader/updateLoader", true);
 
-        const storedToken = localStorage.getItem("_token");
+        const storedToken = localStorage.getItem("token");
 
         if (!storedToken) {
           console.log("Token is missing. Redirecting to login...");
@@ -136,17 +132,17 @@ export default defineComponent({
         return null;
       }
     },
-    getTheme() {
-      const storedThemeData = getThemeData();
 
-      if (storedThemeData) {
-        this.theme = storedThemeData;
-      }
-      this.theme = storedThemeData;
+    fetchTheme() {
+      const storedThemeData = localStorage.getItem("themeData");
+
+      const themeData = storedThemeData ? JSON.parse(storedThemeData) : {};
+
+      this.theme = themeData;
     },
   },
   async created() {
-    this.getTheme();
+    this.fetchTheme();
     this.cardId = this.$route.query.cardId;
     const data = await this.fetchData();
     setTimeout(() => {

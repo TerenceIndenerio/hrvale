@@ -140,30 +140,30 @@ export default defineComponent({
   },
   methods: {
     // Exppiration of token
-    async checkTokenExpiration() {
-      const storedToken = localStorage.getItem("_token");
+    // async checkTokenExpiration() {
+    //   const storedToken = localStorage.getItem("_token");
 
-      if (!storedToken) {
-        console.error("Token not available.");
-        console.log("Token is missing. Redirecting to login...");
-        this.router.push("/login");
-        return;
-      }
+    //   if (!storedToken) {
+    //     console.error("Token not available.");
+    //     console.log("Token is missing. Redirecting to login...");
+    //     this.router.push("/login");
+    //     return;
+    //   }
 
-      const tokenData = JSON.parse(atob(storedToken.split(".")[1]));
-      const expirationTime = tokenData.exp * 1000;
+    //   const tokenData = JSON.parse(atob(storedToken.split(".")[1]));
+    //   const expirationTime = tokenData.exp * 1000;
 
-      if (Date.now() > expirationTime) {
-        console.log("Token expired. Redirecting to login...");
-        this.router.push("/login");
-      }
-    },
+    //   if (Date.now() > expirationTime) {
+    //     console.log("Token expired. Redirecting to login...");
+    //     this.router.push("/login");
+    //   }
+    // },
 
     async fetchData() {
       try {
         this.store.commit("loader/updateLoader", true);
 
-        const storedToken = localStorage.getItem("_token");
+        const storedToken = localStorage.getItem("token");
 
         if (!storedToken) {
           console.log("Token is missing. Redirecting to login...");
@@ -234,11 +234,19 @@ export default defineComponent({
       }
       this.theme = storedThemeData;
     },
+    fetchTheme() {
+      const storedThemeData = localStorage.getItem("themeData");
+
+      const themeData = storedThemeData ? JSON.parse(storedThemeData) : {};
+
+      this.theme = themeData;
+    },
   },
 
   async created() {
-    this.getTheme();
-    this.checkTokenExpiration();
+    // this.getTheme();
+    this.fetchTheme();
+    // this.checkTokenExpiration();
 
     try {
       this.store.commit("loader/updateLoader", true);

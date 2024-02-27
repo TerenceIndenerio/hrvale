@@ -197,7 +197,7 @@ export default defineComponent({
     },
     // Expiration of token
     async checkTokenExpiration() {
-      const storedToken = localStorage.getItem("_token");
+      const storedToken = localStorage.getItem("token");
 
       if (!storedToken) {
         console.error("Token not available.");
@@ -218,10 +218,10 @@ export default defineComponent({
     async requestData() {
       try {
         await this.checkTokenExpiration();
-        const storedToken = localStorage.getItem("_token");
+        const storedToken = localStorage.getItem("token");
 
         const authToken = `Bearer ${storedToken}`;
-        const apiUrl = new URL(baseURL + 'api/v2/ess/employee-schedule');
+        const apiUrl = new URL(baseURL + "api/v2/ess/employee-schedule");
         const queryParams = new URLSearchParams({
           empNumber: this.empNumber,
           month: this.month,
@@ -290,7 +290,7 @@ export default defineComponent({
       this.day = day;
       this.month = month;
       this.selectedMonth = selectedMonth;
-      this.year = year; 
+      this.year = year;
 
       const selectedData = this.scheduleData.find(
         (entry) => entry.scheduleDate.date.split(" ")[0] === datePart
@@ -318,7 +318,7 @@ export default defineComponent({
     async requestAttendanceData() {
       try {
         await this.checkTokenExpiration();
-        const storedToken = localStorage.getItem("_token");
+        const storedToken = localStorage.getItem("token");
         const authToken = `Bearer ${storedToken}`;
 
         const apiUrl =
@@ -341,20 +341,19 @@ export default defineComponent({
       }
     },
 
-    getTheme() {
-      const storedThemeData = getThemeData();
+    fetchTheme() {
+      const storedThemeData = localStorage.getItem("themeData");
 
-      if (storedThemeData) {
-        this.theme = storedThemeData;
-      }
-      this.theme = storedThemeData;
+      const themeData = storedThemeData ? JSON.parse(storedThemeData) : {};
+
+      this.theme = themeData;
     },
 
     // Run On Start
     // async requestData2(currentMonth) {
     //   try {
     //     await this.checkTokenExpiration();
-    //     const storedToken = localStorage.getItem("_token");
+    //     const storedToken = localStorage.getItem("token");
 
     //     const authToken = `Bearer ${storedToken}`;
     //     const apiUrl =
@@ -382,8 +381,8 @@ export default defineComponent({
     // },
   },
   async created() {
-    this.empNumber = localStorage.getItem('empNumber');
-    this.getTheme();
+    this.empNumber = localStorage.getItem("empNumber");
+    this.fetchTheme();
     const currentMonth = new Date().getMonth() + 1;
 
     // const data = await this.requestData2(currentMonth);

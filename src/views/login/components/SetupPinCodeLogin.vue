@@ -12,7 +12,7 @@
               alt="logo"
             />
           </h1>
-          <h4 class="input-title">Enter your PIN</h4>
+          <h4 class="input-title">Setup your PIN</h4>
           <br />
           <div class="pincode-circle-container">
             <input
@@ -230,6 +230,7 @@ export default {
       if (this.inputs.length > 0) {
         this.inputs = this.inputs.slice(0, -1);
         this.actualDigits = this.actualDigits.slice(0, -1);
+        console.log(this.actualDigits);
       }
     },
     resetInputs() {

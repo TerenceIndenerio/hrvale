@@ -28,11 +28,16 @@ import PinCodeAccountSettings from "@/views/pincode/PinCodeAccountSettings.vue";
 import LoanBalance from "@/views/services/loanBalance/loanBalance.vue";
 import LoanBalanceView from "@/views/services/loanBalance/LoanBalanceView.vue";
 import NotifToken from "@/views/dev/NotifToken.vue";
+import LoginPinCodeSetup from "@/views/login/LoginPinCodeSetup.vue";
 
 const routes: Array<RouteRecordRaw> = [
   {
     path: "/",
     redirect: "/login",
+  },
+  {
+    path: "/setuppincodelogin",
+    component: LoginPinCodeSetup,
   },
   {
     path: "/tabs/",

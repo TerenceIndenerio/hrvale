@@ -177,7 +177,7 @@ import HeaderReturn from "@/components/header/HeaderReturn.vue";
 import axios from "axios";
 import { GlobalConstants } from "@/config/constants";
 import { mapState } from "vuex";
-import { getThemeData } from "@/theme/theme";
+
 import { toastController } from "@ionic/vue";
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
@@ -230,7 +230,7 @@ export default defineComponent({
   methods: {
     // Exppiration of token
     async checkTokenExpiration() {
-      const storedToken = localStorage.getItem("_token");
+      const storedToken = localStorage.getItem("token");
 
       if (!storedToken) {
         console.error("Token not available.");
@@ -251,7 +251,7 @@ export default defineComponent({
       try {
         await this.checkTokenExpiration();
 
-        this.storedToken = localStorage.getItem("_token");
+        this.storedToken = localStorage.getItem("token");
 
         const headers = {
           Authorization: `Bearer ${this.storedToken}`,
@@ -276,7 +276,7 @@ export default defineComponent({
       try {
         await this.checkTokenExpiration();
 
-        this.storedToken = localStorage.getItem("_token");
+        this.storedToken = localStorage.getItem("token");
 
         const headers = {
           Authorization: `Bearer ${this.storedToken}`,
@@ -303,7 +303,7 @@ export default defineComponent({
         this.store.commit("loader/updateLoader", true);
         await this.checkTokenExpiration();
 
-        this.storedToken = localStorage.getItem("_token");
+        this.storedToken = localStorage.getItem("token");
 
         const headers = {
           Authorization: `Bearer ${this.storedToken}`,
@@ -359,13 +359,15 @@ export default defineComponent({
         this.$router.go(-1);
       }
     },
-    getTheme() {
-      const storedThemeData = getThemeData();
-
-      if (storedThemeData) {
-        this.theme = storedThemeData;
+    fetchTheme() {
+      try {
+        const storedThemeData = localStorage.getItem("configs");
+        const themeData = storedThemeData ? JSON.parse(storedThemeData) : {};
+        const theme = themeData[1]?.configuration?.theme;
+        this.theme = theme;
+      } catch (error) {
+        console.error("Error fetching or parsing theme data:", error);
       }
-      this.theme = storedThemeData;
     },
 
     generateRandomString(length) {
@@ -386,7 +388,7 @@ export default defineComponent({
     },
   },
   created() {
-    this.getTheme();
+    this.fetchTheme();
     this.fetchWorkShiftOptions();
     this.fetchReasonOptions();
     this.dateVal = this.$route.query.date;

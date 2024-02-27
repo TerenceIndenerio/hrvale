@@ -1,164 +1,161 @@
 <template>
-    <ion-page>
-      <HeaderReturn
-        :headerTitle="headerTitle"
-        :headerColor="theme.primaryColor"
-        :headerTextColor="theme.primaryFontColor"
-      />
-      <ion-content :fullscreen="true">
-        <Refresher />
-        <ion-card class="card">
+  <ion-page>
+    <HeaderReturn
+      :headerTitle="headerTitle"
+      :headerColor="theme.primaryColor"
+      :headerTextColor="theme.primaryFontColor"
+    />
+    <ion-content :fullscreen="true">
+      <Refresher />
+      <ion-card class="card">
+        <div v-if="results.length === 0">
+          <div class="no-data-text">
+            <h5>No data available</h5>
+          </div>
+        </div>
 
+        <div v-else>
+          <div v-for="(result, index) in results" :key="index">
+            <ion-col size="6">
+              <ion-row>
+                <ion-col size="6">
+                  <p>Loan Date:</p>
+                </ion-col>
+                <ion-col size="6">
+                  <p>{{ result.loanDate }}</p>
+                </ion-col>
+              </ion-row>
 
-            <div v-if="results.length === 0">
-                <div class="no-data-text">
-                    <h5>No data available</h5>
-                </div>
-            </div>
+              <ion-row>
+                <ion-col size="6">
+                  <p>Amortization:</p>
+                </ion-col>
+                <ion-col size="6">
+                  <p>{{ result.amortization }}</p>
+                </ion-col>
+              </ion-row>
 
-            <div v-else>
-                <div v-for="(result, index) in results" :key="index">
+              <ion-row>
+                <ion-col size="6">
+                  <p>Loan Amount:</p>
+                </ion-col>
+                <ion-col size="6">
+                  <p>{{ result.loanAmount }}</p>
+                </ion-col>
+              </ion-row>
+
+              <ion-row>
+                <ion-col size="6">
+                  <p>Effective Loan:</p>
+                </ion-col>
+                <ion-col size="6">
+                  <p>{{ result.effectiveLoan }}</p>
+                </ion-col>
+              </ion-row>
+
+              <ion-row>
+                <ion-col size="6">
+                  <p>Interest Rate:</p>
+                </ion-col>
+                <ion-col size="6">
+                  <p>{{ result.interestRate }}</p>
+                </ion-col>
+              </ion-row>
+
+              <ion-row>
+                <ion-col size="6">
+                  <p>Start of Payment:</p>
+                </ion-col>
+                <ion-col size="6">
+                  <p>{{ result.startOfPayment }}</p>
+                </ion-col>
+              </ion-row>
+
+              <ion-row>
+                <ion-col size="6">
+                  <p>Total Amount Paid:</p>
+                </ion-col>
+                <ion-col size="6">
+                  <p>{{ result.totalAmountPaid }}</p>
+                </ion-col>
+              </ion-row>
+
+              <ion-row>
+                <ion-col size="6">
+                  <p>Status:</p>
+                </ion-col>
+                <ion-col size="6">
+                  <p>{{ result.status }}</p>
+                </ion-col>
+              </ion-row>
+
+              <ion-row>
+                <ion-col size="6">
+                  <p>Reason:</p>
+                </ion-col>
+                <ion-col size="6">
+                  <p>{{ result.reason }}</p>
+                </ion-col>
+              </ion-row>
+            </ion-col>
+          </div>
+        </div>
+      </ion-card>
+
+      <ion-card class="card" v-if="!loading">
+        <h4 class="outline">
+          {{ amortization_result.length }} Amortizations Found
+        </h4>
+        <div v-if="amortization_result.length > 0">
+          <div v-for="(result, index) in amortization_result" :key="index">
+            <ion-card class="card">
+              <h3 class="title">Amortization - #{{ index + 1 }}</h3>
+              <ion-grid>
+                <ion-col size="6">
+                  <ion-row>
                     <ion-col size="6">
-                        <ion-row>
-                            <ion-col size="6">
-                                <p>Loan Date:</p>
-                            </ion-col>
-                            <ion-col size="6">
-                                <p>{{ result.loanDate }}</p>
-                            </ion-col>
-                        </ion-row>
-
-                        <ion-row>
-                            <ion-col size="6">
-                                <p>Amortization:</p>
-                            </ion-col>
-                            <ion-col size="6">
-                                <p>{{ result.amortization }}</p>
-                            </ion-col>
-                        </ion-row>
-
-                        <ion-row>
-                            <ion-col size="6">
-                                <p>Loan Amount:</p>
-                            </ion-col>
-                            <ion-col size="6">
-                                <p>{{ result.loanAmount }}</p>
-                            </ion-col>
-                        </ion-row>
-
-                        <ion-row>
-                            <ion-col size="6">
-                                <p>Effective Loan:</p>
-                            </ion-col>
-                            <ion-col size="6">
-                                <p>{{ result.effectiveLoan }}</p>
-                            </ion-col>
-                        </ion-row>
-
-                        <ion-row>
-                            <ion-col size="6">
-                                <p>Interest Rate:</p>
-                            </ion-col>
-                            <ion-col size="6">
-                                <p>{{ result.interestRate }}</p>
-                            </ion-col>
-                        </ion-row>
-
-                        <ion-row>
-                            <ion-col size="6">
-                                <p>Start of Payment:</p>
-                            </ion-col>
-                            <ion-col size="6">
-                                <p>{{ result.startOfPayment }}</p>
-                            </ion-col>
-                        </ion-row>
-
-                        <ion-row>
-                            <ion-col size="6">
-                                <p>Total Amount Paid:</p>
-                            </ion-col>
-                            <ion-col size="6">
-                                <p>{{ result.totalAmountPaid }}</p>
-                            </ion-col>
-                        </ion-row>
-
-                        <ion-row>
-                            <ion-col size="6">
-                                <p>Status:</p>
-                            </ion-col>
-                            <ion-col size="6">
-                                <p>{{ result.status }}</p>
-                            </ion-col>
-                        </ion-row>
-
-                        <ion-row>
-                            <ion-col size="6">
-                                <p>Reason:</p>
-                            </ion-col>
-                            <ion-col size="6">
-                                <p>{{ result.reason }}</p>
-                            </ion-col>
-                        </ion-row>
+                      <p>Date:</p>
                     </ion-col>
-                
-                </div>
-                
-      
-            </div>
-        </ion-card>
-
-        <ion-card class="card" v-if="!loading">
-            <h4 class="outline">{{ amortization_result.length }} Amortizations Found</h4>
-            <div v-if="amortization_result.length > 0" > 
-                <div v-for="(result, index) in amortization_result" :key="index">
-                <ion-card class="card">
-                    <h3 class="title">Amortization - #{{ index + 1 }}</h3>
-                    <ion-grid>
                     <ion-col size="6">
-                        <ion-row>
-                        <ion-col size="6">
-                            <p>Date:</p>
-                        </ion-col>
-                        <ion-col size="6">
-                            <p>{{ result.paymentDate }}</p>
-                        </ion-col>
-                        </ion-row>
-
-                        <ion-row>
-                        <ion-col size="6">
-                            <p>Loan Amount:</p>
-                        </ion-col>
-                        <ion-col size="6">
-                            <p>{{ result.decoratedLoanAmount }}</p>
-                        </ion-col>
-                        </ion-row>
-
-                        <ion-row>
-                        <ion-col size="6">
-                            <p>Payment:</p>
-                        </ion-col>
-                        <ion-col size="6">
-                            <p>{{ result.decoratedAmount }}</p>
-                        </ion-col>
-                        </ion-row>
-
-                        <ion-row>
-                        <ion-col size="6">
-                            <p>Balance:</p>
-                        </ion-col>
-                        <ion-col size="6">
-                            <p>{{ result.balance }}</p>
-                        </ion-col>
-                        </ion-row>
+                      <p>{{ result.paymentDate }}</p>
                     </ion-col>
-                    </ion-grid>
-                </ion-card>
-                </div>
-            </div>
-        </ion-card>
-      </ion-content>
-    </ion-page>
-  </template>
+                  </ion-row>
+
+                  <ion-row>
+                    <ion-col size="6">
+                      <p>Loan Amount:</p>
+                    </ion-col>
+                    <ion-col size="6">
+                      <p>{{ result.decoratedLoanAmount }}</p>
+                    </ion-col>
+                  </ion-row>
+
+                  <ion-row>
+                    <ion-col size="6">
+                      <p>Payment:</p>
+                    </ion-col>
+                    <ion-col size="6">
+                      <p>{{ result.decoratedAmount }}</p>
+                    </ion-col>
+                  </ion-row>
+
+                  <ion-row>
+                    <ion-col size="6">
+                      <p>Balance:</p>
+                    </ion-col>
+                    <ion-col size="6">
+                      <p>{{ result.balance }}</p>
+                    </ion-col>
+                  </ion-row>
+                </ion-col>
+              </ion-grid>
+            </ion-card>
+          </div>
+        </div>
+      </ion-card>
+    </ion-content>
+  </ion-page>
+</template>
 
 <script>
 import {
@@ -237,14 +234,14 @@ export default defineComponent({
       loading: true,
       totalRec: 0,
       amortization_result: [],
-      loading: true
+      loading: true,
     };
   },
 
   methods: {
     // Exppiration of token
     async checkTokenExpiration() {
-      const storedToken = localStorage.getItem("_token");
+      const storedToken = localStorage.getItem("token");
 
       if (!storedToken) {
         console.error("Token not available.");
@@ -263,60 +260,62 @@ export default defineComponent({
     },
 
     async showErrorMessage(message) {
-        try {
-            const toast = await toastController.create({
-            message: message,
-            duration: 3000,
-            position: "top",
-            color: "light",
-            buttons: [
-                {
-                icon: "close-outline",
-                role: "cancel",
-                },
-            ],
-            });
-            await toast.present();
-        } catch (error) {
-            console.error("Error displaying toast:", error);
-        }
+      try {
+        const toast = await toastController.create({
+          message: message,
+          duration: 3000,
+          position: "top",
+          color: "light",
+          buttons: [
+            {
+              icon: "close-outline",
+              role: "cancel",
+            },
+          ],
+        });
+        await toast.present();
+      } catch (error) {
+        console.error("Error displaying toast:", error);
+      }
     },
 
     async fetchdata(id) {
-        try {
-            this.store.commit("loader/updateLoader", true);
-            await this.checkTokenExpiration();
+      try {
+        this.store.commit("loader/updateLoader", true);
+        await this.checkTokenExpiration();
 
-            this.storedToken = localStorage.getItem("_token");
+        this.storedToken = localStorage.getItem("token");
 
-            const headers = {
-            Authorization: `Bearer ${this.storedToken}`,
-            };
-            const api = baseURL + `api/payroll/vale/${id}`;
+        const headers = {
+          Authorization: `Bearer ${this.storedToken}`,
+        };
+        const api = baseURL + `api/payroll/vale/${id}`;
 
-            const dataResponse = await axios.get(api, { headers });
+        const dataResponse = await axios.get(api, { headers });
 
-            const responseData = dataResponse.data.data;
+        const responseData = dataResponse.data.data;
 
-            this.results = [{
-                id: responseData.id,
-                loanAmount: responseData.loanAmount,
-                loanDate: responseData.loanDate,
-                amortization: responseData.amortization,
-                effectiveLoan: responseData.effectiveLoan,
-                status: responseData.status,
-                interestRate: responseData.interest,
-                startOfPayment: responseData.startOfPayment,
-                totalAmountPaid: responseData.totalAmountPaid,
-                reason: responseData.reason,
-            }];
+        this.results = [
+          {
+            id: responseData.id,
+            loanAmount: responseData.loanAmount,
+            loanDate: responseData.loanDate,
+            amortization: responseData.amortization,
+            effectiveLoan: responseData.effectiveLoan,
+            status: responseData.status,
+            interestRate: responseData.interest,
+            startOfPayment: responseData.startOfPayment,
+            totalAmountPaid: responseData.totalAmountPaid,
+            reason: responseData.reason,
+          },
+        ];
 
-            this.totalRec = this.results.length;
-        } catch (error) {
-            this.showErrorMessage("An error occurred: " + error.message);
-        } finally {
-            this.store.commit("loader/updateLoader", false);
-        }
+        this.totalRec = this.results.length;
+      } catch (error) {
+        this.showErrorMessage("An error occurred: " + error.message);
+      } finally {
+        this.store.commit("loader/updateLoader", false);
+      }
     },
 
     async fetchAmortization(id) {
@@ -324,15 +323,13 @@ export default defineComponent({
         this.store.commit("loader/updateLoader", true);
         await this.checkTokenExpiration();
 
-        this.storedToken = localStorage.getItem("_token");
+        this.storedToken = localStorage.getItem("token");
 
         const headers = {
           Authorization: `Bearer ${this.storedToken}`,
         };
 
-        const api =
-          baseURL +
-          `api/v2/vale/amortizations?valeId=${id}`;
+        const api = baseURL + `api/v2/vale/amortizations?valeId=${id}`;
 
         const dataResponse = await axios.get(api, { headers });
 
@@ -346,76 +343,70 @@ export default defineComponent({
           paymentDate: data.paymentDate,
           status: data.status,
         }));
-        
       } catch (error) {
         this.showErrorMessage("An error occurred: " + error.message);
       } finally {
         this.store.commit("loader/updateLoader", false);
-        this.loading = false
+        this.loading = false;
       }
     },
 
-    getTheme() {
-        const storedThemeData = getThemeData();
+    fetchTheme() {
+      const storedThemeData = localStorage.getItem("themeData");
 
-        if (storedThemeData) {
-            this.theme = storedThemeData;
-        }
-        this.theme = storedThemeData;
+      const themeData = storedThemeData ? JSON.parse(storedThemeData) : {};
+
+      this.theme = themeData;
     },
   },
   created() {
-        this.empNumber = localStorage.getItem('empNumber');
-        this.checkTokenExpiration();
-        this.getTheme();
-        const id = this.$route.query.id;
-        this.fetchdata(id);
-        this.fetchAmortization(id);
-
-        
-    },
+    this.empNumber = localStorage.getItem("empNumber");
+    this.checkTokenExpiration();
+    this.fetchTheme();
+    const id = this.$route.query.id;
+    this.fetchdata(id);
+    this.fetchAmortization(id);
+  },
 });
 </script>
 
 <style>
-    p {
-        margin: 5px;
-    }
-    .title {
-        text-align: center;
-        margin: 20px auto 0 auto;
-        width: 80%;
-    }
+p {
+  margin: 5px;
+}
+.title {
+  text-align: center;
+  margin: 20px auto 0 auto;
+  width: 80%;
+}
 
-    .card {
-        padding: 0 10px 0 10px;
-        border-radius: 20px;
-        box-shadow: 8px 8px 16px rgba(0, 0, 0, 0.1),
-                    -8px -8px 16px rgba(255, 255, 255, 0.8), 
-                    0px -4px 8px rgba(0, 0, 0, 0.05),
-                    -8px -8px 16px rgba(0, 0, 0, 0.1); 
-    }
+.card {
+  padding: 0 10px 0 10px;
+  border-radius: 20px;
+  box-shadow: 8px 8px 16px rgba(0, 0, 0, 0.1),
+    -8px -8px 16px rgba(255, 255, 255, 0.8), 0px -4px 8px rgba(0, 0, 0, 0.05),
+    -8px -8px 16px rgba(0, 0, 0, 0.1);
+}
 
-
-    .container {
-        max-height: 90vh;
-        overflow-y: scroll;
-    }
-    .outline {
-        border: 1px solid #828282;
-        color: #828282;
-        border-radius: 20px;
-        width: 80%;
-        text-align: center;
-        margin: 20px auto;
-    }
-    .modal-container {
-        position: absolute;
-        top: 0;
-        width: 100%;
-        height: 100%;
-    }
-    .no-data-text {
-        text-align: center;
-    }
+.container {
+  max-height: 90vh;
+  overflow-y: scroll;
+}
+.outline {
+  border: 1px solid #828282;
+  color: #828282;
+  border-radius: 20px;
+  width: 80%;
+  text-align: center;
+  margin: 20px auto;
+}
+.modal-container {
+  position: absolute;
+  top: 0;
+  width: 100%;
+  height: 100%;
+}
+.no-data-text {
+  text-align: center;
+}
 </style>

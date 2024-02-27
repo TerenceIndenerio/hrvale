@@ -151,7 +151,6 @@ import { useStore } from "vuex";
 import { useRouter } from "vue-router";
 import { GlobalConstants } from "@/config/constants";
 import { mapState } from "vuex";
-import { getThemeData } from "@/theme/theme";
 
 const baseURL = GlobalConstants.HOST_URL;
 
@@ -201,7 +200,7 @@ export default defineComponent({
   },
   created() {
     this.empNumber = localStorage.getItem("empNumber");
-    this.getTheme();
+    this.fetchTheme();
     this.applyAttendanceCorrection();
     this.loading = false;
   },
@@ -209,7 +208,7 @@ export default defineComponent({
   methods: {
     // Exppiration of token
     async checkTokenExpiration() {
-      const storedToken = localStorage.getItem("_token");
+      const storedToken = localStorage.getItem("token");
 
       if (!storedToken) {
         console.error("Token not available.");
@@ -227,13 +226,15 @@ export default defineComponent({
       }
     },
 
-    getTheme() {
-      const storedThemeData = getThemeData();
-
-      if (storedThemeData) {
-        this.theme = storedThemeData;
+    fetchTheme() {
+      try {
+        const storedThemeData = localStorage.getItem("configs");
+        const themeData = storedThemeData ? JSON.parse(storedThemeData) : {};
+        const theme = themeData[1]?.configuration?.theme;
+        this.theme = theme;
+      } catch (error) {
+        console.error("Error fetching or parsing theme data:", error);
       }
-      this.theme = storedThemeData;
     },
 
     showErrorMessage(message) {
@@ -253,7 +254,7 @@ export default defineComponent({
         this.store.commit("loader/updateLoader", true);
         await this.checkTokenExpiration();
 
-        this.storedToken = localStorage.getItem("_token");
+        this.storedToken = localStorage.getItem("token");
 
         const headers = {
           Authorization: `Bearer ${this.storedToken}`,
@@ -291,7 +292,7 @@ export default defineComponent({
         this.store.commit("loader/updateLoader", true);
         await this.checkTokenExpiration();
 
-        this.storedToken = localStorage.getItem("_token");
+        this.storedToken = localStorage.getItem("token");
 
         const headers = {
           Authorization: `Bearer ${this.storedToken}`,

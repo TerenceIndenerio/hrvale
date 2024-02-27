@@ -55,6 +55,13 @@
         </ion-button>
       </div>
 
+      <div class="no-news-container" v-if="hasNews">
+        <h2 :style="{ color: theme.primaryColor }">
+          <strong>No News Feed!</strong>
+        </h2>
+        <p>Reload or Please Try Again Later</p>
+      </div>
+
       <div v-for="(cardData, index) in newsFeed" :key="index">
         <BuzzFeedCard
           :caption="cardData.text"
@@ -154,6 +161,8 @@ export default defineComponent({
       empNumber: null,
       activeButton: "recent",
       baseUrl: "",
+      profileDetails: "",
+      hasNews: true,
     };
   },
   methods: {
@@ -200,6 +209,10 @@ export default defineComponent({
               };
             })
           );
+
+          this.hasNews = !this.newsFeed.length > 0;
+        } else {
+          this.hasNews = false;
         }
       } catch (error) {
         console.error("Error:", error);
@@ -438,6 +451,9 @@ export default defineComponent({
   created() {
     this.baseURL = localStorage.getItem("baseUrl");
 
+    const adminUserDetails = localStorage.getItem("adminUserDetails");
+    this.profileDetails = JSON.parse(adminUserDetails);
+
     this.checkToken();
     this.updateLoader(false);
     this.fetchData();
@@ -471,5 +487,39 @@ export default defineComponent({
 .buzz-action-btn-icon {
   font-size: 20px;
   color: gray;
+}
+
+.no-news-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  margin: 50px 0;
+}
+
+.greetings-container {
+  margin: 10px 20px 30px 20px;
+}
+.greetings-inner-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.greetings-inner-container p {
+  padding: 0;
+  margin: 0;
+  font-family: Poppins;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: bold;
+}
+
+.greetings-inner-container h4 {
+  padding: 0;
+  margin: 0 0 0 10px;
+  font-family: Poppins;
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 800;
 }
 </style>

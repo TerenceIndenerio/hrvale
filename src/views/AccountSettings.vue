@@ -149,7 +149,7 @@ export default defineComponent({
   methods: {
     // Expiration of token
     async checkTokenExpiration() {
-      const storedToken = localStorage.getItem("_token");
+      const storedToken = localStorage.getItem("token");
 
       if (!storedToken) {
         console.error("Token not available.");
@@ -173,13 +173,18 @@ export default defineComponent({
     },
 
     logout() {
-      localStorage.removeItem("_token");
+      localStorage.removeItem("token");
+      localStorage.setItem("clickedTab", "home");
+      console.log(localStorage.getItem("clickedTab"));
       this.$router.push("/login");
-      console.log("Logging out");
+
+      setTimeout(() => {
+        window.location.reload();
+      }, 50);
     },
 
     fetchTheme() {
-      const storedThemeData = localStorage.getItem("theme");
+      const storedThemeData = localStorage.getItem("themeData");
 
       const themeData = storedThemeData ? JSON.parse(storedThemeData) : {};
 

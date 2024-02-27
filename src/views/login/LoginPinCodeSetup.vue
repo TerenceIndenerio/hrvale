@@ -1,7 +1,7 @@
 <template>
   <ion-page>
     <ion-content :fullscreen="true" v-if="loaded">
-      <PinCodeLogin @login="OnLogin" :theme="theme" />
+      <SetupPinCodeLogin @login="OnLogin" :theme="theme" />
     </ion-content>
   </ion-page>
 </template>
@@ -18,7 +18,7 @@ import {
   IonSpinner,
   alertController,
 } from "@ionic/vue";
-import PinCodeLogin from "@/views/login/components/PinCodeLogin.vue";
+import SetupPinCodeLogin from "@/views/login/components/SetupPinCodeLogin.vue";
 import SVGLoginImage from "@/views/login/components/Svg.vue";
 import Alert2 from "@/components/alert/Alert2.vue";
 import { defineComponent } from "vue";
@@ -44,7 +44,7 @@ export default defineComponent({
     IonTitle,
     IonContent,
     IonText,
-    PinCodeLogin,
+    SetupPinCodeLogin,
     SVGLoginImage,
     Alert2,
     IonAlert,
@@ -69,41 +69,20 @@ export default defineComponent({
       newAccessToken: "",
       configs: "",
       hasToken: false,
-      hasSetup: false,
     };
   },
 
   async mounted() {
-    try {
-      await this.checkSetupStatus();
-
-      if (this.fetchToken()) {
-        this.fetchStoredTheme();
-      } else {
-        console.log("Error fetching token");
-        this.router.replace("/setuplogin");
-      }
-    } catch (error) {
-      console.error("Error checking setup status:", error);
-      this.router.replace("/setuplogin");
-    } finally {
-      this.loaded = true;
+    if (this.fetchToken()) {
+      this.fetchStoredTheme();
+    } else {
+      console.log("Error fetching token");
+      this.router.push("/setuplogin");
     }
+    this.loaded = true;
   },
 
   methods: {
-    async checkSetupStatus() {
-      try {
-        this.hasSetup = await localStorage.getItem("hasSetup");
-        console.log(this.hasSetup);
-        if (!this.hasSetup) {
-          this.router.replace("/setuplogin");
-        }
-      } catch (error) {
-        console.error(error);
-      }
-    },
-
     checkToken() {
       const storedToken = localStorage.getItem("token");
       const storedRefereshToken = localStorage.getItem("refresh_token");
@@ -170,31 +149,18 @@ export default defineComponent({
 
     async OnLogin(value) {
       try {
-        this.store.commit("loader/updateLoader", true);
-        const pin = localStorage.getItem("pin");
-
-        const stringValue = String(value);
-        const pinString = String(pin);
-
-        const empNumber = localStorage.getItem("empNumber");
-        console.log(empNumber);
-
-        if (stringValue === pinString) {
-          console.log(this.hasToken);
-          if (this.hasToken) {
-            await this.fetchToken();
-            await adminUserDetails(id);
-            await userDetails(empNumber);
-            await runBackgroundScript();
-            this.router.push("/tabs/buzzfeed");
-          }
+        if (this.hasToken) {
+          localStorage.setItem("pin", value);
+          await this.fetchToken();
+          await adminUserDetails(id);
+          await runBackgroundScript();
+          this.router.push("/tabs/buzzfeed");
         } else {
+          console.log("Invalid Credentials");
           await this.alertError();
         }
       } catch (error) {
         console.error(error);
-      } finally {
-        this.store.commit("loader/updateLoader", false);
       }
     },
 

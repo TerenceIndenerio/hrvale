@@ -1,15 +1,12 @@
 <template>
   <ion-page>
     <ion-content :fullscreen="true">
-      <div
-        class="container"
-        :style="{ backgroundColor: themeData.primaryColor }"
-      >
+      <div class="container" :style="{ backgroundColor: theme.primaryColor }">
         <div class="title-container">
-          <h1 class="title" :style="{ color: themeData.primaryFontColor }">
+          <h1 class="title" :style="{ color: theme.primaryFontColor }">
             Setup PIN Code
           </h1>
-          <h1 class="title-icon" :style="{ color: themeData.primaryFontColor }">
+          <h1 class="title-icon" :style="{ color: theme.primaryFontColor }">
             <ion-icon name="document-lock-outline"></ion-icon>
           </h1>
         </div>
@@ -19,7 +16,6 @@
         <div class="pincode-container">
           <h4 class="input-title">Enter PIN</h4>
           <div class="pincode-circle-container">
-            
             <input
               v-model="inputs"
               maxlength="4"
@@ -31,7 +27,6 @@
 
           <h4 class="input-title">Confirm PIN</h4>
           <div class="pincode-circle-container">
-
             <input
               v-model="confirmInputs"
               maxlength="4"
@@ -48,12 +43,11 @@
               color="none"
               @click="saveButtonClicked"
               :style="{
-                backgroundColor: themeData.primaryColor,
-                color: themeData.primaryFontColor,
+                backgroundColor: theme.primaryColor,
+                color: theme.primaryFontColor,
               }"
               >{{ this.buttonText }}</ion-button
             >
-            
           </div>
         </div>
         <div class="bottom-text">
@@ -74,7 +68,7 @@ import {
   IonText,
   IonButton,
   toastController,
-  IonIcon
+  IonIcon,
 } from "@ionic/vue";
 import ChangePinBottomInputContainer from "@/components/others/ChangePinBottomInputContainer.vue";
 import { defineComponent, ref } from "vue";
@@ -82,7 +76,6 @@ import axios from "axios";
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
 import { GlobalConstants } from "@/config/constants";
-import { getThemeData } from "@/theme/theme";
 
 const baseURL = GlobalConstants.HOST_URL;
 const empNumber = GlobalConstants.EMPLOYEE_ID;
@@ -98,7 +91,7 @@ export default defineComponent({
     ChangePinBottomInputContainer,
     IonButton,
     toastController,
-    IonIcon
+    IonIcon,
   },
   setup() {
     return {
@@ -111,7 +104,7 @@ export default defineComponent({
       headerTitle: "Suy Sing",
       theme: {},
       buttonText: "Submit",
-      themeData: {},
+      theme: {},
       inputs: 0,
       confirmInputs: null,
     };
@@ -120,7 +113,7 @@ export default defineComponent({
   methods: {
     // Expiration of token
     async checkTokenExpiration() {
-      const storedToken = localStorage.getItem("_token");
+      const storedToken = localStorage.getItem("token");
 
       if (!storedToken) {
         console.error("Token not available.");
@@ -162,7 +155,7 @@ export default defineComponent({
         this.store.commit("loader/updateLoader", true);
         if (this.inputs === this.confirmInputs) {
           this.checkTokenExpiration();
-          const storedToken = localStorage.getItem("_token");
+          const storedToken = localStorage.getItem("token");
 
           const authToken = `Bearer ${storedToken}`;
 
@@ -202,8 +195,8 @@ export default defineComponent({
         );
       } finally {
         this.store.commit("loader/updateLoader", false);
-        this.inputs = null
-        this.confirmInputs = null
+        this.inputs = null;
+        this.confirmInputs = null;
       }
     },
 
@@ -234,19 +227,17 @@ export default defineComponent({
         console.error("Error displaying toast:", error);
       }
     },
-    getTheme() {
-      const storedThemeData = getThemeData();
+    fetchTheme() {
+      const storedThemeData = localStorage.getItem("themeData");
 
-      if (storedThemeData) {
-        this.themeData = storedThemeData;
-      }
+      const themeData = storedThemeData ? JSON.parse(storedThemeData) : {};
 
-      this.themeData = storedThemeData;
+      this.theme = themeData;
     },
   },
   created() {
     // location.reload();
-    this.getTheme();
+    this.fetchTheme();
     this.inputs = Array.from({ length: this.inputs.length }, () => null);
     const firstInput = document.getElementById("input-0");
     if (firstInput) {

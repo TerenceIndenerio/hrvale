@@ -6,32 +6,47 @@
     ></HeaderUser>
     <ion-content :fullscreen="true" v-if="!loading">
       <Refresher />
-      <!-- <CardWImg :cardHeader="cardHeader" :cardText="cardText" /> -->
+
+      <div class="greetings-container neomorphic-card-1">
+        <div class="greetings-inner-container">
+          <p :style="{ color: theme.primaryColor }">
+            {{ this.greeting }},
+            <span class="name">
+              {{ this.employeeName }}
+            </span>
+          </p>
+        </div>
+      </div>
 
       <div class="flex-center">
-         <div class="topservices-card">
+        <div class="topservices-card">
           <ion-text>
-            <h2 class="title"> TOP SERVICES </h2>
+            <h2 class="title" :style="{ color: theme.primaryColor }">
+              TOP SERVICES
+            </h2>
           </ion-text>
           <TopServices
             :btnColor="theme.primaryColor"
             :btnTextColor="theme.primaryFontColor"
+            :btnSecondaryColor="theme.primaryFontColor"
           />
         </div>
       </div>
 
       <div class="flex-center">
-         <div class="services-card">
+        <div class="services-card">
           <ion-text>
-            <h2 class="title"> ALL SERVICES </h2>
+            <h2 class="title" :style="{ color: theme.primaryColor }">
+              ALL SERVICES
+            </h2>
           </ion-text>
           <ServicesGroupButton
             :btnColor="theme.primaryColor"
-            :btnTextColor="theme.primaryColor"
+            :btnTextColor="theme.primaryFontColor"
+            :btnSecondaryColor="theme.primaryFontColor"
           />
         </div>
       </div>
-
     </ion-content>
   </ion-page>
 </template>
@@ -88,17 +103,18 @@ export default defineComponent({
       theme: {},
       firstName: "User",
       empNumber: "",
+      profileDetails: "",
+      greeting: "",
+      employeeName: "User",
     };
   },
   methods: {
-    async fetchTheme() {
-      
-      const storedThemeData = localStorage.getItem("theme");
+    fetchTheme() {
+      const storedThemeData = localStorage.getItem("themeData");
 
       const themeData = storedThemeData ? JSON.parse(storedThemeData) : {};
 
       this.theme = themeData;
-      console.log(this.theme)
     },
     servicesData() {
       try {
@@ -117,12 +133,37 @@ export default defineComponent({
         this.store.commit("loader/updateLoader", false);
       }
     },
+    fetchUser() {
+      try {
+        const adminUserDetails = localStorage.getItem("adminUserDetails");
+        this.profileDetails = JSON.parse(adminUserDetails);
+        this.employeeName =
+          this.profileDetails.employee.firstName +
+          this.profileDetails.employee.middleName +
+          this.profileDetails.employee.lastName;
+      } catch (error) {
+        console.log(error);
+      }
+    },
   },
   created() {
     this.empNumber = localStorage.getItem("empNumber");
 
     this.fetchTheme();
     this.servicesData();
+
+    const now = new Date();
+    const currentHour = now.getUTCHours() + 8;
+
+    this.fetchUser();
+
+    if (currentHour >= 5 && currentHour < 12) {
+      this.greeting = "Good Morning";
+    } else if (currentHour >= 12 && currentHour < 18) {
+      this.greeting = "Good Afternoon";
+    } else {
+      this.greeting = "Good Evening";
+    }
 
     this.loading = false;
   },
@@ -133,8 +174,7 @@ export default defineComponent({
 @import url("https://fonts.googleapis.com/css?family=Inter");
 @import url("https://fonts.googleapis.com/css?family=Open+Sans");
 @import url("https://fonts.googleapis.com/css?family=Roboto");
-@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
-
+@import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
 
 .flex-center {
   display: flex;
@@ -326,9 +366,41 @@ ion-text .title {
 }
 .topservices-card {
   border-radius: 20px;
-  padding: 10px;
+  padding: 0 10px;
   width: fit-content;
   min-width: 350px;
   margin-top: 10px;
+}
+.greetings-container {
+  margin: 10px auto;
+  padding: 10px 20px;
+}
+.greetings-inner-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.greetings-inner-container p {
+  padding: 0;
+  margin: 0;
+  font-family: Poppins;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: bold;
+}
+
+.greetings-inner-container h4 {
+  padding: 0;
+  margin: 0 0 0 10px;
+  font-family: Poppins;
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 800;
+  text-align: center;
+  text-decoration: underline;
+  margin: 10px 0 0 0;
+}
+.name {
+  text-decoration: underline;
 }
 </style>

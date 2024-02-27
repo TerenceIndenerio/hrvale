@@ -1,30 +1,36 @@
 <template>
   <ion-grid class="button-container">
-
     <ion-row>
-      <ion-col class="card btn-text" expand="full" color="none" >
-        <a @click="navigateclockin" class="clockin btn-container" :style="{ backgroundColor: btnColor, color: btnTextColor }">
-          
-            <img
-                src="assets/images/hrvale-white-icon.png" 
-                alt="Vale Icon"
-                class="icon-btn"
-                style="width: 30px; height: 30px;"
-            />
-            <h4> Vale</h4>
+      <ion-col class="card btn-text" expand="full" color="none">
+        <a
+          @click="navigateVale"
+          class="clockin btn-container"
+          :style="{ backgroundColor: btnColor, color: btnTextColor }"
+        >
+          <img
+            src="@/assets/images/hrvalewhiteicon.png"
+            alt="Vale Icon"
+            class="icon-btn"
+            style="width: 30px; height: 30px"
+          />
+          <h4>Vale</h4>
         </a>
       </ion-col>
       <ion-col class="card btn-text" expand="full">
-        <a @click="navigateclockin" class="clockin btn-container" :style="{ backgroundColor: btnColor, color: btnTextColor }">
-            <ion-icon
-              name="time"
-              class="icon-btn"
-            ></ion-icon>
-            <h4>Clock In / Out</h4>
+        <a
+          @click="navigateclockin"
+          class="clockin btn-container"
+          :style="{ backgroundColor: btnColor, color: btnTextColor }"
+        >
+          <ion-icon
+            name="time"
+            class="icon-btn"
+            :style="{ color: btnSecondaryColor }"
+          ></ion-icon>
+          <h4>Clock In / Out</h4>
         </a>
       </ion-col>
     </ion-row>
-   
   </ion-grid>
 </template>
 <script>
@@ -36,11 +42,8 @@ export default defineComponent({
   props: {
     btnColor: String,
     btnTextColor: String,
+    btnSecondaryColor: String,
   },
-    created(){
-        console.log(this.btnColor)
-        
-    },
 
   methods: {
     navigateSoon() {
@@ -79,7 +82,7 @@ export default defineComponent({
 
 <style scoped>
 @import url("https://fonts.googleapis.com/css?family=Open+Sans");
-@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
 
 a {
   text-decoration: none;
@@ -88,7 +91,7 @@ a {
 }
 .button-container {
   margin: 0;
-  padding-top: 20px;
+  padding-top: 10px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -138,7 +141,6 @@ a {
 .btn-text h4 {
   padding: 0;
   margin: 0;
-  
   font-family: Poppins;
   font-size: 16px;
   font-style: normal;
@@ -155,10 +157,10 @@ a {
   font-size: 30px;
   color: var(--ion-color-blue-theme);
 }
-.btn-container{
-    display: flex;
-    justify-content: center;
-    flex-direction: column;
-    gap: 15px;
+.btn-container {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  gap: 15px;
 }
 </style>

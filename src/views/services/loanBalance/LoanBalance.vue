@@ -187,7 +187,7 @@ export default defineComponent({
   },
 
   created() {
-    this.getTheme();
+    this.fetchTheme();
     this.fetchLoanBal();
     this.loading = false;
   },
@@ -195,7 +195,7 @@ export default defineComponent({
   methods: {
     // Exppiration of token
     async checkTokenExpiration() {
-      const storedToken = localStorage.getItem("_token");
+      const storedToken = localStorage.getItem("token");
 
       if (!storedToken) {
         console.error("Token not available.");
@@ -213,13 +213,12 @@ export default defineComponent({
       }
     },
 
-    getTheme() {
-      const storedThemeData = getThemeData();
+    fetchTheme() {
+      const storedThemeData = localStorage.getItem("themeData");
 
-      if (storedThemeData) {
-        this.theme = storedThemeData;
-      }
-      this.theme = storedThemeData;
+      const themeData = storedThemeData ? JSON.parse(storedThemeData) : {};
+
+      this.theme = themeData;
     },
 
     async navigateToViewPage(result) {
@@ -232,7 +231,7 @@ export default defineComponent({
         this.store.commit("loader/updateLoader", true);
         await this.checkTokenExpiration();
 
-        this.storedToken = localStorage.getItem("_token");
+        this.storedToken = localStorage.getItem("token");
 
         const headers = {
           Authorization: `Bearer ${this.storedToken}`,

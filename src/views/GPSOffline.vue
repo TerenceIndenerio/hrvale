@@ -1,10 +1,10 @@
 <template>
   <ion-page>
-    <HeaderReturn
+    <HeaderReturnServices
       :headerTitle="headerTitle"
       :headerColor="theme.primaryColor"
       :headerTextColor="theme.primaryFontColor"
-    ></HeaderReturn>
+    ></HeaderReturnServices>
     <ion-content :fullscreen="true">
       <Refresher />
 
@@ -19,7 +19,7 @@
 
 <script>
 import { IonPage, IonContent, IonCard, IonIcon } from "@ionic/vue";
-import HeaderReturn from "@/components/header/HeaderReturn.vue";
+import HeaderReturnServices from "@/components/header/HeaderReturnServices.vue";
 import Refresher from "@/components/refresher/Refresher.vue";
 import { defineComponent } from "vue";
 import { getThemeData } from "@/theme/theme";
@@ -28,7 +28,7 @@ export default defineComponent({
   components: {
     IonPage,
     IonContent,
-    HeaderReturn,
+    HeaderReturnServices,
     Refresher,
     IonCard,
     IonIcon,
@@ -37,17 +37,16 @@ export default defineComponent({
     return { headerTitle: "Suy Sing", theme: {} };
   },
   methods: {
-    getTheme() {
-      const storedThemeData = getThemeData();
+    fetchTheme() {
+      const storedThemeData = localStorage.getItem("themeData");
 
-      if (storedThemeData) {
-        this.theme = storedThemeData;
-      }
-      this.theme = storedThemeData;
+      const themeData = storedThemeData ? JSON.parse(storedThemeData) : {};
+
+      this.theme = themeData;
     },
   },
   async created() {
-    this.getTheme();
+    this.fetchTheme();
   },
 });
 </script>

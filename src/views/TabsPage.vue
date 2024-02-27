@@ -140,9 +140,8 @@ export default defineComponent({
   methods: {
     handleTabButtonClick(tabName) {
       this.clickedTab = tabName;
-      setTimeout(() => {
-        // this.clickedTab = null;
-      }, 200);
+      localStorage.setItem("clickedTab", this.clickedTab);
+      setTimeout(() => {}, 200);
     },
     async adminUserDetails() {
       try {
@@ -186,7 +185,7 @@ export default defineComponent({
       }
     },
     fetchTheme() {
-      const storedThemeData = localStorage.getItem("theme");
+      const storedThemeData = localStorage.getItem("themeData");
 
       const themeData = storedThemeData ? JSON.parse(storedThemeData) : {};
 
@@ -194,6 +193,8 @@ export default defineComponent({
     },
   },
   created() {
+    this.clickedTab = localStorage.getItem("clickedTab") || "home";
+    console.log(localStorage.getItem("clickedTab"));
     this.clickedTab = "home";
     this.empNumber = localStorage.getItem("empNumber");
     this.fetchTheme();

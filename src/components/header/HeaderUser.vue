@@ -39,7 +39,7 @@
           {{ this.profileDetails.employee.middleName }}
           {{ this.profileDetails.employee.lastName }}
         </h3>
-        <div class="location-container">
+        <!-- <div class="location-container">
           <div>
             <ion-icon name="location" class="location-icon"></ion-icon>
           </div>
@@ -51,7 +51,7 @@
               {{ this.profileDetails.location }}
             </p>
           </div>
-        </div>
+        </div> -->
       </div>
     </ion-card>
   </ion-modal>
