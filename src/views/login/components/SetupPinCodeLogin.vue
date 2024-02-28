@@ -3,17 +3,16 @@
     <ion-content :fullscreen="true">
       <div
         class="container-bg"
-        :style="{ backgroundColor: theme.primaryColor }"
+        :style="{ background: `linear-gradient(to right, `+theme.primaryColor+`, #002E62)` }"
       >
         <div class="title-container">
           <h1 class="title" :style="{ color: theme.primaryFontColor }">
             <img
-              src="https://hrp-uat-app.bapplware.com/web/index.php/admin/theme/image/loginBanner"
+              src="@/assets/images/suysinglogobanner.png"
               alt="logo"
             />
           </h1>
           <h4 class="input-title">Setup your PIN</h4>
-          <br />
           <div class="pincode-circle-container">
             <input
               v-model="inputs"
@@ -296,6 +295,8 @@ export default {
   display: flex;
   flex-direction: column;
   column-gap: 10px;
+  flex-wrap: wrap;
+  justify-content: space-around;
 }
 .dont-share {
   color: white;
@@ -305,6 +306,9 @@ export default {
   font-weight: 600;
   line-height: normal;
   opacity: 70%;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  display: flex;
 }
 .otp-input {
   width: 200px;
@@ -315,6 +319,9 @@ export default {
   font-size: 70px;
   color: #034ea2;
   background-color: white;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  display: flex;
 }
 .verify-container {
   width: 100%;
@@ -334,6 +341,7 @@ export default {
   display: flex;
   justify-content: space-around;
   flex-direction: column;
+  flex-wrap: wrap;
 }
 .pincode-container {
   display: flex;
@@ -365,6 +373,7 @@ export default {
 .btn-container {
   width: 100%;
   margin-top: 5px;
+  max-width: 500px;
 }
 .login-btn {
   border-radius: 15px;
@@ -398,6 +407,8 @@ export default {
   bottom: 50px;
   left: 0;
   right: 0;
+  flex-wrap: wrap;
+  justify-content: space-around;
 }
 .bottom-text p {
   padding: 0;
@@ -407,6 +418,8 @@ export default {
   font-weight: 600;
   font-family: Poppins;
   font-size: 12px;
+  flex-wrap: wrap;
+  justify-content: space-around;
 }
 .mumpad-column {
   width: 100%;

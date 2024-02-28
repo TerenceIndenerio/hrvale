@@ -8,6 +8,7 @@
       <Refresher />
 
       <div class="greetings-container neomorphic-card-1">
+
         <div class="greetings-inner-container">
           <p :style="{ color: theme.primaryColor }">
             {{ this.greeting }},
@@ -16,6 +17,18 @@
             </span>
           </p>
         </div>
+
+        <!-- para po sa clock in and out status -->
+      <div class="status">
+        <ion-icon
+            name="time"
+            class="status-icon"
+          ></ion-icon>
+          <div class="status-text">
+            <p class="clock-status">In: 08: 55: 24 hrs</p>
+          </div>
+      </div>
+
       </div>
 
       <div class="flex-center">
@@ -386,7 +399,7 @@ ion-text .title {
   font-family: Poppins;
   font-size: 16px;
   font-style: normal;
-  font-weight: bold;
+  font-weight: 600;
 }
 
 .greetings-inner-container h4 {
@@ -395,12 +408,33 @@ ion-text .title {
   font-family: Poppins;
   font-size: 20px;
   font-style: normal;
-  font-weight: 800;
+  font-weight: 900;
   text-align: center;
   text-decoration: underline;
   margin: 10px 0 0 0;
 }
 .name {
-  text-decoration: underline;
+  text-decoration: none;
+  font-weight: 900;
+}
+.status-icon {
+  font-size: 25px;
+  color: #064EA0;
+}
+.status {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: row;
+  justify-content: center;
+  align-items: center;
+  font-family: Poppins;
+  font-weight: 900;
+  font-size: 16px;
+}
+.clock-status {
+  font-family: Poppins;
+  font-weight: 900;
+  font-size: 18px;
+  color: #064EA0;
 }
 </style>
