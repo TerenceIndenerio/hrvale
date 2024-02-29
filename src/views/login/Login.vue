@@ -168,6 +168,23 @@ export default defineComponent({
       }
     },
 
+    async fetchUserDetails() {
+      try {
+        this.storedToken = localStorage.getItem("token");
+
+        const headers = {
+          Authorization: `Bearer ${this.storedToken}`,
+        };
+        const api = baseURL + `api/v2/user/me`;
+
+        const dataResponse = await axios.get(api, { headers });
+
+        console.log(dataResponse.data.data.empNumber);
+      } catch (error) {
+        this.showErrorMessage(error.message);
+      }
+    },
+
     async OnLogin(value) {
       try {
         this.store.commit("loader/updateLoader", true);
@@ -177,13 +194,12 @@ export default defineComponent({
         const pinString = String(pin);
 
         const empNumber = localStorage.getItem("empNumber");
-        console.log(empNumber);
 
         if (stringValue === pinString) {
-          console.log(this.hasToken);
           if (this.hasToken) {
             await this.fetchToken();
-            await adminUserDetails(id);
+
+            this.fetchUserDetails();
             await userDetails(empNumber);
             await runBackgroundScript();
             this.router.push("/tabs/buzzfeed");
