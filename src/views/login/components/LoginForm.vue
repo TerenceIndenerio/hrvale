@@ -121,6 +121,11 @@ a {
   font-weight: 900;
   line-height: normal;
   margin: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  gap: 5px;
 }
 .bottom {
   overflow-y: auto;
@@ -132,6 +137,8 @@ a {
   display: flex;
   flex-direction: column;
   justify-content: space-around;
+  flex-wrap: wrap;
+  gap: 5px;
 }
 .container {
   border-top: 1px solid rgb(157, 157, 157);

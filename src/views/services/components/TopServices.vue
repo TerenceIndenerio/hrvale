@@ -5,8 +5,11 @@
         <a
           @click="navigateVale"
           class="clockin btn-container"
-          :style="{ backgroundColor: btnColor, color: btnTextColor }"
+          :style="{ background: 'linear-gradient(to right, #064EA0, #002E62)', color: btnTextColor }"
         >
+        <!-- nage-error po ito sir kaya nicomment ko po muna, pero ito po yung code na half-dynamic and half-hardcoded:
+          :style="{ background: `linear-gradient(to right, `+ theme.primaryColor +`, #002E62)`, color: theme.primaryFontColor }" 
+        -->
           <img
             src="@/assets/images/hrvalewhiteicon.png"
             alt="Vale Icon"
@@ -20,7 +23,7 @@
         <a
           @click="navigateclockin"
           class="clockin btn-container"
-          :style="{ backgroundColor: btnColor, color: btnTextColor }"
+          :style="{ background: 'linear-gradient(to right, #064EA0, #002E62)', color: btnTextColor }"
         >
           <ion-icon
             name="time"

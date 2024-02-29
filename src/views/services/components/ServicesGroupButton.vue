@@ -2,7 +2,7 @@
   <ion-grid class="button-container">
     <ion-row>
       <ion-col class="card btn-text neomorphic-card-1" expand="full">
-        <a @click="navigateLeave" :style="{ backgroundColor: btnColor }">
+        <a @click="navigateLeave" :style="{ background: 'linear-gradient(to right, #064EA0, #002E62)', color: btnTextColor }">
           <ion-icon
             name="exit"
             class="icon-btn"
@@ -12,7 +12,7 @@
         </a>
       </ion-col>
       <ion-col class="card btn-text" expand="full" color="none">
-        <a @click="navigateviewschedule" :style="{ backgroundColor: btnColor }">
+        <a @click="navigateviewschedule" :style="{ background: 'linear-gradient(to right, #064EA0, #002E62)', color: btnTextColor }">
           <ion-icon
             name="calendar"
             class="icon-btn"
@@ -24,7 +24,7 @@
       <ion-col class="card btn-text" expand="full" color="none">
         <a
           @click="navigateattendancecorrection"
-          :style="{ backgroundColor: btnColor }"
+          :style="{ background: 'linear-gradient(to right, #064EA0, #002E62)', color: btnTextColor }"
         >
           <ion-icon
             name="today"
@@ -35,7 +35,7 @@
         </a>
       </ion-col>
       <ion-col class="card btn-text" expand="full" color="none">
-        <a @click="navigateOTApply" :style="{ backgroundColor: btnColor }">
+        <a @click="navigateOTApply" :style="{ background: 'linear-gradient(to right, #064EA0, #002E62)', color: btnTextColor }">
           <ion-icon
             name="calendar-clear"
             class="icon-btn"
@@ -50,7 +50,7 @@
       <ion-col class="card btn-text" expand="full" color="none">
         <a
           @click="navigateViewPayslip"
-          :style="{ backgroundColor: btnColor }"
+          :style="{ background: 'linear-gradient(to right, #064EA0, #002E62)', color: btnTextColor }"
           disabled
         >
           <ion-icon
@@ -64,7 +64,7 @@
       <ion-col class="card btn-text" expand="full" color="none">
         <a
           @click="navigateBenefits"
-          :style="{ backgroundColor: btnColor }"
+          :style="{ background: 'linear-gradient(to right, #064EA0, #002E62)', color: btnTextColor }"
           disabled
         >
           <ion-icon
@@ -78,7 +78,7 @@
       <ion-col class="card btn-text" expand="full" color="none">
         <a
           @click="navigateloanBal"
-          :style="{ backgroundColor: btnColor }"
+          :style="{ background: 'linear-gradient(to right, #064EA0, #002E62)', color: btnTextColor }"
           disabled
         >
           <ion-icon
@@ -92,7 +92,7 @@
       <ion-col class="card btn-text" expand="full" color="none">
         <a
           @click="navigateApproval"
-          :style="{ backgroundColor: btnColor }"
+          :style="{ background: 'linear-gradient(to right, #064EA0, #002E62)', color: btnTextColor }"
           disabled
         >
           <ion-icon
@@ -163,6 +163,7 @@ a {
   text-decoration: none;
   width: 100%;
   height: 100%;
+  flex-wrap: wrap;
 }
 .button-container {
   margin: 0;
@@ -212,6 +213,8 @@ a {
   justify-content: left;
   align-items: center;
   width: 350px;
+  flex-wrap: wrap;
+  max-width: 350px;
 }
 .btn-text h4 {
   padding: 0;
