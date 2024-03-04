@@ -14,7 +14,7 @@
 
       <div class="bottom container">
         <div class="pincode-container">
-          <h4 class="input-title">Enter PIN your to proceed</h4>
+          <h4 class="input-title">Please Enter Your PIN</h4>
           <div class="pincode-circle-container">
             <input
               v-model="inputs"

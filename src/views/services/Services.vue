@@ -7,8 +7,7 @@
     <ion-content :fullscreen="true" v-if="!loading">
       <Refresher />
 
-      <div class="greetings-container neomorphic-card-1">
-
+      <div class="greetings-container neomorphic-input-2">
         <div class="greetings-inner-container">
           <p :style="{ color: theme.primaryColor }">
             {{ this.greeting }},
@@ -19,17 +18,15 @@
         </div>
 
         <!-- para po sa clock in and out status -->
-      <div class="status">
-        <ion-icon
-            name="time"
-            class="status-icon"
-          ></ion-icon>
+        <!-- <div class="status">
+          <ion-icon name="time" class="status-icon"></ion-icon>
           <div class="status-text">
             <p class="clock-status">In: 08: 55: 24 hrs</p>
           </div>
+        </div> -->
       </div>
 
-      </div>
+      <!-- <ClockInOut /> -->
 
       <div class="flex-center">
         <div class="topservices-card">
@@ -83,6 +80,7 @@ import { useRouter } from "vue-router";
 import { useStore } from "vuex";
 import { GlobalConstants } from "@/config/constants";
 import axios from "axios";
+import ClockInOut from "@/components/cards/HomeClockInCard.vue";
 
 const baseURL = GlobalConstants.HOST_URL;
 
@@ -99,6 +97,7 @@ export default defineComponent({
     HeaderUser,
     Refresher,
     IonCard,
+    ClockInOut,
   },
   setup() {
     return {
@@ -148,12 +147,15 @@ export default defineComponent({
     },
     fetchUser() {
       try {
-        const adminUserDetails = localStorage.getItem("adminUserDetails");
-        this.profileDetails = JSON.parse(adminUserDetails);
+        const userDetails = localStorage.getItem("userDetails");
+        this.profileDetails = JSON.parse(userDetails);
+
         this.employeeName =
-          this.profileDetails.employee.firstName +
-          this.profileDetails.employee.middleName +
-          this.profileDetails.employee.lastName;
+          this.profileDetails.firstName +
+          " " +
+          this.profileDetails.middleName +
+          " " +
+          this.profileDetails.lastName;
       } catch (error) {
         console.log(error);
       }
@@ -375,7 +377,6 @@ ion-text .title {
   padding: 10px;
   width: fit-content;
   min-width: 350px;
-  margin-top: 10px;
 }
 .topservices-card {
   border-radius: 20px;
@@ -385,8 +386,10 @@ ion-text .title {
   margin-top: 10px;
 }
 .greetings-container {
-  margin: 10px auto;
+  width: 80%;
+  margin: 10px auto 0 auto;
   padding: 10px 20px;
+  text-align: center;
 }
 .greetings-inner-container {
   display: flex;
@@ -404,7 +407,7 @@ ion-text .title {
 
 .greetings-inner-container h4 {
   padding: 0;
-  margin: 0 0 0 10px;
+  /* margin: 0 0 0 10px; */
   font-family: Poppins;
   font-size: 20px;
   font-style: normal;
@@ -419,7 +422,7 @@ ion-text .title {
 }
 .status-icon {
   font-size: 25px;
-  color: #064EA0;
+  color: #064ea0;
 }
 .status {
   display: flex;
@@ -435,6 +438,6 @@ ion-text .title {
   font-family: Poppins;
   font-weight: 900;
   font-size: 18px;
-  color: #064EA0;
+  color: #064ea0;
 }
 </style>

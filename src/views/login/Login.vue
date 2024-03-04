@@ -1,6 +1,7 @@
 <template>
   <ion-page>
     <ion-content :fullscreen="true" v-if="loaded">
+      <Refresher />
       <PinCodeLogin @login="OnLogin" :theme="theme" />
     </ion-content>
   </ion-page>
@@ -32,6 +33,7 @@ import { runBackgroundScript } from "@/notification/Notification.ts";
 import { newToken } from "@/store/token/newToken.ts";
 import { adminUserDetails, userDetails } from "@/store/login/onLoad";
 import generateToken from "@/store/token/accessToken.ts";
+import Refresher from "@/components/refresher/Refresher.vue";
 
 const baseURL = GlobalConstants.HOST_URL;
 const id = GlobalConstants.USER_ID;
@@ -50,6 +52,7 @@ export default defineComponent({
     IonAlert,
     IonSpinner,
     alertController,
+    Refresher,
   },
 
   setup() {
@@ -66,28 +69,25 @@ export default defineComponent({
       bgTheme: "",
       loaded: false,
       token: "",
-      newAccessToken: "",
+      newaccess_token: "",
       configs: "",
       hasToken: false,
       hasSetup: false,
+      empNumber: "",
+      pincodeData: "",
     };
   },
 
   async mounted() {
     try {
+      localStorage.removeItem("clickedTab");
       await this.checkSetupStatus();
-
-      if (this.fetchToken()) {
-        this.fetchStoredTheme();
-      } else {
-        console.log("Error fetching token");
-        this.router.replace("/setuplogin");
-      }
+      await this.fetchToken();
+      this.fetchStoredTheme();
+      this.fetchUserDetails();
+      this.hasPincode();
     } catch (error) {
       console.error("Error checking setup status:", error);
-      this.router.replace("/setuplogin");
-    } finally {
-      this.loaded = true;
     }
   },
 
@@ -95,7 +95,7 @@ export default defineComponent({
     async checkSetupStatus() {
       try {
         this.hasSetup = await localStorage.getItem("hasSetup");
-        console.log(this.hasSetup);
+
         if (!this.hasSetup) {
           this.router.replace("/setuplogin");
         }
@@ -104,9 +104,9 @@ export default defineComponent({
       }
     },
 
-    checkToken() {
+    async checkToken() {
       const storedToken = localStorage.getItem("token");
-      const storedRefereshToken = localStorage.getItem("refresh_token");
+      const storedRefereshToken = localStorage.getItem("refreshtoken");
 
       if (storedToken) {
         try {
@@ -115,7 +115,7 @@ export default defineComponent({
 
           if (decodedToken.exp && decodedToken.exp < currentTimestamp) {
             console.log("Token has expired");
-            newToken();
+            await newToken();
             this.hasToken = true;
           } else {
             console.log("Token is still valid");
@@ -123,6 +123,7 @@ export default defineComponent({
           }
         } catch (error) {
           console.error("Error decoding token:", error);
+          this.router.replace("/setuplogin");
         }
       } else {
         console.log("No token found");
@@ -179,29 +180,64 @@ export default defineComponent({
 
         const dataResponse = await axios.get(api, { headers });
 
-        console.log(dataResponse.data.data.empNumber);
+        localStorage.setItem(
+          "empNumber",
+          dataResponse.data.data.employee.empNumber
+        );
+
+        localStorage.setItem(
+          "myDetails",
+          JSON.stringify(dataResponse.data.data)
+        );
+
+        this.empNumber = dataResponse.data.data.employee.empNumber;
       } catch (error) {
-        this.showErrorMessage(error.message);
+        console.log(error.message);
+        if (error.message === "Request failed with status code 401") {
+          this.checkToken();
+        } else {
+          this.router.replace("/setuplogin");
+        }
       }
     },
 
-    async OnLogin(value) {
+    async hasPincode() {
+      try {
+        const storedToken = localStorage.getItem("token");
+
+        const authToken = `Bearer ${storedToken}`;
+
+        const apiUrl = baseURL + `api/ess/pincode`;
+        const headers = {
+          Authorization: authToken,
+        };
+
+        const response = await axios.get(apiUrl, { headers });
+
+        if (response.data.data.pincode) {
+          const pincode = Number(response.data.data.pincode);
+          localStorage.setItem("pincode", pincode);
+          this.pincodeData = pincode;
+        }
+      } catch (error) {
+        console.log(error.response?.data?.error?.message);
+      } finally {
+        this.loaded = true;
+      }
+    },
+
+    async OnLogin(pincode) {
       try {
         this.store.commit("loader/updateLoader", true);
-        const pin = localStorage.getItem("pin");
 
-        const stringValue = String(value);
-        const pinString = String(pin);
-
-        const empNumber = localStorage.getItem("empNumber");
+        const stringValue = String(pincode);
+        const pinString = String(this.pincodeData);
 
         if (stringValue === pinString) {
           if (this.hasToken) {
             await this.fetchToken();
-
-            this.fetchUserDetails();
-            await userDetails(empNumber);
             await runBackgroundScript();
+            await userDetails(this.empNumber);
             this.router.push("/tabs/buzzfeed");
           }
         } else {
@@ -254,9 +290,10 @@ export default defineComponent({
   justify-content: center;
   align-items: center;
 }
+
 .bg-container {
-  margin-top: 20px;
   display: flex;
   justify-content: center;
+  height: 100vh;
 }
 </style>

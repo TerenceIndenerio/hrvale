@@ -5,9 +5,12 @@
         <a
           @click="navigateVale"
           class="clockin btn-container"
-          :style="{ background: 'linear-gradient(to right, #064EA0, #002E62)', color: btnTextColor }"
+          :style="{
+            background: 'linear-gradient(to right, #064EA0, #002E62)',
+            color: btnTextColor,
+          }"
         >
-        <!-- nage-error po ito sir kaya nicomment ko po muna, pero ito po yung code na half-dynamic and half-hardcoded:
+          <!-- nage-error po ito sir kaya nicomment ko po muna, pero ito po yung code na half-dynamic and half-hardcoded:
           :style="{ background: `linear-gradient(to right, `+ theme.primaryColor +`, #002E62)`, color: theme.primaryFontColor }" 
         -->
           <img
@@ -23,7 +26,10 @@
         <a
           @click="navigateclockin"
           class="clockin btn-container"
-          :style="{ background: 'linear-gradient(to right, #064EA0, #002E62)', color: btnTextColor }"
+          :style="{
+            background: 'linear-gradient(to right, #064EA0, #002E62)',
+            color: btnTextColor,
+          }"
         >
           <ion-icon
             name="time"
@@ -94,7 +100,6 @@ a {
 }
 .button-container {
   margin: 0;
-  padding-top: 10px;
   display: flex;
   justify-content: center;
   align-items: center;

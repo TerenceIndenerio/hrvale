@@ -8,7 +8,6 @@
     ></ion-icon>
 
     <h2 class="title">{{ headerTitle }}</h2>
-    
   </div>
 </template>
 
@@ -45,7 +44,7 @@ export default defineComponent({
       this.popoverOpen = true;
     },
     logout() {
-      localStorage.removeItem("_token");
+      localStorage.removeItem("token");
       this.$router.push("/login");
       this.popoverOpen = false;
     },

@@ -10,7 +10,9 @@
       <div class="neomorphic-card-1 card-container">
         <div v-if="results.length === 0">
           <div class="no-data-text">
-            <h5 :style="{ color: theme.primaryColor }">No data available</h5>
+            <h5 :style="{ color: theme.primaryColor }">
+              <strong>Fetching Data</strong>
+            </h5>
           </div>
         </div>
 

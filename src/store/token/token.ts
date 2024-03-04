@@ -1,5 +1,5 @@
-import { Module, MutationTree, ActionTree, GetterTree } from 'vuex';
-import { generateToken } from '../../services/api';
+import { Module, MutationTree, ActionTree, GetterTree } from "vuex";
+import { generateToken } from "../../services/api";
 
 interface TokenState {
   token: string | null;
@@ -20,19 +20,19 @@ const actions: ActionTree<TokenState, any> = {
     try {
       const response = await generateToken(payload);
       const token = response.data.token;
-      localStorage.setItem("_token", token);
-      commit('updateToken', token);
-      return response
+      localStorage.setItem("token", token);
+      commit("updateToken", token);
+      return response;
     } catch (error) {
-        console.error(error);
+      console.error(error);
     }
   },
 };
 
 const getters: GetterTree<TokenState, any> = {
-    getToken(state): string | null {
-      return state.token;
-    },
+  getToken(state): string | null {
+    return state.token;
+  },
 };
 
 const token: Module<TokenState, any> = {
@@ -40,7 +40,7 @@ const token: Module<TokenState, any> = {
   state,
   mutations,
   actions,
-  getters
+  getters,
 };
 
 export default token;

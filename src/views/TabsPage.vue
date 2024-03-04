@@ -194,8 +194,6 @@ export default defineComponent({
   },
   created() {
     this.clickedTab = localStorage.getItem("clickedTab") || "home";
-    console.log(localStorage.getItem("clickedTab"));
-    this.clickedTab = "home";
     this.empNumber = localStorage.getItem("empNumber");
     this.fetchTheme();
   },

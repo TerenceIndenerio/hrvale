@@ -25,7 +25,7 @@ async function myFunction(): Promise<AxiosResponse> {
       })
       .then((res) => {
         localStorage.setItem("access_token", res.data.access_token);
-        localStorage.setItem("refresh_token", res.data.refresh_token);
+        localStorage.setItem("refreshtoken", res.data.refreshtoken);
         resolve(res);
       });
   });

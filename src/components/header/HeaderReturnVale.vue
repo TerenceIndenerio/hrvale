@@ -70,7 +70,7 @@ export default defineComponent({
       this.popoverOpen = true;
     },
     logout() {
-      localStorage.removeItem("_token");
+      localStorage.removeItem("token");
       this.$router.push("/login");
       this.popoverOpen = false;
     },
@@ -106,23 +106,22 @@ export default defineComponent({
   box-shadow: 8px 8px 16px rgba(0, 0, 0, 0.2),
     -8px -8px 16px rgba(255, 255, 255, 0.8), 0px -4px 8px rgba(0, 0, 0, 0.1);
 }
-  .icon1 {
-    font-size: 30px;
-    color: var(--ion-color-primary-contrast);
-    transition: transform 0.2s ease;
-  }
+.icon1 {
+  font-size: 30px;
+  color: var(--ion-color-primary-contrast);
+  transition: transform 0.2s ease;
+}
 .icon1:hover {
   transform: scale(0.5);
 }
 .icon2 {
-  
   right: 20px;
   font-size: 25px;
   /* outline: 3px solid white; */
   border-radius: 100%;
   padding: 3px;
   color: var(--ion-color-primary-contrast);
-  
+
   transition: transform 0.7s ease;
 }
 

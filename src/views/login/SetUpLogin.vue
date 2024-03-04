@@ -3,15 +3,15 @@
     <ion-content :fullscreen="true" v-if="loaded">
       <div>
         <div
-          class="container"
+          class="bg-container"
           :style="{
             'background-image':
               'linear-gradient(to right top, #008e9c, #00828f, #007782, #006b75, #006069)',
           }"
         >
-          <ion-text class="logo-banner">
+          <div class="logo-banner">
             <img src="@/assets/images/hrvaleofficiallogofinal.png" alt="logo" />
-          </ion-text>
+          </div>
         </div>
 
         <LoginForm
@@ -75,7 +75,7 @@ export default defineComponent({
       bgTheme: "",
       loaded: false,
       token: "",
-      newAccessToken: "",
+      newaccess_token: "",
       configs: "",
       hasToken: false,
       theme: {},
@@ -84,7 +84,6 @@ export default defineComponent({
   },
   async mounted() {
     this.loaded = true;
-    
   },
   methods: {
     async OnLogin(value) {
@@ -93,7 +92,7 @@ export default defineComponent({
         const token = response.data.access_token;
 
         if (token) {
-          localStorage.setItem("hasSetup", this.hasSetup);
+          localStorage.setItem("hasSetup", true);
           this.router.push("/setuppincodelogin");
         }
       } catch (error) {
@@ -101,7 +100,6 @@ export default defineComponent({
         await this.alertError();
       }
     },
-
 
     async alertError() {
       const showAlert = async () => {
@@ -144,8 +142,8 @@ export default defineComponent({
   align-items: center;
 }
 .bg-container {
-  margin-top: 20px;
   display: flex;
   justify-content: center;
+  height: 100vh;
 }
 </style>

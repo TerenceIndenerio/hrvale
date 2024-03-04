@@ -6,14 +6,14 @@
       @click="navigateBack"
     ></ion-icon>
     <h2 class="title" :style="{ color: headerTextColor }">{{ headerTitle }}</h2>
-    
-    <ion-icon 
-    name="notifications" 
-    class="icon2" 
-    color="light"
-    @click="rotateIcon"
-    :class="{ 'rotateIcon': rotationState === 'rotateIcon' }"
-    :key="rotationState"
+
+    <ion-icon
+      name="notifications"
+      class="icon2"
+      color="light"
+      @click="rotateIcon"
+      :class="{ rotateIcon: rotationState === 'rotateIcon' }"
+      :key="rotationState"
     ></ion-icon>
     <ion-card class="card-top">
       <div class="flex-inline">
@@ -95,7 +95,7 @@ export default defineComponent({
     };
 
     const logout = () => {
-      localStorage.removeItem("_token");
+      localStorage.removeItem("token");
       router.push("/login");
       popoverOpen.value = false;
     };
@@ -109,7 +109,7 @@ export default defineComponent({
   },
   data() {
     return {
-      rotationState: 'initial'
+      rotationState: "initial",
     };
   },
   methods: {
@@ -117,9 +117,9 @@ export default defineComponent({
       this.$router.go(-1);
     },
     async rotateIcon() {
-      this.rotationState = 'rotateIcon';
-      await new Promise(resolve => setTimeout(resolve, 300));
-      this.rotationState = 'initial';
+      this.rotationState = "rotateIcon";
+      await new Promise((resolve) => setTimeout(resolve, 300));
+      this.rotationState = "initial";
     },
   },
 });
@@ -146,13 +146,12 @@ export default defineComponent({
   color: var(--ion-color-primary-contrast);
 }
 .icon2 {
-  
   right: 20px;
   font-size: 25px;
   border-radius: 100%;
   padding: 3px;
   color: var(--ion-color-primary-contrast);
-  
+
   transition: transform 0.7s ease;
 }
 .title {
@@ -277,7 +276,7 @@ ion-popover {
 }
 
 .rotateIcon {
-  animation: rotateKeyframes .3s ease-in-out;
+  animation: rotateKeyframes 0.3s ease-in-out;
 }
 
 @keyframes rotateKeyframes {

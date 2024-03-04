@@ -1,10 +1,10 @@
 <template>
   <ion-page>
-    <div class="bottom container">
+    <div class="bottom">
       <div class="inline-v">
         <h1 class="text-center shout-text">Log In</h1>
       </div>
-      <div class="inline-v center">
+      <div class="inline-v">
         <div class="box-container text-pad">
           <ion-input
             label="Username"
@@ -79,11 +79,11 @@ export default {
 
 <style scoped>
 @import url("https://fonts.googleapis.com/css?family=Lato");
-@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
 
 a {
   text-decoration: none;
-  color: #034EA2;
+  color: #034ea2;
 }
 .center {
   margin: auto;
@@ -113,7 +113,7 @@ a {
 }
 /* specifics */
 .shout-text {
-  color: #008E9C;
+  color: #008e9c;
   text-align: center;
   font-family: Poppins;
   font-size: 30px;
@@ -128,7 +128,7 @@ a {
   gap: 5px;
 }
 .bottom {
-  overflow-y: auto;
+  overflow-y: scroll;
   position: fixed;
   bottom: 0px;
   width: 100%;
@@ -137,10 +137,9 @@ a {
   display: flex;
   flex-direction: column;
   justify-content: space-around;
-  flex-wrap: wrap;
+  /* flex-wrap: wrap; */
   gap: 5px;
-}
-.container {
+
   border-top: 1px solid rgb(157, 157, 157);
   height: 65%;
   width: 100%;
@@ -150,8 +149,10 @@ a {
   border-radius: 20px;
   background-color: #baedf3;
   overflow: hidden;
-  width: 300px;
+  width: 100%;
+  max-width: 300px;
   display: flex;
+  margin: 0 auto;
 }
 .input-title {
   color: #3b3c3e;
@@ -180,7 +181,22 @@ a {
   font-weight: 900;
   line-height: normal;
   border: none;
-  background-image: linear-gradient(to right, #007682, #007a87, #007f8b, #008390, #008895, #038e9c, #0694a2, #099aa9, #10a3b2, #16acbc, #1cb6c5, #21bfcf);}
+  background-image: linear-gradient(
+    to right,
+    #007682,
+    #007a87,
+    #007f8b,
+    #008390,
+    #008895,
+    #038e9c,
+    #0694a2,
+    #099aa9,
+    #10a3b2,
+    #16acbc,
+    #1cb6c5,
+    #21bfcf
+  );
+}
 .bottom-text {
   width: 100%;
   margin: 10% 0;
@@ -190,13 +206,13 @@ a {
   padding: 0;
   margin: 0;
   text-align: center;
-  color: #008E9C;
+  color: #008e9c;
   font-weight: 600;
   font-family: Poppins;
   font-size: 12px;
 }
 .margin-top-less {
-  margin-top: 0px; 
+  margin-top: 0px;
   color: #062f5f;
   font-weight: 900;
   font-family: Poppins;

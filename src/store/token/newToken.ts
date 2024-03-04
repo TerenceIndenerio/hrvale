@@ -2,7 +2,7 @@ import axios, { AxiosResponse } from "axios";
 
 async function newToken(): Promise<AxiosResponse> {
   const baseURL = `https://hrvale.bapplware.com/api/v1/`;
-  const storedToken = localStorage.getItem("refresh_token");
+  const storedToken = localStorage.getItem("refreshtoken");
   console.log("stored refresh", storedToken);
   if (!storedToken) {
     throw new Error("Token not found in localStorage");

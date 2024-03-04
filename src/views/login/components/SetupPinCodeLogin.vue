@@ -3,14 +3,14 @@
     <ion-content :fullscreen="true">
       <div
         class="container-bg"
-        :style="{ background: `linear-gradient(to right, `+theme.primaryColor+`, #002E62)` }"
+        :style="{
+          background:
+            `linear-gradient(to right, ` + theme.primaryColor + `, #002E62)`,
+        }"
       >
         <div class="title-container">
           <h1 class="title" :style="{ color: theme.primaryFontColor }">
-            <img
-              src="@/assets/images/suysinglogobanner.png"
-              alt="logo"
-            />
+            <img src="@/assets/images/suysinglogobanner.png" alt="logo" />
           </h1>
           <h4 class="input-title">Setup your PIN</h4>
           <div class="pincode-circle-container">

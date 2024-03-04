@@ -1,102 +1,107 @@
 <template>
   <ion-modal :is-open="isOpen" @dismiss="closeModal">
     <ion-content>
-      <div class="modal-container" :style="{backgroundColor: theme.primaryColor}">
-      <h2 class="title" :style="{color: theme.primaryFontColor}">Employee's Loan Details</h2>
+      <div
+        class="modal-container"
+        :style="{ backgroundColor: theme.primaryColor }"
+      >
+        <h2 class="title" :style="{ color: theme.primaryFontColor }">
+          Employee's Loan Details
+        </h2>
 
-      <ion-icon
-        name="close-circle"
-        @click="closeModal"
-        class="close-btn"
-        :style="{color: theme.primaryFontColor}"
-      ></ion-icon>
-      <ion-card class="card">
-        <ion-grid>
-          <ion-col size="6">
-            <ion-row>
-              <ion-col size="6">
-                <p>Name:</p>
-              </ion-col>
-              <ion-col size="6">
-                <p>{{ selectedResult.name }}</p>
-              </ion-col>
-            </ion-row>
+        <ion-icon
+          name="close-circle"
+          @click="closeModal"
+          class="close-btn"
+          :style="{ color: theme.primaryFontColor }"
+        ></ion-icon>
+        <ion-card class="card">
+          <ion-grid>
+            <ion-col size="6">
+              <ion-row>
+                <ion-col size="6">
+                  <p>Name:</p>
+                </ion-col>
+                <ion-col size="6">
+                  <p>{{ selectedResult.name }}</p>
+                </ion-col>
+              </ion-row>
 
-            <ion-row>
-              <ion-col size="6">
-                <p>Loan Date:</p>
-              </ion-col>
-              <ion-col size="6">
-                <p>{{ selectedResult.loanDate }}</p>
-              </ion-col>
-            </ion-row>
+              <ion-row>
+                <ion-col size="6">
+                  <p>Loan Date:</p>
+                </ion-col>
+                <ion-col size="6">
+                  <p>{{ selectedResult.loanDate }}</p>
+                </ion-col>
+              </ion-row>
 
-            <ion-row>
-              <ion-col size="6">
-                <p>Start of Payment:</p>
-              </ion-col>
-              <ion-col size="6">
-                <p>{{ selectedResult.startPaymentDate }}</p>
-              </ion-col>
-            </ion-row>
+              <ion-row>
+                <ion-col size="6">
+                  <p>Start of Payment:</p>
+                </ion-col>
+                <ion-col size="6">
+                  <p>{{ selectedResult.startPaymentDate }}</p>
+                </ion-col>
+              </ion-row>
 
-            <ion-row>
-              <ion-col size="6">
-                <p>Loan Type:</p>
-              </ion-col>
-              <ion-col size="6">
-                <p>{{ selectedResult.loanType }}</p>
-              </ion-col>
-            </ion-row>
+              <ion-row>
+                <ion-col size="6">
+                  <p>Loan Type:</p>
+                </ion-col>
+                <ion-col size="6">
+                  <p>{{ selectedResult.loanType }}</p>
+                </ion-col>
+              </ion-row>
 
-            <ion-row>
-              <ion-col size="6">
-                <p>Principal Amount:</p>
-              </ion-col>
-              <ion-col size="6">
-                <p>{{ selectedResult.loanAmount }}</p>
-              </ion-col>
-            </ion-row>
+              <ion-row>
+                <ion-col size="6">
+                  <p>Principal Amount:</p>
+                </ion-col>
+                <ion-col size="6">
+                  <p>{{ selectedResult.loanAmount }}</p>
+                </ion-col>
+              </ion-row>
 
-            <ion-row>
-              <ion-col size="6">
-                <p>Schedule of Deduction:</p>
-              </ion-col>
-              <ion-col size="6">
-                <p>{{ selectedResult.schedOfDeduction }}</p>
-              </ion-col>
-            </ion-row>
+              <ion-row>
+                <ion-col size="6">
+                  <p>Schedule of Deduction:</p>
+                </ion-col>
+                <ion-col size="6">
+                  <p>{{ selectedResult.schedOfDeduction }}</p>
+                </ion-col>
+              </ion-row>
 
-            <ion-row>
-              <ion-col size="6">
-                <p>Amortization:</p>
-              </ion-col>
-              <ion-col size="6">
-                <p>{{ selectedResult.amortization }}</p>
-              </ion-col>
-            </ion-row>
+              <ion-row>
+                <ion-col size="6">
+                  <p>Amortization:</p>
+                </ion-col>
+                <ion-col size="6">
+                  <p>{{ selectedResult.amortization }}</p>
+                </ion-col>
+              </ion-row>
 
-            <ion-row>
-              <ion-col size="6">
-                <p>Reason:</p>
-              </ion-col>
-              <ion-col size="6">
-                <p>{{ selectedResult.reason }}</p>
-              </ion-col>
-            </ion-row>
+              <ion-row>
+                <ion-col size="6">
+                  <p>Reason:</p>
+                </ion-col>
+                <ion-col size="6">
+                  <p>{{ selectedResult.reason }}</p>
+                </ion-col>
+              </ion-row>
 
-            <ion-row>
-              <ion-col size="6">
-                <p>Status:</p>
-              </ion-col>
-              <ion-col size="6">
-                <p>{{ selectedResult.status }}</p>
-              </ion-col>
-            </ion-row>
-          </ion-col>
-        </ion-grid>
-      </ion-card>
-    </div>  
+              <ion-row>
+                <ion-col size="6">
+                  <p>Status:</p>
+                </ion-col>
+                <ion-col size="6">
+                  <p>{{ selectedResult.status }}</p>
+                </ion-col>
+              </ion-row>
+            </ion-col>
+          </ion-grid>
+        </ion-card>
+      </div>
     </ion-content>
   </ion-modal>
 </template>
@@ -170,7 +175,7 @@ export default defineComponent({
     },
     async togglePayment(id) {
       try {
-        this.storedToken = localStorage.getItem("_token");
+        this.storedToken = localStorage.getItem("token");
 
         const headers = {
           Authorization: `Bearer ${this.storedToken}`,

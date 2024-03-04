@@ -3,14 +3,14 @@
     <ion-content :fullscreen="true">
       <div
         class="container-bg"
-        :style="{ background: `linear-gradient(to right, `+theme.primaryColor+`, #002E62)` }"
+        :style="{
+          background:
+            `linear-gradient(to right, ` + theme.primaryColor + `, #002E62)`,
+        }"
       >
         <div class="title-container">
           <h1 class="title" :style="{ color: theme.primaryFontColor }">
-            <img
-              src="@/assets/images/suysinglogobanner.png"
-              alt="logo"
-            />
+            <img src="@/assets/images/suysinglogobanner.png" alt="logo" />
           </h1>
           <h4 class="input-title">Enter your PIN</h4>
           <div class="pincode-circle-container">
@@ -163,13 +163,17 @@
         </div>
 
         <div class="forgot-pin">
-          <a href="#"> Forgot your PIN? </a>
+          <a
+            href="https://hrp-uat-app.bapplware.com/web/index.php/reset/form/pincode"
+            @click="forgotPin"
+          >
+            Forgot your PIN?
+          </a>
         </div>
 
         <div class="bottom-text">
           <p>© 2024 BAPPLWARE Technologies, <br />Inc. All rights reserved.</p>
         </div>
-
       </div>
     </ion-content>
   </ion-page>
@@ -240,6 +244,9 @@ export default {
     resetInputs() {
       this.inputs = "";
       this.actualDigits = "";
+    },
+    forgotPin() {
+      localStorage.removeItem("pincode");
     },
   },
 };
@@ -437,11 +444,11 @@ export default {
   align-items: center;
   flex-wrap: wrap;
 }
-.forgot-pin a{
+.forgot-pin a {
   padding: 0;
   margin: 0;
   text-align: center;
-  color: #F08D2F;
+  color: #f08d2f;
   font-weight: 900;
   font-family: Poppins;
   font-size: 20px;

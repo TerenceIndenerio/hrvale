@@ -163,6 +163,7 @@ export default defineComponent({
       baseUrl: "",
       profileDetails: "",
       hasNews: true,
+      isReloaded: false,
     };
   },
   methods: {
@@ -426,7 +427,7 @@ export default defineComponent({
 
     checkToken() {
       const storedToken = localStorage.getItem("token");
-      const storedRefereshToken = localStorage.getItem("refresh_token");
+      const storedRefereshToken = localStorage.getItem("refreshtoken");
 
       if (storedToken) {
         try {
@@ -448,12 +449,10 @@ export default defineComponent({
     },
   },
 
-  created() {
+  async mounted() {
     this.baseURL = localStorage.getItem("baseUrl");
-
     const adminUserDetails = localStorage.getItem("adminUserDetails");
     this.profileDetails = JSON.parse(adminUserDetails);
-
     this.checkToken();
     this.updateLoader(false);
     this.fetchData();

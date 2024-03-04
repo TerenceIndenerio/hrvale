@@ -29,6 +29,8 @@ import LoanBalance from "@/views/services/loanBalance/loanBalance.vue";
 import LoanBalanceView from "@/views/services/loanBalance/LoanBalanceView.vue";
 import NotifToken from "@/views/dev/NotifToken.vue";
 import LoginPinCodeSetup from "@/views/login/LoginPinCodeSetup.vue";
+import PrivacyPolicy from "@/views/legal/PrivacyPolicy.vue";
+import TermsAndCondition from "@/views/legal/TermsAndCondition.vue";
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -145,6 +147,14 @@ const routes: Array<RouteRecordRaw> = [
       {
         path: "/viewpayslip",
         component: ViewPayslip,
+      },
+      {
+        path: "/privacypolicy",
+        component: PrivacyPolicy,
+      },
+      {
+        path: "/termsandcondition",
+        component: TermsAndCondition,
       },
     ],
   },

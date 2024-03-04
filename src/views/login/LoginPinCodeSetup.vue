@@ -66,26 +66,35 @@ export default defineComponent({
       bgTheme: "",
       loaded: false,
       token: "",
-      newAccessToken: "",
+      newaccess_token: "",
       configs: "",
       hasToken: false,
+      tokenData: "",
+      empNumber: "",
     };
   },
 
   async mounted() {
-    if (this.fetchToken()) {
-      this.fetchStoredTheme();
-    } else {
-      console.log("Error fetching token");
-      this.router.push("/setuplogin");
-    }
+    await this.fetchToken();
+
+    this.fetchStoredTheme();
+    await this.fetchUserDetails();
+
+    // this.storePincode(value);
+
+    await runBackgroundScript();
+
+    await userDetails(this.empNumber);
+    this.hasPincode();
+
+    localStorage.removeItem("clickedTab");
     this.loaded = true;
   },
 
   methods: {
     checkToken() {
       const storedToken = localStorage.getItem("token");
-      const storedRefereshToken = localStorage.getItem("refresh_token");
+      const storedRefereshToken = localStorage.getItem("refreshtoken");
 
       if (storedToken) {
         try {
@@ -117,12 +126,38 @@ export default defineComponent({
         });
 
         localStorage.setItem("token", response.data.token);
+        this.tokenData = response.data.token;
         this.hasToken = true;
       } catch (error) {
         console.error("error", error.message);
         if (error.message === "Request failed with status code 401") {
           this.checkToken();
         }
+      }
+    },
+
+    async storePincode(pin) {
+      try {
+        this.fetchToken();
+        const storedToken = localStorage.getItem("token");
+
+        const authToken = `Bearer ${this.tokenData}`;
+
+        const apiUrl = baseURL + `api/ess/pincode`;
+        const headers = {
+          Authorization: authToken,
+        };
+
+        const pincode = Number(pin);
+        console.log(pin, pincode);
+
+        const response = await axios.post(apiUrl, { pincode }, { headers });
+
+        if (response.status === 200) {
+          this.alertSuccess("Please do not share your pincode to others.");
+        }
+      } catch (error) {
+        console.log(error.response?.data?.error?.message);
       }
     },
 
@@ -147,20 +182,82 @@ export default defineComponent({
       }
     },
 
+    async fetchUserDetails() {
+      try {
+        this.fetchToken();
+        this.storedToken = localStorage.getItem("token");
+
+        const headers = {
+          Authorization: `Bearer ${this.tokenData}`,
+        };
+        const api = baseURL + `api/v2/user/me`;
+
+        const dataResponse = await axios.get(api, { headers });
+
+        localStorage.setItem(
+          "empNumber",
+          dataResponse.data.data.employee.empNumber
+        );
+
+        localStorage.setItem(
+          "myDetails",
+          JSON.stringify(dataResponse.data.data)
+        );
+
+        this.empNumber = dataResponse.data.data.employee.empNumber;
+      } catch (error) {
+        console.log(error.message);
+        if (error.message === "Request failed with status code 401") {
+          this.checkToken();
+        } else {
+          this.router.replace("/setuplogin");
+        }
+      }
+    },
+
     async OnLogin(value) {
       try {
         if (this.hasToken) {
-          localStorage.setItem("pin", value);
+          // localStorage.setItem("pin", value);
+          localStorage.setItem("pincode", value);
+          this.storePincode(value);
           await this.fetchToken();
-          await adminUserDetails(id);
           await runBackgroundScript();
+          this.fetchUserDetails();
+          await userDetails(this.empNumber);
           this.router.push("/tabs/buzzfeed");
-        } else {
-          console.log("Invalid Credentials");
-          await this.alertError();
         }
       } catch (error) {
         console.error(error);
+      }
+    },
+
+    async hasPincode() {
+      try {
+        this.fetchToken();
+        const storedToken = localStorage.getItem("token");
+
+        const authToken = `Bearer ${this.tokenData}`;
+
+        const apiUrl = baseURL + `api/ess/pincode`;
+        const headers = {
+          Authorization: authToken,
+        };
+
+        const response = await axios.get(apiUrl, { headers });
+        console.log("pincode response", response.data.data.pincode);
+
+        console.log(response.data.data.pincode);
+
+        if (response.data.data.pincode) {
+          localStorage.setItem("pincode", response.data.data.pincode);
+          this.router.push("/tabs/buzzfeed");
+          setTimeout(() => {
+            window.location.reload();
+          }, 1000);
+        }
+      } catch (error) {
+        console.log(error.response?.data?.error?.message);
       }
     },
 
@@ -168,8 +265,26 @@ export default defineComponent({
       const showAlert = async () => {
         const alert = await alertController.create({
           header: "Invalid Credentials",
-          message:
-            "The username or password you entered is incorrect. Please try again.",
+          message: "Please try again.",
+          buttons: [
+            {
+              text: "Close",
+              htmlAttributes: {
+                "aria-label": "close",
+              },
+            },
+          ],
+        });
+        await alert.present();
+      };
+      return showAlert();
+    },
+
+    async alertSuccess(message) {
+      const showAlert = async () => {
+        const alert = await alertController.create({
+          header: "Saved Successfully!",
+          message: message,
           buttons: [
             {
               text: "Close",
@@ -204,9 +319,10 @@ export default defineComponent({
   justify-content: center;
   align-items: center;
 }
+
 .bg-container {
-  margin-top: 20px;
   display: flex;
   justify-content: center;
+  height: 100vh;
 }
 </style>

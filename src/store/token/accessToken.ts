@@ -18,7 +18,7 @@ async function generateToken(
       })
       .then((res) => {
         localStorage.setItem("access_token", res.data.access_token);
-        localStorage.setItem("refresh_token", res.data.refresh_token);
+        localStorage.setItem("refreshtoken", res.data.refresh_token);
 
         const configs: Config[] = res.data.configs;
         localStorage.setItem("configs", JSON.stringify(configs));
