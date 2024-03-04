@@ -137,11 +137,11 @@ export default defineComponent({
         const response = await axios.post(baseURL + "auth/token", {
           secret: storedToken,
         });
-
+        console.log(response);
         localStorage.setItem("token", response.data.token);
         this.hasToken = true;
       } catch (error) {
-        console.error("error", error.message);
+        console.error(error.response.data.error.status);
         if (error.message === "Request failed with status code 401") {
           this.checkToken();
         }
@@ -192,8 +192,8 @@ export default defineComponent({
 
         this.empNumber = dataResponse.data.data.employee.empNumber;
       } catch (error) {
-        console.log(error.message);
-        if (error.message === "Request failed with status code 401") {
+        console.log(error.status);
+        if (error.status == 401) {
           this.checkToken();
         } else {
           this.router.replace("/setuplogin");
