@@ -28,11 +28,31 @@ import PinCodeAccountSettings from "@/views/pincode/PinCodeAccountSettings.vue";
 import LoanBalance from "@/views/services/loanBalance/loanBalance.vue";
 import LoanBalanceView from "@/views/services/loanBalance/LoanBalanceView.vue";
 import NotifToken from "@/views/dev/NotifToken.vue";
+import Welcome from "@/views/welcome/WelcomePage1.vue";
+import Welcome2 from "@/views/welcome/WelcomePage2.vue";
+import Welcome3 from "@/views/welcome/WelcomePage3.vue";
+import WelcomePage from "@/views/welcome/WelcomePage.vue";
 
 const routes: Array<RouteRecordRaw> = [
   {
     path: "/",
     redirect: "/login",
+  },
+  {
+    path: "/welcome",
+    component: Welcome,
+  },
+  {
+    path: "/welcome2",
+    component: Welcome2,
+  },
+  {
+    path: "/welcome3",
+    component: Welcome3,
+  },
+  {
+    path: "/welcomepage",
+    component: WelcomePage,
   },
   {
     path: "/tabs/",
