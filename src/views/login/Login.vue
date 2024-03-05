@@ -80,14 +80,13 @@ export default defineComponent({
 
   async mounted() {
     try {
-      localStorage.removeItem("clickedTab");
       await this.checkSetupStatus();
-      await this.fetchToken();
+      localStorage.removeItem("clickedTab");
       this.fetchStoredTheme();
-      this.fetchUserDetails();
-      this.hasPincode();
     } catch (error) {
       console.error("Error checking setup status:", error);
+    } finally {
+      this.loaded = true;
     }
   },
 
@@ -115,15 +114,18 @@ export default defineComponent({
 
           if (decodedToken.exp && decodedToken.exp < currentTimestamp) {
             console.log("Token has expired");
-            await newToken();
-            this.hasToken = true;
+
+            await newToken().then((res) => {
+              if (res) {
+                this.hasToken = true;
+              }
+            });
           } else {
             console.log("Token is still valid");
             this.hasToken = true;
           }
         } catch (error) {
           console.error("Error decoding token:", error);
-          this.router.replace("/setuplogin");
         }
       } else {
         console.log("No token found");
@@ -193,11 +195,6 @@ export default defineComponent({
         this.empNumber = dataResponse.data.data.employee.empNumber;
       } catch (error) {
         console.log(error.status);
-        if (error.status == 401) {
-          this.checkToken();
-        } else {
-          this.router.replace("/setuplogin");
-        }
       }
     },
 
@@ -221,8 +218,6 @@ export default defineComponent({
         }
       } catch (error) {
         console.log(error.response?.data?.error?.message);
-      } finally {
-        this.loaded = true;
       }
     },
 
@@ -230,19 +225,22 @@ export default defineComponent({
       try {
         this.store.commit("loader/updateLoader", true);
 
+        await this.checkToken();
+        await this.fetchToken();
+        await this.fetchUserDetails();
+        await this.hasPincode();
+
         const stringValue = String(pincode);
         const pinString = String(this.pincodeData);
 
-        if (stringValue === pinString) {
-          if (this.hasToken) {
-            await this.fetchToken();
-            await runBackgroundScript();
-            await userDetails(this.empNumber);
-            this.router.push("/tabs/buzzfeed");
-          }
+        if (stringValue === pinString && this.hasToken) {
+          this.router.push("/tabs/buzzfeed");
         } else {
-          await this.alertError();
+          this.alertError();
         }
+
+        await runBackgroundScript();
+        await userDetails(this.empNumber);
       } catch (error) {
         console.error(error);
       } finally {
