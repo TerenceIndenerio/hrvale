@@ -3,20 +3,57 @@
     <HeaderUser
       :headerTitle="headerTitle"
       :headerColor="theme.primaryColor"
-      :imgLogo="theme.clientLogo"
     ></HeaderUser>
     <ion-content :fullscreen="true" v-if="!loading">
       <Refresher />
-      <CardWImg :cardHeader="cardHeader" :cardText="cardText" />
+
+      <div class="greetings-container neomorphic-input-2">
+        <div class="greetings-inner-container">
+          <p :style="{ color: theme.primaryColor }">
+            {{ this.greeting }},
+            <span class="name">
+              {{ this.employeeName }}
+            </span>
+          </p>
+        </div>
+
+        <!-- para po sa clock in and out status -->
+        <!-- <div class="status">
+          <ion-icon name="time" class="status-icon"></ion-icon>
+          <div class="status-text">
+            <p class="clock-status">In: 08: 55: 24 hrs</p>
+          </div>
+        </div> -->
+      </div>
+
+      <!-- <ClockInOut /> -->
+
+      <div class="flex-center">
+        <div class="topservices-card">
+          <ion-text>
+            <h2 class="title" :style="{ color: theme.primaryColor }">
+              TOP SERVICES
+            </h2>
+          </ion-text>
+          <TopServices
+            :btnColor="theme.primaryColor"
+            :btnTextColor="theme.primaryFontColor"
+            :btnSecondaryColor="theme.primaryFontColor"
+          />
+        </div>
+      </div>
 
       <div class="flex-center">
         <div class="services-card">
           <ion-text>
-            <h2 class="title">Services</h2>
+            <h2 class="title" :style="{ color: theme.primaryColor }">
+              ALL SERVICES
+            </h2>
           </ion-text>
           <ServicesGroupButton
             :btnColor="theme.primaryColor"
-            :btnTextColor="theme.primaryColor"
+            :btnTextColor="theme.primaryFontColor"
+            :btnSecondaryColor="theme.primaryFontColor"
           />
         </div>
       </div>
@@ -35,6 +72,7 @@ import {
 } from "@ionic/vue";
 import CardWImg from "@/components/cards/CardWImg.vue";
 import ServicesGroupButton from "@/views/services/components/ServicesGroupButton.vue";
+import TopServices from "@/views/services/components/TopServices.vue";
 import HeaderUser from "@/components/header/HeaderUser.vue";
 import Refresher from "@/components/refresher/Refresher.vue";
 import { defineComponent } from "vue";
@@ -42,6 +80,7 @@ import { useRouter } from "vue-router";
 import { useStore } from "vuex";
 import { GlobalConstants } from "@/config/constants";
 import axios from "axios";
+import ClockInOut from "@/components/cards/HomeClockInCard.vue";
 
 const baseURL = GlobalConstants.HOST_URL;
 
@@ -54,9 +93,11 @@ export default defineComponent({
     IonIcon,
     CardWImg,
     ServicesGroupButton,
+    TopServices,
     HeaderUser,
     Refresher,
     IonCard,
+    ClockInOut,
   },
   setup() {
     return {
@@ -74,11 +115,14 @@ export default defineComponent({
       theme: {},
       firstName: "User",
       empNumber: "",
+      profileDetails: "",
+      greeting: "",
+      employeeName: "User",
     };
   },
   methods: {
-    async fetchTheme() {
-      const storedThemeData = localStorage.getItem("theme");
+    fetchTheme() {
+      const storedThemeData = localStorage.getItem("themeData");
 
       const themeData = storedThemeData ? JSON.parse(storedThemeData) : {};
 
@@ -101,12 +145,40 @@ export default defineComponent({
         this.store.commit("loader/updateLoader", false);
       }
     },
+    fetchUser() {
+      try {
+        const userDetails = localStorage.getItem("userDetails");
+        this.profileDetails = JSON.parse(userDetails);
+
+        this.employeeName =
+          this.profileDetails.firstName +
+          " " +
+          this.profileDetails.middleName +
+          " " +
+          this.profileDetails.lastName;
+      } catch (error) {
+        console.log(error);
+      }
+    },
   },
   created() {
     this.empNumber = localStorage.getItem("empNumber");
 
     this.fetchTheme();
     this.servicesData();
+
+    const now = new Date();
+    const currentHour = now.getUTCHours() + 8;
+
+    this.fetchUser();
+
+    if (currentHour >= 5 && currentHour < 12) {
+      this.greeting = "Good Morning";
+    } else if (currentHour >= 12 && currentHour < 18) {
+      this.greeting = "Good Afternoon";
+    } else {
+      this.greeting = "Good Evening";
+    }
 
     this.loading = false;
   },
@@ -117,6 +189,7 @@ export default defineComponent({
 @import url("https://fonts.googleapis.com/css?family=Inter");
 @import url("https://fonts.googleapis.com/css?family=Open+Sans");
 @import url("https://fonts.googleapis.com/css?family=Roboto");
+@import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
 
 .flex-center {
   display: flex;
@@ -127,11 +200,11 @@ export default defineComponent({
 ion-text .title {
   width: 120px;
   margin: 0;
-  color: var(--ion-text-color);
-  font-family: Open Sans;
+  color: gray;
+  font-family: Poppins;
   font-size: 16px;
   font-style: normal;
-  font-weight: 700;
+  font-weight: 900;
 }
 .card {
   height: 55px;
@@ -304,6 +377,67 @@ ion-text .title {
   padding: 10px;
   width: fit-content;
   min-width: 350px;
+}
+.topservices-card {
+  border-radius: 20px;
+  padding: 0 10px;
+  width: fit-content;
+  min-width: 350px;
   margin-top: 10px;
+}
+.greetings-container {
+  width: 80%;
+  margin: 10px auto 0 auto;
+  padding: 10px 20px;
+  text-align: center;
+}
+.greetings-inner-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.greetings-inner-container p {
+  padding: 0;
+  margin: 0;
+  font-family: Poppins;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 600;
+}
+
+.greetings-inner-container h4 {
+  padding: 0;
+  /* margin: 0 0 0 10px; */
+  font-family: Poppins;
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 900;
+  text-align: center;
+  text-decoration: underline;
+  margin: 10px 0 0 0;
+}
+.name {
+  text-decoration: none;
+  font-weight: 900;
+}
+.status-icon {
+  font-size: 25px;
+  color: #064ea0;
+}
+.status {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: row;
+  justify-content: center;
+  align-items: center;
+  font-family: Poppins;
+  font-weight: 900;
+  font-size: 16px;
+}
+.clock-status {
+  font-family: Poppins;
+  font-weight: 900;
+  font-size: 18px;
+  color: #064ea0;
 }
 </style>

@@ -4,7 +4,7 @@
     color="none"
     :style="{ backgroundColor: headerColor }"
   >
-    <img :src="imgLogo" alt="Logo" class="logo" />
+    <img :src="this.logo" alt="Logo" class="logo" />
 
     <ion-icon
       name="notifications"
@@ -29,27 +29,21 @@
       ></ion-icon>
 
       <div class="modal-content">
-        <h3>{{ this.profileDetails.userName }}</h3>
         <div>
           <img :src="profileImageUrl" alt="" class="profile-img" />
         </div>
 
         <h3>
-          {{ this.profileDetails.employee.firstName }}
-          {{ this.profileDetails.employee.middleName }}
-          {{ this.profileDetails.employee.lastName }}
+          {{ this.profileDetails.firstName }}
+          {{ this.profileDetails.middleName }}
+          {{ this.profileDetails.lastName }}
         </h3>
+        <h3>{{ this.myProfileDetails.userName }}</h3>
         <div class="location-container">
           <div>
-            <ion-icon name="location" class="location-icon"></ion-icon>
-          </div>
-          <div>
-            <p>
-              {{ this.profileDetails.subunit }}
-            </p>
-            <p>
-              {{ this.profileDetails.location }}
-            </p>
+            <p>Birth Date: {{ this.profileDetails.birthday }}</p>
+            <p>Status: {{ this.profileDetails.status }}</p>
+            <p>Nationality: {{ this.profileDetails.nationality.name }}</p>
           </div>
         </div>
       </div>
@@ -73,8 +67,6 @@ import { defineProps, defineComponent } from "vue";
 import { GlobalConstants } from "@/config/constants";
 import axios from "axios";
 
-const baseURL = GlobalConstants.HOST_URL;
-
 export default defineComponent({
   components: {
     IonHeader,
@@ -88,7 +80,7 @@ export default defineComponent({
   props: {
     headerTitle: String,
     headerColor: String,
-    imgLogo: String,
+    // logo: String,
   },
   data() {
     return {
@@ -107,13 +99,15 @@ export default defineComponent({
       subunit: "",
       location: "",
       profileDetails: "",
+      logo: "",
+      myProfileDetails: "",
     };
   },
   created() {
     const empNumber = localStorage.getItem("empNumber");
     this.fetchProfilePhoto(empNumber);
-
     this.fetchProfileDirectory();
+    this.fetchLogo();
   },
   methods: {
     openProfileModal() {
@@ -124,10 +118,14 @@ export default defineComponent({
       this.popoverOpen = true;
     },
     logout() {
-      localStorage.removeItem("_token");
+      localStorage.removeItem("token");
       localStorage.removeItem("pincodeId");
       this.$router.push("/login");
       this.popoverOpen = false;
+    },
+    fetchLogo() {
+      const baseURL = "https://hrp-uat-app.bapplware.com/web/index.php/";
+      this.logo = baseURL + "admin/theme/image/clientBanner";
     },
     async fetchProfilePhoto(empNumber) {
       try {
@@ -159,8 +157,10 @@ export default defineComponent({
     },
     async fetchProfileDirectory() {
       try {
-        const adminUserDetails = localStorage.getItem("adminUserDetails");
-        this.profileDetails = JSON.parse(adminUserDetails);
+        const userDetails = localStorage.getItem("userDetails");
+        this.profileDetails = JSON.parse(userDetails);
+        const myDetails = localStorage.getItem("myDetails");
+        this.myProfileDetails = JSON.parse(myDetails);
       } catch (error) {
         console.error("Error:", error);
       }
@@ -181,7 +181,7 @@ export default defineComponent({
 
 .header {
   background-color: #12a3da;
-  height: 120px;
+  height: 100px;
   display: flex;
   flex-direction: row;
   justify-content: center;
@@ -252,7 +252,7 @@ ion-popover {
 .logo {
   width: 250px;
   position: absolute;
-  top: 40px;
+  top: 20px;
   left: 0;
   right: 0;
   margin: auto;

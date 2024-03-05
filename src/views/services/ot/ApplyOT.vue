@@ -281,7 +281,7 @@ export default defineComponent({
   methods: {
     // Exppiration of token
     async checkTokenExpiration() {
-      const storedToken = localStorage.getItem("_token");
+      const storedToken = localStorage.getItem("token");
 
       if (!storedToken) {
         console.error("Token not available.");
@@ -311,7 +311,7 @@ export default defineComponent({
         );
         await this.checkTokenExpiration();
 
-        this.storedToken = localStorage.getItem("_token");
+        this.storedToken = localStorage.getItem("token");
 
         const apiUrl = baseURL + `api/v2/ess/overtime`;
 
@@ -360,7 +360,7 @@ export default defineComponent({
         this.store.commit("loader/updateLoader", true);
         await this.checkTokenExpiration();
 
-        this.storedToken = localStorage.getItem("_token");
+        this.storedToken = localStorage.getItem("token");
 
         const headers = {
           Authorization: `Bearer ${this.storedToken}`,
@@ -412,7 +412,7 @@ export default defineComponent({
         this.store.commit("loader/updateLoader", true);
         await this.checkTokenExpiration();
 
-        this.storedToken = localStorage.getItem("_token");
+        this.storedToken = localStorage.getItem("token");
 
         const headers = {
           Authorization: `Bearer ${this.storedToken}`,
@@ -483,17 +483,16 @@ export default defineComponent({
       this.isOpen = true;
     },
 
-    getTheme() {
-      const storedThemeData = getThemeData();
+    fetchTheme() {
+      const storedThemeData = localStorage.getItem("themeData");
 
-      if (storedThemeData) {
-        this.theme = storedThemeData;
-      }
-      this.theme = storedThemeData;
+      const themeData = storedThemeData ? JSON.parse(storedThemeData) : {};
+
+      this.theme = themeData;
     },
   },
   created() {
-    this.getTheme();
+    this.fetchTheme();
     this.fetchRequest();
     this.loading = false;
   },

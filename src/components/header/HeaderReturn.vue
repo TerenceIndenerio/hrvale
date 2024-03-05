@@ -9,13 +9,13 @@
 
     <h2 class="title">{{ headerTitle }}</h2>
 
-    <ion-icon 
-    name="notifications" 
-    class="icon2" 
-    color="light"
-    @click="rotateIcon"
-    :class="{ 'rotateIcon': rotationState === 'rotateIcon' }"
-    :key="rotationState"
+    <ion-icon
+      name="notifications"
+      class="icon2"
+      color="light"
+      @click="rotateIcon"
+      :class="{ rotateIcon: rotationState === 'rotateIcon' }"
+      :key="rotationState"
     ></ion-icon>
   </div>
   <ion-popover
@@ -66,7 +66,7 @@ export default defineComponent({
     return {
       popoverOpen: false,
       event: null,
-      rotationState: 'initial'
+      rotationState: "initial",
     };
   },
   methods: {
@@ -78,7 +78,7 @@ export default defineComponent({
       this.popoverOpen = true;
     },
     logout() {
-      localStorage.removeItem("_token");
+      localStorage.removeItem("token");
       this.$router.push("/login");
       this.popoverOpen = false;
     },
@@ -88,9 +88,9 @@ export default defineComponent({
       this.popoverOpen = false;
     },
     async rotateIcon() {
-      this.rotationState = 'rotateIcon';
-      await new Promise(resolve => setTimeout(resolve, 300));
-      this.rotationState = 'initial';
+      this.rotationState = "rotateIcon";
+      await new Promise((resolve) => setTimeout(resolve, 300));
+      this.rotationState = "initial";
     },
   },
 });
@@ -119,11 +119,11 @@ export default defineComponent({
   box-shadow: 8px 8px 16px rgba(0, 0, 0, 0.2),
     -8px -8px 16px rgba(255, 255, 255, 0.8), 0px -4px 8px rgba(0, 0, 0, 0.1);
 }
-  .icon1 {
-    font-size: 30px;
-    color: var(--ion-color-primary-contrast);
-    transition: transform 0.2s ease;
-  }
+.icon1 {
+  font-size: 30px;
+  color: var(--ion-color-primary-contrast);
+  transition: transform 0.2s ease;
+}
 .icon1:hover {
   transform: scale(0.5);
 }
@@ -133,7 +133,7 @@ export default defineComponent({
   border-radius: 100%;
   padding: 3px;
   color: var(--ion-color-primary-contrast);
-  
+
   transition: transform 0.7s ease;
 }
 
@@ -168,7 +168,7 @@ ion-popover {
 }
 
 .rotateIcon {
-  animation: rotateKeyframes .3s ease-in-out;
+  animation: rotateKeyframes 0.3s ease-in-out;
 }
 
 @keyframes rotateKeyframes {

@@ -88,7 +88,7 @@ export default defineComponent({
   methods: {
     // Exppiration of token
     async checkTokenExpiration() {
-      const storedToken = localStorage.getItem("_token");
+      const storedToken = localStorage.getItem("token");
 
       if (!storedToken) {
         console.error("Token not available.");
@@ -109,7 +109,7 @@ export default defineComponent({
       try {
         this.store.commit("loader/updateLoader", true);
 
-        const storedToken = localStorage.getItem("_token");
+        const storedToken = localStorage.getItem("token");
 
         if (!storedToken) {
           console.log("Token is missing. Redirecting to login...");
@@ -157,7 +157,7 @@ export default defineComponent({
       try {
         this.store.commit("loader/updateLoader", true);
 
-        const storedToken = localStorage.getItem("_token");
+        const storedToken = localStorage.getItem("token");
 
         if (!storedToken) {
           console.log("Token is missing. Redirecting to login...");

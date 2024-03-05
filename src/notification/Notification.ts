@@ -6,17 +6,11 @@ const baseURL = GlobalConstants.HOST_URL;
 
 export async function runBackgroundScript() {
   try {
-    const storedToken = localStorage.getItem("_token");
+    const storedToken = localStorage.getItem("token");
 
     if (!storedToken) {
       throw new Error("User not authenticated!");
     }
-
-    // const authToken = `Bearer ${storedToken}`;
-    // const apiUrl = baseURL + `api/v2/push-notification`;
-    // const headers = {
-    //   Authorization: authToken,
-    // };
 
     if (PushNotifications) {
       let permStatus = await PushNotifications.checkPermissions();
@@ -63,7 +57,7 @@ export async function runBackgroundScript() {
 
 async function sendNotifToken(notifToken: string) {
   try {
-    const storedToken = localStorage.getItem("_token");
+    const storedToken = localStorage.getItem("token");
 
     if (!storedToken) {
       throw new Error("User not authenticated!");

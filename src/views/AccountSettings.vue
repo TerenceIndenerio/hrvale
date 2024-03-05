@@ -3,7 +3,6 @@
     <HeaderUser
       :headerTitle="headerTitle"
       :headerColor="theme.primaryColor"
-      :imgLogo="theme.clientLogo"
     ></HeaderUser>
     <ion-content :fullscreen="true" v-if="!loading">
       <Refresher />
@@ -25,7 +24,11 @@
 
         <h4><strong>Support</strong></h4>
 
-        <div class="button-container" @click="navigateTo('FAQs')">
+        <a
+          class="button-container"
+          @click="navigateTo('FAQs')"
+          href="https://bapplware.com/hrp-frequently-asks-questions/"
+        >
           <ion-icon
             class="btn-icon"
             name="help"
@@ -35,9 +38,13 @@
             }"
           ></ion-icon>
           <span>FAQs</span>
-        </div>
+        </a>
 
-        <div class="button-container" @click="navigateTo('ContactUs')">
+        <a
+          class="button-container"
+          @click="navigateTo('ContactUs')"
+          href="https://bapplware.com/contact/"
+        >
           <ion-icon
             class="btn-icon"
             name="mail"
@@ -47,11 +54,11 @@
             }"
           ></ion-icon>
           <span>Contact Us</span>
-        </div>
+        </a>
 
         <h4><strong>Legal</strong></h4>
 
-        <div class="button-container" @click="navigateTo('TermsAndConditions')">
+        <a class="button-container" @click="navigateTo('termsandcondition')">
           <ion-icon
             class="btn-icon"
             name="document"
@@ -61,9 +68,9 @@
             }"
           ></ion-icon>
           <span>Terms and Conditions</span>
-        </div>
+        </a>
 
-        <div class="button-container" @click="navigateTo('PrivacyPolicy')">
+        <a class="button-container" @click="navigateTo('PrivacyPolicy')">
           <ion-icon
             class="btn-icon"
             name="lock-closed"
@@ -73,11 +80,11 @@
             }"
           ></ion-icon>
           <span>Privacy Policy</span>
-        </div>
+        </a>
 
         <br />
 
-        <div class="button-container" @click="logout">
+        <!-- <div class="button-container" @click="logout">
           <ion-icon
             class="btn-icon"
             name="log-out"
@@ -87,7 +94,7 @@
             }"
           ></ion-icon>
           <span>Log Out</span>
-        </div>
+        </div> -->
       </div>
     </ion-content>
   </ion-page>
@@ -150,7 +157,7 @@ export default defineComponent({
   methods: {
     // Expiration of token
     async checkTokenExpiration() {
-      const storedToken = localStorage.getItem("_token");
+      const storedToken = localStorage.getItem("token");
 
       if (!storedToken) {
         console.error("Token not available.");
@@ -174,13 +181,17 @@ export default defineComponent({
     },
 
     logout() {
-      localStorage.removeItem("_token");
+      localStorage.setItem("clickedTab", "home");
+      console.log(localStorage.getItem("clickedTab"));
       this.$router.push("/login");
-      console.log("Logging out");
+
+      setTimeout(() => {
+        window.location.reload();
+      }, 50);
     },
 
     fetchTheme() {
-      const storedThemeData = localStorage.getItem("theme");
+      const storedThemeData = localStorage.getItem("themeData");
 
       const themeData = storedThemeData ? JSON.parse(storedThemeData) : {};
 
@@ -206,6 +217,8 @@ export default defineComponent({
   height: 50px;
   display: flex;
   align-items: center;
+  text-decoration: none;
+  color: #000;
 }
 .button-container span {
   font-size: 18px;

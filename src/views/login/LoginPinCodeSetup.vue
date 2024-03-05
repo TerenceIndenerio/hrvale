@@ -1,8 +1,7 @@
 <template>
   <ion-page>
     <ion-content :fullscreen="true" v-if="loaded">
-      <Refresher />
-      <PinCodeLogin @login="OnLogin" :theme="theme" />
+      <SetupPinCodeLogin @login="OnLogin" :theme="theme" />
     </ion-content>
   </ion-page>
 </template>
@@ -19,7 +18,7 @@ import {
   IonSpinner,
   alertController,
 } from "@ionic/vue";
-import PinCodeLogin from "@/views/login/components/PinCodeLogin.vue";
+import SetupPinCodeLogin from "@/views/login/components/SetupPinCodeLogin.vue";
 import SVGLoginImage from "@/views/login/components/Svg.vue";
 import Alert2 from "@/components/alert/Alert2.vue";
 import { defineComponent } from "vue";
@@ -33,7 +32,6 @@ import { runBackgroundScript } from "@/notification/Notification.ts";
 import { newToken } from "@/store/token/newToken.ts";
 import { adminUserDetails, userDetails } from "@/store/login/onLoad";
 import generateToken from "@/store/token/accessToken.ts";
-import Refresher from "@/components/refresher/Refresher.vue";
 
 const baseURL = GlobalConstants.HOST_URL;
 const id = GlobalConstants.USER_ID;
@@ -46,13 +44,12 @@ export default defineComponent({
     IonTitle,
     IonContent,
     IonText,
-    PinCodeLogin,
+    SetupPinCodeLogin,
     SVGLoginImage,
     Alert2,
     IonAlert,
     IonSpinner,
     alertController,
-    Refresher,
   },
 
   setup() {
@@ -72,38 +69,30 @@ export default defineComponent({
       newaccess_token: "",
       configs: "",
       hasToken: false,
-      hasSetup: false,
+      tokenData: "",
       empNumber: "",
-      pincodeData: "",
     };
   },
 
   async mounted() {
-    try {
-      await this.checkSetupStatus();
-      localStorage.removeItem("clickedTab");
-      this.fetchStoredTheme();
-    } catch (error) {
-      console.error("Error checking setup status:", error);
-    } finally {
-      this.loaded = true;
-    }
+    await this.fetchToken();
+
+    this.fetchStoredTheme();
+    await this.fetchUserDetails();
+
+    // this.storePincode(value);
+
+    await runBackgroundScript();
+
+    await userDetails(this.empNumber);
+    this.hasPincode();
+
+    localStorage.removeItem("clickedTab");
+    this.loaded = true;
   },
 
   methods: {
-    async checkSetupStatus() {
-      try {
-        this.hasSetup = await localStorage.getItem("hasSetup");
-
-        if (!this.hasSetup) {
-          this.router.replace("/setuplogin");
-        }
-      } catch (error) {
-        console.error(error);
-      }
-    },
-
-    async checkToken() {
+    checkToken() {
       const storedToken = localStorage.getItem("token");
       const storedRefereshToken = localStorage.getItem("refreshtoken");
 
@@ -114,12 +103,8 @@ export default defineComponent({
 
           if (decodedToken.exp && decodedToken.exp < currentTimestamp) {
             console.log("Token has expired");
-
-            await newToken().then((res) => {
-              if (res) {
-                this.hasToken = true;
-              }
-            });
+            newToken();
+            this.hasToken = true;
           } else {
             console.log("Token is still valid");
             this.hasToken = true;
@@ -139,14 +124,40 @@ export default defineComponent({
         const response = await axios.post(baseURL + "auth/token", {
           secret: storedToken,
         });
-        console.log(response);
+
         localStorage.setItem("token", response.data.token);
+        this.tokenData = response.data.token;
         this.hasToken = true;
       } catch (error) {
-        console.error(error.response.data.error.status);
+        console.error("error", error.message);
         if (error.message === "Request failed with status code 401") {
           this.checkToken();
         }
+      }
+    },
+
+    async storePincode(pin) {
+      try {
+        this.fetchToken();
+        const storedToken = localStorage.getItem("token");
+
+        const authToken = `Bearer ${this.tokenData}`;
+
+        const apiUrl = baseURL + `api/ess/pincode`;
+        const headers = {
+          Authorization: authToken,
+        };
+
+        const pincode = Number(pin);
+        console.log(pin, pincode);
+
+        const response = await axios.post(apiUrl, { pincode }, { headers });
+
+        if (response.status === 200) {
+          this.alertSuccess("Please do not share your pincode to others.");
+        }
+      } catch (error) {
+        console.log(error.response?.data?.error?.message);
       }
     },
 
@@ -173,10 +184,11 @@ export default defineComponent({
 
     async fetchUserDetails() {
       try {
+        this.fetchToken();
         this.storedToken = localStorage.getItem("token");
 
         const headers = {
-          Authorization: `Bearer ${this.storedToken}`,
+          Authorization: `Bearer ${this.tokenData}`,
         };
         const api = baseURL + `api/v2/user/me`;
 
@@ -194,15 +206,38 @@ export default defineComponent({
 
         this.empNumber = dataResponse.data.data.employee.empNumber;
       } catch (error) {
-        console.log(error.status);
+        console.log(error.message);
+        if (error.message === "Request failed with status code 401") {
+          this.checkToken();
+        } else {
+          this.router.replace("/setuplogin");
+        }
+      }
+    },
+
+    async OnLogin(value) {
+      try {
+        if (this.hasToken) {
+          // localStorage.setItem("pin", value);
+          localStorage.setItem("pincode", value);
+          this.storePincode(value);
+          await this.fetchToken();
+          await runBackgroundScript();
+          this.fetchUserDetails();
+          await userDetails(this.empNumber);
+          this.router.push("/tabs/buzzfeed");
+        }
+      } catch (error) {
+        console.error(error);
       }
     },
 
     async hasPincode() {
       try {
+        this.fetchToken();
         const storedToken = localStorage.getItem("token");
 
-        const authToken = `Bearer ${storedToken}`;
+        const authToken = `Bearer ${this.tokenData}`;
 
         const apiUrl = baseURL + `api/ess/pincode`;
         const headers = {
@@ -210,41 +245,19 @@ export default defineComponent({
         };
 
         const response = await axios.get(apiUrl, { headers });
+        console.log("pincode response", response.data.data.pincode);
+
+        console.log(response.data.data.pincode);
 
         if (response.data.data.pincode) {
-          const pincode = Number(response.data.data.pincode);
-          localStorage.setItem("pincode", pincode);
-          this.pincodeData = pincode;
+          localStorage.setItem("pincode", response.data.data.pincode);
+          this.router.push("/tabs/buzzfeed");
+          setTimeout(() => {
+            window.location.reload();
+          }, 1000);
         }
       } catch (error) {
         console.log(error.response?.data?.error?.message);
-      }
-    },
-
-    async OnLogin(pincode) {
-      try {
-        this.store.commit("loader/updateLoader", true);
-
-        await this.checkToken();
-        await this.fetchToken();
-        await this.fetchUserDetails();
-        await this.hasPincode();
-
-        const stringValue = String(pincode);
-        const pinString = String(this.pincodeData);
-
-        if (stringValue === pinString && this.hasToken) {
-          this.router.push("/tabs/buzzfeed");
-        } else {
-          this.alertError();
-        }
-
-        await runBackgroundScript();
-        await userDetails(this.empNumber);
-      } catch (error) {
-        console.error(error);
-      } finally {
-        this.store.commit("loader/updateLoader", false);
       }
     },
 
@@ -252,8 +265,26 @@ export default defineComponent({
       const showAlert = async () => {
         const alert = await alertController.create({
           header: "Invalid Credentials",
-          message:
-            "The username or password you entered is incorrect. Please try again.",
+          message: "Please try again.",
+          buttons: [
+            {
+              text: "Close",
+              htmlAttributes: {
+                "aria-label": "close",
+              },
+            },
+          ],
+        });
+        await alert.present();
+      };
+      return showAlert();
+    },
+
+    async alertSuccess(message) {
+      const showAlert = async () => {
+        const alert = await alertController.create({
+          header: "Saved Successfully!",
+          message: message,
           buttons: [
             {
               text: "Close",

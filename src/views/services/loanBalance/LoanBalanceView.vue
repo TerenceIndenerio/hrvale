@@ -10,7 +10,9 @@
       <div class="neomorphic-card-1 card-container">
         <div v-if="results.length === 0">
           <div class="no-data-text">
-            <h5 :style="{ color: theme.primaryColor }">No data available</h5>
+            <h5 :style="{ color: theme.primaryColor }">
+              <strong>Fetching Data</strong>
+            </h5>
           </div>
         </div>
 
@@ -191,7 +193,7 @@ export default defineComponent({
   methods: {
     // Exppiration of token
     async checkTokenExpiration() {
-      const storedToken = localStorage.getItem("_token");
+      const storedToken = localStorage.getItem("token");
 
       if (!storedToken) {
         console.error("Token not available.");
@@ -234,7 +236,7 @@ export default defineComponent({
         this.store.commit("loader/updateLoader", true);
         await this.checkTokenExpiration();
 
-        this.storedToken = localStorage.getItem("_token");
+        this.storedToken = localStorage.getItem("token");
 
         const headers = {
           Authorization: `Bearer ${this.storedToken}`,
@@ -279,19 +281,18 @@ export default defineComponent({
       }
     },
 
-    getTheme() {
-      const storedThemeData = getThemeData();
+    fetchTheme() {
+      const storedThemeData = localStorage.getItem("themeData");
 
-      if (storedThemeData) {
-        this.theme = storedThemeData;
-      }
-      this.theme = storedThemeData;
+      const themeData = storedThemeData ? JSON.parse(storedThemeData) : {};
+
+      this.theme = themeData;
     },
   },
   created() {
     this.empNumber = localStorage.getItem("empNumber");
     this.checkTokenExpiration();
-    this.getTheme();
+    this.fetchTheme();
     const id = this.$route.query.id;
     this.fetchdata(id);
   },

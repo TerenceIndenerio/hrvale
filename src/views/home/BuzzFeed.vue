@@ -3,7 +3,6 @@
     <HeaderUser
       :headerTitle="headerTitle"
       :headerColor="theme.primaryColor"
-      :imgLogo="theme.clientLogo"
     ></HeaderUser>
     <ion-content :fullscreen="true">
       <Refresher />
@@ -56,6 +55,13 @@
         </ion-button>
       </div>
 
+      <div class="no-news-container" v-if="hasNews">
+        <h2 :style="{ color: theme.primaryColor }">
+          <strong>No News Feed!</strong>
+        </h2>
+        <p>Reload or Please Try Again Later</p>
+      </div>
+
       <div v-for="(cardData, index) in newsFeed" :key="index">
         <BuzzFeedCard
           :caption="cardData.text"
@@ -105,8 +111,7 @@ import { GlobalConstants } from "@/config/constants";
 import { PushNotifications } from "@capacitor/push-notifications";
 import BuzzFeedCard from "@/views/home/components/BuzzFeedCard.vue";
 import { IonImg } from "@ionic/vue";
-
-const baseURL = GlobalConstants.HOST_URL;
+import { newToken } from "@/store/token/newToken.ts";
 
 export default defineComponent({
   components: {
@@ -155,6 +160,10 @@ export default defineComponent({
       firstName: "",
       empNumber: null,
       activeButton: "recent",
+      baseUrl: "",
+      profileDetails: "",
+      hasNews: true,
+      isReloaded: false,
     };
   },
   methods: {
@@ -165,7 +174,7 @@ export default defineComponent({
         this.store.commit("loader/updateLoader", true);
         const storedToken = localStorage.getItem("token");
 
-        const apiUrl = baseURL + filterVal;
+        const apiUrl = this.baseURL + filterVal;
 
         const headers = {
           Authorization: `Bearer ${storedToken}`,
@@ -201,6 +210,10 @@ export default defineComponent({
               };
             })
           );
+
+          this.hasNews = !this.newsFeed.length > 0;
+        } else {
+          this.hasNews = false;
         }
       } catch (error) {
         console.error("Error:", error);
@@ -236,7 +249,6 @@ export default defineComponent({
 
     async fetchProfilePhoto(empNumber) {
       try {
-        // const empNumber = localStorage.getItem("empNumber");
         const storedToken = localStorage.getItem("token");
 
         const apiUrl = `https://hrp-uat-app.bapplware.com/web/index.php/pim/viewPhoto/empNumber/${empNumber}`;
@@ -254,8 +266,6 @@ export default defineComponent({
         const profileImageUrl = URL.createObjectURL(blob);
 
         return profileImageUrl;
-
-        // localStorage.setItem("profileImageUrl", profileImageUrl);
       } catch (error) {
         console.error("Error:", error);
         return null;
@@ -272,7 +282,7 @@ export default defineComponent({
           return;
         }
 
-        const apiUrl = baseURL + `api/v2/buzz/shares/${postId}/likes`;
+        const apiUrl = this.baseURL + `api/v2/buzz/shares/${postId}/likes`;
 
         const headers = {
           Authorization: `Bearer ${storedToken}`,
@@ -293,7 +303,7 @@ export default defineComponent({
           return;
         }
 
-        const apiUrl = baseURL + `api/v2/buzz/shares/${postId}/likes`;
+        const apiUrl = this.baseURL + `api/v2/buzz/shares/${postId}/likes`;
 
         const headers = {
           Authorization: `Bearer ${storedToken}`,
@@ -314,7 +324,7 @@ export default defineComponent({
           return;
         }
 
-        const apiUrl = baseURL + `api/v2/admin/organization`;
+        const apiUrl = this.baseURL + `api/v2/admin/organization`;
 
         const headers = {
           Authorization: `Bearer ${storedToken}`,
@@ -341,7 +351,8 @@ export default defineComponent({
         };
 
         const api =
-          baseURL + `api/v2/pim/employees/${this.empNumber}/personal-details`;
+          this.baseURL +
+          `api/v2/pim/employees/${this.empNumber}/personal-details`;
         const dataResponse = await axios.get(api, { headers });
 
         if (
@@ -360,24 +371,6 @@ export default defineComponent({
       } finally {
         this.cardText = "Hello, " + this.firstName + "!";
         this.loading = false;
-      }
-    },
-
-    async fetchStoredTheme() {
-      try {
-        const storedToken = localStorage.getItem("token");
-
-        const apiUrl = baseURL + `api/v2/admin/theme`;
-
-        const headers = {
-          Authorization: `Bearer ${storedToken}`,
-        };
-
-        const response = await axios.get(apiUrl, { headers });
-
-        console.log(response);
-      } catch (error) {
-        console.error("Error:", error);
       }
     },
 
@@ -422,16 +415,45 @@ export default defineComponent({
       }
     },
     fetchTheme() {
-      const storedThemeData = localStorage.getItem("theme");
+      try {
+        const storedThemeData = localStorage.getItem("configs");
+        const themeData = storedThemeData ? JSON.parse(storedThemeData) : {};
+        const theme = themeData[1]?.configuration?.theme;
+        this.theme = theme;
+      } catch (error) {
+        console.error("Error fetching or parsing theme data:", error);
+      }
+    },
 
-      const themeData = storedThemeData ? JSON.parse(storedThemeData) : {};
+    checkToken() {
+      const storedToken = localStorage.getItem("token");
+      const storedRefereshToken = localStorage.getItem("refreshtoken");
 
-      this.theme = themeData;
+      if (storedToken) {
+        try {
+          const decodedToken = JSON.parse(atob(storedToken.split(".")[1]));
+          const currentTimestamp = Math.floor(Date.now() / 1000);
+
+          if (decodedToken.exp && decodedToken.exp < currentTimestamp) {
+            console.log("Token has expired");
+            this.router.push("/login");
+          } else {
+            console.log("Token is still valid");
+          }
+        } catch (error) {
+          console.error("Error decoding token:", error);
+        }
+      } else {
+        console.log("No token found");
+      }
     },
   },
 
-  created() {
-    this.fetchStoredTheme();
+  async mounted() {
+    this.baseURL = localStorage.getItem("baseUrl");
+    const adminUserDetails = localStorage.getItem("adminUserDetails");
+    this.profileDetails = JSON.parse(adminUserDetails);
+    this.checkToken();
     this.updateLoader(false);
     this.fetchData();
     this.fetchNewsFeed(
@@ -439,7 +461,7 @@ export default defineComponent({
     );
     this.fetchTheme();
     const token = localStorage.getItem("access_token");
-    console.log(token);
+
     this.loading = false;
   },
 });
@@ -464,5 +486,39 @@ export default defineComponent({
 .buzz-action-btn-icon {
   font-size: 20px;
   color: gray;
+}
+
+.no-news-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  margin: 50px 0;
+}
+
+.greetings-container {
+  margin: 10px 20px 30px 20px;
+}
+.greetings-inner-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.greetings-inner-container p {
+  padding: 0;
+  margin: 0;
+  font-family: Poppins;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: bold;
+}
+
+.greetings-inner-container h4 {
+  padding: 0;
+  margin: 0 0 0 10px;
+  font-family: Poppins;
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 800;
 }
 </style>

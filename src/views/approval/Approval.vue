@@ -3,7 +3,6 @@
     <HeaderUser
       :headerTitle="headerTitle"
       :headerColor="theme.primaryColor"
-      :imgLogo="theme.clientLogo"
     ></HeaderUser>
     <ion-content :fullscreen="true" v-if="!loading">
       <Refresher />
@@ -63,7 +62,6 @@ import { useStore } from "vuex";
 import { useRouter } from "vue-router";
 import axios from "axios";
 import { GlobalConstants } from "@/config/constants";
-import { getThemeData } from "@/theme/theme";
 
 const baseURL = GlobalConstants.HOST_URL;
 
@@ -97,7 +95,7 @@ export default defineComponent({
   methods: {
     // Exppiration of token
     async checkTokenExpiration() {
-      const storedToken = localStorage.getItem("_token");
+      const storedToken = localStorage.getItem("token");
 
       if (!storedToken) {
         console.error("Token not available.");
@@ -138,7 +136,7 @@ export default defineComponent({
       try {
         this.store.commit("loader/updateLoader", true);
 
-        const storedToken = localStorage.getItem("_token");
+        const storedToken = localStorage.getItem("token");
 
         if (!storedToken) {
           throw new Error("Authentication token is missing.");
@@ -211,7 +209,7 @@ export default defineComponent({
       try {
         this.store.commit("loader/updateLoader", true);
 
-        const storedToken = localStorage.getItem("_token");
+        const storedToken = localStorage.getItem("token");
         if (!storedToken) {
           throw new Error("Authentication token is missing.");
         }
@@ -264,7 +262,7 @@ export default defineComponent({
       try {
         this.store.commit("loader/updateLoader", true);
 
-        const storedToken = localStorage.getItem("_token");
+        const storedToken = localStorage.getItem("token");
 
         if (!storedToken) {
           throw new Error("Authentication token is missing.");
@@ -339,7 +337,7 @@ export default defineComponent({
       try {
         this.store.commit("loader/updateLoader", true);
 
-        const storedToken = localStorage.getItem("_token");
+        const storedToken = localStorage.getItem("token");
         if (!storedToken) {
           throw new Error("Authentication token is missing.");
         }
@@ -411,7 +409,7 @@ export default defineComponent({
       try {
         this.store.commit("loader/updateLoader", true);
 
-        const storedToken = localStorage.getItem("_token");
+        const storedToken = localStorage.getItem("token");
         if (!storedToken) {
           throw new Error("Authentication token is missing.");
         }
@@ -479,7 +477,7 @@ export default defineComponent({
       try {
         this.store.commit("loader/updateLoader", true);
 
-        const storedToken = localStorage.getItem("_token");
+        const storedToken = localStorage.getItem("token");
         if (!storedToken) {
           throw new Error("Authentication token is missing.");
         }
@@ -542,18 +540,20 @@ export default defineComponent({
         await toast.present();
       }
     },
+    fetchTheme() {
+      const storedThemeData = localStorage.getItem("themeData");
+
+      const themeData = storedThemeData ? JSON.parse(storedThemeData) : {};
+
+      this.theme = themeData;
+    },
   },
 
   created() {
     this.checkTokenExpiration();
     this.fetchRequest();
 
-    const storedThemeData = getThemeData();
-
-    if (storedThemeData) {
-      this.theme = storedThemeData;
-    }
-    this.theme = storedThemeData;
+    this.fetchTheme();
   },
 });
 </script>

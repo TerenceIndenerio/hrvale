@@ -17,17 +17,17 @@ const config: CapacitorConfig = {
     PushNotifications: {
       presentationOptions: ["badge", "sound", "alert"],
     },
-    SplashScreen: {
-      launchShowDuration: 5000,
-      launchAutoHide: true,
-      launchFadeOutDuration: 3000,
-      backgroundColor: "#ffffffff",
-      androidSplashResourceName: "splash",
-      androidScaleType: "CENTER_INSIDE",
-      showSpinner: false,
-      splashFullScreen: true,
-      splashImmersive: true,
-    },
+    // SplashScreen: {
+    //   launchShowDuration: 5000,
+    //   launchAutoHide: true,
+    //   launchFadeOutDuration: 3000,
+    //   backgroundColor: "#ffffffff",
+    //   androidSplashResourceName: "splash",
+    //   androidScaleType: "CENTER_INSIDE",
+    //   showSpinner: false,
+    //   splashFullScreen: true,
+    //   splashImmersive: true,
+    // },
   },
 };
 

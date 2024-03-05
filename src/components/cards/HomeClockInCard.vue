@@ -1,5 +1,5 @@
 <template>
-  <ion-card class="card">
+  <div class="clock-card">
     <div class="img space">
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -91,50 +91,25 @@
 
     <div class="time space">
       <div class="box">
-        <h2>
+        <h4>
           {{ hours }}
-        </h2>
+        </h4>
       </div>
       <div class="box">
-        <h2>
+        <h4>
           {{ minutes }}
-        </h2>
+        </h4>
       </div>
       <div class="box">
-        <h2>
+        <h4>
           {{ seconds }}
-        </h2>
+        </h4>
       </div>
       <div class="time-text">
-        <p>HRS</p>
+        <p>PM</p>
       </div>
     </div>
-
-    <svg
-      class="space"
-      xmlns="http://www.w3.org/2000/svg"
-      width="290"
-      height="6"
-      viewBox="0 0 290 6"
-      fill="none"
-    >
-      <path
-        d="M3.01831 2.69977H286.526"
-        stroke="#E9E3E3"
-        stroke-width="5"
-        stroke-linecap="round"
-      />
-    </svg>
-
-    <ion-button
-      color="none"
-      class="btn-clock space"
-      @click="navigateToClockIn"
-      :style="{ backgroundColor: btnColor, color: btnTextColor }"
-    >
-      Clock In/Out
-    </ion-button>
-  </ion-card>
+  </div>
 </template>
 
 <script lang="ts">
@@ -209,14 +184,17 @@ export default defineComponent({
   margin: 7px;
 }
 
-ion-card {
-  padding: 20px;
+.clock-card {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   border-radius: 10px;
   text-align: center;
+  width: 80%;
+  margin: 0 auto;
+  /* flex-wrap: wrap; */
+  height: fit-content;
 }
 .img {
   width: 100%;
@@ -232,24 +210,28 @@ ion-card {
 }
 .box {
   background-color: #feeded;
-  height: 50px;
-  width: 50px;
+  height: fit-content;
+  width: fit-content;
   border-radius: 5px;
   display: flex;
   justify-content: center;
   align-items: center;
 }
-.box h2 {
-  padding: 5px;
-}
-.box h2 {
+
+.box h4 {
   color: #00003d;
+  padding: 5px;
+  margin: 0;
 }
 .time-text {
   color: #000;
   display: flex;
   justify-content: center;
   align-items: center;
+  margin: 0;
+}
+.time-text p {
+  margin: 0;
 }
 .text-clock {
   color: #000;

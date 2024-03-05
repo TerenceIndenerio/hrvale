@@ -44,7 +44,7 @@ import { getThemeData } from "@/theme/theme";
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
 import { GlobalConstants } from "@/config/constants";
-import { PushNotifications } from '@capacitor/push-notifications';
+import { PushNotifications } from "@capacitor/push-notifications";
 
 const baseURL = GlobalConstants.HOST_URL;
 
@@ -62,7 +62,7 @@ export default defineComponent({
     ClockinCard,
     HomeRandomCard,
     Refresher,
-    toastController
+    toastController,
   },
   setup() {
     return {
@@ -89,7 +89,7 @@ export default defineComponent({
 
     // Exppiration of token
     async checkTokenExpiration() {
-      const storedToken = localStorage.getItem("_token");
+      const storedToken = localStorage.getItem("token");
 
       if (!storedToken) {
         console.error("Token not available.");
@@ -113,7 +113,7 @@ export default defineComponent({
 
         await this.checkTokenExpiration();
 
-        const storedToken = localStorage.getItem("_token");
+        const storedToken = localStorage.getItem("token");
 
         if (!storedToken) {
           console.log("Token is missing. Redirecting to login...");

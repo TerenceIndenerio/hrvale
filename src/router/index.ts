@@ -28,6 +28,9 @@ import PinCodeAccountSettings from "@/views/pincode/PinCodeAccountSettings.vue";
 import LoanBalance from "@/views/services/loanBalance/loanBalance.vue";
 import LoanBalanceView from "@/views/services/loanBalance/LoanBalanceView.vue";
 import NotifToken from "@/views/dev/NotifToken.vue";
+import LoginPinCodeSetup from "@/views/login/LoginPinCodeSetup.vue";
+import PrivacyPolicy from "@/views/legal/PrivacyPolicy.vue";
+import TermsAndCondition from "@/views/legal/TermsAndCondition.vue";
 import Welcome from "@/views/welcome/WelcomePage1.vue";
 import Welcome2 from "@/views/welcome/WelcomePage2.vue";
 import Welcome3 from "@/views/welcome/WelcomePage3.vue";
@@ -37,6 +40,10 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: "/",
     redirect: "/login",
+  },
+  {
+    path: "/setuppincodelogin",
+    component: LoginPinCodeSetup,
   },
   {
     path: "/welcome",
@@ -160,6 +167,14 @@ const routes: Array<RouteRecordRaw> = [
       {
         path: "/viewpayslip",
         component: ViewPayslip,
+      },
+      {
+        path: "/privacypolicy",
+        component: PrivacyPolicy,
+      },
+      {
+        path: "/termsandcondition",
+        component: TermsAndCondition,
       },
     ],
   },

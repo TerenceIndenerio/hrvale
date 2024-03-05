@@ -5,16 +5,25 @@
       :headerColor="theme.primaryColor"
       :headerTextColor="theme.primaryFontColor"
     />
-    <ion-content :fullscreen="true" >
+    <ion-content :fullscreen="true">
       <Refresher />
 
-      <ion-card class="card loan-budget-container" v-if="!loading" :style="{backgroundColor: theme.primaryColor}">
+      <ion-card
+        class="card loan-budget-container"
+        v-if="!loading"
+        :style="{ backgroundColor: theme.primaryColor }"
+      >
         <div class="loanbalance-container">
           <div class="loan-budget-val">
-            <p :style="{color: theme.primaryFontColor}">PHP</p><h4 :style="{color: theme.primaryFontColor}">{{ loanDataResult.balance }}</h4>
+            <p :style="{ color: theme.primaryFontColor }">PHP</p>
+            <h4 :style="{ color: theme.primaryFontColor }">
+              {{ loanDataResult.balance }}
+            </h4>
           </div>
           <div class="loan-budget-text">
-            <p :style="{color: theme.primaryFontColor}">Available Loan Balance</p>
+            <p :style="{ color: theme.primaryFontColor }">
+              Available Loan Balance
+            </p>
           </div>
         </div>
       </ion-card>
@@ -73,7 +82,6 @@
         <ion-icon name="add"></ion-icon>
         Apply Vale
       </ion-button>
-
     </ion-content>
   </ion-page>
 </template>
@@ -107,7 +115,7 @@ import { useRouter } from "vue-router";
 import { GlobalConstants } from "@/config/constants";
 import { mapState } from "vuex";
 import { getThemeData } from "@/theme/theme";
-import { PushNotifications } from '@capacitor/push-notifications';
+import { PushNotifications } from "@capacitor/push-notifications";
 
 const baseURL = GlobalConstants.HOST_URL;
 
@@ -163,7 +171,7 @@ export default defineComponent({
       empNumber: "",
       loanDataResult: {
         budget: 0,
-        balance: 0
+        balance: 0,
       },
     };
   },
@@ -179,18 +187,17 @@ export default defineComponent({
   },
 
   created() {
-    this.empNumber = localStorage.getItem('empNumber');
-    this.getTheme();
+    this.empNumber = localStorage.getItem("empNumber");
+    this.fetchTheme();
     this.fetchdata();
     this.fetchLoanBudget();
     this.loading = false;
   },
 
   methods: {
-    
     // Exppiration of token
     async checkTokenExpiration() {
-      const storedToken = localStorage.getItem("_token");
+      const storedToken = localStorage.getItem("token");
 
       if (!storedToken) {
         console.error("Token not available.");
@@ -208,17 +215,16 @@ export default defineComponent({
       }
     },
 
-    getTheme() {
-      const storedThemeData = getThemeData();
+    fetchTheme() {
+      const storedThemeData = localStorage.getItem("themeData");
 
-      if (storedThemeData) {
-        this.theme = storedThemeData;
-      }
-      this.theme = storedThemeData;
+      const themeData = storedThemeData ? JSON.parse(storedThemeData) : {};
+
+      this.theme = themeData;
     },
 
     async navigateToViewPage(result) {
-      let id = result.id
+      let id = result.id;
       this.$router.push({ path: "/viewvale", query: { id } });
     },
 
@@ -227,7 +233,7 @@ export default defineComponent({
         this.store.commit("loader/updateLoader", true);
         await this.checkTokenExpiration();
 
-        this.storedToken = localStorage.getItem("_token");
+        this.storedToken = localStorage.getItem("token");
 
         const headers = {
           Authorization: `Bearer ${this.storedToken}`,
@@ -266,15 +272,13 @@ export default defineComponent({
         this.store.commit("loader/updateLoader", true);
         await this.checkTokenExpiration();
 
-        this.storedToken = localStorage.getItem("_token");
+        this.storedToken = localStorage.getItem("token");
 
         const headers = {
           Authorization: `Bearer ${this.storedToken}`,
         };
 
-        const api =
-          baseURL +
-          `api/v2/vale/amortizations?valeId=${id}`;
+        const api = baseURL + `api/v2/vale/amortizations?valeId=${id}`;
 
         const dataResponse = await axios.get(api, { headers });
 
@@ -288,7 +292,6 @@ export default defineComponent({
           paymentDate: data.paymentDate,
           status: data.status,
         }));
-        
       } catch (error) {
         this.showErrorMessage("An error occurred: " + error.message);
       } finally {
@@ -301,15 +304,13 @@ export default defineComponent({
         this.store.commit("loader/updateLoader", true);
         await this.checkTokenExpiration();
 
-        this.storedToken = localStorage.getItem("_token");
+        this.storedToken = localStorage.getItem("token");
 
         const headers = {
           Authorization: `Bearer ${this.storedToken}`,
         };
 
-        const api =
-          baseURL +
-          `api/v2/ess/loan-budget/${this.empNumber}`;
+        const api = baseURL + `api/v2/ess/loan-budget/${this.empNumber}`;
 
         const dataResponse = await axios.get(api, { headers });
 
@@ -320,7 +321,6 @@ export default defineComponent({
           balance: parseFloat(dataResponse.data.data.balance).toLocaleString(),
           year: dataResponse.data.data.year,
         };
-        
       } catch (error) {
         this.showErrorMessage(error.message);
       } finally {
@@ -329,7 +329,7 @@ export default defineComponent({
     },
 
     navigateToApplyVale() {
-      this.$router.push('/applyvale');
+      this.$router.push("/applyvale");
     },
 
     async showErrorMessage(message) {
@@ -373,9 +373,8 @@ p {
   padding: 0 10px 0 10px;
   border-radius: 20px;
   box-shadow: 8px 8px 16px rgba(0, 0, 0, 0.1),
-              -8px -8px 16px rgba(255, 255, 255, 0.8), 
-              0px -4px 8px rgba(0, 0, 0, 0.05),
-              -8px -8px 16px rgba(0, 0, 0, 0.1);
+    -8px -8px 16px rgba(255, 255, 255, 0.8), 0px -4px 8px rgba(0, 0, 0, 0.05),
+    -8px -8px 16px rgba(0, 0, 0, 0.1);
 }
 
 .card ion-card-header {
@@ -414,7 +413,7 @@ p {
   width: fit-content;
   padding: 20px;
   margin: 5px auto;
-  border-radius: 10px 10px 50% 50% ;
+  border-radius: 10px 10px 50% 50%;
 }
 .loan-budget-val {
   display: flex;
@@ -422,16 +421,16 @@ p {
   align-items: center;
 }
 .loan-budget-val p {
-    font-size: 12px;
-    margin: 0 5px 0 0;
+  font-size: 12px;
+  margin: 0 5px 0 0;
 }
 .loan-budget-text p {
-    font-size: 16px;
+  font-size: 16px;
 }
 
 .loan-budget-container h4 {
-    margin: 0;
-    font-size: 35px;
+  margin: 0;
+  font-size: 35px;
 }
 
 .line_bottom {
@@ -517,7 +516,7 @@ p {
 .create-vale-btn {
   border-radius: 10px;
   overflow: hidden;
-  position: fixed; 
+  position: fixed;
   bottom: 10px;
   left: 0;
   right: 0;
@@ -526,7 +525,7 @@ p {
   height: 30px;
 }
 .loanbalance-container {
-  padding:  5px 10px;
+  padding: 5px 10px;
   border-radius: 10px;
   overflow: hidden;
 }

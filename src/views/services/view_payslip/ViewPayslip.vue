@@ -149,7 +149,7 @@ export default defineComponent({
   methods: {
     // Expiration of token
     async checkTokenExpiration() {
-      const storedToken = localStorage.getItem("_token");
+      const storedToken = localStorage.getItem("token");
 
       if (!storedToken) {
         console.error("Token not available.");
@@ -171,7 +171,7 @@ export default defineComponent({
       try {
         this.store.commit("loader/updateLoader", true);
         await this.checkTokenExpiration();
-        const storedToken = localStorage.getItem("_token");
+        const storedToken = localStorage.getItem("token");
 
         const authToken = `Bearer ${storedToken}`;
 
@@ -215,7 +215,7 @@ export default defineComponent({
       try {
         await this.checkTokenExpiration();
 
-        const storedToken = localStorage.getItem("_token");
+        const storedToken = localStorage.getItem("token");
         const authToken = `Bearer ${storedToken}`;
 
         const apiUrl = baseURL + `api/download/payslip/${id}`;
@@ -354,17 +354,16 @@ export default defineComponent({
       }
     },
 
-    getTheme() {
-      const storedThemeData = getThemeData();
+    fetchTheme() {
+      const storedThemeData = localStorage.getItem("themeData");
 
-      if (storedThemeData) {
-        this.theme = storedThemeData;
-      }
-      this.theme = storedThemeData;
+      const themeData = storedThemeData ? JSON.parse(storedThemeData) : {};
+
+      this.theme = themeData;
     },
   },
   async created() {
-    this.getTheme();
+    this.fetchTheme();
     await this.requestData();
 
     this.loading = false;

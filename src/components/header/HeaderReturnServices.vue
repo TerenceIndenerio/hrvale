@@ -18,6 +18,30 @@
       :key="rotationState"
     ></ion-icon>
   </div>
+  <ion-popover
+    :is-open="popoverOpen"
+    :event="event"
+    @didDismiss="popoverOpen = false"
+    class="ion-popover-container"
+  >
+    <div class="popup-container">
+      <ion-button
+        class="btn"
+        fill="clear"
+        expand="full"
+        @click="navigateAcctSettings()"
+        ><ion-icon name="settings-outline"></ion-icon> Settings</ion-button
+      >
+      <ion-button
+        class="btn logout-btn"
+        expand="full"
+        color="none"
+        @click="logout()"
+        :style="{ backgroundColor: headerColor }"
+        ><ion-icon name="exit-outline"></ion-icon> Log Out</ion-button
+      >
+    </div>
+  </ion-popover>
 </template>
 
 <script>
@@ -47,7 +71,6 @@ export default defineComponent({
   },
   methods: {
     navigateBack() {
-      // this.$router.go(-1);
       this.$router.push("/tabs/services");
     },
     openPopover(e) {

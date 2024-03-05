@@ -12,7 +12,7 @@
           <h1 class="title" :style="{ color: theme.primaryFontColor }">
             <img src="@/assets/images/suysinglogobanner.png" alt="logo" />
           </h1>
-          <h4 class="input-title">Enter your PIN</h4>
+          <h4 class="input-title">Setup your PIN</h4>
           <div class="pincode-circle-container">
             <input
               v-model="inputs"
@@ -161,16 +161,6 @@
             </div>
           </div>
         </div>
-
-        <div class="forgot-pin">
-          <a
-            href="https://hrp-uat-app.bapplware.com/web/index.php/reset/form/pincode"
-            @click="forgotPin"
-          >
-            Forgot your PIN?
-          </a>
-        </div>
-
         <div class="bottom-text">
           <p>© 2024 BAPPLWARE Technologies, <br />Inc. All rights reserved.</p>
         </div>
@@ -239,14 +229,12 @@ export default {
       if (this.inputs.length > 0) {
         this.inputs = this.inputs.slice(0, -1);
         this.actualDigits = this.actualDigits.slice(0, -1);
+        console.log(this.actualDigits);
       }
     },
     resetInputs() {
       this.inputs = "";
       this.actualDigits = "";
-    },
-    forgotPin() {
-      localStorage.removeItem("pincode");
     },
   },
 };
@@ -430,30 +418,6 @@ export default {
   font-weight: 600;
   font-family: Poppins;
   font-size: 12px;
-  flex-wrap: wrap;
-  justify-content: space-around;
-}
-.forgot-pin {
-  padding: 0;
-  bottom: 50px;
-  left: 0;
-  right: 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-evenly;
-  align-items: center;
-  flex-wrap: wrap;
-}
-.forgot-pin a {
-  padding: 0;
-  margin: 0;
-  text-align: center;
-  color: #f08d2f;
-  font-weight: 900;
-  font-family: Poppins;
-  font-size: 20px;
-  text-decoration: underline;
-  display: flex;
   flex-wrap: wrap;
   justify-content: space-around;
 }

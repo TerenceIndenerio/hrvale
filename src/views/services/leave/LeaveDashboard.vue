@@ -22,28 +22,25 @@
             </ion-button>
           </div>
 
-          <div>
-            <div v-if="this.hasRecord">
-              <div class="outline-container">
-                <h4>No Record Found</h4>
-              </div>
+          <!-- <div v-if="!this.hasRecord">
+            <div class="outline-container neomorphic-input-2">
+              <h4>No Record Found</h4>
             </div>
-            <div v-else>
-              <div v-for="item in requests" :key="item.id">
-                <LeaveDashboardCard
-                  :cardTitle="item.leaveType.name"
-                  :appliedDuration="
-                    item.dates.fromDate + ' to ' + item.dates.toDate
-                  "
-                  :reason="item.lastComment ? item.lastComment.comment : ''"
-                  :typeOfLeave="item.leaveType.name"
-                  :status="item.leaveBreakdown[0].name"
-                  :colorBadge="getStatusColor(item.leaveBreakdown[0].name)"
-                  @view-details-clicked="navigateToLeaveRequests(item)"
-                  @retract-clicked="navigateToRetractLeave(item)"
-                />
-              </div>
-            </div>
+          </div> -->
+
+          <div v-for="item in requests" :key="item.id">
+            <LeaveDashboardCard
+              :cardTitle="item.leaveType.name"
+              :appliedDuration="
+                item.dates.fromDate + ' to ' + item.dates.toDate
+              "
+              :reason="item.lastComment ? item.lastComment.comment : ''"
+              :typeOfLeave="item.leaveType.name"
+              :status="item.leaveBreakdown[0].name"
+              :colorBadge="getStatusColor(item.leaveBreakdown[0].name)"
+              @view-details-clicked="navigateToLeaveRequests(item)"
+              @retract-clicked="navigateToRetractLeave(item)"
+            />
           </div>
 
           <div class="margin-bottom"></div>
@@ -140,30 +137,30 @@ export default defineComponent({
   },
   methods: {
     // Exppiration of token
-    async checkTokenExpiration() {
-      const storedToken = localStorage.getItem("_token");
+    // async checkTokenExpiration() {
+    //   const storedToken = localStorage.getItem("token");
 
-      if (!storedToken) {
-        console.error("Token not available.");
-        console.log("Token is missing. Redirecting to login...");
-        this.router.push("/login");
-        return;
-      }
+    //   if (!storedToken) {
+    //     console.error("Token not available.");
+    //     console.log("Token is missing. Redirecting to login...");
+    //     this.router.push("/login");
+    //     return;
+    //   }
 
-      const tokenData = JSON.parse(atob(storedToken.split(".")[1]));
-      const expirationTime = tokenData.exp * 1000;
+    //   const tokenData = JSON.parse(atob(storedToken.split(".")[1]));
+    //   const expirationTime = tokenData.exp * 1000;
 
-      if (Date.now() > expirationTime) {
-        console.log("Token expired. Redirecting to login...");
-        this.router.push("/login");
-      }
-    },
+    //   if (Date.now() > expirationTime) {
+    //     console.log("Token expired. Redirecting to login...");
+    //     this.router.push("/login");
+    //   }
+    // },
 
     async fetchData() {
       try {
         this.store.commit("loader/updateLoader", true);
 
-        const storedToken = localStorage.getItem("_token");
+        const storedToken = localStorage.getItem("token");
 
         if (!storedToken) {
           console.log("Token is missing. Redirecting to login...");
@@ -234,11 +231,19 @@ export default defineComponent({
       }
       this.theme = storedThemeData;
     },
+    fetchTheme() {
+      const storedThemeData = localStorage.getItem("themeData");
+
+      const themeData = storedThemeData ? JSON.parse(storedThemeData) : {};
+
+      this.theme = themeData;
+    },
   },
 
   async created() {
-    this.getTheme();
-    this.checkTokenExpiration();
+    // this.getTheme();
+    this.fetchTheme();
+    // this.checkTokenExpiration();
 
     try {
       this.store.commit("loader/updateLoader", true);
@@ -327,7 +332,8 @@ export default defineComponent({
 }
 .outline-container {
   margin: auto;
-  border: 1px solid #828282;
+  /* border: 1px solid #828282; */
+  padding: 10px 20px;
   color: #828282;
   border-radius: 20px;
   width: 70%;

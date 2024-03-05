@@ -54,7 +54,6 @@ import { useRouter } from "vue-router";
 import axios from "axios";
 import { GlobalConstants } from "@/config/constants";
 import { toastController } from "@ionic/vue";
-import { getThemeData } from "@/theme/theme";
 
 const baseURL = GlobalConstants.HOST_URL;
 
@@ -109,7 +108,7 @@ export default defineComponent({
   methods: {
     // Exppiration of token
     async checkTokenExpiration() {
-      const storedToken = localStorage.getItem("_token");
+      const storedToken = localStorage.getItem("token");
 
       if (!storedToken) {
         console.error("Token not available.");
@@ -131,7 +130,7 @@ export default defineComponent({
       try {
         await this.checkTokenExpiration();
 
-        const storedToken = localStorage.getItem("_token");
+        const storedToken = localStorage.getItem("token");
 
         const headers = {
           Authorization: `Bearer ${storedToken}`,
@@ -145,7 +144,8 @@ export default defineComponent({
         this.paygradeId = dataResponse.data.data.id;
         this.fetchRequest();
       } catch (error) {
-        this.showErrorMessage(error.response?.data?.error?.message);
+        // this.showErrorMessage();
+        console.log(error.response?.data?.error?.message);
       }
     },
 
@@ -155,7 +155,7 @@ export default defineComponent({
 
         await this.checkTokenExpiration();
 
-        const storedToken = localStorage.getItem("_token");
+        const storedToken = localStorage.getItem("token");
 
         const headers = {
           Authorization: `Bearer ${storedToken}`,
@@ -224,19 +224,18 @@ export default defineComponent({
     setOpen(val) {
       this.isOpen = val;
     },
-    getTheme() {
-      const storedThemeData = getThemeData();
+    fetchTheme() {
+      const storedThemeData = localStorage.getItem("themeData");
 
-      if (storedThemeData) {
-        this.theme = storedThemeData;
-      }
-      this.theme = storedThemeData;
+      const themeData = storedThemeData ? JSON.parse(storedThemeData) : {};
+
+      this.theme = themeData;
     },
   },
   created() {
     this.empNumber = localStorage.getItem("empNumber");
     this.checkTokenExpiration();
-    this.getTheme();
+    this.fetchTheme();
     this.fetchPaygrade();
 
     this.loading = false;

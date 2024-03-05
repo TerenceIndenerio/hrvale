@@ -1,15 +1,12 @@
 <template>
   <ion-page>
     <ion-content :fullscreen="true">
-      <div
-        class="container"
-        :style="{ backgroundColor: themeData.primaryColor }"
-      >
+      <div class="container" :style="{ backgroundColor: theme.primaryColor }">
         <div class="title-container">
-          <h1 class="title" :style="{ color: themeData.primaryFontColor }">
+          <h1 class="title" :style="{ color: theme.primaryFontColor }">
             Enter PIN
           </h1>
-          <h1 class="title-icon" :style="{ color: themeData.primaryFontColor }">
+          <h1 class="title-icon" :style="{ color: theme.primaryFontColor }">
             <ion-icon name="document-lock-outline"></ion-icon>
           </h1>
         </div>
@@ -17,7 +14,7 @@
 
       <div class="bottom container">
         <div class="pincode-container">
-          <h4 class="input-title">Enter PIN to proceed to payslip</h4>
+          <h4 class="input-title">Please Enter Your PIN</h4>
           <div class="pincode-circle-container">
             <input
               v-model="inputs"
@@ -26,8 +23,7 @@
               type="tel"
               placeholder="####"
             />
-        </div>
-
+          </div>
 
           <div class="btn-container">
             <ion-button
@@ -36,8 +32,8 @@
               color="none"
               @click="saveButtonClicked"
               :style="{
-                backgroundColor: themeData.primaryColor,
-                color: themeData.primaryFontColor,
+                backgroundColor: theme.primaryColor,
+                color: theme.primaryFontColor,
               }"
               >{{ this.buttonText }}</ion-button
             >
@@ -69,7 +65,6 @@ import axios from "axios";
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
 import { GlobalConstants } from "@/config/constants";
-import { getThemeData } from "@/theme/theme";
 
 const baseURL = GlobalConstants.HOST_URL;
 const empNumber = GlobalConstants.EMPLOYEE_ID;
@@ -98,14 +93,14 @@ export default defineComponent({
       headerTitle: "Suy Sing",
       theme: {},
       buttonText: "Submit",
-      themeData: {},
-      inputs: null
+      theme: {},
+      inputs: null,
     };
   },
   methods: {
     // Expiration of token
     async checkTokenExpiration() {
-      const storedToken = localStorage.getItem("_token");
+      const storedToken = localStorage.getItem("token");
 
       if (!storedToken) {
         console.error("Token not available.");
@@ -136,7 +131,7 @@ export default defineComponent({
       try {
         this.store.commit("loader/updateLoader", true);
         this.checkTokenExpiration();
-        const storedToken = localStorage.getItem("_token");
+        const storedToken = localStorage.getItem("token");
 
         const authToken = `Bearer ${storedToken}`;
 
@@ -150,7 +145,6 @@ export default defineComponent({
         if (!response.data.data.pincode) {
           this.$router.push("/pincodesetup");
         }
-
       } catch (error) {
         this.showErrorMessage(error.response?.data?.error?.message);
       } finally {
@@ -162,7 +156,7 @@ export default defineComponent({
       try {
         this.store.commit("loader/updateLoader", true);
         this.checkTokenExpiration();
-        const storedToken = localStorage.getItem("_token");
+        const storedToken = localStorage.getItem("token");
 
         const authToken = `Bearer ${storedToken}`;
 
@@ -190,7 +184,7 @@ export default defineComponent({
       } finally {
         this.store.commit("loader/updateLoader", false);
 
-        this.inputs = null
+        this.inputs = null;
       }
     },
 
@@ -217,18 +211,16 @@ export default defineComponent({
         console.error("Error displaying toast:", error);
       }
     },
-    getTheme() {
-      const storedThemeData = getThemeData();
+    fetchTheme() {
+      const storedThemeData = localStorage.getItem("themeData");
 
-      if (storedThemeData) {
-        this.themeData = storedThemeData;
-      }
+      const themeData = storedThemeData ? JSON.parse(storedThemeData) : {};
 
-      this.themeData = storedThemeData;
+      this.theme = themeData;
     },
   },
   created() {
-    this.getTheme();
+    this.fetchTheme();
     this.hasPincode();
   },
 });

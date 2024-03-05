@@ -1,126 +1,139 @@
 <template>
-  <ion-grid class="button-container">
-    <ion-row>
-      <ion-col class="card btn-text" expand="full" color="none">
-        <a @click="navigateLeave">
-          <span class="ion-text-left">
-            <ion-icon
-              name="exit"
-              class="icon-btn"
-              :style="{ color: btnColor }"
-            ></ion-icon>
-            <h4 :style="{ color: btnTextColor }">Leave</h4>
-          </span>
-        </a>
-      </ion-col>
-      <ion-col class="card btn-text" expand="full" color="none">
-        <a @click="navigateclockin" class="clockin">
-          <span class="ion-text-left">
-            <ion-icon
-              name="time"
-              class="icon-btn"
-              :style="{ color: btnColor }"
-            ></ion-icon>
-            <h4 :style="{ color: btnTextColor }">Clock In/Out</h4>
-          </span>
-        </a>
-      </ion-col>
-    </ion-row>
-    <ion-row>
-      <ion-col class="card btn-text" expand="full" color="none">
-        <a @click="navigateviewschedule">
-          <span class="ion-text-left">
-            <ion-icon
-              name="calendar"
-              class="icon-btn"
-              :style="{ color: btnColor }"
-            ></ion-icon>
-            <h4 :style="{ color: btnTextColor }">Schedule</h4>
-          </span>
-        </a>
-      </ion-col>
-      <ion-col class="card btn-text" expand="full" color="none">
-        <a @click="navigateattendancecorrection">
-          <span class="ion-text-left">
-            <ion-icon
-              name="today"
-              class="icon-btn"
-              :style="{ color: btnColor }"
-            ></ion-icon>
-            <h4 :style="{ color: btnTextColor }">
-              Attendance <br />Correction
-            </h4>
-          </span>
-        </a>
-      </ion-col>
-    </ion-row>
-    <ion-row>
-      <ion-col class="card btn-text" expand="full" color="none">
-        <a @click="navigateOTApply">
-          <span class="ion-text-left">
-            <ion-icon
-              name="calendar-clear"
-              class="icon-btn"
-              :style="{ color: btnColor }"
-            ></ion-icon>
-            <h4 :style="{ color: btnTextColor }">Apply OT</h4>
-          </span>
-        </a>
-      </ion-col>
-      <ion-col class="card btn-text" expand="full" color="none">
-        <a @click="navigateVale" disabled>
-          <span class="ion-text-left">
-            <ion-icon
-              name="pricetags"
-              class="icon-btn"
-              :style="{ color: btnColor }"
-            ></ion-icon>
-            <h4 :style="{ color: btnTextColor }">Vale</h4>
-          </span>
-        </a>
-      </ion-col>
-    </ion-row>
-    <ion-row>
-      <ion-col class="card btn-text" expand="full" color="none">
-        <a @click="navigateBenefits" disabled>
-          <span class="ion-text-left">
-            <ion-icon
-              name="gift"
-              class="icon-btn"
-              :style="{ color: btnColor }"
-            ></ion-icon>
-            <h4 :style="{ color: btnTextColor }">Benefits</h4>
-          </span>
-        </a>
-      </ion-col>
-      <ion-col class="card btn-text" expand="full" color="none">
-        <a @click="navigateloanBal" disabled>
-          <span class="ion-text-left">
-            <ion-icon
-              name="cash"
-              class="icon-btn"
-              :style="{ color: btnColor }"
-            ></ion-icon>
-            <h4 :style="{ color: btnTextColor }">Loan Balances</h4>
-          </span>
-        </a>
-      </ion-col>
-    </ion-row>
-    <ion-row>
-      <ion-col class="card btn-text" expand="full" color="none">
-        <a @click="navigateViewPayslip" disabled>
-          <span class="ion-text-left">
-            <ion-icon
-              name="receipt"
-              class="icon-btn"
-              :style="{ color: btnColor }"
-            ></ion-icon>
-            <h4 :style="{ color: btnTextColor }">View Payslip</h4>
-          </span>
-        </a>
-      </ion-col>
-    </ion-row>
-  </ion-grid>
+  <div class="button-container">
+    <div class="card btn-text neomorphic-card-1" expand="full">
+      <a
+        @click="navigateLeave"
+        :style="{
+          background: 'linear-gradient(to right, #064EA0, #002E62)',
+          color: btnTextColor,
+        }"
+      >
+        <ion-icon
+          name="exit"
+          class="icon-btn"
+          :style="{ color: btnSecondaryColor }"
+        ></ion-icon>
+        <h4 :style="{ color: btnTextColor }">Leave</h4>
+      </a>
+    </div>
+    <div class="card btn-text" expand="full" color="none">
+      <a
+        @click="navigateviewschedule"
+        :style="{
+          background: 'linear-gradient(to right, #064EA0, #002E62)',
+          color: btnTextColor,
+        }"
+      >
+        <ion-icon
+          name="calendar"
+          class="icon-btn"
+          :style="{ color: btnSecondaryColor }"
+        ></ion-icon>
+        <h4 :style="{ color: btnTextColor }">Schedule</h4>
+      </a>
+    </div>
+    <div class="card btn-text" expand="full" color="none">
+      <a
+        @click="navigateattendancecorrection"
+        :style="{
+          background: 'linear-gradient(to right, #064EA0, #002E62)',
+          color: btnTextColor,
+        }"
+      >
+        <ion-icon
+          name="today"
+          class="icon-btn"
+          :style="{ color: btnSecondaryColor }"
+        ></ion-icon>
+        <h4 :style="{ color: btnTextColor }">Attendance</h4>
+      </a>
+    </div>
+    <div class="card btn-text" expand="full" color="none">
+      <a
+        @click="navigateOTApply"
+        :style="{
+          background: 'linear-gradient(to right, #064EA0, #002E62)',
+          color: btnTextColor,
+        }"
+      >
+        <ion-icon
+          name="calendar-clear"
+          class="icon-btn"
+          :style="{ color: btnSecondaryColor }"
+        ></ion-icon>
+        <h4 :style="{ color: btnTextColor }">OT</h4>
+      </a>
+    </div>
+
+    <div class="card btn-text" expand="full" color="none">
+      <a
+        @click="navigateViewPayslip"
+        :style="{
+          background: 'linear-gradient(to right, #064EA0, #002E62)',
+          color: btnTextColor,
+        }"
+        disabled
+      >
+        <ion-icon
+          name="receipt"
+          class="icon-btn"
+          :style="{ color: btnSecondaryColor }"
+        ></ion-icon>
+        <h4 :style="{ color: btnTextColor }">Payslip</h4>
+      </a>
+    </div>
+    <div class="card btn-text" expand="full" color="none">
+      <a
+        @click="navigateBenefits"
+        :style="{
+          background: 'linear-gradient(to right, #064EA0, #002E62)',
+          color: btnTextColor,
+        }"
+        disabled
+      >
+        <ion-icon
+          name="gift"
+          class="icon-btn"
+          :style="{ color: btnSecondaryColor }"
+        ></ion-icon>
+        <h4 :style="{ color: btnTextColor }">Benefits</h4>
+      </a>
+    </div>
+    <div class="card btn-text" expand="full" color="none">
+      <a
+        @click="navigateloanBal"
+        :style="{
+          background: 'linear-gradient(to right, #064EA0, #002E62)',
+          color: btnTextColor,
+        }"
+        disabled
+      >
+        <ion-icon
+          name="cash"
+          class="icon-btn"
+          :style="{ color: btnSecondaryColor }"
+        ></ion-icon>
+        <h4 :style="{ color: btnTextColor }">Loan</h4>
+      </a>
+    </div>
+    <div class="card btn-text" expand="full" color="none">
+      <a
+        @click="navigateApproval"
+        :style="{
+          background: 'linear-gradient(to right, #064EA0, #002E62)',
+          color: btnTextColor,
+        }"
+        disabled
+      >
+        <ion-icon
+          name="checkbox"
+          class="icon-btn"
+          :style="{ color: btnSecondaryColor }"
+        ></ion-icon>
+        <h4 :style="{ color: btnTextColor }">Approval</h4>
+      </a>
+    </div>
+  </div>
 </template>
 <script>
 import { IonButton, IonCol, IonGrid, IonRow, IonIcon } from "@ionic/vue";
@@ -131,6 +144,7 @@ export default defineComponent({
   props: {
     btnColor: String,
     btnTextColor: String,
+    btnSecondaryColor: String,
   },
   methods: {
     navigateSoon() {
@@ -163,27 +177,36 @@ export default defineComponent({
     navigateVale() {
       this.$router.push("/vale");
     },
+    navigateApproval() {
+      this.$router.push("/tabs/approval");
+    },
   },
 });
 </script>
 
 <style scoped>
 @import url("https://fonts.googleapis.com/css?family=Open+Sans");
+@import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
 
 a {
   text-decoration: none;
   width: 100%;
   height: 100%;
+  flex-wrap: wrap;
 }
 .button-container {
+  display: flex;
+  /* justify-content: space-evenly; */
+  /* flex-wrap: wrap; */
   margin: 0;
-  padding-top: 0;
+  padding-top: 10px;
   display: flex;
   justify-content: center;
-  align-items: center;
-  flex-direction: column;
+  /* align-items: center; */
   width: 100%;
+  flex-wrap: wrap;
 }
+
 .title {
   margin-left: 10px;
 
@@ -196,41 +219,48 @@ a {
   font-family: Open Sans;
   font-size: 16px;
   font-style: normal;
-  font-weight: 700;
+  font-weight: 800;
   line-height: normal;
 }
 .ion-text-left {
   display: flex;
-  flex-direction: row;
-  justify-content: left;
+  flex-direction: column;
+  justify-content: center;
   align-items: center;
   height: 100%;
   margin-right: auto;
   mix-blend-mode: multiply;
-  margin-left: 10px;
+  margin-left: 5px;
   gap: 10px;
 }
 .card {
   padding: 0;
-  height: 50px;
-  border-radius: 10px;
-  margin: 10px;
-  box-shadow: 8px 8px 16px rgba(0, 0, 0, 0.1),
-    -8px -8px 16px rgba(255, 255, 255, 0.8);
-  overflow: hidden;
+  width: 90px;
+  height: 90px;
+  position: relative;
+  margin: 5px;
+  background-color: #ffffff;
   display: flex;
-  justify-content: left;
+  justify-content: center;
   align-items: center;
-  width: 140px;
+  overflow: hidden;
 }
+
 .btn-text h4 {
   padding: 0;
   margin: 0;
   color: var(--oil-11, #0d0d0d);
-  font-family: Open Sans;
-  font-size: 16px;
+  font-family: Poppins;
+  font-size: 10px;
   font-style: normal;
   font-weight: 700;
+}
+.btn-text a {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  gap: 20px;
 }
 .icon-circle {
   border-radius: 100%;
