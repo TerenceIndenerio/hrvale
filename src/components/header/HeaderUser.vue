@@ -80,7 +80,6 @@ export default defineComponent({
   props: {
     headerTitle: String,
     headerColor: String,
-    // logo: String,
   },
   data() {
     return {

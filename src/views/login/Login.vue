@@ -35,7 +35,6 @@ import { adminUserDetails, userDetails } from "@/store/login/onLoad";
 import generateToken from "@/store/token/accessToken.ts";
 import Refresher from "@/components/refresher/Refresher.vue";
 
-const baseURL = GlobalConstants.HOST_URL;
 const id = GlobalConstants.USER_ID;
 
 export default defineComponent({
@@ -96,7 +95,7 @@ export default defineComponent({
         this.hasSetup = await localStorage.getItem("hasSetup");
 
         if (!this.hasSetup) {
-          this.router.replace("/setuplogin");
+          this.router.replace("/welcomepage");
         }
       } catch (error) {
         console.error(error);
@@ -113,7 +112,7 @@ export default defineComponent({
           const currentTimestamp = Math.floor(Date.now() / 1000);
 
           if (decodedToken.exp && decodedToken.exp < currentTimestamp) {
-            console.log("Token has expired");
+            console.log("HRP Token has expired");
 
             await newToken().then((res) => {
               if (res) {
@@ -135,7 +134,7 @@ export default defineComponent({
     async fetchToken() {
       try {
         const storedToken = localStorage.getItem("access_token");
-
+        const baseURL = localStorage.getItem("baseUrl");
         const response = await axios.post(baseURL + "auth/token", {
           secret: storedToken,
         });
@@ -174,7 +173,7 @@ export default defineComponent({
     async fetchUserDetails() {
       try {
         this.storedToken = localStorage.getItem("token");
-
+        const baseURL = localStorage.getItem("baseUrl");
         const headers = {
           Authorization: `Bearer ${this.storedToken}`,
         };
@@ -201,7 +200,7 @@ export default defineComponent({
     async hasPincode() {
       try {
         const storedToken = localStorage.getItem("token");
-
+        const baseURL = localStorage.getItem("baseUrl");
         const authToken = `Bearer ${storedToken}`;
 
         const apiUrl = baseURL + `api/ess/pincode`;
@@ -245,6 +244,7 @@ export default defineComponent({
         console.error(error);
       } finally {
         this.store.commit("loader/updateLoader", false);
+        window.location.reload();
       }
     },
 

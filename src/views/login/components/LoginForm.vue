@@ -7,6 +7,15 @@
       <div class="inline-v">
         <div class="box-container text-pad">
           <ion-input
+            label="Tenant"
+            labelPlacement="floating"
+            class="input-text"
+            required
+          ></ion-input>
+        </div>
+        <br />
+        <div class="box-container text-pad">
+          <ion-input
             label="Username"
             v-model="form.username"
             labelPlacement="floating"
@@ -199,7 +208,7 @@ a {
 }
 .bottom-text {
   width: 100%;
-  margin: 10% 0;
+  /* margin: 10% 0; */
   padding: 0;
 }
 .bottom-text p {

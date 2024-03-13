@@ -164,8 +164,6 @@ import { useRouter } from "vue-router";
 import { GlobalConstants } from "@/config/constants";
 import { getThemeData } from "@/theme/theme";
 
-const baseURL = GlobalConstants.HOST_URL;
-
 export default defineComponent({
   components: {
     IonPage,
@@ -318,7 +316,7 @@ export default defineComponent({
     async fetchData() {
       try {
         this.store.commit("loader/updateLoader", true);
-
+        const baseURL = localStorage.getItem("baseUrl");
         const storedToken = localStorage.getItem("token");
 
         if (!storedToken) {
@@ -351,7 +349,7 @@ export default defineComponent({
     async fetchCalendarDisable(month, year) {
       try {
         const storedToken = localStorage.getItem("token");
-
+        const baseURL = localStorage.getItem("baseUrl");
         if (month === undefined || year === undefined) {
           const currentDate = new Date();
           month = currentDate.getMonth() + 1;
@@ -382,7 +380,7 @@ export default defineComponent({
     async fetchRetract() {
       try {
         const storedToken = localStorage.getItem("token");
-
+        const baseURL = localStorage.getItem("baseUrl");
         if (!storedToken) {
           console.error("Token not available.");
           console.log("Token is missing. Redirecting to login...");
@@ -404,7 +402,7 @@ export default defineComponent({
     async sendRetract() {
       try {
         const storedToken = localStorage.getItem("token");
-
+        const baseURL = localStorage.getItem("baseUrl");
         if (!storedToken) {
           console.error("Token not available.");
           console.log("Token is missing. Redirecting to login...");
@@ -445,7 +443,7 @@ export default defineComponent({
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         };
-
+        const baseURL = localStorage.getItem("baseUrl");
         const api = baseURL + "api/v3/leave/leave-requests";
 
         const requestData = {
@@ -507,6 +505,7 @@ export default defineComponent({
       const headers = {
         Authorization: `Bearer ${token}`,
       };
+      const baseURL = localStorage.getItem("baseUrl");
       const api =
         baseURL + `api/v2/leave/leave-balance/leave-type/${leaveTypeId}`;
 

@@ -46,8 +46,6 @@ import { useStore } from "vuex";
 import axios from "axios";
 import { Geolocation } from "@capacitor/geolocation";
 
-const baseURL = GlobalConstants.HOST_URL;
-
 export default defineComponent({
   components: {
     IonPage,
@@ -135,7 +133,7 @@ export default defineComponent({
     async checkState() {
       try {
         this.store.commit("loader/updateLoader", true);
-
+        const baseURL = localStorage.getItem("baseUrl");
         await this.checkTokenExpiration();
 
         const token = localStorage.getItem("token");
@@ -202,6 +200,7 @@ export default defineComponent({
     async getState(dataData) {
       try {
         const token = localStorage.getItem("token");
+        const baseURL = localStorage.getItem("baseUrl");
         if (!token) {
           console.error("Token not available.");
           return;
@@ -237,7 +236,7 @@ export default defineComponent({
     async handleClockInData() {
       try {
         await this.checkTokenExpiration();
-
+        const baseURL = localStorage.getItem("baseUrl");
         const token = localStorage.getItem("token");
         const headers = {
           Authorization: `Bearer ${token}`,

@@ -55,8 +55,6 @@ import axios from "axios";
 import { GlobalConstants } from "@/config/constants";
 import { toastController } from "@ionic/vue";
 
-const baseURL = GlobalConstants.HOST_URL;
-
 export default defineComponent({
   components: {
     IonPage,
@@ -129,7 +127,7 @@ export default defineComponent({
     async fetchPaygrade() {
       try {
         await this.checkTokenExpiration();
-
+        const baseURL = localStorage.getItem("baseUrl");
         const storedToken = localStorage.getItem("token");
 
         const headers = {
@@ -144,7 +142,6 @@ export default defineComponent({
         this.paygradeId = dataResponse.data.data.id;
         this.fetchRequest();
       } catch (error) {
-        // this.showErrorMessage();
         console.log(error.response?.data?.error?.message);
       }
     },
@@ -152,7 +149,7 @@ export default defineComponent({
     async fetchRequest() {
       try {
         this.store.commit("loader/updateLoader", true);
-
+        const baseURL = localStorage.getItem("baseUrl");
         await this.checkTokenExpiration();
 
         const storedToken = localStorage.getItem("token");

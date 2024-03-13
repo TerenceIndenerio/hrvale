@@ -16,17 +16,7 @@
             </span>
           </p>
         </div>
-
-        <!-- para po sa clock in and out status -->
-        <!-- <div class="status">
-          <ion-icon name="time" class="status-icon"></ion-icon>
-          <div class="status-text">
-            <p class="clock-status">In: 08: 55: 24 hrs</p>
-          </div>
-        </div> -->
       </div>
-
-      <!-- <ClockInOut /> -->
 
       <div class="flex-center">
         <div class="topservices-card">
@@ -39,6 +29,7 @@
             :btnColor="theme.primaryColor"
             :btnTextColor="theme.primaryFontColor"
             :btnSecondaryColor="theme.primaryFontColor"
+            :theme="theme"
           />
         </div>
       </div>
@@ -54,6 +45,7 @@
             :btnColor="theme.primaryColor"
             :btnTextColor="theme.primaryFontColor"
             :btnSecondaryColor="theme.primaryFontColor"
+            :theme="theme"
           />
         </div>
       </div>
@@ -81,8 +73,6 @@ import { useStore } from "vuex";
 import { GlobalConstants } from "@/config/constants";
 import axios from "axios";
 import ClockInOut from "@/components/cards/HomeClockInCard.vue";
-
-const baseURL = GlobalConstants.HOST_URL;
 
 export default defineComponent({
   components: {
@@ -407,7 +397,6 @@ ion-text .title {
 
 .greetings-inner-container h4 {
   padding: 0;
-  /* margin: 0 0 0 10px; */
   font-family: Poppins;
   font-size: 20px;
   font-style: normal;

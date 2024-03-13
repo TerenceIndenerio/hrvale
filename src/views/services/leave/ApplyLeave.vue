@@ -164,8 +164,6 @@ import { useRouter } from "vue-router";
 import { GlobalConstants } from "@/config/constants";
 import { getThemeData } from "@/theme/theme";
 
-const baseURL = GlobalConstants.HOST_URL;
-
 export default defineComponent({
   components: {
     IonPage,
@@ -312,7 +310,7 @@ export default defineComponent({
     async fetchData() {
       try {
         this.store.commit("loader/updateLoader", true);
-
+        const baseURL = localStorage.getItem("baseUrl");
         const storedToken = localStorage.getItem("token");
 
         if (!storedToken) {
@@ -360,6 +358,7 @@ export default defineComponent({
         }
 
         const authToken = `Bearer ${storedToken}`;
+        const baseURL = localStorage.getItem("baseUrl");
         const apiUrl =
           baseURL + `api/v2/leave/disabledDates?month=${month}&year=${year}`;
         const headers = {
@@ -375,7 +374,6 @@ export default defineComponent({
 
     async sendLeaveRequest() {
       try {
-        // Check if required fields are empty or null
         if (
           !this.selectedDates_ ||
           !this.durationSelectedValue ||
@@ -386,7 +384,7 @@ export default defineComponent({
           );
           return;
         }
-
+        const baseURL = localStorage.getItem("baseUrl");
         const token = localStorage.getItem("token");
         const headers = {
           Authorization: `Bearer ${token}`,
@@ -455,6 +453,7 @@ export default defineComponent({
       const headers = {
         Authorization: `Bearer ${token}`,
       };
+      const baseURL = localStorage.getItem("baseUrl");
       const api =
         baseURL + `api/v2/leave/leave-balance/leave-type/${leaveTypeId}`;
 

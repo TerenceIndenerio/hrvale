@@ -190,8 +190,6 @@ import { GlobalConstants } from "@/config/constants";
 import { toastController } from "@ionic/vue";
 import { getThemeData } from "@/theme/theme";
 
-const baseURL = GlobalConstants.HOST_URL;
-
 export default defineComponent({
   components: {
     IonPage,
@@ -285,7 +283,7 @@ export default defineComponent({
         await this.checkTokenExpiration();
 
         this.storedToken = localStorage.getItem("token");
-
+        const baseURL = localStorage.getItem("baseUrl");
         const headers = {
           Authorization: `Bearer ${this.storedToken}`,
         };
@@ -324,7 +322,7 @@ export default defineComponent({
         await this.checkTokenExpiration();
 
         this.storedToken = localStorage.getItem("token");
-
+        const baseURL = localStorage.getItem("baseUrl");
         const headers = {
           Authorization: `Bearer ${this.storedToken}`,
         };

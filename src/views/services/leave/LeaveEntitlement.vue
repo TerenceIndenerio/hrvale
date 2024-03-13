@@ -54,8 +54,6 @@ import axios from "axios";
 import { GlobalConstants } from "@/config/constants";
 import { getThemeData } from "@/theme/theme";
 
-const baseURL = GlobalConstants.HOST_URL;
-
 export default defineComponent({
   name: "LeaveEntitlements",
   components: {
@@ -108,7 +106,7 @@ export default defineComponent({
     async fetchLeavePeriods() {
       try {
         this.store.commit("loader/updateLoader", true);
-
+        const baseURL = localStorage.getItem("baseUrl");
         const storedToken = localStorage.getItem("token");
 
         if (!storedToken) {
@@ -156,7 +154,7 @@ export default defineComponent({
     async makeGetRequest(fromDate, toDate) {
       try {
         this.store.commit("loader/updateLoader", true);
-
+        const baseURL = localStorage.getItem("baseUrl");
         const storedToken = localStorage.getItem("token");
 
         if (!storedToken) {

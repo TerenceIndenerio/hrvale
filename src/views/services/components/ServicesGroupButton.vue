@@ -4,8 +4,8 @@
       <a
         @click="navigateLeave"
         :style="{
-          background: 'linear-gradient(to right, #064EA0, #002E62)',
-          color: btnTextColor,
+          background: `linear-gradient(to right, ${theme.primaryGradientStartColor}, ${theme.primaryGradientEndColor})`,
+          color: theme.primaryFontColor,
         }"
       >
         <ion-icon
@@ -20,8 +20,8 @@
       <a
         @click="navigateviewschedule"
         :style="{
-          background: 'linear-gradient(to right, #064EA0, #002E62)',
-          color: btnTextColor,
+          background: `linear-gradient(to right, ${theme.primaryGradientStartColor}, ${theme.primaryGradientEndColor})`,
+          color: theme.primaryFontColor,
         }"
       >
         <ion-icon
@@ -36,8 +36,8 @@
       <a
         @click="navigateattendancecorrection"
         :style="{
-          background: 'linear-gradient(to right, #064EA0, #002E62)',
-          color: btnTextColor,
+          background: `linear-gradient(to right, ${theme.primaryGradientStartColor}, ${theme.primaryGradientEndColor})`,
+          color: theme.primaryFontColor,
         }"
       >
         <ion-icon
@@ -52,8 +52,8 @@
       <a
         @click="navigateOTApply"
         :style="{
-          background: 'linear-gradient(to right, #064EA0, #002E62)',
-          color: btnTextColor,
+          background: `linear-gradient(to right, ${theme.primaryGradientStartColor}, ${theme.primaryGradientEndColor})`,
+          color: theme.primaryFontColor,
         }"
       >
         <ion-icon
@@ -69,8 +69,8 @@
       <a
         @click="navigateViewPayslip"
         :style="{
-          background: 'linear-gradient(to right, #064EA0, #002E62)',
-          color: btnTextColor,
+          background: `linear-gradient(to right, ${theme.primaryGradientStartColor}, ${theme.primaryGradientEndColor})`,
+          color: theme.primaryFontColor,
         }"
         disabled
       >
@@ -86,8 +86,8 @@
       <a
         @click="navigateBenefits"
         :style="{
-          background: 'linear-gradient(to right, #064EA0, #002E62)',
-          color: btnTextColor,
+          background: `linear-gradient(to right, ${theme.primaryGradientStartColor}, ${theme.primaryGradientEndColor})`,
+          color: theme.primaryFontColor,
         }"
         disabled
       >
@@ -103,8 +103,8 @@
       <a
         @click="navigateloanBal"
         :style="{
-          background: 'linear-gradient(to right, #064EA0, #002E62)',
-          color: btnTextColor,
+          background: `linear-gradient(to right, ${theme.primaryGradientStartColor}, ${theme.primaryGradientEndColor})`,
+          color: theme.primaryFontColor,
         }"
         disabled
       >
@@ -120,8 +120,8 @@
       <a
         @click="navigateApproval"
         :style="{
-          background: 'linear-gradient(to right, #064EA0, #002E62)',
-          color: btnTextColor,
+          background: `linear-gradient(to right, ${theme.primaryGradientStartColor}, ${theme.primaryGradientEndColor})`,
+          color: theme.primaryFontColor,
         }"
         disabled
       >
@@ -145,6 +145,7 @@ export default defineComponent({
     btnColor: String,
     btnTextColor: String,
     btnSecondaryColor: String,
+    theme: Object,
   },
   methods: {
     navigateSoon() {

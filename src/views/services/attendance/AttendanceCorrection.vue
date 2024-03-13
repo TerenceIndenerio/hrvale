@@ -152,8 +152,6 @@ import { useRouter } from "vue-router";
 import { GlobalConstants } from "@/config/constants";
 import { mapState } from "vuex";
 
-const baseURL = GlobalConstants.HOST_URL;
-
 export default defineComponent({
   components: {
     IonPage,
@@ -253,6 +251,7 @@ export default defineComponent({
       try {
         this.store.commit("loader/updateLoader", true);
         await this.checkTokenExpiration();
+        const baseURL = localStorage.getItem("baseUrl");
 
         this.storedToken = localStorage.getItem("token");
 
@@ -291,7 +290,7 @@ export default defineComponent({
       try {
         this.store.commit("loader/updateLoader", true);
         await this.checkTokenExpiration();
-
+        const baseURL = localStorage.getItem("baseUrl");
         this.storedToken = localStorage.getItem("token");
 
         const headers = {

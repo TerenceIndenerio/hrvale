@@ -44,8 +44,10 @@ import { useStore } from "vuex";
 import { mapGetters, mapActions, mapState } from "vuex";
 import { GlobalConstants } from "@/config/constants";
 import generateToken from "@/store/token/accessToken.ts";
+import axios from "axios";
+import { runBackgroundScript } from "@/notification/Notification.ts";
+import { adminUserDetails, userDetails } from "@/store/login/onLoad";
 
-const baseURL = GlobalConstants.HOST_URL;
 const id = GlobalConstants.USER_ID;
 
 export default defineComponent({
@@ -80,6 +82,7 @@ export default defineComponent({
       hasToken: false,
       theme: {},
       hasSetup: false,
+      empNumber: "",
     };
   },
   async mounted() {
@@ -93,11 +96,103 @@ export default defineComponent({
 
         if (token) {
           localStorage.setItem("hasSetup", true);
-          this.router.push("/setuppincodelogin");
+          await this.fetchStoredTheme();
+          await this.hasPincode();
         }
       } catch (error) {
         console.error(error.message);
         await this.alertError();
+      }
+    },
+
+    async fetchToken() {
+      try {
+        const storedToken = localStorage.getItem("access_token");
+        const baseURL = localStorage.getItem("baseUrl");
+
+        const response = await axios.post(baseURL + "auth/token", {
+          secret: storedToken,
+        });
+        console.log("token response ", response);
+        localStorage.setItem("token", response.data.token);
+      } catch (error) {
+        console.error(error.response.data.error.status);
+      }
+    },
+
+    async hasPincode() {
+      try {
+        await this.fetchToken();
+
+        const storedToken = localStorage.getItem("token");
+        const baseURL = localStorage.getItem("baseUrl");
+        const authToken = `Bearer ${storedToken}`;
+        const apiUrl = baseURL + `api/ess/pincode`;
+        const headers = { Authorization: authToken };
+        const response = await axios.get(apiUrl, { headers });
+
+        if (response.data.data.pincode) {
+          await this.fetchUserDetails();
+          await runBackgroundScript();
+          await userDetails(this.empNumber);
+
+          localStorage.setItem("pincode", response.data.data.pincode);
+          this.router.push("/tabs/buzzfeed");
+        } else {
+          this.router.push("/setuppincodelogin");
+        }
+      } catch (error) {
+        console.log(error.message);
+      }
+    },
+
+    async fetchUserDetails() {
+      try {
+        const storedToken = localStorage.getItem("token");
+        const baseURL = localStorage.getItem("baseUrl");
+        const headers = { Authorization: `Bearer ${storedToken}` };
+        const api = baseURL + `api/v2/user/me`;
+        const dataResponse = await axios.get(api, { headers });
+
+        this.empNumber = dataResponse.data.data.employee.empNumber;
+        localStorage.setItem(
+          "empNumber",
+          dataResponse.data.data.employee.empNumber
+        );
+
+        localStorage.setItem(
+          "myDetails",
+          JSON.stringify(dataResponse.data.data)
+        );
+      } catch (error) {
+        console.log(error.message);
+        if (error.message === "Request failed with status code 401") {
+          this.checkToken();
+        } else {
+          this.router.replace("/setuplogin");
+        }
+      }
+    },
+
+    async fetchStoredTheme() {
+      try {
+        const storedThemeData = localStorage.getItem("configs");
+        const themeData = storedThemeData ? JSON.parse(storedThemeData) : {};
+        const theme = themeData[1]?.configuration?.theme;
+        const configs = localStorage.getItem("configs");
+        const config = configs ? JSON.parse(configs) : {};
+        const apiHost = config[1]?.configuration?.apiHost;
+
+        localStorage.setItem("baseUrl", apiHost);
+
+        if (theme) {
+          localStorage.setItem("themeData", JSON.stringify(theme));
+          this.theme = theme;
+        } else {
+          console.error("Theme not found in the configuration data.");
+        }
+      } catch (error) {
+        console.error("Error fetching or parsing theme data:", error);
       }
     },
 

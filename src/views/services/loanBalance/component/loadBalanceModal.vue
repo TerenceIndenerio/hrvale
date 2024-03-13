@@ -123,8 +123,6 @@ import { defineComponent } from "vue";
 import axios from "axios";
 import { GlobalConstants } from "@/config/constants";
 
-const baseURL = GlobalConstants.HOST_URL;
-
 export default defineComponent({
   components: {
     IonModal,
@@ -180,7 +178,7 @@ export default defineComponent({
         const headers = {
           Authorization: `Bearer ${this.storedToken}`,
         };
-        console.log("done", this.stopPayment);
+        const baseURL = localStorage.getItem("baseUrl");
         const api =
           baseURL +
           `api/payroll/employee-loan/stop-payment/update?id=${id}&stopPayment=${this.stopPayment}`;

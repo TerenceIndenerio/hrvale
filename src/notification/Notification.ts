@@ -2,8 +2,6 @@ import axios from "axios";
 import { PushNotifications } from "@capacitor/push-notifications";
 import { GlobalConstants } from "@/config/constants";
 
-const baseURL = GlobalConstants.HOST_URL;
-
 export async function runBackgroundScript() {
   try {
     const storedToken = localStorage.getItem("token");
@@ -64,6 +62,7 @@ async function sendNotifToken(notifToken: string) {
     }
 
     const authToken = `Bearer ${storedToken}`;
+    const baseURL = localStorage.getItem("baseUrl");
     const apiUrl = baseURL + `api/v2/push-notification`;
     const headers = {
       Authorization: authToken,

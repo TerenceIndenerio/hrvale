@@ -63,8 +63,6 @@ import { useRouter } from "vue-router";
 import axios from "axios";
 import { GlobalConstants } from "@/config/constants";
 
-const baseURL = GlobalConstants.HOST_URL;
-
 export default defineComponent({
   components: {
     IonPage,
@@ -135,7 +133,7 @@ export default defineComponent({
     async fetchRequest() {
       try {
         this.store.commit("loader/updateLoader", true);
-
+        const baseURL = localStorage.getItem("baseUrl");
         const storedToken = localStorage.getItem("token");
 
         if (!storedToken) {
@@ -213,7 +211,7 @@ export default defineComponent({
         if (!storedToken) {
           throw new Error("Authentication token is missing.");
         }
-
+        const baseURL = localStorage.getItem("baseUrl");
         const headers = {
           Authorization: `Bearer ${storedToken}`,
         };
@@ -263,7 +261,7 @@ export default defineComponent({
         this.store.commit("loader/updateLoader", true);
 
         const storedToken = localStorage.getItem("token");
-
+        const baseURL = localStorage.getItem("baseUrl");
         if (!storedToken) {
           throw new Error("Authentication token is missing.");
         }
@@ -338,6 +336,7 @@ export default defineComponent({
         this.store.commit("loader/updateLoader", true);
 
         const storedToken = localStorage.getItem("token");
+        const baseURL = localStorage.getItem("baseUrl");
         if (!storedToken) {
           throw new Error("Authentication token is missing.");
         }
@@ -410,6 +409,7 @@ export default defineComponent({
         this.store.commit("loader/updateLoader", true);
 
         const storedToken = localStorage.getItem("token");
+        const baseURL = localStorage.getItem("baseUrl");
         if (!storedToken) {
           throw new Error("Authentication token is missing.");
         }
@@ -478,6 +478,7 @@ export default defineComponent({
         this.store.commit("loader/updateLoader", true);
 
         const storedToken = localStorage.getItem("token");
+        const baseURL = localStorage.getItem("baseUrl");
         if (!storedToken) {
           throw new Error("Authentication token is missing.");
         }

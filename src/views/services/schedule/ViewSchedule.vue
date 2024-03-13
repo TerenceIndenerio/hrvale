@@ -110,9 +110,6 @@ import { useRouter } from "vue-router";
 import { GlobalConstants } from "@/config/constants";
 import { getThemeData } from "@/theme/theme";
 
-const baseURL = GlobalConstants.HOST_URL;
-// const empNumber = GlobalConstants.EMPLOYEE_ID;
-
 export default defineComponent({
   components: {
     IonPage,
@@ -219,7 +216,7 @@ export default defineComponent({
       try {
         await this.checkTokenExpiration();
         const storedToken = localStorage.getItem("token");
-
+        const baseURL = localStorage.getItem("baseUrl");
         const authToken = `Bearer ${storedToken}`;
         const apiUrl = new URL(baseURL + "api/v2/ess/employee-schedule");
         const queryParams = new URLSearchParams({
@@ -320,7 +317,7 @@ export default defineComponent({
         await this.checkTokenExpiration();
         const storedToken = localStorage.getItem("token");
         const authToken = `Bearer ${storedToken}`;
-
+        const baseURL = localStorage.getItem("baseUrl");
         const apiUrl =
           baseURL +
           `api/v2/attendance/employees/${this.empNumber}/records?date=${this.firstDate}&endDate=${this.endDate}`;
@@ -348,44 +345,11 @@ export default defineComponent({
 
       this.theme = themeData;
     },
-
-    // Run On Start
-    // async requestData2(currentMonth) {
-    //   try {
-    //     await this.checkTokenExpiration();
-    //     const storedToken = localStorage.getItem("token");
-
-    //     const authToken = `Bearer ${storedToken}`;
-    //     const apiUrl =
-    //       baseURL +
-    //       `api/v2/ess/employee-schedule?empNumber=${empNumber}&month=${currentMonth}`;
-    //     const headers = {
-    //       Authorization: authToken,
-    //     };
-
-    //     const response = await axios.get(apiUrl, { headers });
-
-    //     this.scheduleData = response.data.data;
-
-    //     const extractedData = this.scheduleData.map((entry) => ({
-    //       regularWorkHourStart: entry.regularWorkHourStart,
-    //       regularWorkHourEnd: entry.regularWorkHourEnd,
-    //       scheduleColor: entry.workShift.scheduleColor,
-    //       date: entry.scheduleDate.date.split(" ")[0],
-    //       code: entry.workShift.code,
-    //       scheduleColor: entry.workShift.scheduleColor,
-    //     }));
-    //   } catch (error) {
-    //     console.error("Error:", error);
-    //   }
-    // },
   },
   async created() {
     this.empNumber = localStorage.getItem("empNumber");
     this.fetchTheme();
     const currentMonth = new Date().getMonth() + 1;
-
-    // const data = await this.requestData2(currentMonth);
 
     this.loading = false;
   },

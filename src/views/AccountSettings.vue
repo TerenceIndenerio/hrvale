@@ -122,9 +122,6 @@ import { useRouter } from "vue-router";
 import { GlobalConstants } from "@/config/constants";
 import { getThemeData } from "@/theme/theme";
 
-const baseURL = GlobalConstants.HOST_URL;
-const empNumber = GlobalConstants.EMPLOYEE_ID;
-
 export default defineComponent({
   components: {
     IonPage,

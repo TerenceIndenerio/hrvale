@@ -55,11 +55,8 @@
         </ion-button>
       </div>
 
-      <div class="no-news-container" v-if="hasNews">
-        <h2 :style="{ color: theme.primaryColor }">
-          <strong>No News Feed!</strong>
-        </h2>
-        <p>Reload or Please Try Again Later</p>
+      <div class="no-news-container" v-if="!hasNews">
+        <BuzzFeedCardEmpty />
       </div>
 
       <div v-for="(cardData, index) in newsFeed" :key="index">
@@ -75,7 +72,6 @@
           :postId="cardData.postId"
           :empNumber="cardData.empNumber"
           :profileImg="cardData.profileImg"
-          @like-clicked="sendReact"
         />
       </div>
     </ion-content>
@@ -110,6 +106,7 @@ import { useRouter } from "vue-router";
 import { GlobalConstants } from "@/config/constants";
 import { PushNotifications } from "@capacitor/push-notifications";
 import BuzzFeedCard from "@/views/home/components/BuzzFeedCard.vue";
+import BuzzFeedCardEmpty from "@/views/home/components/BuzzFeedCardEmpty.vue";
 import { IonImg } from "@ionic/vue";
 import { newToken } from "@/store/token/newToken.ts";
 
@@ -133,6 +130,7 @@ export default defineComponent({
     GreetingsCard,
     IonButton,
     IonIcon,
+    BuzzFeedCardEmpty,
   },
   setup() {
     return {
@@ -162,7 +160,7 @@ export default defineComponent({
       activeButton: "recent",
       baseUrl: "",
       profileDetails: "",
-      hasNews: true,
+      hasNews: false,
       isReloaded: false,
     };
   },
@@ -171,11 +169,10 @@ export default defineComponent({
 
     async fetchNewsFeed(filterVal) {
       try {
-        this.store.commit("loader/updateLoader", true);
+        this.hasNews = false;
+
         const storedToken = localStorage.getItem("token");
-
         const apiUrl = this.baseURL + filterVal;
-
         const headers = {
           Authorization: `Bearer ${storedToken}`,
         };
@@ -183,68 +180,80 @@ export default defineComponent({
         const dataResponse = await axios.get(apiUrl, { headers });
 
         if (dataResponse.data && Array.isArray(dataResponse.data.data)) {
-          this.newsFeed = await Promise.all(
-            dataResponse.data.data.map(async (data) => {
-              const photoLink = await this.fetchPhotoWithToken(data.photoIds);
-              const profileImg = await this.fetchProfilePhoto(
-                data.employee.empNumber
-              );
-              return {
-                id: data.id,
-                employee:
-                  data.employee.firstName +
-                  " " +
-                  data.employee.middleName +
-                  " " +
-                  data.employee.lastName,
-                text: data.text,
-                numOfLikes: data.stats.numOfLikes,
-                numOfShares: data.stats.numOfShares,
-                photoIds: data.photoIds,
-                photoLink: photoLink,
-                date: data.createdDate,
-                time: data.createdTime,
-                postId: data.post.id,
-                empNumber: data.employee.empNumber,
-                profileImg: profileImg,
-              };
-            })
-          );
+          const promises = dataResponse.data.data.map(async (data) => {
+            const photoLinkPromise = this.fetchPhotoLink(data.photoIds);
+            const profileImg = await this.fetchProfilePhoto(
+              data.employee.empNumber
+            );
 
-          this.hasNews = !this.newsFeed.length > 0;
-        } else {
-          this.hasNews = false;
+            const photoLink = await photoLinkPromise;
+            return {
+              id: data.id,
+              employee:
+                data.employee.firstName +
+                " " +
+                data.employee.middleName +
+                " " +
+                data.employee.lastName,
+              text: data.text,
+              numOfLikes: data.stats.numOfLikes,
+              numOfShares: data.stats.numOfShares,
+              photoIds: data.photoIds,
+              photoLink: photoLink,
+              date: data.createdDate,
+              time: data.createdTime,
+              postId: data.post.id,
+              empNumber: data.employee.empNumber,
+              profileImg: profileImg,
+            };
+          });
+
+          this.newsFeed = await Promise.all(promises);
+
+          this.hasNews = this.newsFeed.length > 0;
         }
       } catch (error) {
         console.error("Error:", error);
       } finally {
-        this.store.commit("loader/updateLoader", false);
+        this.hasNews = true;
       }
     },
 
-    async fetchPhotoWithToken(photoIds) {
-      try {
-        const storedToken = localStorage.getItem("token");
+    fetchPhotoLink(photoIds) {
+      return new Promise((resolve, reject) => {
+        try {
+          this.photoLinkLoading = true;
 
-        const apiUrl = `https://hrp-uat-app.bapplware.com/web/index.php/buzz/photo/${photoIds}`;
+          const storedToken = localStorage.getItem("token");
+          const apiUrl = `https://hrp-uat-app.bapplware.com/web/index.php/buzz/photo/${photoIds}`;
 
-        const headers = {
-          Authorization: `Bearer ${storedToken}`,
-        };
+          const headers = {
+            Authorization: `Bearer ${storedToken}`,
+          };
 
-        const response = await axios.get(apiUrl, {
-          headers,
-          responseType: "blob",
-        });
-        const blob = response.data;
-
-        const imageUrl = URL.createObjectURL(blob);
-
-        return imageUrl;
-      } catch (error) {
-        console.error("Error:", error);
-        return null;
-      }
+          axios
+            .get(apiUrl, {
+              headers,
+              responseType: "blob",
+            })
+            .then((response) => {
+              const blob = response.data;
+              const imageUrl = URL.createObjectURL(blob);
+              resolve(imageUrl);
+            })
+            .catch((error) => {
+              console.error("Error fetching photo link:", error);
+              reject(null);
+            })
+            .finally(() => {
+              this.photoLinkLoading = false;
+            });
+        } catch (error) {
+          console.error("Error fetching photo link:", error);
+          reject(null);
+          this.photoLinkLoading = false;
+        }
+      });
     },
 
     async fetchProfilePhoto(empNumber) {
@@ -288,27 +297,6 @@ export default defineComponent({
           Authorization: `Bearer ${storedToken}`,
         };
         const dataResponse = await axios.get(apiUrl, { headers });
-      } catch (error) {
-        console.error("Error:", error);
-      }
-    },
-
-    async sendReact(postId) {
-      try {
-        const storedToken = localStorage.getItem("token");
-
-        if (!storedToken) {
-          console.log("Token is missing. Redirecting to login...");
-          this.router.push("/login");
-          return;
-        }
-
-        const apiUrl = this.baseURL + `api/v2/buzz/shares/${postId}/likes`;
-
-        const headers = {
-          Authorization: `Bearer ${storedToken}`,
-        };
-        const dataResponse = await axios.post(apiUrl, { headers });
       } catch (error) {
         console.error("Error:", error);
       }
@@ -437,8 +425,6 @@ export default defineComponent({
           if (decodedToken.exp && decodedToken.exp < currentTimestamp) {
             console.log("Token has expired");
             this.router.push("/login");
-          } else {
-            console.log("Token is still valid");
           }
         } catch (error) {
           console.error("Error decoding token:", error);
@@ -463,6 +449,8 @@ export default defineComponent({
     const token = localStorage.getItem("access_token");
 
     this.loading = false;
+
+    console.log(localStorage.getItem("myDetails"));
   },
 });
 </script>
@@ -493,7 +481,7 @@ export default defineComponent({
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  margin: 50px 0;
+  /* margin: 50px 0; */
 }
 
 .greetings-container {

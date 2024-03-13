@@ -107,9 +107,6 @@ import {
   FilesystemEncoding,
 } from "@capacitor/filesystem";
 
-const baseURL = GlobalConstants.HOST_URL;
-const empNumber = GlobalConstants.EMPLOYEE_ID;
-
 export default defineComponent({
   components: {
     IonPage,
@@ -172,7 +169,7 @@ export default defineComponent({
         this.store.commit("loader/updateLoader", true);
         await this.checkTokenExpiration();
         const storedToken = localStorage.getItem("token");
-
+        const baseURL = localStorage.getItem("baseUrl");
         const authToken = `Bearer ${storedToken}`;
 
         const apiUrl = baseURL + `api/ess/view-payslip?limit=50&offset=0`;
@@ -217,7 +214,7 @@ export default defineComponent({
 
         const storedToken = localStorage.getItem("token");
         const authToken = `Bearer ${storedToken}`;
-
+        const baseURL = localStorage.getItem("baseUrl");
         const apiUrl = baseURL + `api/download/payslip/${id}`;
         const headers = {
           Authorization: authToken,

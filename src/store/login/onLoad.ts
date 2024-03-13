@@ -1,8 +1,6 @@
 import axios, { AxiosResponse } from "axios";
 import { GlobalConstants } from "@/config/constants";
 
-const baseURL = GlobalConstants.HOST_URL;
-
 async function adminUserDetails(id: string): Promise<void> {
   let empNumber: string | undefined;
 
@@ -11,7 +9,7 @@ async function adminUserDetails(id: string): Promise<void> {
     const headers = {
       Authorization: `Bearer ${storedToken}`,
     };
-
+    const baseURL = localStorage.getItem("baseUrl");
     const api = baseURL + `api/v2/admin/users/${id}`;
     const dataResponse = await axios.get(api, { headers });
 
@@ -43,7 +41,7 @@ async function adminUserDetails(id: string): Promise<void> {
 async function userDetails(empNumber: string): Promise<void> {
   try {
     const storedToken = localStorage.getItem("token");
-
+    const baseURL = localStorage.getItem("baseUrl");
     const headers = {
       Authorization: `Bearer ${storedToken}`,
     };

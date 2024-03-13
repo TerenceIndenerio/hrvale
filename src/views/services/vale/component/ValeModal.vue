@@ -1,151 +1,160 @@
 <template>
   <ion-modal :is-open="isOpen" @dismiss="closeModal">
     <ion-content>
-      <div class="modal-container" :style="{backgroundColor: theme.primaryColor}">
-      
-      <h2 class="title" :style="{color: theme.primaryFontColor}">Vale Details</h2>
+      <div
+        class="modal-container"
+        :style="{ backgroundColor: theme.primaryColor }"
+      >
+        <h2 class="title" :style="{ color: theme.primaryFontColor }">
+          Vale Details
+        </h2>
 
-      <ion-icon
-        name="close-circle"
-        @click="closeModal"
-        class="close-btn"
-        :style="{color: theme.primaryFontColor}"
-      ></ion-icon>
-      <ion-card class="card">
-        <ion-grid>
-          <ion-col size="6">
-            <ion-row>
-              <ion-col size="6">
-                <p>Loan Date:</p>
-              </ion-col>
-              <ion-col size="6">
-                <p>{{ selectedResult.loanDate }}</p>
-              </ion-col>
-            </ion-row>
+        <ion-icon
+          name="close-circle"
+          @click="closeModal"
+          class="close-btn"
+          :style="{ color: theme.primaryFontColor }"
+        ></ion-icon>
+        <ion-card class="card">
+          <ion-grid>
+            <ion-col size="6">
+              <ion-row>
+                <ion-col size="6">
+                  <p>Loan Date:</p>
+                </ion-col>
+                <ion-col size="6">
+                  <p>{{ selectedResult.loanDate }}</p>
+                </ion-col>
+              </ion-row>
 
-            <ion-row>
-              <ion-col size="6">
-                <p>Amortization:</p>
-              </ion-col>
-              <ion-col size="6">
-                <p>{{ selectedResult.amortization }}</p>
-              </ion-col>
-            </ion-row>
+              <ion-row>
+                <ion-col size="6">
+                  <p>Amortization:</p>
+                </ion-col>
+                <ion-col size="6">
+                  <p>{{ selectedResult.amortization }}</p>
+                </ion-col>
+              </ion-row>
 
-            <ion-row>
-              <ion-col size="6">
-                <p>Loan Amount:</p>
-              </ion-col>
-              <ion-col size="6">
-                <p>{{ selectedResult.loanAmount }}</p>
-              </ion-col>
-            </ion-row>
+              <ion-row>
+                <ion-col size="6">
+                  <p>Loan Amount:</p>
+                </ion-col>
+                <ion-col size="6">
+                  <p>{{ selectedResult.loanAmount }}</p>
+                </ion-col>
+              </ion-row>
 
-            <ion-row>
-              <ion-col size="6">
-                <p>Effective Loan:</p>
-              </ion-col>
-              <ion-col size="6">
-                <p>{{ selectedResult.effectiveLoan }}</p>
-              </ion-col>
-            </ion-row>
+              <ion-row>
+                <ion-col size="6">
+                  <p>Effective Loan:</p>
+                </ion-col>
+                <ion-col size="6">
+                  <p>{{ selectedResult.effectiveLoan }}</p>
+                </ion-col>
+              </ion-row>
 
-            <ion-row>
-              <ion-col size="6">
-                <p>Interest Rate:</p>
-              </ion-col>
-              <ion-col size="6">
-                <p>{{ selectedResult.interestRate }}</p>
-              </ion-col>
-            </ion-row>
+              <ion-row>
+                <ion-col size="6">
+                  <p>Interest Rate:</p>
+                </ion-col>
+                <ion-col size="6">
+                  <p>{{ selectedResult.interestRate }}</p>
+                </ion-col>
+              </ion-row>
 
-            <ion-row>
-              <ion-col size="6">
-                <p>Start of Payment:</p>
-              </ion-col>
-              <ion-col size="6">
-                <p>{{ selectedResult.startOfPayment }}</p>
-              </ion-col>
-            </ion-row>
+              <ion-row>
+                <ion-col size="6">
+                  <p>Start of Payment:</p>
+                </ion-col>
+                <ion-col size="6">
+                  <p>{{ selectedResult.startOfPayment }}</p>
+                </ion-col>
+              </ion-row>
 
-            <ion-row>
-              <ion-col size="6">
-                <p>Total Amount Paid:</p>
-              </ion-col>
-              <ion-col size="6">
-                <p>{{ selectedResult.totalAmountPaid }}</p>
-              </ion-col>
-            </ion-row>
+              <ion-row>
+                <ion-col size="6">
+                  <p>Total Amount Paid:</p>
+                </ion-col>
+                <ion-col size="6">
+                  <p>{{ selectedResult.totalAmountPaid }}</p>
+                </ion-col>
+              </ion-row>
 
-            <ion-row>
-              <ion-col size="6">
-                <p>Status:</p>
-              </ion-col>
-              <ion-col size="6">
-                <p>{{ selectedResult.status }}</p>
-              </ion-col>
-            </ion-row>
+              <ion-row>
+                <ion-col size="6">
+                  <p>Status:</p>
+                </ion-col>
+                <ion-col size="6">
+                  <p>{{ selectedResult.status }}</p>
+                </ion-col>
+              </ion-row>
 
-            <ion-row>
-              <ion-col size="6">
-                <p>Reason:</p>
-              </ion-col>
-              <ion-col size="6">
-                <p>{{ selectedResult.reason }}</p>
-              </ion-col>
-            </ion-row>
-          </ion-col>
-        </ion-grid>
-      </ion-card>
-      <!-- Amortization -->
-      <h4 class="title outlineColor" :style="{color: theme.primaryFontColor}">{{ amortizationResult.length }} Amortizations Found</h4>
-      <div v-if="amortizationResult.length > 0" class="container"> 
-        <div v-for="(result, index) in amortizationResult" :key="index">
-          <ion-card class="card">
-            <h3 class="title">Amortization - #{{ index + 1 }}</h3>
-            <ion-grid>
-              <ion-col size="6">
-                <ion-row>
-                  <ion-col size="6">
-                    <p>Date:</p>
-                  </ion-col>
-                  <ion-col size="6">
-                    <p>{{ result.paymentDate }}</p>
-                  </ion-col>
-                </ion-row>
+              <ion-row>
+                <ion-col size="6">
+                  <p>Reason:</p>
+                </ion-col>
+                <ion-col size="6">
+                  <p>{{ selectedResult.reason }}</p>
+                </ion-col>
+              </ion-row>
+            </ion-col>
+          </ion-grid>
+        </ion-card>
+        <!-- Amortization -->
+        <h4
+          class="title outlineColor"
+          :style="{ color: theme.primaryFontColor }"
+        >
+          {{ amortizationResult.length }} Amortizations Found
+        </h4>
+        <div v-if="amortizationResult.length > 0" class="container">
+          <div v-for="(result, index) in amortizationResult" :key="index">
+            <ion-card class="card">
+              <h3 class="title">Amortization - #{{ index + 1 }}</h3>
+              <ion-grid>
+                <ion-col size="6">
+                  <ion-row>
+                    <ion-col size="6">
+                      <p>Date:</p>
+                    </ion-col>
+                    <ion-col size="6">
+                      <p>{{ result.paymentDate }}</p>
+                    </ion-col>
+                  </ion-row>
 
-                <ion-row>
-                  <ion-col size="6">
-                    <p>Loan Amount:</p>
-                  </ion-col>
-                  <ion-col size="6">
-                    <p>{{ result.decoratedLoanAmount }}</p>
-                  </ion-col>
-                </ion-row>
+                  <ion-row>
+                    <ion-col size="6">
+                      <p>Loan Amount:</p>
+                    </ion-col>
+                    <ion-col size="6">
+                      <p>{{ result.decoratedLoanAmount }}</p>
+                    </ion-col>
+                  </ion-row>
 
-                <ion-row>
-                  <ion-col size="6">
-                    <p>Payment:</p>
-                  </ion-col>
-                  <ion-col size="6">
-                    <p>{{ result.decoratedAmount }}</p>
-                  </ion-col>
-                </ion-row>
+                  <ion-row>
+                    <ion-col size="6">
+                      <p>Payment:</p>
+                    </ion-col>
+                    <ion-col size="6">
+                      <p>{{ result.decoratedAmount }}</p>
+                    </ion-col>
+                  </ion-row>
 
-                <ion-row>
-                  <ion-col size="6">
-                    <p>Balance:</p>
-                  </ion-col>
-                  <ion-col size="6">
-                    <p>{{ result.balance }}</p>
-                  </ion-col>
-                </ion-row>
-              </ion-col>
-            </ion-grid>
-          </ion-card>
+                  <ion-row>
+                    <ion-col size="6">
+                      <p>Balance:</p>
+                    </ion-col>
+                    <ion-col size="6">
+                      <p>{{ result.balance }}</p>
+                    </ion-col>
+                  </ion-row>
+                </ion-col>
+              </ion-grid>
+            </ion-card>
+          </div>
         </div>
       </div>
-    </div>
       <!-- End -->
     </ion-content>
   </ion-modal>
@@ -167,8 +176,6 @@ import {
 import { defineComponent } from "vue";
 import axios from "axios";
 import { GlobalConstants } from "@/config/constants";
-
-const baseURL = GlobalConstants.HOST_URL;
 
 export default defineComponent({
   components: {
@@ -256,7 +263,6 @@ p {
               0px -4px 8px rgba(0, 0, 0, 0.05),
               -8px -8px 16px rgba(0, 0, 0, 0.1);  */
 }
-
 
 .container {
   max-height: 90vh;

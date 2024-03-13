@@ -35,6 +35,8 @@ import Welcome from "@/views/welcome/WelcomePage1.vue";
 import Welcome2 from "@/views/welcome/WelcomePage2.vue";
 import Welcome3 from "@/views/welcome/WelcomePage3.vue";
 import WelcomePage from "@/views/welcome/WelcomePage.vue";
+import WelcomeTermsAndCondition from "@/views/welcome/TermsAndCondition.vue";
+import WelcomePrivacyAndPolicy from "@/views/welcome/PrivacyAndPolicy.vue";
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -60,6 +62,14 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: "/welcomepage",
     component: WelcomePage,
+  },
+  {
+    path: "/welcometermsandcondition",
+    component: WelcomeTermsAndCondition,
+  },
+  {
+    path: "/welcomeprivacyandpolicy",
+    component: WelcomePrivacyAndPolicy,
   },
   {
     path: "/tabs/",

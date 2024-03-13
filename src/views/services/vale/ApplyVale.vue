@@ -169,9 +169,6 @@ import { GlobalConstants } from "@/config/constants";
 import { mapState } from "vuex";
 import Refresher from "@/components/refresher/Refresher.vue";
 
-const baseURL = GlobalConstants.HOST_URL;
-const empNumber = GlobalConstants.EMPLOYEE_ID;
-
 export default {
   components: {
     IonPage,
@@ -268,7 +265,7 @@ export default {
           const headers = {
             Authorization: `Bearer ${this.storedToken}`,
           };
-
+          const baseURL = localStorage.getItem("baseUrl");
           const api = baseURL + `api/payroll/vale`;
 
           const currentDate = new Date().toISOString().split("T")[0];
@@ -309,7 +306,7 @@ export default {
         const headers = {
           Authorization: `Bearer ${this.storedToken}`,
         };
-
+        const baseURL = localStorage.getItem("baseUrl");
         const api = baseURL + `api/v2/ess/loan-budget/${this.empNumber}`;
 
         const dataResponse = await axios.get(api, { headers });
@@ -337,6 +334,7 @@ export default {
         const headers = {
           Authorization: `Bearer ${this.storedToken}`,
         };
+        const baseURL = localStorage.getItem("baseUrl");
         const api = baseURL + `api/v2/ess/apply/vale-details`;
 
         const dataResponse = await axios.get(api, { headers });

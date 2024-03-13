@@ -77,9 +77,6 @@ import { useStore } from "vuex";
 import { useRouter } from "vue-router";
 import { GlobalConstants } from "@/config/constants";
 
-const baseURL = GlobalConstants.HOST_URL;
-const empNumber = GlobalConstants.EMPLOYEE_ID;
-
 export default defineComponent({
   components: {
     IonPage,
@@ -156,7 +153,7 @@ export default defineComponent({
         if (this.inputs === this.confirmInputs) {
           this.checkTokenExpiration();
           const storedToken = localStorage.getItem("token");
-
+          const baseURL = localStorage.getItem("baseUrl");
           const authToken = `Bearer ${storedToken}`;
 
           const apiUrl = baseURL + `api/ess/pincode`;

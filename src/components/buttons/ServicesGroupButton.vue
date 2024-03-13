@@ -131,6 +131,7 @@ export default defineComponent({
   props: {
     btnColor: String,
     btnTextColor: String,
+    theme: Object,
   },
   methods: {
     navigateSoon() {

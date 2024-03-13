@@ -6,13 +6,10 @@
           @click="navigateVale"
           class="clockin btn-container"
           :style="{
-            background: 'linear-gradient(to right, #064EA0, #002E62)',
+            background: `linear-gradient(to right, ${theme.primaryGradientStartColor}, ${theme.primaryGradientEndColor})`,
             color: btnTextColor,
           }"
         >
-          <!-- nage-error po ito sir kaya nicomment ko po muna, pero ito po yung code na half-dynamic and half-hardcoded:
-          :style="{ background: `linear-gradient(to right, `+ theme.primaryColor +`, #002E62)`, color: theme.primaryFontColor }" 
-        -->
           <img
             src="@/assets/images/hrvalewhiteicon.png"
             alt="Vale Icon"
@@ -27,7 +24,7 @@
           @click="navigateclockin"
           class="clockin btn-container"
           :style="{
-            background: 'linear-gradient(to right, #064EA0, #002E62)',
+            background: `linear-gradient(to right, ${theme.primaryGradientStartColor}, ${theme.primaryGradientEndColor})`,
             color: btnTextColor,
           }"
         >
@@ -52,6 +49,7 @@ export default defineComponent({
     btnColor: String,
     btnTextColor: String,
     btnSecondaryColor: String,
+    theme: Object,
   },
 
   methods: {

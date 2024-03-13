@@ -46,8 +46,6 @@ import { useRouter } from "vue-router";
 import { GlobalConstants } from "@/config/constants";
 import { PushNotifications } from "@capacitor/push-notifications";
 
-const baseURL = GlobalConstants.HOST_URL;
-
 export default defineComponent({
   components: {
     IonPage,
@@ -114,7 +112,7 @@ export default defineComponent({
         await this.checkTokenExpiration();
 
         const storedToken = localStorage.getItem("token");
-
+        const baseURL = localStorage.getItem("baseUrl");
         if (!storedToken) {
           console.log("Token is missing. Redirecting to login...");
           this.router.push("/login");

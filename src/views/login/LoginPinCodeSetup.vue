@@ -28,12 +28,9 @@ import { mapGetters, mapActions, mapState } from "vuex";
 import { GlobalConstants } from "@/config/constants";
 import axios from "axios";
 import { getThemeData, setThemeData } from "@/theme/theme";
-import { runBackgroundScript } from "@/notification/Notification.ts";
 import { newToken } from "@/store/token/newToken.ts";
-import { adminUserDetails, userDetails } from "@/store/login/onLoad";
 import generateToken from "@/store/token/accessToken.ts";
 
-const baseURL = GlobalConstants.HOST_URL;
 const id = GlobalConstants.USER_ID;
 
 export default defineComponent({
@@ -76,15 +73,8 @@ export default defineComponent({
 
   async mounted() {
     await this.fetchToken();
-
     this.fetchStoredTheme();
-    await this.fetchUserDetails();
 
-    // this.storePincode(value);
-
-    await runBackgroundScript();
-
-    await userDetails(this.empNumber);
     this.hasPincode();
 
     localStorage.removeItem("clickedTab");
@@ -120,6 +110,7 @@ export default defineComponent({
     async fetchToken() {
       try {
         const storedToken = localStorage.getItem("access_token");
+        const baseURL = localStorage.getItem("baseUrl");
 
         const response = await axios.post(baseURL + "auth/token", {
           secret: storedToken,
@@ -140,7 +131,7 @@ export default defineComponent({
       try {
         this.fetchToken();
         const storedToken = localStorage.getItem("token");
-
+        const baseURL = localStorage.getItem("baseUrl");
         const authToken = `Bearer ${this.tokenData}`;
 
         const apiUrl = baseURL + `api/ess/pincode`;
@@ -186,7 +177,7 @@ export default defineComponent({
       try {
         this.fetchToken();
         this.storedToken = localStorage.getItem("token");
-
+        const baseURL = localStorage.getItem("baseUrl");
         const headers = {
           Authorization: `Bearer ${this.tokenData}`,
         };
@@ -218,13 +209,9 @@ export default defineComponent({
     async OnLogin(value) {
       try {
         if (this.hasToken) {
-          // localStorage.setItem("pin", value);
           localStorage.setItem("pincode", value);
           this.storePincode(value);
           await this.fetchToken();
-          await runBackgroundScript();
-          this.fetchUserDetails();
-          await userDetails(this.empNumber);
           this.router.push("/tabs/buzzfeed");
         }
       } catch (error) {
@@ -236,9 +223,8 @@ export default defineComponent({
       try {
         this.fetchToken();
         const storedToken = localStorage.getItem("token");
-
         const authToken = `Bearer ${this.tokenData}`;
-
+        const baseURL = localStorage.getItem("baseUrl");
         const apiUrl = baseURL + `api/ess/pincode`;
         const headers = {
           Authorization: authToken,
@@ -252,9 +238,6 @@ export default defineComponent({
         if (response.data.data.pincode) {
           localStorage.setItem("pincode", response.data.data.pincode);
           this.router.push("/tabs/buzzfeed");
-          setTimeout(() => {
-            window.location.reload();
-          }, 1000);
         }
       } catch (error) {
         console.log(error.response?.data?.error?.message);

@@ -4,8 +4,7 @@
       <div
         class="container-bg"
         :style="{
-          background:
-            `linear-gradient(to right, ` + theme.primaryColor + `, #002E62)`,
+          background: `linear-gradient(to right, ${theme.primaryGradientStartColor}, ${theme.primaryGradientEndColor})`,
         }"
       >
         <div class="title-container">

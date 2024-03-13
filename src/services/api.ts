@@ -1,8 +1,8 @@
 import axios, { AxiosResponse, AxiosRequestConfig } from "axios";
 import { GlobalConstants } from "@/config/constants";
 
-const baseURL = GlobalConstants.HOST_URL;
-
+// Get baseURL from localStorage or set a default value
+const baseURL = localStorage.getItem("baseUrl") || "";
 const api = axios.create({
   baseURL,
 });
@@ -10,7 +10,7 @@ const api = axios.create({
 interface ApiResponse {
   data: any;
 }
-/** will move to different file later */
+
 export const generateToken = async (payload: any): Promise<any> => {
   try {
     const response: AxiosResponse<ApiResponse> = await api.post("/auth/token", {
@@ -24,11 +24,10 @@ export const generateToken = async (payload: any): Promise<any> => {
   }
 };
 
-/** will move to different file later */
 export const leaveRequestAPi = async (): Promise<any> => {
   let action = "api/v2/leave/leave-requests";
   const config: AxiosRequestConfig = {
-    url: `${GlobalConstants.HOST_URL}${action}`,
+    url: `${baseURL}${action}`, // Use the global baseURL
     method: "GET",
     data: {},
     headers: {

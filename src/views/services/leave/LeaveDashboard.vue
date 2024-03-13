@@ -22,12 +22,6 @@
             </ion-button>
           </div>
 
-          <!-- <div v-if="!this.hasRecord">
-            <div class="outline-container neomorphic-input-2">
-              <h4>No Record Found</h4>
-            </div>
-          </div> -->
-
           <div v-for="item in requests" :key="item.id">
             <LeaveDashboardCard
               :cardTitle="item.leaveType.name"
@@ -87,8 +81,6 @@ import axios from "axios";
 import { GlobalConstants } from "@/config/constants";
 import { getThemeData } from "@/theme/theme";
 
-const baseURL = GlobalConstants.HOST_URL;
-
 export default defineComponent({
   name: "Leave Requests",
   components: {
@@ -136,30 +128,10 @@ export default defineComponent({
     };
   },
   methods: {
-    // Exppiration of token
-    // async checkTokenExpiration() {
-    //   const storedToken = localStorage.getItem("token");
-
-    //   if (!storedToken) {
-    //     console.error("Token not available.");
-    //     console.log("Token is missing. Redirecting to login...");
-    //     this.router.push("/login");
-    //     return;
-    //   }
-
-    //   const tokenData = JSON.parse(atob(storedToken.split(".")[1]));
-    //   const expirationTime = tokenData.exp * 1000;
-
-    //   if (Date.now() > expirationTime) {
-    //     console.log("Token expired. Redirecting to login...");
-    //     this.router.push("/login");
-    //   }
-    // },
-
     async fetchData() {
       try {
         this.store.commit("loader/updateLoader", true);
-
+        const baseURL = localStorage.getItem("baseUrl");
         const storedToken = localStorage.getItem("token");
 
         if (!storedToken) {

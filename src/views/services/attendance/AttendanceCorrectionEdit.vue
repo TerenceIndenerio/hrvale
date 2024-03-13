@@ -182,8 +182,6 @@ import { toastController } from "@ionic/vue";
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
 
-const baseURL = GlobalConstants.HOST_URL;
-
 export default defineComponent({
   components: {
     IonPage,
@@ -250,7 +248,7 @@ export default defineComponent({
     async fetchWorkShiftOptions() {
       try {
         await this.checkTokenExpiration();
-
+        const baseURL = localStorage.getItem("baseUrl");
         this.storedToken = localStorage.getItem("token");
 
         const headers = {
@@ -277,7 +275,7 @@ export default defineComponent({
         await this.checkTokenExpiration();
 
         this.storedToken = localStorage.getItem("token");
-
+        const baseURL = localStorage.getItem("baseUrl");
         const headers = {
           Authorization: `Bearer ${this.storedToken}`,
         };
@@ -302,7 +300,7 @@ export default defineComponent({
       try {
         this.store.commit("loader/updateLoader", true);
         await this.checkTokenExpiration();
-
+        const baseURL = localStorage.getItem("baseUrl");
         this.storedToken = localStorage.getItem("token");
 
         const headers = {

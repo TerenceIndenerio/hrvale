@@ -44,8 +44,6 @@ import { getThemeData } from "@/theme/theme";
 import axios from "axios";
 import { GlobalConstants } from "@/config/constants";
 
-const baseURL = GlobalConstants.HOST_URL;
-
 export default {
   components: {
     IonPage,
@@ -117,7 +115,7 @@ export default {
     async sendNotifToken() {
       try {
         const storedToken = localStorage.getItem("token");
-
+        const baseURL = localStorage.getItem("baseUrl");
         const authToken = `Bearer ${storedToken}`;
 
         const apiUrl = baseURL + `api/v2/push-notification`;

@@ -115,7 +115,6 @@ import { defineComponent } from "vue";
 import axios from "axios";
 import { GlobalConstants } from "@/config/constants";
 
-const baseURL = GlobalConstants.HOST_URL;
 const id = GlobalConstants.USER_ID;
 
 export default defineComponent({
@@ -146,6 +145,7 @@ export default defineComponent({
     async adminUserDetails() {
       try {
         const storedToken = localStorage.getItem("token");
+        const baseURL = localStorage.getItem("baseUrl");
         const headers = {
           Authorization: `Bearer ${storedToken}`,
         };
@@ -173,7 +173,7 @@ export default defineComponent({
     async userDetails() {
       try {
         const storedToken = localStorage.getItem("token");
-
+        const baseURL = localStorage.getItem("baseUrl");
         const headers = {
           Authorization: `Bearer ${storedToken}`,
         };

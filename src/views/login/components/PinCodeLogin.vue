@@ -4,8 +4,7 @@
       <div
         class="container-bg"
         :style="{
-          background:
-            `linear-gradient(to right, ` + theme.primaryColor + `, #002E62)`,
+          background: `linear-gradient(to right, ${theme.primaryGradientStartColor}, ${theme.primaryGradientEndColor})`,
         }"
       >
         <div class="title-container">
@@ -29,8 +28,6 @@
 
       <div class="bottom container">
         <div class="pincode-container">
-          <!-- dito ko po inilagay numpad -->
-
           <div class="btn-container">
             <div id="numericPad" class="ion-padding">
               <ion-row class="numpad-column">

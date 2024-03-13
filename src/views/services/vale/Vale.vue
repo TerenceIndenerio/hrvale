@@ -117,8 +117,6 @@ import { mapState } from "vuex";
 import { getThemeData } from "@/theme/theme";
 import { PushNotifications } from "@capacitor/push-notifications";
 
-const baseURL = GlobalConstants.HOST_URL;
-
 export default defineComponent({
   components: {
     IonPage,
@@ -234,7 +232,7 @@ export default defineComponent({
         await this.checkTokenExpiration();
 
         this.storedToken = localStorage.getItem("token");
-
+        const baseURL = localStorage.getItem("baseUrl");
         const headers = {
           Authorization: `Bearer ${this.storedToken}`,
         };
@@ -273,7 +271,7 @@ export default defineComponent({
         await this.checkTokenExpiration();
 
         this.storedToken = localStorage.getItem("token");
-
+        const baseURL = localStorage.getItem("baseUrl");
         const headers = {
           Authorization: `Bearer ${this.storedToken}`,
         };
@@ -305,7 +303,7 @@ export default defineComponent({
         await this.checkTokenExpiration();
 
         this.storedToken = localStorage.getItem("token");
-
+        const baseURL = localStorage.getItem("baseUrl");
         const headers = {
           Authorization: `Bearer ${this.storedToken}`,
         };
