@@ -1,66 +1,35 @@
 <template>
+  <!-- Card Container -->
   <ion-card class="neomorphic-card-1 card-box">
+    <!-- Card Header -->
     <div class="card-header">
       <div class="author">
-        <div class="profile-img"></div>
-        <div class="usertext-container">
-          <div class="author-name"></div>
-          <div class="date-time"></div>
+        <div class="profile-img">
+          <img :src="profileImg" alt="" />
+        </div>
+        <div>
+          <div>
+            <p class="author-name">{{ name }}</p>
+          </div>
+          <div>
+            <p class="date-time">{{ date }} {{ time }}</p>
+          </div>
         </div>
       </div>
-      <div class="caption"></div>
+      <div class="caption">
+        {{ caption }}
+      </div>
     </div>
-
+    <!-- Card Content -->
     <div class="card-content">
-      <div class="img-content"></div>
+      <div class="img-content">
+        <img :src="photoLink" alt="" />
+      </div>
     </div>
     <div class="action-btn-container">
-      <div class="action-btn" @click="onLikeClick">
+      <div class="action-btn">
         <ion-icon name="heart" class="action-icon"></ion-icon>
-      </div>
-    </div>
-  </ion-card>
-
-  <ion-card class="neomorphic-card-1 card-box">
-    <div class="card-header">
-      <div class="author">
-        <div class="profile-img"></div>
-        <div class="usertext-container">
-          <div class="author-name"></div>
-          <div class="date-time"></div>
-        </div>
-      </div>
-      <div class="caption"></div>
-    </div>
-
-    <div class="card-content">
-      <div class="img-content"></div>
-    </div>
-    <div class="action-btn-container">
-      <div class="action-btn" @click="onLikeClick">
-        <ion-icon name="heart" class="action-icon"></ion-icon>
-      </div>
-    </div>
-  </ion-card>
-
-  <ion-card class="neomorphic-card-1 card-box">
-    <div class="card-header">
-      <div class="author">
-        <div class="profile-img"></div>
-        <div class="usertext-container">
-          <div class="author-name"></div>
-          <div class="date-time"></div>
-        </div>
-      </div>
-      <div class="caption"></div>
-    </div>
-
-    <div class="card-content">
-      <div class="img-content"></div>
-    </div>
-    <div class="action-btn-container">
-      <div class="action-btn" @click="onLikeClick">
-        <ion-icon name="heart" class="action-icon"></ion-icon>
+        {{ numOfLikes }}
       </div>
     </div>
   </ion-card>
@@ -105,9 +74,6 @@ export default {
     };
   },
   methods: {
-    onLikeClick() {
-      this.$emit("like-clicked", this.postId);
-    },
     async fetchTheme() {
       const storedThemeData = localStorage.getItem("theme");
 
@@ -165,9 +131,7 @@ p {
   max-width: 500px;
   margin: 10px auto 20px auto;
   padding: 0;
-  animation: fadeInOut 0.7s infinite alternate;
 }
-
 .action-container {
   margin: 0;
   display: flex;
@@ -190,17 +154,9 @@ p {
 .author-name {
   font-size: 14px;
   font-weight: 700;
-  background-color: rgba(128, 128, 128, 0.426);
-  width: 100px;
-  height: 10px;
-  border-radius: 10px;
 }
 .date-time {
   font-size: 12px;
-  background-color: rgba(128, 128, 128, 0.426);
-  width: 70px;
-  height: 10px;
-  border-radius: 10px;
 }
 .card-header {
   padding: 10px;
@@ -221,7 +177,7 @@ p {
   justify-content: center;
 }
 .img-content {
-  height: 100px;
+  height: fit-content;
   width: auto;
   border-radius: 10px;
   overflow: hidden;
@@ -230,22 +186,5 @@ p {
 
 .action-icon {
   font-size: 25px;
-  opacity: 0.3;
-}
-
-.usertext-container {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-
-@keyframes fadeInOut {
-  0% {
-    opacity: 0.3;
-  }
-
-  100% {
-    opacity: 0.8;
-  }
 }
 </style>

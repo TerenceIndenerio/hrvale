@@ -48,7 +48,7 @@ import axios from "axios";
 import { runBackgroundScript } from "@/notification/Notification.ts";
 import { adminUserDetails, userDetails } from "@/store/login/onLoad";
 
-const id = GlobalConstants.USER_ID;
+// const id = GlobalConstants.USER_ID;
 
 export default defineComponent({
   components: {

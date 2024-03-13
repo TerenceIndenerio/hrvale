@@ -116,7 +116,7 @@
         <h4 :style="{ color: btnTextColor }">Loan</h4>
       </a>
     </div>
-    <div class="card btn-text" expand="full" color="none">
+    <div class="card btn-text" expand="full" color="none" v-if="!isUserRoleESS">
       <a
         @click="navigateApproval"
         :style="{
@@ -146,6 +146,14 @@ export default defineComponent({
     btnTextColor: String,
     btnSecondaryColor: String,
     theme: Object,
+  },
+  computed: {
+    isUserRoleESS() {
+      const myDetails = JSON.parse(localStorage.getItem("myDetails"));
+      return (
+        myDetails && myDetails.userRole && myDetails.userRole.name === "ESS"
+      );
+    },
   },
   methods: {
     navigateSoon() {
@@ -197,13 +205,10 @@ a {
 }
 .button-container {
   display: flex;
-  /* justify-content: space-evenly; */
-  /* flex-wrap: wrap; */
   margin: 0;
   padding-top: 10px;
   display: flex;
   justify-content: center;
-  /* align-items: center; */
   width: 100%;
   flex-wrap: wrap;
 }

@@ -60,19 +60,46 @@
       </div>
 
       <div v-for="(cardData, index) in newsFeed" :key="index">
-        <BuzzFeedCard
-          :caption="cardData.text"
-          :name="cardData.employee"
-          :numOfLikes="cardData.numOfLikes"
-          :numOfShares="cardData.numOfShares"
-          :photoIds="cardData.photoIds"
-          :photoLink="cardData.photoLink"
-          :date="cardData.date"
-          :time="cardData.time"
-          :postId="cardData.postId"
-          :empNumber="cardData.empNumber"
-          :profileImg="cardData.profileImg"
-        />
+        <ion-card class="neomorphic-card-1 card-box">
+          <div class="card-header">
+            <div class="author">
+              <div class="profile-img">
+                <img :src="cardData.profileImg" alt="" />
+              </div>
+              <div>
+                <div>
+                  <p class="author-name">{{ cardData.employee }}</p>
+                </div>
+                <div>
+                  <p class="date-time">
+                    {{ cardData.date }} {{ cardData.time }}
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div class="caption">
+              {{ cardData.text }}
+            </div>
+          </div>
+
+          <div class="card-content">
+            <div class="img-content">
+              <ion-spinner
+                name="dots"
+                v-if="!cardData.photoLink"
+                class="spinner"
+              ></ion-spinner>
+
+              <img :src="cardData.photoLink" alt="" />
+            </div>
+          </div>
+          <div class="action-btn-container">
+            <div class="action-btn">
+              <ion-icon name="heart" class="action-icon"></ion-icon>
+              {{ cardData.numOfLikes }}
+            </div>
+          </div>
+        </ion-card>
       </div>
     </ion-content>
   </ion-page>
@@ -90,6 +117,8 @@ import {
   toastController,
   IonButton,
   IonIcon,
+  IonSpinner,
+  IonCard,
 } from "@ionic/vue";
 import GreetingsCard from "@/views/home/components/GreetingsCard.vue";
 import HeaderUser from "@/components/header/HeaderUser.vue";
@@ -131,6 +160,8 @@ export default defineComponent({
     IonButton,
     IonIcon,
     BuzzFeedCardEmpty,
+    IonSpinner,
+    IonCard,
   },
   setup() {
     return {
@@ -170,7 +201,6 @@ export default defineComponent({
     async fetchNewsFeed(filterVal) {
       try {
         this.hasNews = false;
-
         const storedToken = localStorage.getItem("token");
         const apiUrl = this.baseURL + filterVal;
         const headers = {
@@ -181,25 +211,16 @@ export default defineComponent({
 
         if (dataResponse.data && Array.isArray(dataResponse.data.data)) {
           const promises = dataResponse.data.data.map(async (data) => {
-            const photoLinkPromise = this.fetchPhotoLink(data.photoIds);
             const profileImg = await this.fetchProfilePhoto(
               data.employee.empNumber
             );
-
-            const photoLink = await photoLinkPromise;
             return {
               id: data.id,
-              employee:
-                data.employee.firstName +
-                " " +
-                data.employee.middleName +
-                " " +
-                data.employee.lastName,
+              employee: `${data.employee.firstName} ${data.employee.middleName} ${data.employee.lastName}`,
               text: data.text,
               numOfLikes: data.stats.numOfLikes,
               numOfShares: data.stats.numOfShares,
               photoIds: data.photoIds,
-              photoLink: photoLink,
               date: data.createdDate,
               time: data.createdTime,
               postId: data.post.id,
@@ -209,13 +230,43 @@ export default defineComponent({
           });
 
           this.newsFeed = await Promise.all(promises);
-
           this.hasNews = this.newsFeed.length > 0;
+
+          this.fetchImagesForNewsFeed();
         }
       } catch (error) {
         console.error("Error:", error);
       } finally {
         this.hasNews = true;
+      }
+    },
+
+    async fetchImagesForNewsFeed() {
+      try {
+        const imagePromises = this.newsFeed.map(async (cardData, index) => {
+          try {
+            const photoLink = await this.fetchPhotoLink(cardData.photoIds);
+
+            return new Promise((resolve, reject) => {
+              const img = new Image();
+              img.src = photoLink;
+              img.onload = () => {
+                this.newsFeed[index] = { ...cardData, photoLink };
+                resolve();
+              };
+              img.onerror = () => {
+                console.error("Error loading image");
+                resolve();
+              };
+            });
+          } catch (error) {
+            console.error("Error fetching photo link:", error);
+          }
+        });
+
+        await Promise.all(imagePromises);
+      } catch (error) {
+        console.error("Error fetching images:", error);
       }
     },
 
@@ -481,7 +532,6 @@ export default defineComponent({
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  /* margin: 50px 0; */
 }
 
 .greetings-container {
@@ -508,5 +558,113 @@ export default defineComponent({
   font-size: 20px;
   font-style: normal;
   font-weight: 800;
+}
+
+/*  */
+.card-box p {
+  padding: 0;
+  margin: 0;
+}
+.badge-container {
+  padding: 0;
+  margin: 0;
+  border-radius: 20px 0 0 20px;
+  margin: auto;
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+.badge-container p {
+  padding: 5px 10px;
+  margin: 0;
+}
+
+.col-label {
+  color: #585b5f;
+  font-family: Open Sans;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 107.682%;
+}
+.col-data {
+  color: #0d0d0d;
+  font-family: Open Sans;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 107.682%;
+}
+.card-content {
+  margin: 10px;
+}
+.card-box {
+  width: 90%;
+  max-width: 500px;
+  margin: 10px auto 20px auto;
+  padding: 0;
+}
+.action-container {
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.action-btn-container {
+  margin: 10px 0;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+.action-btn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: row;
+  gap: 2px;
+}
+.author-name {
+  font-size: 14px;
+  font-weight: 700;
+}
+.date-time {
+  font-size: 12px;
+}
+.card-header {
+  padding: 10px;
+}
+.author {
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  gap: 10px;
+}
+.profile-img {
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  border: 2px solid rgb(207, 207, 207);
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+}
+.img-content {
+  height: fit-content;
+  width: auto;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: var(--neomorphism-concave-2);
+  min-height: 100px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.action-icon {
+  font-size: 25px;
+}
+.spinner {
+  width: 50px;
+  height: 50px;
 }
 </style>
