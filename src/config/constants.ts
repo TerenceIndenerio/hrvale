@@ -10,3 +10,6 @@ export class GlobalConstants {
   /** Static user ID, to be removed later when actual user authentication is implemented. */
   public static USER_ID: number = 57; //57 53
 }
+// B4pplwareHRVALE@2024
+// com.bapplware.hrvale
+// keystore password
