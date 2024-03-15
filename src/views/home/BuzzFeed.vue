@@ -500,8 +500,6 @@ export default defineComponent({
     const token = localStorage.getItem("access_token");
 
     this.loading = false;
-
-    console.log(localStorage.getItem("myDetails"));
   },
 });
 </script>
