@@ -7,7 +7,8 @@
       <div class="inline-v">
         <div class="box-container text-pad">
           <ion-input
-            label="Tenant"
+            label="Client ID"
+            v-model="form.clientID"
             labelPlacement="floating"
             class="input-text"
             required
@@ -31,6 +32,7 @@
             v-model="form.password"
             labelPlacement="floating"
             type="password"
+            placeholder="●●●●●●"
             class="input-text"
             :required="true"
           ></ion-input>

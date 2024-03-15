@@ -91,7 +91,11 @@ export default defineComponent({
   methods: {
     async OnLogin(value) {
       try {
-        const response = await generateToken(value.username, value.password);
+        const response = await generateToken(
+          value.username,
+          value.password,
+          value.clientID
+        );
         const token = response.data.access_token;
 
         if (token) {

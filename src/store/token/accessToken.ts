@@ -7,7 +7,8 @@ import axios, { AxiosResponse } from "axios";
 
 async function generateToken(
   username: string,
-  password: string
+  password: string,
+  clientID: string
 ): Promise<AxiosResponse> {
   const baseURL = `https://hrvale.bapplware.com/api`;
   return new Promise((resolve, reject) => {
@@ -15,6 +16,7 @@ async function generateToken(
       .post(baseURL + "/login", {
         username,
         password,
+        clientID,
       })
       .then((res) => {
         localStorage.setItem("access_token", res.data.access_token);
