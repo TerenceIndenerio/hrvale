@@ -8,7 +8,7 @@
         <div class="box-container text-pad">
           <ion-input
             label="Client ID"
-            v-model="form.clientID"
+            v-model="form.client"
             labelPlacement="floating"
             class="input-text"
             required

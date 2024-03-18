@@ -63,7 +63,7 @@
         <ion-card class="neomorphic-card-1 card-box">
           <div class="card-header">
             <div class="author">
-              <div class="profile-img">
+              <div class="profile-img-card">
                 <img :src="cardData.profileImg" alt="" />
               </div>
               <div>
@@ -637,7 +637,7 @@ export default defineComponent({
   flex-direction: row;
   gap: 10px;
 }
-.profile-img {
+.profile-img-card {
   border-radius: 50%;
   width: 40px;
   height: 40px;

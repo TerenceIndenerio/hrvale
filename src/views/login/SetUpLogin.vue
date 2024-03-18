@@ -94,7 +94,7 @@ export default defineComponent({
         const response = await generateToken(
           value.username,
           value.password,
-          value.clientID
+          value.client
         );
         const token = response.data.access_token;
 
