@@ -7,14 +7,14 @@
       <div class="inline-v">
         <div class="box-container text-pad">
           <ion-input
-            label="Client ID"
+            label="Client"
             v-model="form.client"
             labelPlacement="floating"
             class="input-text"
             required
           ></ion-input>
         </div>
-        <br />
+
         <div class="box-container text-pad">
           <ion-input
             label="Username"
@@ -25,7 +25,7 @@
             required
           ></ion-input>
         </div>
-        <br />
+
         <div class="box-container text-pad">
           <ion-input
             label="Password"
@@ -111,6 +111,7 @@ a {
 .inline-v {
   display: flex;
   flex-direction: column;
+  gap: 10px;
 }
 .text-center {
   text-align: center;
@@ -148,7 +149,7 @@ a {
   display: flex;
   flex-direction: column;
   justify-content: space-around;
-  /* flex-wrap: wrap; */
+
   gap: 5px;
 
   border-top: 1px solid rgb(157, 157, 157);

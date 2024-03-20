@@ -165,7 +165,6 @@ export default defineComponent({
   setup() {
     const router = useRouter();
     const continueClicked = () => {
-      // router.push('/login');
       router.push("/WelcomeTermsAndCondition");
     };
 
@@ -176,7 +175,6 @@ export default defineComponent({
   },
 
   methods: {
-    // Logic to navigate to the next slide or perform an action
     startClicked() {
       document.getElementById("slide2").checked = true;
     },
@@ -204,6 +202,8 @@ export default defineComponent({
 }
 .back {
   color: white;
+  padding: 10px;
+  font-size: 16px;
 }
 .content-container {
   width: 100%;
@@ -269,7 +269,7 @@ export default defineComponent({
 }
 @media (min-width: 1101px) {
   .svg1 {
-    width: 100%; /* or any other width value you desire */
+    width: 100%;
   }
 }
 .text-section {
@@ -392,7 +392,7 @@ export default defineComponent({
 .next-button {
   margin: 15% 5vw;
   width: 120px;
-  height: 28px;
+  height: 48px;
   border-radius: 26px;
   background: rgb(0, 142, 156);
   color: rgb(255, 255, 255);
@@ -428,8 +428,8 @@ export default defineComponent({
 }
 .continue-button {
   margin: 0 auto;
-  width: 120px;
-  height: 30px;
+  width: 150px;
+  height: 50px;
   border-radius: 26px;
   background: rgb(0, 142, 156);
   color: rgb(255, 255, 255);
@@ -442,5 +442,6 @@ export default defineComponent({
   left: 0;
   right: 0;
   bottom: 20px;
+  padding: 0;
 }
 </style>
