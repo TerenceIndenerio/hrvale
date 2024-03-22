@@ -18,7 +18,7 @@
         :btnTextColor="theme.primaryFontColor"
       />
 
-      <ion-card class="flex-center" v-if="coordinatesText">
+      <ion-card class="flex-center box-container" v-if="coordinatesText">
         <p>{{ coordinatesText }}</p>
       </ion-card>
     </ion-content>
@@ -353,5 +353,10 @@ export default defineComponent({
 }
 .margin-top {
   margin-top: 50px;
+}
+.box-container {
+  width: fit-content;
+  margin: 0 auto;
+  padding: 0 20px;
 }
 </style>

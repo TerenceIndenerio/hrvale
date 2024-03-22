@@ -78,12 +78,17 @@
               </div>
             </div>
             <div class="caption">
-              {{ cardData.text }}
+              <p>{{ cardData.text }}</p>
             </div>
           </div>
 
           <div class="card-content">
-            <div class="img-content">
+            <div
+              :class="{
+                'img-content': true,
+                'fit-content': cardData.photoLink,
+              }"
+            >
               <ion-spinner
                 name="dots"
                 v-if="!cardData.photoLink"
@@ -93,6 +98,7 @@
               <img :src="cardData.photoLink" alt="" />
             </div>
           </div>
+
           <div class="action-btn-container">
             <div class="action-btn">
               <ion-icon name="heart" class="action-icon"></ion-icon>
@@ -246,19 +252,14 @@ export default defineComponent({
         const imagePromises = this.newsFeed.map(async (cardData, index) => {
           try {
             const photoLink = await this.fetchPhotoLink(cardData.photoIds);
-
-            return new Promise((resolve, reject) => {
-              const img = new Image();
-              img.src = photoLink;
-              img.onload = () => {
-                this.newsFeed[index] = { ...cardData, photoLink };
-                resolve();
-              };
-              img.onerror = () => {
-                console.error("Error loading image");
-                resolve();
-              };
-            });
+            const img = new Image();
+            img.src = photoLink;
+            img.onload = () => {
+              this.newsFeed[index] = { ...cardData, photoLink };
+            };
+            img.onerror = (error) => {
+              console.error("Error loading image:", error);
+            };
           } catch (error) {
             console.error("Error fetching photo link:", error);
           }
@@ -276,7 +277,9 @@ export default defineComponent({
           this.photoLinkLoading = true;
 
           const storedToken = localStorage.getItem("token");
-          const apiUrl = `https://hrp-uat-app.bapplware.com/web/index.php/buzz/photo/${photoIds}`;
+          console.log(storedToken);
+          const baseURL = localStorage.getItem("baseUrl");
+          const apiUrl = baseURL + `buzz/photo/${photoIds}`;
 
           const headers = {
             Authorization: `Bearer ${storedToken}`,
@@ -309,9 +312,10 @@ export default defineComponent({
 
     async fetchProfilePhoto(empNumber) {
       try {
+        const baseURL = localStorage.getItem("baseUrl");
         const storedToken = localStorage.getItem("token");
 
-        const apiUrl = `https://hrp-uat-app.bapplware.com/web/index.php/pim/viewPhoto/empNumber/${empNumber}`;
+        const apiUrl = baseURL + `pim/viewPhoto/empNumber/${empNumber}`;
 
         const headers = {
           Authorization: `Bearer ${storedToken}`,
@@ -456,9 +460,32 @@ export default defineComponent({
     fetchTheme() {
       try {
         const storedThemeData = localStorage.getItem("configs");
-        const themeData = storedThemeData ? JSON.parse(storedThemeData) : {};
-        const theme = themeData[1]?.configuration?.theme;
-        this.theme = theme;
+        console.log("Stored theme data:", storedThemeData);
+
+        const themeData = storedThemeData ? JSON.parse(storedThemeData) : [];
+        console.log("Parsed theme data:", themeData);
+
+        let themeConfiguration = null;
+
+        // Find the configuration object with the theme property
+        for (const data of themeData) {
+          if (data.configuration && data.configuration.theme) {
+            themeConfiguration = data.configuration.theme;
+            break; // Exit loop once theme configuration is found
+          }
+        }
+
+        if (themeConfiguration) {
+          console.log("Theme configuration:", themeConfiguration);
+
+          // Assuming you have a theme object in your application
+          this.theme = themeConfiguration;
+          console.log("Theme:", this.theme);
+        } else {
+          console.error(
+            "No theme data found in local storage or theme configuration not available."
+          );
+        }
       } catch (error) {
         console.error("Error fetching or parsing theme data:", error);
       }
@@ -594,7 +621,7 @@ export default defineComponent({
   line-height: 107.682%;
 }
 .card-content {
-  margin: 10px;
+  margin: 0 10px 10px 10px;
 }
 .card-box {
   width: 90%;
@@ -648,7 +675,7 @@ export default defineComponent({
 }
 .img-content {
   height: fit-content;
-  width: auto;
+
   border-radius: 10px;
   overflow: hidden;
   box-shadow: var(--neomorphism-concave-2);
@@ -656,6 +683,10 @@ export default defineComponent({
   display: flex;
   justify-content: center;
   align-items: center;
+}
+.fit-content {
+  width: fit-content;
+  margin: 0 auto;
 }
 
 .action-icon {

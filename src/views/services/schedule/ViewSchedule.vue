@@ -411,6 +411,8 @@ ion-card-header {
   margin: 0;
 }
 .box-container {
+  width: fit-content;
+  padding: 0 20px;
   display: flex;
   flex-direction: row;
   justify-content: center;
@@ -418,7 +420,7 @@ ion-card-header {
   align-items: center;
   flex-direction: row;
   height: fit-content;
-  margin: 0 5%;
+  margin: 0 auto;
   border-radius: 20px;
   margin-top: 10px;
   box-shadow: 8px 8px 16px rgba(0, 0, 0, 0.1),
@@ -443,8 +445,9 @@ ion-card-header {
   color: rgba(128, 128, 128, 0.695);
 }
 .date-details-card {
-  margin: 10px;
+  margin: 10px auto;
   padding: 0;
+  max-width: 500px;
 }
 .details-container {
   margin: 10px 0;

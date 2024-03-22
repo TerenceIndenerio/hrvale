@@ -123,15 +123,14 @@ export default defineComponent({
       this.popoverOpen = false;
     },
     fetchLogo() {
-      const baseURL = "https://hrp-uat-app.bapplware.com/web/index.php/";
+      const baseURL = localStorage.getItem("baseUrl");
+      // const baseURL = "https://hrp-uat-app.bapplware.com/web/index.php/";
       this.logo = baseURL + "admin/theme/image/clientBanner";
     },
     async fetchProfilePhoto(empNumber) {
       try {
         const storedToken = localStorage.getItem("token");
-
         const apiUrl = `https://hrp-uat-app.bapplware.com/web/index.php/pim/viewPhoto/empNumber/${empNumber}`;
-
         const headers = {
           Authorization: `Bearer ${storedToken}`,
         };
@@ -181,6 +180,7 @@ export default defineComponent({
 .header {
   background-color: #12a3da;
   height: 100px;
+  overflow: hidden;
   display: flex;
   flex-direction: row;
   justify-content: center;

@@ -521,6 +521,7 @@ p {
   margin: 0 auto;
   width: 80%;
   height: 30px;
+  max-width: 350px;
 }
 .loanbalance-container {
   padding: 5px 10px;

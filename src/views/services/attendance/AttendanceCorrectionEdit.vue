@@ -360,9 +360,21 @@ export default defineComponent({
     fetchTheme() {
       try {
         const storedThemeData = localStorage.getItem("configs");
-        const themeData = storedThemeData ? JSON.parse(storedThemeData) : {};
-        const theme = themeData[1]?.configuration?.theme;
-        this.theme = theme;
+        console.log("Stored theme data:", storedThemeData);
+
+        const themeData = storedThemeData ? JSON.parse(storedThemeData) : [];
+        console.log("Parsed theme data:", themeData);
+
+        if (themeData.length > 0) {
+          const themeConfiguration = themeData[0]?.configuration?.theme;
+          console.log("Theme configuration:", themeConfiguration);
+
+          // Assuming you have a theme object in your application
+          this.theme = themeConfiguration;
+          console.log("Theme:", this.theme);
+        } else {
+          console.error("No theme data found in local storage.");
+        }
       } catch (error) {
         console.error("Error fetching or parsing theme data:", error);
       }

@@ -319,7 +319,8 @@ export default defineComponent({
   font-weight: 700;
   line-height: normal;
   border: none;
-  margin: 5px 0;
+  margin: 5px auto;
+  max-width: 500px;
 }
 .reset-btn {
   border-radius: 15px;

@@ -1,5 +1,5 @@
 <template>
-  <ion-card class="card">
+  <ion-card class="card card-container">
     <div class="clock-container">
       <Clock />
     </div>
@@ -198,6 +198,10 @@ export default defineComponent({
   box-shadow: inset 8px 8px 16px rgba(0, 0, 0, 0.1),
     inset -8px -8px 16px rgba(255, 255, 255, 0.8),
     inset 0px -4px 8px rgba(0, 0, 0, 0.05);
+}
+
+.card-container {
+  width: fit-content;
 }
 
 .sun {

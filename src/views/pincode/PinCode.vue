@@ -329,6 +329,7 @@ export default defineComponent({
 }
 .btn-container {
   width: 50%;
+  max-width: 500px;
   margin-top: 20px;
 }
 .send-btn {

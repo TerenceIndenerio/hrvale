@@ -9,132 +9,133 @@
 
     <ion-content :fullscreen="true" v-if="!loading">
       <Refresher />
+      <div class="content-container">
+        <!-- Leave Balance Card -->
+        <ion-card class="leavebal-card neomorphic-card-1">
+          <!-- Leave Balance -->
+          <ion-row class="leave-bal">
+            <ion-col size="7">
+              <strong>
+                <p :style="{ color: theme.primaryColor }">Leave Balance:</p>
+              </strong>
+            </ion-col>
+            <ion-col size="4">
+              <p :style="{ color: theme.primaryColor }">
+                <strong>{{ employeeDetail2.balance }} day(s)</strong>
+              </p>
+            </ion-col>
+          </ion-row>
 
-      <!-- Leave Balance Card -->
-      <ion-card class="leavebal-card neomorphic-card-1">
-        <!-- Leave Balance -->
-        <ion-row class="leave-bal">
-          <ion-col size="7">
-            <strong>
-              <p :style="{ color: theme.primaryColor }">Leave Balance:</p>
-            </strong>
-          </ion-col>
-          <ion-col size="4">
-            <p :style="{ color: theme.primaryColor }">
-              <strong>{{ employeeDetail2.balance }} day(s)</strong>
+          <!-- Allocated Days -->
+          <ion-row class="leave-bal-detail">
+            <ion-col size="7">
+              <p>Allocated Days:</p>
+            </ion-col>
+            <ion-col size="4">
+              <p>
+                <strong>{{ employeeDetail2.entitled }}</strong>
+              </p>
+            </ion-col>
+          </ion-row>
+
+          <!-- Total Days -->
+          <ion-row class="leave-bal-detail">
+            <ion-col size="7">
+              <p>Total Days:</p>
+            </ion-col>
+            <ion-col size="4">
+              <p>
+                <strong>{{ dateDifference }}</strong>
+              </p>
+            </ion-col>
+          </ion-row>
+        </ion-card>
+
+        <br />
+
+        <!-- Leave Type Card -->
+        <div class="dropdown-container">
+          <div class="dropdown">
+            <p class="dropdown-label" :style="{ color: theme.primaryColor }">
+              Leave Type
             </p>
-          </ion-col>
-        </ion-row>
-
-        <!-- Allocated Days -->
-        <ion-row class="leave-bal-detail">
-          <ion-col size="7">
-            <p>Allocated Days:</p>
-          </ion-col>
-          <ion-col size="4">
-            <p>
-              <strong>{{ employeeDetail2.entitled }}</strong>
-            </p>
-          </ion-col>
-        </ion-row>
-
-        <!-- Total Days -->
-        <ion-row class="leave-bal-detail">
-          <ion-col size="7">
-            <p>Total Days:</p>
-          </ion-col>
-          <ion-col size="4">
-            <p>
-              <strong>{{ dateDifference }}</strong>
-            </p>
-          </ion-col>
-        </ion-row>
-      </ion-card>
-
-      <br />
-
-      <!-- Leave Type Card -->
-      <div class="dropdown-container">
-        <div class="dropdown">
-          <p class="dropdown-label" :style="{ color: theme.primaryColor }">
-            Leave Type
-          </p>
-          <ion-select
-            label="Select Leave Type"
-            label-placement="floating"
-            class="neomorphic-input-2"
-            v-model="selectedLeaveType"
-            @ionChange="updateSelectedLeave"
-          >
-            <ion-select-option
-              v-for="option in leaveOptionsWithIds"
-              :key="option.id"
-              :value="option.name"
-              class="input-text"
+            <ion-select
+              label="Select Leave Type"
+              label-placement="floating"
+              class="neomorphic-input-2"
+              v-model="selectedLeaveType"
+              @ionChange="updateSelectedLeave"
             >
-              {{ option.name }}
-            </ion-select-option>
-          </ion-select>
+              <ion-select-option
+                v-for="option in leaveOptionsWithIds"
+                :key="option.id"
+                :value="option.name"
+                class="input-text"
+              >
+                {{ option.name }}
+              </ion-select-option>
+            </ion-select>
+          </div>
+
+          <!-- Duration -->
+          <div class="dropdown" id="duration">
+            <p class="dropdown-label" :style="{ color: theme.primaryColor }">
+              Duration
+            </p>
+            <ion-select
+              label="Select Duration"
+              label-placement="floating"
+              v-model="durationSelectedValue"
+              class="neomorphic-input-2"
+            >
+              <ion-select-option
+                v-for="duration in durations"
+                :key="duration.key"
+                :value="duration.key"
+              >
+                {{ duration.label }}
+              </ion-select-option>
+            </ion-select>
+          </div>
         </div>
 
-        <!-- Duration -->
-        <div class="dropdown" id="duration">
-          <p class="dropdown-label" :style="{ color: theme.primaryColor }">
-            Duration
+        <ion-card class="neomorphic-card-1 calendar-container">
+          <Calendar
+            :disabledDates="this.disabledDates_"
+            @selectedDatesChanged="updateSelectedDates"
+          />
+        </ion-card>
+
+        <!-- Reason Card -->
+        <div class="reason-container">
+          <p class="reason-label" :style="{ color: theme.primaryColor }">
+            Reason
           </p>
-          <ion-select
-            label="Select Duration"
-            label-placement="floating"
-            v-model="durationSelectedValue"
-            class="neomorphic-input-2"
-          >
-            <ion-select-option
-              v-for="duration in durations"
-              :key="duration.key"
-              :value="duration.key"
-            >
-              {{ duration.label }}
-            </ion-select-option>
-          </ion-select>
+
+          <ion-textarea
+            color="#E8E8E8"
+            label="Type your reason here"
+            labelPlacement="floating"
+            placeholder="Your reason..."
+            v-model="reason"
+            class="neomorphic-textarea-1"
+          ></ion-textarea>
         </div>
-      </div>
 
-      <ion-card class="neomorphic-card-1 calendar-container">
-        <Calendar
-          :disabledDates="this.disabledDates_"
-          @selectedDatesChanged="updateSelectedDates"
-        />
-      </ion-card>
-
-      <!-- Reason Card -->
-      <div class="reason-container">
-        <p class="reason-label" :style="{ color: theme.primaryColor }">
-          Reason
-        </p>
-
-        <ion-textarea
-          color="#E8E8E8"
-          label="Type your reason here"
-          labelPlacement="floating"
-          placeholder="Your reason..."
-          v-model="reason"
-          class="neomorphic-textarea-1"
-        ></ion-textarea>
-      </div>
-
-      <!-- Apply Leave Button -->
-      <div class="flex-center btn-container">
-        <ion-button
-          class="neomorphic-btn-1"
-          @click="sendLeaveRequest"
-          color="none"
-          :style="{
-            backgroundColor: theme.primaryColor,
-            color: theme.primaryFontColor,
-          }"
-        >
-          Apply Leave
-        </ion-button>
+        <!-- Apply Leave Button -->
+        <div class="flex-center btn-container">
+          <ion-button
+            class="neomorphic-btn-1"
+            @click="sendLeaveRequest"
+            color="none"
+            :style="{
+              backgroundColor: theme.primaryColor,
+              color: theme.primaryFontColor,
+            }"
+          >
+            Apply Leave
+          </ion-button>
+        </div>
       </div>
     </ion-content>
   </ion-page>
@@ -617,5 +618,9 @@ export default defineComponent({
 
 .btn-container {
   margin: 20px 0 50px 0;
+}
+.content-container {
+  max-width: 800px;
+  margin: 0 auto;
 }
 </style>

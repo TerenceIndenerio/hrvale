@@ -211,6 +211,7 @@ a {
   justify-content: center;
   width: 100%;
   flex-wrap: wrap;
+  max-width: 500px;
 }
 
 .title {

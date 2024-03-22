@@ -115,7 +115,7 @@ export default defineComponent({
       const storedThemeData = localStorage.getItem("themeData");
 
       const themeData = storedThemeData ? JSON.parse(storedThemeData) : {};
-
+      console.log(themeData);
       this.theme = themeData;
     },
     servicesData() {
@@ -380,6 +380,7 @@ ion-text .title {
   margin: 10px auto 0 auto;
   padding: 10px 20px;
   text-align: center;
+  max-width: 500px;
 }
 .greetings-inner-container {
   display: flex;

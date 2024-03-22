@@ -9,7 +9,8 @@
       >
         <div class="title-container">
           <h1 class="title" :style="{ color: theme.primaryFontColor }">
-            <img src="@/assets/images/suysinglogobanner.png" alt="logo" />
+            <!-- <img src="@/assets/images/suysinglogobanner.png" alt="logo" /> -->
+            <img :src="logo" alt="Logo" />
           </h1>
           <h4 class="input-title">Enter your PIN</h4>
           <div class="pincode-circle-container">
@@ -19,6 +20,9 @@
               class="otp-input"
               type="tel"
               placeholder=""
+              :style="{
+                color: theme.primaryGradientStartColor,
+              }"
               readonly
             />
           </div>
@@ -38,6 +42,9 @@
                     color="white"
                     size="large"
                     @click="appendDigit(1)"
+                    :style="{
+                      color: theme.primaryGradientStartColor,
+                    }"
                     >1</ion-button
                   >
                 </ion-col>
@@ -48,6 +55,9 @@
                     color="white"
                     size="large"
                     @click="appendDigit(2)"
+                    :style="{
+                      color: theme.primaryGradientStartColor,
+                    }"
                     >2</ion-button
                   >
                 </ion-col>
@@ -58,6 +68,9 @@
                     color="white"
                     size="large"
                     @click="appendDigit(3)"
+                    :style="{
+                      color: theme.primaryGradientStartColor,
+                    }"
                     >3</ion-button
                   >
                 </ion-col>
@@ -71,6 +84,9 @@
                     color="white"
                     size="large"
                     @click="appendDigit(4)"
+                    :style="{
+                      color: theme.primaryGradientStartColor,
+                    }"
                     >4</ion-button
                   >
                 </ion-col>
@@ -81,6 +97,9 @@
                     color="white"
                     size="large"
                     @click="appendDigit(5)"
+                    :style="{
+                      color: theme.primaryGradientStartColor,
+                    }"
                     >5</ion-button
                   >
                 </ion-col>
@@ -91,6 +110,9 @@
                     color="white"
                     size="large"
                     @click="appendDigit(6)"
+                    :style="{
+                      color: theme.primaryGradientStartColor,
+                    }"
                     >6</ion-button
                   >
                 </ion-col>
@@ -104,6 +126,9 @@
                     color="white"
                     size="large"
                     @click="appendDigit(7)"
+                    :style="{
+                      color: theme.primaryGradientStartColor,
+                    }"
                     >7</ion-button
                   >
                 </ion-col>
@@ -114,6 +139,9 @@
                     color="white"
                     size="large"
                     @click="appendDigit(8)"
+                    :style="{
+                      color: theme.primaryGradientStartColor,
+                    }"
                     >8</ion-button
                   >
                 </ion-col>
@@ -124,6 +152,9 @@
                     color="white"
                     size="large"
                     @click="appendDigit(9)"
+                    :style="{
+                      color: theme.primaryGradientStartColor,
+                    }"
                     >9</ion-button
                   >
                 </ion-col>
@@ -140,6 +171,9 @@
                     color="white"
                     size="large"
                     @click="appendDigit(0)"
+                    :style="{
+                      color: theme.primaryGradientStartColor,
+                    }"
                     >0</ion-button
                   >
                 </ion-col>
@@ -150,6 +184,9 @@
                     color="white"
                     size="large"
                     @click="backspace"
+                    :style="{
+                      color: theme.primaryGradientStartColor,
+                    }"
                   >
                     <ion-icon name="backspace"></ion-icon>
                   </ion-button>
@@ -169,7 +206,13 @@
         </div>
 
         <div class="bottom-text">
-          <p>© 2024 BAPPLWARE Technologies, <br />Inc. All rights reserved.</p>
+          <p
+            :style="{
+              color: theme.primaryGradientStartColor,
+            }"
+          >
+            © 2024 BAPPLWARE Technologies, <br />Inc. All rights reserved.
+          </p>
         </div>
       </div>
     </ion-content>
@@ -202,6 +245,7 @@ export default {
   },
   props: {
     theme: Object,
+    logo: String,
   },
   setup() {
     const router = useRouter();

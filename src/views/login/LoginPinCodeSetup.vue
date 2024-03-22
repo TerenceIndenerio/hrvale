@@ -1,7 +1,7 @@
 <template>
   <ion-page>
     <ion-content :fullscreen="true" v-if="loaded">
-      <SetupPinCodeLogin @login="OnLogin" :theme="theme" />
+      <SetupPinCodeLogin @login="OnLogin" :theme="theme" :logo="this.logo" />
     </ion-content>
   </ion-page>
 </template>
@@ -68,13 +68,14 @@ export default defineComponent({
       hasToken: false,
       tokenData: "",
       empNumber: "",
+      logo: "",
     };
   },
 
   async mounted() {
     await this.fetchToken();
     this.fetchStoredTheme();
-
+    this.fetchLogo();
     this.hasPincode();
 
     localStorage.removeItem("clickedTab");
@@ -155,18 +156,31 @@ export default defineComponent({
     async fetchStoredTheme() {
       try {
         const storedThemeData = localStorage.getItem("configs");
-        const themeData = storedThemeData ? JSON.parse(storedThemeData) : {};
-        const theme = themeData[1]?.configuration?.theme;
-        const configs = localStorage.getItem("configs");
-        const config = configs ? JSON.parse(configs) : {};
-        const apiHost = config[1]?.configuration?.apiHost;
-        localStorage.setItem("baseUrl", apiHost);
+        console.log("Stored theme data:", storedThemeData);
 
-        if (theme) {
-          localStorage.setItem("themeData", JSON.stringify(theme));
-          this.theme = theme;
+        const themeData = storedThemeData ? JSON.parse(storedThemeData) : [];
+        console.log("Parsed theme data:", themeData);
+
+        let themeConfiguration = null;
+
+        // Find the configuration object with the theme property
+        for (const data of themeData) {
+          if (data.configuration && data.configuration.theme) {
+            themeConfiguration = data.configuration.theme;
+            break; // Exit loop once theme configuration is found
+          }
+        }
+
+        if (themeConfiguration) {
+          console.log("Theme configuration:", themeConfiguration);
+
+          // Assuming you have a theme object in your application
+          this.theme = themeConfiguration;
+          console.log("Theme:", this.theme);
         } else {
-          console.error("Theme not found in the configuration data.");
+          console.error(
+            "No theme data found in local storage or theme configuration not available."
+          );
         }
       } catch (error) {
         console.error("Error fetching or parsing theme data:", error);
@@ -242,6 +256,13 @@ export default defineComponent({
       } catch (error) {
         console.log(error.response?.data?.error?.message);
       }
+    },
+
+    fetchLogo() {
+      const baseURL = localStorage.getItem("baseUrl");
+      // const baseURL = "https://hrp-uat-app.bapplware.com/web/index.php/";
+      this.logo = baseURL + "admin/theme/image/clientBanner";
+      console.log("logo", this.logo);
     },
 
     async alertError() {

@@ -178,22 +178,55 @@ export default defineComponent({
       }
     },
 
+    // async fetchStoredTheme() {
+    //   try {
+    //     const storedThemeData = localStorage.getItem("configs");
+    //     const themeData = storedThemeData ? JSON.parse(storedThemeData) : {};
+    //     const theme = themeData[1]?.configuration?.theme;
+    //     const configs = localStorage.getItem("configs");
+    //     const config = configs ? JSON.parse(configs) : {};
+    //     const apiHost = config[1]?.configuration?.apiHost;
+
+    //     console.log(configs);
+    //     console.log(apiHost);
+
+    //     localStorage.setItem("baseUrl", apiHost);
+
+    //     if (theme) {
+    //       localStorage.setItem("themeData", JSON.stringify(theme));
+    //       this.theme = theme;
+    //     } else {
+    //       console.error("Theme not found in the configuration data.");
+    //     }
+    //   } catch (error) {
+    //     console.error("Error fetching or parsing theme data:", error);
+    //   }
+    // },
+
     async fetchStoredTheme() {
       try {
         const storedThemeData = localStorage.getItem("configs");
-        const themeData = storedThemeData ? JSON.parse(storedThemeData) : {};
-        const theme = themeData[1]?.configuration?.theme;
-        const configs = localStorage.getItem("configs");
-        const config = configs ? JSON.parse(configs) : {};
-        const apiHost = config[1]?.configuration?.apiHost;
+        const configs = storedThemeData ? JSON.parse(storedThemeData) : [];
 
-        localStorage.setItem("baseUrl", apiHost);
+        const brandingConfig = configs.find((item) => item.name === "branding");
 
-        if (theme) {
-          localStorage.setItem("themeData", JSON.stringify(theme));
-          this.theme = theme;
+        if (brandingConfig) {
+          const apiHost = brandingConfig.configuration.apiHost;
+          localStorage.setItem("baseUrl", apiHost);
+          console.log(apiHost);
+
+          // Fetch theme data
+          const theme = brandingConfig.configuration.theme;
+
+          if (theme) {
+            localStorage.setItem("themeData", JSON.stringify(theme));
+            this.theme = theme;
+            console.log(theme);
+          } else {
+            console.error("Theme not found in the branding configuration.");
+          }
         } else {
-          console.error("Theme not found in the configuration data.");
+          console.error("Configuration for branding not found.");
         }
       } catch (error) {
         console.error("Error fetching or parsing theme data:", error);
