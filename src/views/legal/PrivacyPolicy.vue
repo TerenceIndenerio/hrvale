@@ -74,7 +74,6 @@ export default defineComponent({
   },
   async created() {
     this.fetchTheme();
-    // this.openPrivacyPolicy();
   },
 });
 </script>
@@ -105,7 +104,7 @@ export default defineComponent({
 
 .link {
   text-decoration: underline;
-  margin-left: 5px; /* Adjust the margin for spacing between the checkbox and the link */
+  margin-left: 5px;
 }
 
 .checkbox-container {

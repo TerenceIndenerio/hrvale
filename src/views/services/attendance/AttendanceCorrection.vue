@@ -234,18 +234,16 @@ export default defineComponent({
 
         let themeConfiguration = null;
 
-        // Find the configuration object with the theme property
         for (const data of themeData) {
           if (data.configuration && data.configuration.theme) {
             themeConfiguration = data.configuration.theme;
-            break; // Exit loop once theme configuration is found
+            break;
           }
         }
 
         if (themeConfiguration) {
           console.log("Theme configuration:", themeConfiguration);
 
-          // Assuming you have a theme object in your application
           this.theme = themeConfiguration;
           console.log("Theme:", this.theme);
         } else {

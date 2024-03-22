@@ -369,7 +369,6 @@ export default defineComponent({
           const themeConfiguration = themeData[0]?.configuration?.theme;
           console.log("Theme configuration:", themeConfiguration);
 
-          // Assuming you have a theme object in your application
           this.theme = themeConfiguration;
           console.log("Theme:", this.theme);
         } else {

@@ -233,7 +233,6 @@ export default defineComponent({
     },
   },
   created() {
-    // location.reload();
     this.fetchTheme();
     this.inputs = Array.from({ length: this.inputs.length }, () => null);
     const firstInput = document.getElementById("input-0");
@@ -251,7 +250,6 @@ export default defineComponent({
   padding: 0;
 }
 .container {
-  /* background-color: #12a3da; */
   height: 40vh;
 }
 .logo-name h1 {
@@ -280,7 +278,6 @@ export default defineComponent({
 }
 .container {
   border-top: 1px solid rgb(157, 157, 157);
-  /* height: 60vh; */
   width: 100%;
 }
 

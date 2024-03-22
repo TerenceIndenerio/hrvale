@@ -213,9 +213,7 @@ export default defineComponent({
   },
 
   async created() {
-    // this.getTheme();
     this.fetchTheme();
-    // this.checkTokenExpiration();
 
     try {
       this.store.commit("loader/updateLoader", true);

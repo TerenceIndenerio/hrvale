@@ -73,7 +73,6 @@ export default defineComponent({
   },
   async created() {
     this.fetchTheme();
-    // this.openPrivacyPolicy();
   },
 });
 </script>
