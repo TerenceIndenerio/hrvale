@@ -590,8 +590,6 @@ export default defineComponent({
   border-radius: 20px;
   max-width: 400px;
   margin-top: 50%;
-  /* box-shadow: 8px 8px 16px rgba(0, 0, 0, 0.1),
-    -8px -8px 16px rgba(255, 255, 255, 0.8), 0px -4px 8px rgba(0, 0, 0, 0.05); */
 }
 .card-inner {
   display: flex;

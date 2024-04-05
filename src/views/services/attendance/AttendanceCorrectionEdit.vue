@@ -226,7 +226,7 @@ export default defineComponent({
     };
   },
   methods: {
-    // Exppiration of token
+    // Expiration of token
     async checkTokenExpiration() {
       const storedToken = localStorage.getItem("token");
 
@@ -286,11 +286,13 @@ export default defineComponent({
 
         const response = await axios.get(api, { headers });
 
-        this.reasonOptions = response.data.data.map((item) => ({
-          id: item.id,
-          type: item.type,
-          content: item.content,
-        }));
+        this.reasonOptions = response.data.data
+          .filter((item) => item.code == "overtime")
+          .map((item) => ({
+            id: item.id,
+            type: item.type,
+            content: item.content,
+          }));
       } catch (error) {
         console.error("Error fetching reason options:", error);
       }
@@ -357,22 +359,26 @@ export default defineComponent({
         this.$router.go(-1);
       }
     },
+
     fetchTheme() {
       try {
         const storedThemeData = localStorage.getItem("configs");
-        console.log("Stored theme data:", storedThemeData);
-
         const themeData = storedThemeData ? JSON.parse(storedThemeData) : [];
-        console.log("Parsed theme data:", themeData);
+        let themeConfiguration = null;
 
-        if (themeData.length > 0) {
-          const themeConfiguration = themeData[0]?.configuration?.theme;
-          console.log("Theme configuration:", themeConfiguration);
+        for (const data of themeData) {
+          if (data.configuration && data.configuration.theme) {
+            themeConfiguration = data.configuration.theme;
+            break;
+          }
+        }
 
+        if (themeConfiguration) {
           this.theme = themeConfiguration;
-          console.log("Theme:", this.theme);
         } else {
-          console.error("No theme data found in local storage.");
+          console.error(
+            "No theme data found in local storage or theme configuration not available."
+          );
         }
       } catch (error) {
         console.error("Error fetching or parsing theme data:", error);

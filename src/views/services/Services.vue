@@ -115,7 +115,6 @@ export default defineComponent({
       const storedThemeData = localStorage.getItem("themeData");
 
       const themeData = storedThemeData ? JSON.parse(storedThemeData) : {};
-      console.log(themeData);
       this.theme = themeData;
     },
     servicesData() {

@@ -277,7 +277,7 @@ export default defineComponent({
           this.photoLinkLoading = true;
 
           const storedToken = localStorage.getItem("token");
-          console.log(storedToken);
+
           const baseURL = localStorage.getItem("baseUrl");
           const apiUrl = baseURL + `buzz/photo/${photoIds}`;
 
@@ -460,10 +460,8 @@ export default defineComponent({
     fetchTheme() {
       try {
         const storedThemeData = localStorage.getItem("configs");
-        console.log("Stored theme data:", storedThemeData);
 
         const themeData = storedThemeData ? JSON.parse(storedThemeData) : [];
-        console.log("Parsed theme data:", themeData);
 
         let themeConfiguration = null;
 
@@ -475,10 +473,7 @@ export default defineComponent({
         }
 
         if (themeConfiguration) {
-          console.log("Theme configuration:", themeConfiguration);
-
           this.theme = themeConfiguration;
-          console.log("Theme:", this.theme);
         } else {
           console.error(
             "No theme data found in local storage or theme configuration not available."
