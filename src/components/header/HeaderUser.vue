@@ -38,13 +38,15 @@
           {{ this.profileDetails.middleName }}
           {{ this.profileDetails.lastName }}
         </h3>
-        <h3>{{ this.myProfileDetails.userName }}</h3>
+        <h3>{{ this.myProfileDetails.userRole.displayName }}</h3>
+
         <div class="location-container">
-          <div>
-            <p>Birth Date: {{ this.profileDetails.birthday }}</p>
-            <p>Status: {{ this.profileDetails.status }}</p>
-            <p>Nationality: {{ this.profileDetails.nationality.name }}</p>
-          </div>
+          <p>Employee Number: {{ this.myProfileDetails.employee.empNumber }}</p>
+          <p>Employee ID: {{ this.myProfileDetails.employee.employeeId }}</p>
+          <p>Username: {{ this.myProfileDetails.userName }}</p>
+          <p>Birth Date: {{ this.profileDetails.birthday }}</p>
+          <p>Status: {{ this.profileDetails.status }}</p>
+          <p>Nationality: {{ this.profileDetails.nationality.name }}</p>
         </div>
       </div>
     </ion-card>
@@ -124,7 +126,7 @@ export default defineComponent({
     },
     fetchLogo() {
       const baseURL = localStorage.getItem("baseUrl");
-      // const baseURL = "https://hrp-uat-app.bapplware.com/web/index.php/";
+
       this.logo = baseURL + "admin/theme/image/clientBanner";
     },
     async fetchProfilePhoto(empNumber) {
@@ -237,6 +239,7 @@ export default defineComponent({
 ion-popover {
   --width: fit-content;
 }
+
 .btn {
   margin: 0;
   height: 50px;
@@ -277,12 +280,15 @@ ion-popover {
 
 #modal {
   --background: rgba(255, 0, 0, 0);
+  --width: 100vw;
+  --height: 100vh;
 }
 
 .card-modal {
   border-radius: 20px;
+  width: 100%;
   max-width: 400px;
-  margin-top: 50%;
+  margin: auto auto;
   padding: 20px 30px;
 }
 
@@ -300,7 +306,7 @@ ion-popover {
 }
 .location-container {
   display: flex;
-  align-items: center;
+  flex-direction: column;
   text-align: left;
   background-color: rgb(239, 239, 239);
   border-radius: 10px;

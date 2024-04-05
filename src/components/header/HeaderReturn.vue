@@ -103,7 +103,7 @@ export default defineComponent({
 
 .header {
   background-color: var(--ion-color-blue-theme);
-  height: 120px;
+  height: 100px;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
