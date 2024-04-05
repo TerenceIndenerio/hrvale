@@ -131,18 +131,18 @@ export default defineComponent({
         const baseURL = localStorage.getItem("baseUrl");
         const authToken = `Bearer ${storedToken}`;
 
-        const apiUrl = baseURL + `api/ess/pincode`;
+        const apiUrl = baseURL + `api/auth/pincode`;
         const headers = {
           Authorization: authToken,
         };
 
-        const pincode = this.input;
-
-        const response = await axios.get(apiUrl, { headers });
-        console.log(response.data.data.pincode, pincode);
+        const pincode = {
+          pincode: this.inputs,
+        };
+        const response = await axios.post(apiUrl, pincode, { headers });
 
         if (response.status === 200) {
-          if (this.inputs === response.data.data.pincode) {
+          if (response.data.data.status) {
             this.$router.push("/pincodesetup");
           } else {
             console.error(
@@ -154,9 +154,7 @@ export default defineComponent({
           console.error("API request failed:", response.status, response.data);
         }
       } catch (error) {
-        this.showErrorMessage(
-          "An error occurred: " + error.response?.data?.error?.message
-        );
+        this.showErrorMessage(error.response?.data?.error?.message);
       } finally {
         this.store.commit("loader/updateLoader", false);
 

@@ -74,6 +74,7 @@ export default defineComponent({
       hasSetup: false,
       empNumber: "",
       pincodeData: "",
+      empID: "",
     };
   },
 
@@ -139,7 +140,7 @@ export default defineComponent({
         const response = await axios.post(baseURL + "auth/token", {
           secret: storedToken,
         });
-        console.log(response);
+
         localStorage.setItem("token", response.data.token);
         this.hasToken = true;
       } catch (error) {
@@ -153,10 +154,8 @@ export default defineComponent({
     async fetchStoredTheme() {
       try {
         const storedThemeData = localStorage.getItem("configs");
-        console.log("Stored theme data:", storedThemeData);
 
         const themeData = storedThemeData ? JSON.parse(storedThemeData) : [];
-        console.log("Parsed theme data:", themeData);
 
         let themeConfiguration = null;
 
@@ -168,10 +167,7 @@ export default defineComponent({
         }
 
         if (themeConfiguration) {
-          console.log("Theme configuration:", themeConfiguration);
-
           this.theme = themeConfiguration;
-          console.log("Theme:", this.theme);
         } else {
           console.error(
             "No theme data found in local storage or theme configuration not available."
@@ -204,28 +200,34 @@ export default defineComponent({
         );
 
         this.empNumber = dataResponse.data.data.employee.empNumber;
+        this.empID = dataResponse.data.data.id;
       } catch (error) {
         console.log(error.status);
       }
     },
 
-    async hasPincode() {
+    async validatePincode(pincode) {
       try {
         const storedToken = localStorage.getItem("token");
         const baseURL = localStorage.getItem("baseUrl");
         const authToken = `Bearer ${storedToken}`;
+        const apiUrl = baseURL + `api/auth/pincode`;
 
-        const apiUrl = baseURL + `api/ess/pincode`;
         const headers = {
           Authorization: authToken,
         };
 
-        const response = await axios.get(apiUrl, { headers });
+        const postData = {
+          pincode: pincode,
+        };
 
-        if (response.data.data.pincode) {
-          const pincode = Number(response.data.data.pincode);
-          localStorage.setItem("pincode", pincode);
-          this.pincodeData = pincode;
+        const response = await axios.post(apiUrl, postData, { headers });
+
+        if (response.data.data.status) {
+          await this.router.push("/tabs/buzzfeed");
+          window.location.reload();
+        } else {
+          this.alertError();
         }
       } catch (error) {
         console.log(error.response?.data?.error?.message);
@@ -239,40 +241,28 @@ export default defineComponent({
         await this.checkToken();
         await this.fetchToken();
         await this.fetchUserDetails();
-        await this.hasPincode();
-
-        const stringValue = String(pincode);
-        const pinString = String(this.pincodeData);
-
-        if (stringValue === pinString && this.hasToken) {
-          this.router.push("/tabs/buzzfeed");
-        } else {
-          this.alertError();
-        }
 
         await runBackgroundScript();
         await userDetails(this.empNumber);
+        await this.validatePincode(pincode);
       } catch (error) {
         console.error(error);
       } finally {
         this.store.commit("loader/updateLoader", false);
-        window.location.reload();
       }
     },
 
     fetchLogo() {
       const baseURL = localStorage.getItem("baseUrl");
-      // const baseURL = "https://hrp-uat-app.bapplware.com/web/index.php/";
+
       this.logo = baseURL + "admin/theme/image/clientBanner";
-      console.log("logo", this.logo);
     },
 
     async alertError() {
       const showAlert = async () => {
         const alert = await alertController.create({
-          header: "Invalid Credentials",
-          message:
-            "The username or password you entered is incorrect. Please try again.",
+          header: "Invalid Pincode",
+          message: "The pincode you entered is incorrect. Please try again.",
           buttons: [
             {
               text: "Close",

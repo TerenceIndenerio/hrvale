@@ -157,15 +157,18 @@ export default defineComponent({
         const baseURL = localStorage.getItem("baseUrl");
         const authToken = `Bearer ${storedToken}`;
 
-        const apiUrl = baseURL + `api/ess/pincode`;
+        const apiUrl = baseURL + `api/auth/pincode`;
         const headers = {
           Authorization: authToken,
         };
 
-        const response = await axios.get(apiUrl, { headers });
+        const pincode = {
+          pincode: this.inputs,
+        };
+        const response = await axios.post(apiUrl, pincode, { headers });
 
         if (response.status === 200) {
-          if (this.inputs === response.data.data.pincode) {
+          if (response.data.data.status) {
             this.$router.push("/viewpayslip");
           } else {
             console.error(
@@ -195,7 +198,7 @@ export default defineComponent({
           message: message,
           duration: 3000,
           position: "top",
-          color: "danger",
+          color: "light",
           buttons: [
             {
               icon: "close-outline",

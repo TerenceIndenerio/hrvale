@@ -212,7 +212,7 @@ export default defineComponent({
         const alert = await alertController.create({
           header: "Invalid Credentials",
           message:
-            "The username or password you entered is incorrect. Please try again.",
+            "Invalid credentials. Please check your username and password and try again. If you're having trouble, refer to the email containing your login details.",
           buttons: [
             {
               text: "Close",
