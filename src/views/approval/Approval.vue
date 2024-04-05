@@ -125,6 +125,9 @@ export default defineComponent({
         case "vale":
           this.valeRequest(requestId, action);
           break;
+        case "attendance":
+          this.attendance(requestId, action);
+          break;
         default:
           break;
       }
@@ -144,7 +147,9 @@ export default defineComponent({
           Authorization: `Bearer ${storedToken}`,
         };
 
-        const api = baseURL + "api/v2/admin/requests?limit=50&offset=0";
+        const api =
+          baseURL +
+          "api/v2/admin/requests?limit=50&offset=0&sortField=e.dateApplied&sortOrder=DESC";
         const dataResponse = await axios.get(api, { headers });
 
         if (dataResponse.data && Array.isArray(dataResponse.data.data)) {
@@ -182,23 +187,6 @@ export default defineComponent({
           this.$router.push("/login");
         } else {
           this.showErrorMessage("An error occurred: " + error.message);
-
-          const errorMessage =
-            error.response?.data?.error?.message || error.message;
-          const fullErrorMessage = `Failed to load data, ${errorMessage}`;
-          const toast = await toastController.create({
-            message: fullErrorMessage,
-            duration: 3000,
-            position: "bottom",
-            icon: "alert-circle-outline",
-            buttons: [
-              {
-                icon: "close-outline",
-                role: "cancel",
-              },
-            ],
-          });
-          await toast.present();
         }
       }
     },
@@ -216,7 +204,9 @@ export default defineComponent({
           Authorization: `Bearer ${storedToken}`,
         };
 
-        const api = baseURL + "api/v2/admin/requests?limit=50&offset=0";
+        const api =
+          baseURL +
+          "api/v2/admin/requests?limit=50&offset=0&requestTypeId=5&sortField=e.dateApplied&sortOrder=DESC";
         const dataResponse = await axios.get(api, { headers });
 
         if (dataResponse.data && Array.isArray(dataResponse.data.data)) {
@@ -226,6 +216,7 @@ export default defineComponent({
             requestTypeId: period.requestTypeId,
             requestType: selectedRequestType,
             code: period.code,
+            requestId: period.id,
             requestDataId: period.requestDataId,
             status: period.status,
             date: period.dateApplied,
@@ -239,20 +230,6 @@ export default defineComponent({
 
         const errorMessage = error.response.data.error.message;
         const fullErrorMessage = `Failed to load data, ${errorMessage}`;
-        const toast = await toastController.create({
-          message: fullErrorMessage,
-          duration: 3000,
-          position: "top",
-
-          icon: "alert-circle-outline",
-          buttons: [
-            {
-              icon: "close-outline",
-              role: "cancel",
-            },
-          ],
-        });
-        await toast.present();
       }
     },
     // Leave Request
@@ -290,20 +267,9 @@ export default defineComponent({
             ? "Request successfully approved!"
             : "Request successfully declined";
 
-        const successToast = await toastController.create({
-          message: successMessage,
-          duration: 3000,
-          position: "top",
-          color: "success",
-          buttons: [
-            {
-              icon: "checkmark-circle-outline",
-              role: "cancel",
-            },
-          ],
-        });
-
-        await successToast.present();
+        if (dataResponse.status >= 200 && dataResponse.status < 300) {
+          this.showSuccessMessage(successMessage);
+        }
 
         this.store.commit("loader/updateLoader", false);
         this.fetchRequest();
@@ -313,21 +279,6 @@ export default defineComponent({
 
         const errorMessage = error.response?.data?.error?.message;
         const fullErrorMessage = `An error occurred: ${errorMessage}`;
-
-        const toast = await toastController.create({
-          message: fullErrorMessage,
-          duration: 3000,
-          position: "bottom",
-          icon: "alert-circle-outline",
-          buttons: [
-            {
-              icon: "close-outline",
-              role: "cancel",
-            },
-          ],
-        });
-
-        await toast.present();
       }
     },
     // OT
@@ -353,7 +304,7 @@ export default defineComponent({
 
         const api =
           baseURL +
-          "api/v2/admin/overtime/" +
+          "api/v2/admin/update-request/" +
           requestId +
           "?status=" +
           payloadVal;
@@ -364,43 +315,15 @@ export default defineComponent({
             ? "Overtime request successfully approved!"
             : "Overtime request successfully declined";
 
-        const successToast = await toastController.create({
-          message: successMessage,
-          duration: 3000,
-          position: "bottom",
-          icon: "alert-circle-outline",
-          buttons: [
-            {
-              icon: "close-outline",
-              role: "cancel",
-            },
-          ],
-        });
-
-        await successToast.present();
+        if (dataResponse.status >= 200 && dataResponse.status < 300) {
+          this.showSuccessMessage(successMessage);
+        }
 
         this.store.commit("loader/updateLoader", false);
         this.fetchRequest();
       } catch (error) {
         console.error("Error updating overtime request: ", error);
         this.showErrorMessage("An error occurred: " + error.message);
-
-        const errorMessage =
-          error.response?.data?.error?.message || error.message;
-        const fullErrorMessage = `An error occurred: ${errorMessage}`;
-        const toast = await toastController.create({
-          message: fullErrorMessage,
-          duration: 3000,
-          position: "bottom",
-          icon: "alert-circle-outline",
-          buttons: [
-            {
-              icon: "close-outline",
-              role: "cancel",
-            },
-          ],
-        });
-        await toast.present();
       }
     },
     // Attendance
@@ -432,20 +355,14 @@ export default defineComponent({
           payloadVal;
         const dataResponse = await axios.put(api, payload, { headers });
 
-        const successToast = await toastController.create({
-          message: `Successfully ${action} Attendance Correction!`,
-          duration: 3000,
-          position: "bottom",
-          icon: "alert-circle-outline",
-          buttons: [
-            {
-              icon: "close-outline",
-              role: "cancel",
-            },
-          ],
-        });
+        const successMessage =
+          action === "approve"
+            ? "Attendance request successfully approved!"
+            : "Attendance request successfully declined";
 
-        await successToast.present();
+        if (dataResponse.status >= 200 && dataResponse.status < 300) {
+          this.showSuccessMessage(successMessage);
+        }
 
         this.store.commit("loader/updateLoader", false);
         this.fetchRequest();
@@ -455,25 +372,81 @@ export default defineComponent({
 
         const errorMessage = error.response?.data?.error?.message;
         const fullErrorMessage = `An error occurred: ${errorMessage}`;
-
-        const toast = await toastController.create({
-          message: fullErrorMessage,
-          duration: 3000,
-          position: "bottom",
-          icon: "alert-circle-outline",
-          buttons: [
-            {
-              icon: "close-outline",
-              role: "cancel",
-            },
-          ],
-        });
-
-        await toast.present();
       }
     },
     // Vale
     async valeRequest(requestId, action) {
+      try {
+        this.store.commit("loader/updateLoader", true);
+
+        const storedToken = localStorage.getItem("token");
+        const baseURL = localStorage.getItem("baseUrl");
+        if (!storedToken) {
+          throw new Error("Authentication token is missing.");
+        }
+
+        const headers = {
+          Authorization: `Bearer ${storedToken}`,
+        };
+
+        const payloadVal = action === "approve" ? "approved" : "declined";
+        const payload = { status: payloadVal };
+
+        const api = `${baseURL}api/v2/admin/update-request/${requestId}`;
+        const dataResponse = await axios.put(api, payload, { headers });
+
+        const successMessage =
+          action === "approve"
+            ? "Attendance request successfully approved!"
+            : "Attendance request successfully declined";
+
+        if (dataResponse.status >= 200 && dataResponse.status < 300) {
+          this.showSuccessMessage(successMessage);
+        }
+
+        await this.valePayroll(requestDataId, action);
+      } catch (error) {
+        console.error("Error updating Attendance Correction: ", error);
+        this.showErrorMessage("An error occurred: " + error.message);
+      } finally {
+        this.store.commit("loader/updateLoader", false);
+      }
+    },
+
+    async valePayroll(requestDataId, action) {
+      try {
+        this.store.commit("loader/updateLoader", true);
+
+        const storedToken = localStorage.getItem("token");
+        const baseURL = localStorage.getItem("baseUrl");
+        if (!storedToken) {
+          throw new Error("Authentication token is missing.");
+        }
+
+        const headers = {
+          Authorization: `Bearer ${storedToken}`,
+        };
+
+        const status = action === "approve" ? "approved" : "declined";
+
+        const api = `${baseURL}api/payroll/vale/${requestDataId}?status=${status}`;
+
+        const dataResponse = await axios.put(api, null, { headers });
+
+        if (dataResponse.status >= 200 && dataResponse.status < 300) {
+          this.showSuccessMessage(successMessage);
+        }
+
+        this.fetchRequest();
+      } catch (error) {
+        console.error("Error updating Attendance Correction: ", error);
+        this.showErrorMessage("An error occurred: " + error.message);
+      } finally {
+        this.store.commit("loader/updateLoader", false);
+      }
+    },
+    // attendance
+    async attendance(requestId, action) {
       try {
         this.store.commit("loader/updateLoader", true);
 
@@ -501,46 +474,55 @@ export default defineComponent({
           payloadVal;
         const dataResponse = await axios.put(api, payload, { headers });
 
-        const successToast = await toastController.create({
-          message: `Successfully ${action} vale!`,
-          duration: 3000,
-          position: "bottom",
-          icon: "alert-circle-outline",
-          buttons: [
-            {
-              icon: "close-outline",
-              role: "cancel",
-            },
-          ],
-        });
+        const successMessage =
+          action === "approve"
+            ? "Attendance successfully approved!"
+            : "Attendance successfully declined";
 
-        await successToast.present();
+        if (dataResponse.status >= 200 && dataResponse.status < 300) {
+          this.showSuccessMessage(successMessage);
+        }
 
         this.store.commit("loader/updateLoader", false);
         this.fetchRequest();
       } catch (error) {
-        console.error("Error updating Attendance Correction: ", error);
+        console.error("Error updating overtime request: ", error);
         this.showErrorMessage("An error occurred: " + error.message);
-
-        const errorMessage = error.response?.data?.error?.message;
-        const fullErrorMessage = `An error occurred: ${errorMessage}`;
-
-        const toast = await toastController.create({
-          message: fullErrorMessage,
-          duration: 3000,
-          position: "bottom",
-          icon: "alert-circle-outline",
-          buttons: [
-            {
-              icon: "close-outline",
-              role: "cancel",
-            },
-          ],
-        });
-
-        await toast.present();
       }
     },
+
+    async showSuccessMessage(message) {
+      const successToast = await toastController.create({
+        message: message,
+        duration: 3000,
+        position: "top",
+        buttons: [
+          {
+            icon: "checkmark-circle-outline",
+            role: "cancel",
+          },
+        ],
+      });
+
+      await successToast.present();
+    },
+
+    async showErrorMessage(message) {
+      const toast = await toastController.create({
+        message: message,
+        duration: 3000,
+        position: "top",
+        buttons: [
+          {
+            icon: "close-outline",
+            role: "cancel",
+          },
+        ],
+      });
+      this.store.commit("loader/updateLoader", false);
+      await toast.present();
+    },
+
     fetchTheme() {
       const storedThemeData = localStorage.getItem("themeData");
 

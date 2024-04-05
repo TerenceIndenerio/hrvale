@@ -139,21 +139,6 @@ export default {
         this.showErrorMessage("An error occurred: " + error.message);
       }
     },
-    async showErrorMessage(message) {
-      const toast = await toastController.create({
-        message: message,
-        duration: 3000,
-        position: "bottom",
-        color: "danger",
-        buttons: [
-          {
-            icon: "close-outline",
-            role: "cancel",
-          },
-        ],
-      });
-      await toast.present();
-    },
   },
   created() {
     const storedThemeData = getThemeData();
