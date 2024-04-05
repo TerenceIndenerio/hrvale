@@ -27,7 +27,7 @@
         <a
           class="button-container"
           @click="navigateTo('FAQs')"
-          href="https://bapplware.com/hrp-frequently-asks-questions/"
+          href="https://hrvale.com/index.php/about-us/"
         >
           <ion-icon
             class="btn-icon"
@@ -43,7 +43,7 @@
         <a
           class="button-container"
           @click="navigateTo('ContactUs')"
-          href="https://bapplware.com/contact/"
+          href="https://hrvale.com/index.php/contact-us/"
         >
           <ion-icon
             class="btn-icon"

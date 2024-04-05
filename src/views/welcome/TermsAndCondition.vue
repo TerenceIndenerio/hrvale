@@ -29,7 +29,7 @@
             <ion-label>
               I have read and accepted the
               <a
-                href="https://bapplware.com/hrp-terms-and-conditions/"
+                href="https://hrvale.com/index.php/terms-and-conditions/"
                 class="link"
                 >Terms and Conditions</a
               >
@@ -80,7 +80,7 @@ export default defineComponent({
       headerTitle: "Terms & Condition",
       theme: {},
       isPrivacyPolicyOpen: false,
-      privacyPolicyUrl: "https://bapplware.com/hrp-terms-and-conditions/",
+      privacyPolicyUrl: "https://hrvale.com/index.php/terms-and-conditions/",
       isChecked: false,
     };
   },

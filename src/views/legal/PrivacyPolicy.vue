@@ -1,17 +1,17 @@
 <template>
   <ion-page>
-    <HeaderReturn
+    <!-- <HeaderReturn
       :headerTitle="headerTitle"
       :headerColor="theme.primaryColor"
       :headerTextColor="theme.primaryFontColor"
-    ></HeaderReturn>
+    ></HeaderReturn> -->
     <ion-content :fullscreen="true">
       <Refresher />
 
       <iframe
-        src="https://bapplware.com/hrp-privacy-policy/"
+        src="https://hrvale.com/index.php/privacy-policy/"
         width="100%"
-        height="85%"
+        height="90%"
         frameborder="0"
       ></iframe>
       <div class="checkbox-container">
@@ -19,7 +19,7 @@
 
         <ion-label>
           I have read and accepted the
-          <a href="https://bapplware.com/hrp-privacy-policy/" class="link"
+          <a href="https://hrvale.com/index.php/privacy-policy/" class="link"
             >Privacy Policy</a
           >
         </ion-label>
@@ -60,7 +60,7 @@ export default defineComponent({
       headerTitle: "Privacy Policy",
       theme: {},
       isPrivacyPolicyOpen: false,
-      privacyPolicyUrl: "https://bapplware.com/hrp-privacy-policy/",
+      privacyPolicyUrl: "https://hrvale.com/index.php/privacy-policy/",
     };
   },
   methods: {
@@ -111,7 +111,6 @@ export default defineComponent({
   text-align: center;
   display: flex;
   justify-content: center;
-
   gap: 5px;
   width: 70%;
   margin: 10px auto;

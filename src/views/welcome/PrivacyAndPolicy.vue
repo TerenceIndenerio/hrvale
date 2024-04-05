@@ -24,7 +24,7 @@
 
             <ion-label>
               I have read and accepted the
-              <a href="https://bapplware.com/hrp-privacy-policy/" class="link"
+              <a href="https://hrvale.com/index.php/privacy-policy/" class="link"
                 >Privacy Policy</a
               >
             </ion-label>
@@ -73,7 +73,7 @@ export default defineComponent({
       headerTitle: "Terms & Condition",
       theme: {},
       isPrivacyPolicyOpen: false,
-      privacyPolicyUrl: "https://bapplware.com/hrp-terms-and-conditions/",
+      privacyPolicyUrl: "https://hrvale.com/index.php/privacy-policy/",
       isChecked: false,
     };
   },

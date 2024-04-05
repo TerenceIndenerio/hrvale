@@ -1,16 +1,11 @@
 <template>
   <ion-page>
-    <HeaderReturn
-      :headerTitle="headerTitle"
-      :headerColor="theme.primaryColor"
-      :headerTextColor="theme.primaryFontColor"
-    ></HeaderReturn>
     <ion-content :fullscreen="true">
       <Refresher />
       <iframe
-        src="https://bapplware.com/hrp-terms-and-conditions/"
+        src="https://hrvale.com/index.php/terms-and-conditions/"
         width="100%"
-        height="85%"
+        height="90%"
         frameborder="0"
       ></iframe>
       <div class="checkbox-container">
@@ -18,7 +13,9 @@
 
         <ion-label>
           I have read and accepted the
-          <a href="https://bapplware.com/hrp-terms-and-conditions/" class="link"
+          <a
+            href="https://hrvale.com/index.php/terms-and-conditions/"
+            class="link"
             >Terms and Condition</a
           >
         </ion-label>
@@ -59,7 +56,7 @@ export default defineComponent({
       headerTitle: "Terms & Condition",
       theme: {},
       isPrivacyPolicyOpen: false,
-      privacyPolicyUrl: "https://bapplware.com/hrp-terms-and-conditions/",
+      privacyPolicyUrl: "https://hrvale.com/index.php/terms-and-conditions/",
     };
   },
   methods: {
