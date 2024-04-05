@@ -37,7 +37,10 @@
                 Request Date
               </p>
               <div class="neomorphic-datepicker-1 date-picker">
-                <ion-input v-model="requestDate" type="date"></ion-input>
+                <ion-input
+                  v-model="requestDateSelected"
+                  type="date"
+                ></ion-input>
               </div>
             </div>
             <div class="card-inner-inner">
@@ -53,6 +56,26 @@
         </ion-card>
 
         <ion-card v-if="showCommentContainer" class="card comment-container">
+          <ion-label :style="{ color: theme.primaryColor }">
+            <strong>Reason*</strong>
+          </ion-label>
+          <ion-card class="reason-select-container neomorphic-input-2">
+            <ion-select
+              placeholder="Select Reason"
+              v-model="selectedReason"
+              class="reason-select"
+              aria-label="Reason"
+            >
+              <div slot="label">Select Reason:</div>
+              <ion-select-option
+                v-for="option in reasonOptions"
+                :key="option.value"
+                :value="option.id"
+              >
+                {{ option.content }}
+              </ion-select-option>
+            </ion-select>
+          </ion-card>
           <p :style="{ color: theme.primaryColor }" class="label">Comment</p>
           <ion-textarea
             v-model="comment"
@@ -213,6 +236,8 @@ import {
   IonGrid,
   IonIcon,
   IonTextarea,
+  IonSelect,
+  IonSelectOption,
 } from "@ionic/vue";
 import HeaderReturn from "@/components/header/HeaderReturn.vue";
 import { defineComponent } from "vue";
@@ -247,6 +272,8 @@ export default defineComponent({
     IonGrid,
     IonIcon,
     IonTextarea,
+    IonSelect,
+    IonSelectOption,
   },
   setup() {
     return {
@@ -265,6 +292,8 @@ export default defineComponent({
       selectedDateFrom: formattedDate,
       selectedDateTo: formattedDate,
       requestDate: formattedDate,
+      requestDateSelected: formattedDate,
+      requestDates: [],
       isModalVisible: false,
       selectedResult: null,
       isOpen: false,
@@ -273,6 +302,8 @@ export default defineComponent({
       comment: "",
       showCommentContainer: false,
       storedToken: null,
+      selectedReason: null,
+      reasonOptions: [],
     };
   },
 
@@ -299,6 +330,7 @@ export default defineComponent({
     toggleCommentContainer() {
       this.showCommentContainer = !this.showCommentContainer;
     },
+
     async handleSubmit() {
       try {
         this.store.commit("loader/updateLoader", true);
@@ -313,12 +345,21 @@ export default defineComponent({
         const baseURL = localStorage.getItem("baseUrl");
         const apiUrl = baseURL + `api/v2/ess/overtime`;
 
+        const reasonIDs = [];
+
+        for (const requestDate of this.requestDates) {
+          reasonIDs.push({
+            reasonId: this.selectedReason,
+            date: requestDate,
+          });
+        }
+
         const payload = {
           comment: this.comment,
           fromDate: this.selectedDateFrom,
-          reasons: [],
-          requestDate: this.requestDate,
+          reasons: reasonIDs,
           toDate: this.selectedDateTo,
+          requestDate: this.requestDateSelected,
         };
 
         const response = await axios.post(apiUrl, payload, {
@@ -328,21 +369,23 @@ export default defineComponent({
           },
         });
 
-        const toast = await toastController.create({
-          message: "Successfully Sent!",
-          duration: 3000,
-          position: "bottom",
-          icon: "alert-circle-outline",
-          buttons: [
-            {
-              icon: "close-outline",
-              role: "cancel",
-            },
-          ],
-        });
-        await toast.present();
-
         console.log("Response:", response.data);
+
+        if (response.status >= 200 && response.status < 300) {
+          const toast = await toastController.create({
+            message: "Successfully Sent!",
+            duration: 3000,
+            position: "top",
+            icon: "alert-circle-outline",
+            buttons: [
+              {
+                icon: "close-outline",
+                role: "cancel",
+              },
+            ],
+          });
+          await toast.present();
+        }
       } catch (error) {
         this.store.commit("loader/updateLoader", false);
         console.error("Error submitting overtime request: ", error);
@@ -350,6 +393,34 @@ export default defineComponent({
       } finally {
         this.store.commit("loader/updateLoader", false);
         this.showCommentContainer = !this.showCommentContainer;
+      }
+    },
+
+    async fetchReasonOptions() {
+      try {
+        await this.checkTokenExpiration();
+
+        this.storedToken = localStorage.getItem("token");
+        const baseURL = localStorage.getItem("baseUrl");
+        const headers = {
+          Authorization: `Bearer ${this.storedToken}`,
+        };
+
+        const api =
+          baseURL +
+          `api/v2/reasons?limit=50&offset=0&sortField=r.id&sortOrder=DESC`;
+
+        const response = await axios.get(api, { headers });
+
+        this.reasonOptions = response.data.data
+          .filter((item) => item.code == "overtime")
+          .map((item) => ({
+            id: item.id,
+            type: item.type,
+            content: item.content,
+          }));
+      } catch (error) {
+        console.error("Error fetching reason options:", error);
       }
     },
 
@@ -386,6 +457,10 @@ export default defineComponent({
               ? val.reasonOptions[0].content
               : "",
         }));
+
+        this.requestDate = formattedDate;
+
+        this.requestDates = [this.requestDate];
 
         function formatTime(dateTimeString) {
           const time = new Date(dateTimeString);
@@ -492,6 +567,7 @@ export default defineComponent({
   created() {
     this.fetchTheme();
     this.fetchRequest();
+    this.fetchReasonOptions();
     this.loading = false;
   },
 });
