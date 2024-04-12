@@ -37,6 +37,10 @@ import Welcome3 from "@/views/welcome/WelcomePage3.vue";
 import WelcomePage from "@/views/welcome/WelcomePage.vue";
 import WelcomeTermsAndCondition from "@/views/welcome/TermsAndCondition.vue";
 import WelcomePrivacyAndPolicy from "@/views/welcome/PrivacyAndPolicy.vue";
+import CashVale from "@/views/services/vale/cash_vale/CashVale.vue";
+import LoadVale from "@/views/services/vale/load_vale/LoadVale.vue";
+import BillsVale from "@/views/services/vale/bills_vale/BillsVale.vue";
+import GroceryVale from "@/views/services/vale/grocery_vale/GroceryVale.vue";
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -219,6 +223,22 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: "/notiftoken",
     component: NotifToken,
+  },
+  {
+    path: "/cashvale",
+    component: CashVale,
+  },
+  {
+    path: "/billsvale",
+    component: BillsVale,
+  },
+  {
+    path: "/loadvale",
+    component: LoadVale,
+  },
+  {
+    path: "/groceryvale",
+    component: GroceryVale,
   },
 ];
 
