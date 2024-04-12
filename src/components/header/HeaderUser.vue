@@ -12,6 +12,9 @@
       @click="rotateIcon"
       :class="{ rotateIcon: rotationState === 'rotateIcon' }"
       :key="rotationState"
+      :style="{
+        backgroundColor: headerColor,
+      }"
     ></ion-icon>
 
     <div class="profile-img-container" @click="openProfileModal">
@@ -214,12 +217,10 @@ export default defineComponent({
   position: absolute;
   right: 20px;
   font-size: 20px;
-  outline: 3px solid white;
+  border: 3px solid white;
   border-radius: 100%;
   padding: 3px;
   color: var(--ion-color-primary-contrast);
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.8),
-    0 2px 4px -1px rgba(0, 0, 0, 0.6);
   transition: transform 0.3s ease-out;
 }
 
@@ -258,6 +259,7 @@ ion-popover {
   left: 0;
   right: 0;
   margin: auto;
+  padding: 0 5px;
 }
 
 .rotateIcon {

@@ -106,8 +106,33 @@
           />
         </ion-card>
 
-        <!-- Reason Card -->
+        <!-- Reason -->
         <div class="reason-container">
+          <ion-label :style="{ color: theme.primaryColor }">
+            <strong>Reason*</strong>
+          </ion-label>
+          <ion-card class="reason-select-container neomorphic-input-2">
+            <ion-select
+              placeholder="Select Reason"
+              label-placement="floating"
+              v-model="selectedReason"
+              class="reason-select"
+              aria-label="Reason"
+            >
+              <div slot="label">Select Reason</div>
+              <ion-select-option
+                v-for="option in reasonOptions"
+                :key="option.value"
+                :value="option.content"
+              >
+                {{ option.content }}
+              </ion-select-option>
+            </ion-select>
+          </ion-card>
+        </div>
+
+        <!-- Reason Card -->
+        <!-- <div class="reason-container">
           <p class="reason-label" :style="{ color: theme.primaryColor }">
             Reason
           </p>
@@ -120,7 +145,7 @@
             v-model="reason"
             class="neomorphic-textarea-1"
           ></ion-textarea>
-        </div>
+        </div> -->
 
         <!-- Apply Leave Button -->
         <div class="flex-center btn-container">
@@ -216,6 +241,8 @@ export default defineComponent({
       endDaySelectedValue: null,
       selectedLeaveType: null,
       selectedLeaveID: null,
+      selectedReason: null,
+      reasonOptions: [],
       reason: null,
       employeeDetail: { firstName: "-", employeeId: "-" },
       employeeDetail2: { entitled: "--", balance: "0" },
@@ -305,6 +332,33 @@ export default defineComponent({
   },
 
   methods: {
+    async fetchReasonOptions() {
+      try {
+        await this.checkTokenExpiration();
+
+        this.storedToken = localStorage.getItem("token");
+        const baseURL = localStorage.getItem("baseUrl");
+        const headers = {
+          Authorization: `Bearer ${this.storedToken}`,
+        };
+
+        const api =
+          baseURL +
+          `api/v2/reasons?limit=50&offset=0&sortField=r.id&sortOrder=DESC`;
+
+        const response = await axios.get(api, { headers });
+
+        this.reasonOptions = response.data.data
+          .filter((item) => item.code == "leave")
+          .map((item) => ({
+            id: item.id,
+            type: item.type,
+            content: item.content,
+          }));
+      } catch (error) {
+        console.error("Error fetching reason options:", error);
+      }
+    },
     async applyAndRetract() {
       await this.sendLeaveRequest();
       await this.sendRetract();
@@ -450,7 +504,7 @@ export default defineComponent({
         const requestData = {
           filedDates: this.selectedDates_,
           duration: this.durationSelectedValue,
-          comment: this.reason,
+          comment: this.selectedReason,
           leaveTypeId: this.selectedLeaveID,
         };
 
@@ -580,6 +634,7 @@ export default defineComponent({
   async created() {
     this.checkTokenExpiration();
     this.fetchCalendarDisable();
+    this.fetchReasonOptions();
     const data = await this.fetchData();
     this.leaveOptionsWithIds = data;
     this.cardId = this.$route.query.cardId;
@@ -667,8 +722,10 @@ export default defineComponent({
   width: fit-content;
 }
 .reason-container {
-  margin: 0 auto;
+  margin: 0 auto 50px auto;
   width: fit-content;
+  min-width: 300px;
+  max-width: 350px;
 }
 
 .btn-container {

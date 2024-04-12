@@ -7,7 +7,8 @@
       router-direction="forward"
     ></ion-icon>
 
-    <h2 class="title">{{ headerTitle }}</h2>
+    
+    <img :src="this.logo" alt="Logo" class="logo" />
 
     <ion-icon
       name="notifications"
@@ -69,6 +70,9 @@ export default defineComponent({
       rotationState: "initial",
     };
   },
+  created() {
+    this.fetchLogo();
+  },
   methods: {
     navigateBack() {
       this.$router.push("/tabs/services");
@@ -87,6 +91,11 @@ export default defineComponent({
       this.$router.push("/tabs/accsettings");
       this.popoverOpen = false;
     },
+    fetchLogo() {
+      const baseURL = localStorage.getItem("baseUrl");
+
+      this.logo = baseURL + "admin/theme/image/clientBanner";
+    },
     async rotateIcon() {
       this.rotationState = "rotateIcon";
       await new Promise((resolve) => setTimeout(resolve, 300));
@@ -103,7 +112,7 @@ export default defineComponent({
 
 .header {
   background-color: var(--ion-color-blue-theme);
-  height: 120px;
+  height: 100px;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -169,6 +178,16 @@ ion-popover {
 
 .rotateIcon {
   animation: rotateKeyframes 0.3s ease-in-out;
+}
+
+.logo {
+  width: 250px;
+  position: absolute;
+  top: 20px;
+  left: 0;
+  right: 0;
+  margin: auto;
+  padding: 0 5px;
 }
 
 @keyframes rotateKeyframes {

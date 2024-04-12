@@ -9,7 +9,6 @@
       >
         <div class="title-container">
           <h1 class="title" :style="{ color: theme.primaryFontColor }">
-            <!-- <img src="@/assets/images/suysinglogobanner.png" alt="logo" /> -->
             <img :src="logo" alt="Logo" />
           </h1>
           <h4 class="input-title">Enter your PIN</h4>
@@ -214,6 +213,9 @@
             © 2024 BAPPLWARE Technologies, <br />Inc. All rights reserved.
           </p>
         </div>
+      </div>
+      <div class="app-version">
+        <p>App Version: 0.1.14</p>
       </div>
     </ion-content>
   </ion-page>
@@ -457,7 +459,7 @@ export default {
 .bottom-text {
   padding: 0;
   position: absolute;
-  bottom: 50px;
+  bottom: 30px;
   left: 0;
   right: 0;
   flex-wrap: wrap;
@@ -508,5 +510,14 @@ export default {
   font-weight: 800;
   border-radius: 30px;
   border: none;
+}
+.app-version {
+  position: absolute;
+  left: 5px;
+  bottom: 0;
+}
+.app-version p {
+  font-size: 10px;
+  color: gray;
 }
 </style>
