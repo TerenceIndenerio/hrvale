@@ -1,6 +1,6 @@
 <template>
   <ion-header
-    class="header"
+    class="header-container"
     color="none"
     :style="{ backgroundColor: headerColor }"
   >
@@ -20,40 +20,41 @@
     <div class="profile-img-container" @click="openProfileModal">
       <img :src="profileImageUrl" alt="" />
     </div>
+    <ion-modal :is-open="isOpen" id="modal">
+      <ion-card class="card-modal">
+        <ion-icon
+          @click="isOpen = false"
+          name="close"
+          color="danger"
+          class="close-btn"
+        ></ion-icon>
+
+        <div class="modal-content">
+          <div>
+            <img :src="profileImageUrl" alt="" class="profile-img" />
+          </div>
+
+          <h3>
+            {{ this.profileDetails.firstName }}
+            {{ this.profileDetails.middleName }}
+            {{ this.profileDetails.lastName }}
+          </h3>
+          <h3>{{ this.myProfileDetails.userRole.displayName }}</h3>
+
+          <div class="location-container">
+            <p>
+              Employee Number: {{ this.myProfileDetails.employee.empNumber }}
+            </p>
+            <p>Employee ID: {{ this.myProfileDetails.employee.employeeId }}</p>
+            <p>Username: {{ this.myProfileDetails.userName }}</p>
+            <p>Birth Date: {{ this.profileDetails.birthday }}</p>
+            <p>Status: {{ this.profileDetails.status }}</p>
+            <p>Nationality: {{ this.profileDetails.nationality.name }}</p>
+          </div>
+        </div>
+      </ion-card>
+    </ion-modal>
   </ion-header>
-
-  <ion-modal :is-open="isOpen" id="modal">
-    <ion-card class="card-modal">
-      <ion-icon
-        @click="isOpen = false"
-        name="close"
-        color="danger"
-        class="close-btn"
-      ></ion-icon>
-
-      <div class="modal-content">
-        <div>
-          <img :src="profileImageUrl" alt="" class="profile-img" />
-        </div>
-
-        <h3>
-          {{ this.profileDetails.firstName }}
-          {{ this.profileDetails.middleName }}
-          {{ this.profileDetails.lastName }}
-        </h3>
-        <h3>{{ this.myProfileDetails.userRole.displayName }}</h3>
-
-        <div class="location-container">
-          <p>Employee Number: {{ this.myProfileDetails.employee.empNumber }}</p>
-          <p>Employee ID: {{ this.myProfileDetails.employee.employeeId }}</p>
-          <p>Username: {{ this.myProfileDetails.userName }}</p>
-          <p>Birth Date: {{ this.profileDetails.birthday }}</p>
-          <p>Status: {{ this.profileDetails.status }}</p>
-          <p>Nationality: {{ this.profileDetails.nationality.name }}</p>
-        </div>
-      </div>
-    </ion-card>
-  </ion-modal>
 </template>
 
 <script>
@@ -158,6 +159,9 @@ export default defineComponent({
       this.$router.push("/tabs/accsettings");
       this.popoverOpen = false;
     },
+    navigateNotification() {
+      this.$router.push("/notification");
+    },
     async fetchProfileDirectory() {
       try {
         const userDetails = localStorage.getItem("userDetails");
@@ -171,6 +175,7 @@ export default defineComponent({
     async rotateIcon() {
       this.rotationState = "rotateIcon";
       await new Promise((resolve) => setTimeout(resolve, 300));
+      this.navigateNotification();
       this.rotationState = "initial";
     },
   },
@@ -182,7 +187,7 @@ export default defineComponent({
 @import url("https://fonts.googleapis.com/css?family=Open+Sans");
 @import url("https://fonts.googleapis.com/css?family=Roboto");
 
-.header {
+.header-container {
   background-color: #12a3da;
   height: 100px;
   overflow: hidden;

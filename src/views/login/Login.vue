@@ -80,7 +80,7 @@ export default defineComponent({
 
   async mounted() {
     try {
-      await this.checkSetupStatus();
+      await this.hasPincode();
       localStorage.removeItem("clickedTab");
       this.fetchStoredTheme();
       this.fetchLogo();
@@ -92,15 +92,22 @@ export default defineComponent({
   },
 
   methods: {
-    async checkSetupStatus() {
+    async hasPincode() {
       try {
-        this.hasSetup = await localStorage.getItem("hasSetup");
+        await this.fetchToken();
 
-        if (!this.hasSetup) {
-          this.router.replace("/welcomepage");
+        const storedToken = localStorage.getItem("token");
+        const baseURL = localStorage.getItem("baseUrl");
+        const authToken = `Bearer ${storedToken}`;
+        const apiUrl = baseURL + `api/ess/pincode`;
+        const headers = { Authorization: authToken };
+        const response = await axios.get(apiUrl, { headers });
+
+        if (!response.data.data.pincode) {
+          this.router.push("/setuplogin");
         }
       } catch (error) {
-        console.error(error);
+        console.log(error.message);
       }
     },
 
@@ -130,6 +137,7 @@ export default defineComponent({
         }
       } else {
         console.log("No token found");
+        this.router.push("/setuplogin");
       }
     },
 
@@ -144,10 +152,7 @@ export default defineComponent({
         localStorage.setItem("token", response.data.token);
         this.hasToken = true;
       } catch (error) {
-        console.error(error.response.data.error.status);
-        if (error.message === "Request failed with status code 401") {
-          this.checkToken();
-        }
+        await this.checkToken();
       }
     },
 

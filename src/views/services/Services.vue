@@ -139,12 +139,7 @@ export default defineComponent({
         const userDetails = localStorage.getItem("userDetails");
         this.profileDetails = JSON.parse(userDetails);
 
-        this.employeeName =
-          this.profileDetails.firstName +
-          " " +
-          this.profileDetails.middleName +
-          " " +
-          this.profileDetails.lastName;
+        this.employeeName = this.profileDetails.firstName;
       } catch (error) {
         console.log(error);
       }
