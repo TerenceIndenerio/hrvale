@@ -41,6 +41,7 @@ import CashVale from "@/views/services/vale/cash_vale/CashVale.vue";
 import LoadVale from "@/views/services/vale/load_vale/LoadVale.vue";
 import BillsVale from "@/views/services/vale/bills_vale/BillsVale.vue";
 import GroceryVale from "@/views/services/vale/grocery_vale/GroceryVale.vue";
+import ValeMain from "@/views/services/vale/vale_main/ValeMain.vue";
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -239,6 +240,10 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: "/groceryvale",
     component: GroceryVale,
+  },
+  {
+    path: "/valemain",
+    component: ValeMain,
   },
 ];
 
