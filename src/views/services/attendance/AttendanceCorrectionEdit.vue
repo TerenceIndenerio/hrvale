@@ -19,55 +19,56 @@
           </span>
         </p>
 
-        <div class="time-container">
-          <div class="ion-margin-bottom sched-container">
-            <ion-label :style="{ color: theme.primaryColor }">
-              <strong>Schedule In:</strong>
-            </ion-label>
-            <p class="ion-text-center sched-val neomorphic-input-2">
-              {{ this.selectedWorkShift.regularWorkHourStart }}
-            </p>
-          </div>
+        <!-- Work Shift -->
 
-          <div class="ion-margin-bottom sched-container">
-            <ion-label :style="{ color: theme.primaryColor }">
-              <strong>Schedule Out:</strong>
-            </ion-label>
-            <p class="ion-text-center sched-val neomorphic-input-2">
-              {{ this.selectedWorkShift.regularWorkHourEnd }}
-            </p>
-          </div>
-        </div>
+        <ion-label :style="{ color: theme.primaryColor }"
+          ><strong>Work Shift*</strong></ion-label
+        >
+
+        <ion-card class="workshift-select-container neomorphic-input-2">
+          <ion-select
+            placeholder="Select Work Shift"
+            v-model="selectedWorkShift"
+            class="workshift-select"
+            aria-label="Work Shift"
+          >
+            <!-- Options for Work Shift -->
+            <div slot="label">Select work-shift:</div>
+            <ion-select-option
+              v-for="option in workShiftOptions"
+              :key="option.id"
+              :value="option"
+            >
+              {{ option.code }}
+            </ion-select-option>
+          </ion-select>
+        </ion-card>
       </ion-card>
 
       <!-- Sched In and Out -->
-
-      <!-- Work Shift -->
       <div class="flex-center workshift-container">
         <ion-card
           class="ion-margin-bottom input-card work-shift neomorphic-card-1"
         >
-          <ion-label :style="{ color: theme.primaryColor }"
-            ><strong>Work Shift*</strong></ion-label
-          >
-          <ion-card class="workshift-select-container neomorphic-input-2">
-            <ion-select
-              placeholder="Select Work Shift"
-              v-model="selectedWorkShift"
-              class="workshift-select"
-              aria-label="Work Shift"
-            >
-              <!-- Options for Work Shift -->
-              <div slot="label">Select work-shift:</div>
-              <ion-select-option
-                v-for="option in workShiftOptions"
-                :key="option.id"
-                :value="option"
-              >
-                {{ option.code }}
-              </ion-select-option>
-            </ion-select>
-          </ion-card>
+          <div class="time-container-schedule">
+            <div class="ion-margin-bottom sched-container">
+              <ion-label :style="{ color: theme.primaryColor }">
+                <strong>Schedule In:</strong>
+              </ion-label>
+              <p class="ion-text-center sched-val neomorphic-input-2">
+                {{ this.selectedWorkShift.regularWorkHourStart }}
+              </p>
+            </div>
+
+            <div class="ion-margin-bottom sched-container">
+              <ion-label :style="{ color: theme.primaryColor }">
+                <strong>Schedule Out:</strong>
+              </ion-label>
+              <p class="ion-text-center sched-val neomorphic-input-2">
+                {{ this.selectedWorkShift.regularWorkHourEnd }}
+              </p>
+            </div>
+          </div>
         </ion-card>
       </div>
 
@@ -426,7 +427,8 @@ export default defineComponent({
 .card-req {
   border-radius: 20px;
   margin: 20px auto;
-  padding: 0;
+  padding: 10px;
+  min-width: 300px;
 }
 .save-btn {
   margin: 20px auto;
@@ -473,6 +475,15 @@ export default defineComponent({
   align-items: center;
   padding: 0;
   margin: 10px auto 20px auto;
+}
+.time-container-schedule {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  align-items: center;
+  padding: 0;
+  margin: 10px auto;
 }
 .actual-container {
   padding: 10px;

@@ -334,16 +334,17 @@ export default defineComponent({
     async handleSubmit() {
       try {
         this.store.commit("loader/updateLoader", true);
-        console.log(
-          this.selectedDateFrom,
-          this.selectedDateTo,
-          this.requestDate
-        );
+
         await this.checkTokenExpiration();
 
         this.storedToken = localStorage.getItem("token");
         const baseURL = localStorage.getItem("baseUrl");
         const apiUrl = baseURL + `api/v2/ess/overtime`;
+
+        if (!this.selectedReason || !this.comment) {
+          this.showErrorMessage("Please fill out all required fields.");
+          return;
+        }
 
         const reasonIDs = [];
 
@@ -369,8 +370,6 @@ export default defineComponent({
           },
         });
 
-        console.log("Response:", response.data);
-
         if (response.status >= 200 && response.status < 300) {
           const toast = await toastController.create({
             message: "Successfully Sent!",
@@ -388,8 +387,14 @@ export default defineComponent({
         }
       } catch (error) {
         this.store.commit("loader/updateLoader", false);
-        console.error("Error submitting overtime request: ", error);
-        this.showErrorMessage(error.response?.data?.error?.message);
+        console.error(
+          "Error submitting overtime request: ",
+          error.response.data.error.message
+        );
+
+        if (error.response.status === 500) {
+          this.showErrorMessage(error.response.data.error.message);
+        }
       } finally {
         this.store.commit("loader/updateLoader", false);
         this.showCommentContainer = !this.showCommentContainer;
