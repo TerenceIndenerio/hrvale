@@ -10,20 +10,9 @@
       <Refresher />
 
       <ion-card class="box-container">
-        <ion-select
-          v-model="selectedOption"
-          label="Select Type of Details"
-          label-placement="floating"
-          class="select-option neomorphic-input-2"
-        >
-          <ion-select-option
-            v-for="option in dropdownOptions"
-            :value="option"
-            :key="option"
-          >
-            {{ option }}
-          </ion-select-option>
-        </ion-select>
+        <h4>In: {{ punchInText }}</h4>
+
+        <h4>Out: {{ punchOutText }}</h4>
       </ion-card>
 
       <ion-card class="box-container">
@@ -37,7 +26,7 @@
           display-timezone="false"
           v-model="selectedDate"
           @ionChange="handleMonthChange"
-          :highlighted-dates="filteredHighlightedDates"
+          :highlighted-dates="highlightedDates"
         ></ion-datetime>
       </div>
 
@@ -47,39 +36,49 @@
             ><strong>Date Details</strong></ion-card-title
           >
         </ion-card-header>
-
         <ion-card-content>
           <ion-list>
-            <ion-item v-for="date in filteredHighlightedDates" :key="date.id">
+            <ion-item v-for="date in highlightedDates" :key="date.id">
               <div class="details-container">
                 <h2 class="ion-text-center ion-text-uppercase ion-text-bold">
-                  <!-- {{ date.scheduleDate.date.split(" ")[0] }} -->
+                  {{ date.scheduleDate.date.split(" ")[0] }}
                 </h2>
                 <div
-                  :style="{ backgroundColor: date.backgroundColor }"
+                  :style="{ backgroundColor: date.scheduleColor }"
                   class="workShift-color"
                 >
-                  {{ date.title }}
+                  {{ date.code }}
                 </div>
+
                 <ion-note class="details-note">
                   <div class="details-row">
-                    <strong>Title:</strong>
-                    <div>{{ date.title }}</div>
+                    <strong>Actual In & Out:</strong>
+                    <div>{{ date.punchIn }} - {{ date.punchOut }}</div>
                   </div>
                   <div class="details-row">
-                    <strong>Date:</strong>
+                    <strong>Regular Work Hours:</strong>
                     <div>
-                      <template v-if="date.start === date.end">
-                        <div>
-                          {{ formatDate(date.start) }} -
-                          {{ formatTime(date.start) }}
-                        </div>
-                      </template>
-                      <template v-else>
-                        {{ date.start.split(" ")[0] }} -
-                        {{ date.end.split(" ")[0] }}
-                      </template>
+                      {{ date.regularWorkHourStart }} -
+                      {{ date.regularWorkHourEnd }}
                     </div>
+                  </div>
+                  <div class="details-row">
+                    <strong>AM Break:</strong>
+                    <div>{{ date.amBreakStart }} - {{ date.amBreakEnd }}</div>
+                  </div>
+                  <div class="details-row">
+                    <strong>Lunch Break:</strong>
+                    <div>
+                      {{ date.lunchBreakStart }} - {{ date.lunchBreakEnd }}
+                    </div>
+                  </div>
+                  <div class="details-row">
+                    <strong>PM Break:</strong>
+                    <div>{{ date.pmBreakStart }} - {{ date.pmBreakEnd }}</div>
+                  </div>
+                  <div class="details-row">
+                    <strong>Fixed OT Hour:</strong>
+                    <div>{{ date.fixedOtHour }}</div>
                   </div>
                 </ion-note>
               </div>
@@ -104,8 +103,6 @@ import {
   IonLabel,
   IonCardHeader,
   IonCardTitle,
-  IonSelect,
-  IonSelectOption,
 } from "@ionic/vue";
 import HeaderReturn from "@/components/header/HeaderReturn.vue";
 import Refresher from "@/components/refresher/Refresher.vue";
@@ -133,8 +130,6 @@ export default defineComponent({
     IonLabel,
     IonCardHeader,
     IonCardTitle,
-    IonSelect,
-    IonSelectOption,
   },
   setup() {
     return {
@@ -159,89 +154,39 @@ export default defineComponent({
       loading: true,
       year: "",
       empNumber: "",
-      selectedOption: "Others",
-      dropdownOptions: ["Actual In & Out", "Schedule In & Out", "Others"],
-      highlightedDates: [],
     };
   },
   computed: {
-    filteredHighlightedDates() {
-      if (this.selectedOption === "Actual In & Out") {
-        return this.scheduleData
-          .filter(
-            (entry) =>
-              entry.title === "Actual IN" || entry.title === "Actual OUT"
-          )
-          .map((entry) => this.mapEntry(entry))
-          .sort((a, b) => new Date(a.start) - new Date(b.end));
-      } else if (this.selectedOption === "Schedule In & Out") {
-        return this.scheduleData
-          .filter(
-            (entry) =>
-              entry.title === "Schedule IN" || entry.title === "Schedule OUT"
-          )
-          .map((entry) => this.mapEntry(entry))
-          .sort((a, b) => new Date(a.start) - new Date(b.end));
-      } else if (this.selectedOption === "Others") {
-        return this.scheduleData
-          .filter(
-            (entry) =>
-              entry.title !== "Actual IN" &&
-              entry.title !== "Actual OUT" &&
-              entry.title !== "Schedule IN" &&
-              entry.title !== "Schedule OUT"
-          )
-          .map((entry) => this.mapEntry(entry))
-          .sort((a, b) => new Date(a.start) - new Date(b.end));
-      } else {
-        return this.scheduleData
-          .map((entry) => this.mapEntry(entry))
-          .sort((a, b) => new Date(a.start) - new Date(b.end));
-      }
+    highlightedDates() {
+      return this.scheduleData
+        .map((entry) => ({
+          id: entry.id,
+          scheduleDate: entry.scheduleDate,
+          date: entry.scheduleDate.date.split(" ")[0],
+          backgroundColor: entry.workShift.scheduleColor,
+          regularWorkHourStart: entry.regularWorkHourStart,
+          regularWorkHourEnd: entry.regularWorkHourEnd,
+          amBreakStart: entry.amBreakStart,
+          amBreakEnd: entry.amBreakEnd,
+          lunchBreakStart: entry.lunchBreakStart,
+          lunchBreakEnd: entry.lunchBreakEnd,
+          pmBreakStart: entry.pmBreakStart,
+          pmBreakEnd: entry.pmBreakEnd,
+          fixedOtHour: entry.fixedOtHour,
+          code: entry.workShift.code,
+          scheduleColor: entry.workShift.scheduleColor,
+          punchIn: entry.punchIn,
+          punchOut: entry.punchOut,
+        }))
+        .sort((a, b) => {
+          const dateA = new Date(a.scheduleDate.date);
+          const dateB = new Date(b.scheduleDate.date);
+
+          return dateA - dateB;
+        });
     },
   },
   methods: {
-    mapEntry(entry) {
-      let backgroundColor = entry.backgroundColor;
-      let textColor = "#FFFFFF"; // default text color is white
-
-      // Check if the background color is dark
-      if (this.isDarkColor(backgroundColor)) {
-        // If the background color is dark, change the text color to a lighter color
-        textColor = "#FFFFFF"; // white text color for dark background
-      } else {
-        // If the background color is light, change the text color to a darker color
-        textColor = "#161716"; // black text color for light background
-      }
-
-      return {
-        id: entry.id,
-        date: this.formatDateCalendar(entry.start.split(" ")[0]),
-        title: entry.title,
-        start: entry.start,
-        end: entry.start,
-        borderColor: entry.backgroundColor,
-        backgroundColor: backgroundColor,
-        tooltipTitle: entry.tooltipTitle,
-        tooltipContent: entry.tooltipContent,
-        scheduleColor: entry.tooltipContent,
-        textColor: textColor, // set the text color
-      };
-    },
-
-    isDarkColor(color) {
-      // Convert color to RGB
-      let rgb = parseInt(color.substring(1), 16);
-      let r = (rgb >> 16) & 0xff;
-      let g = (rgb >> 8) & 0xff;
-      let b = (rgb >> 0) & 0xff;
-
-      // Calculate luminance
-      let luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b;
-
-      // Return true if luminance is less than a threshold (color is dark), otherwise false
-      return luminance < 128;
-    },
     dateDetails(date) {
       return `
         Regular Work Hours: ${date.regularWorkHourStart} - ${date.regularWorkHourEnd}
@@ -274,15 +219,14 @@ export default defineComponent({
     async requestData() {
       try {
         await this.checkTokenExpiration();
-
         const storedToken = localStorage.getItem("token");
         const baseURL = localStorage.getItem("baseUrl");
         const authToken = `Bearer ${storedToken}`;
-        const apiUrl = new URL(baseURL + "api/v2/calendar/details");
+        const apiUrl = new URL(baseURL + "api/v2/ess/employee-schedule");
         const queryParams = new URLSearchParams({
           empNumber: this.empNumber,
-          dateFrom: this.firstDate,
-          dateTo: this.endDate,
+          month: this.month,
+          year: this.year,
         });
 
         apiUrl.search = queryParams.toString();
@@ -297,7 +241,9 @@ export default defineComponent({
 
         this.scheduleData = this.scheduleData.map((scheduleEntry) => {
           const matchingAttendance = this.attendance.find(
-            (attendanceEntry) => scheduleEntry.start.split(" ")[0]
+            (attendanceEntry) =>
+              attendanceEntry.scheduleDate ===
+              scheduleEntry.scheduleDate.date.split(" ")[0]
           );
 
           return {
@@ -329,32 +275,41 @@ export default defineComponent({
 
       this.firstDate = this.formatDate(firstDayOfMonth);
       this.endDate = this.formatDate(lastDayOfMonth);
+
+      const datePart = new Date(
+        selectedDate.getTime() - selectedDate.getTimezoneOffset() * 60000
+      )
+        .toISOString()
+        .split("T")[0];
+
+      const day = selectedDate.getDate();
+      const month = selectedDate.getMonth() + 1;
+      const selectedMonth = event.detail.value;
+      const year = selectedDate.getFullYear();
+
+      this.selectedDate = datePart;
+      this.day = day;
+      this.month = month;
+      this.selectedMonth = selectedMonth;
+      this.year = year;
+
+      const selectedData = this.scheduleData.find(
+        (entry) => entry.scheduleDate.date.split(" ")[0] === datePart
+      );
+      if (selectedData) {
+        this.punchInText = selectedData.punchIn;
+        this.punchOutText = selectedData.punchOut;
+      } else {
+        this.punchInTex = "00:00";
+        this.punchOutText = "00:00";
+      }
+
+      console.log(this.punchInText);
       this.requestAttendanceData();
       this.requestData();
-
-      console.log();
-    },
-    formatTime(dateString) {
-      const date = new Date(dateString);
-      let hours = date.getHours();
-      let minutes = date.getMinutes();
-      const ampm = hours >= 12 ? "PM" : "AM";
-      hours = hours % 12;
-      hours = hours ? hours : 12;
-      minutes = minutes < 10 ? "0" + minutes : minutes;
-      return `${hours}:${minutes} ${ampm}`;
-    },
-    formatDate(dateString) {
-      const date = new Date(dateString);
-      const year = date.getFullYear();
-      let month = (1 + date.getMonth()).toString().padStart(2, "0");
-      let day = date.getDate().toString().padStart(2, "0");
-
-      return `${year}-${month}-${day}`;
     },
 
-    formatDateCalendar(dateString) {
-      const date = new Date(dateString);
+    formatDate(date) {
       const year = date.getFullYear();
       const month = (date.getMonth() + 1).toString().padStart(2, "0");
       const day = date.getDate().toString().padStart(2, "0");
@@ -367,7 +322,6 @@ export default defineComponent({
         const storedToken = localStorage.getItem("token");
         const authToken = `Bearer ${storedToken}`;
         const baseURL = localStorage.getItem("baseUrl");
-
         const apiUrl =
           baseURL +
           `api/v2/attendance/employees/${this.empNumber}/records?date=${this.firstDate}&endDate=${this.endDate}`;
@@ -518,7 +472,6 @@ ion-card-header {
   right: 0;
   top: 5px;
   padding: 0 10px;
-  color: white;
 }
 .modal {
   position: absolute;
@@ -556,14 +509,5 @@ ion-card-header {
 
 .details-row > div {
   grid-column: 2;
-}
-
-.select-option {
-  width: fit-content;
-  min-width: 300px;
-  background-color: rgba(128, 128, 128, 0.184);
-  border-radius: 20px;
-  padding: 0 10px;
-  margin: 10px auto;
 }
 </style>
