@@ -64,9 +64,13 @@ export default defineComponent({
       this.$router.push("/tabs/accsettings");
       this.popoverOpen = false;
     },
+    navigateNotification() {
+      this.$router.push("/notification");
+    },
     async rotateIcon() {
       this.rotationState = "rotateIcon";
       await new Promise((resolve) => setTimeout(resolve, 300));
+      this.navigateNotification();
       this.rotationState = "initial";
     },
   },

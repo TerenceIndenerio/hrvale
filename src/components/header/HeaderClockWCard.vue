@@ -116,9 +116,13 @@ export default defineComponent({
     navigateBack() {
       this.$router.go(-1);
     },
+    navigateNotification() {
+      this.$router.push("/notification");
+    },
     async rotateIcon() {
       this.rotationState = "rotateIcon";
       await new Promise((resolve) => setTimeout(resolve, 300));
+      this.navigateNotification();
       this.rotationState = "initial";
     },
   },
