@@ -131,22 +131,6 @@
           </ion-card>
         </div>
 
-        <!-- Reason Card -->
-        <!-- <div class="reason-container">
-          <p class="reason-label" :style="{ color: theme.primaryColor }">
-            Reason
-          </p>
-
-          <ion-textarea
-            color="#E8E8E8"
-            label="Type your reason here"
-            labelPlacement="floating"
-            placeholder="Your reason..."
-            v-model="reason"
-            class="neomorphic-textarea-1"
-          ></ion-textarea>
-        </div> -->
-
         <!-- Apply Leave Button -->
         <div class="flex-center btn-container">
           <ion-button
@@ -484,6 +468,7 @@ export default defineComponent({
       try {
         if (
           !this.selectedDates_ ||
+          !this.selectedDates_.length ||
           !this.durationSelectedValue ||
           !this.selectedLeaveID
         ) {
@@ -510,20 +495,29 @@ export default defineComponent({
 
         const response = await axios.post(api, requestData, { headers });
 
+        if (response.status === 200) {
+          const toast = await toastController.create({
+            message: "Retract leave sent successfully!",
+            duration: 3000,
+            position: "top",
+            color: "light",
+            icon: "alert-circle-outline",
+            buttons: [
+              {
+                icon: "close-outline",
+                role: "cancel",
+              },
+            ],
+          });
+
+          await toast.present();
+        } else {
+          throw new Error(
+            "Failed to send leave request. Status: " + response.status
+          );
+        }
+
         this.store.commit("loader/updateLoader", false);
-        const toast = await toastController.create({
-          message: "Leave request sent successfully!",
-          duration: 3000,
-          position: "top",
-          color: "light",
-          icon: "alert-circle-outline",
-          buttons: [
-            {
-              icon: "close-outline",
-              role: "cancel",
-            },
-          ],
-        });
 
         this.reason = null;
         this.durationSelectedValue = null;
@@ -534,9 +528,7 @@ export default defineComponent({
         this.router.push("/leave");
       } catch (error) {
         console.error("Error sending leave request:", error);
-        this.showErrorMessage(
-          "An error occurred: " + error.response?.data?.error?.message
-        );
+        this.showErrorMessage(error.response?.data?.error?.message);
       }
     },
     updateSelectedLeave(event) {

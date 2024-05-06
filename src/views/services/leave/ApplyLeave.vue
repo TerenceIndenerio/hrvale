@@ -418,6 +418,7 @@ export default defineComponent({
       try {
         if (
           !this.selectedDates_ ||
+          !this.selectedDates_.length ||
           !this.durationSelectedValue ||
           !this.selectedLeaveID
         ) {
@@ -426,6 +427,7 @@ export default defineComponent({
           );
           return;
         }
+
         const baseURL = localStorage.getItem("baseUrl");
         const token = localStorage.getItem("token");
         const headers = {
@@ -444,33 +446,39 @@ export default defineComponent({
 
         const response = await axios.post(api, requestData, { headers });
 
-        this.store.commit("loader/updateLoader", false);
-        const toast = await toastController.create({
-          message: "Leave request sent successfully!",
-          duration: 3000,
-          position: "top",
-          color: "light",
-          icon: "alert-circle-outline",
-          buttons: [
-            {
-              icon: "close-outline",
-              role: "cancel",
-            },
-          ],
-        });
+        if (response.status === 200) {
+          const toast = await toastController.create({
+            message: "Leave request sent successfully!",
+            duration: 3000,
+            position: "top",
+            color: "light",
+            icon: "alert-circle-outline",
+            buttons: [
+              {
+                icon: "close-outline",
+                role: "cancel",
+              },
+            ],
+          });
 
-        this.reason = null;
+          await toast.present();
+        } else {
+          throw new Error(
+            "Failed to send leave request. Status: " + response.status
+          );
+        }
+
+        this.store.commit("loader/updateLoader", false);
+
+        this.selectedReason = null;
         this.durationSelectedValue = null;
         this.selectedLeaveID = null;
         this.selectedDates_ = null;
 
-        await toast.present();
         this.router.push("/leave");
       } catch (error) {
         console.error("Error sending leave request:", error);
-        this.showErrorMessage(
-          "An error occurred: " + error.response?.data?.error?.message
-        );
+        this.showErrorMessage(error.response?.data?.error?.message);
       }
     },
 
