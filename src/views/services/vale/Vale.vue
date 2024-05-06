@@ -320,7 +320,7 @@ export default defineComponent({
           year: dataResponse.data.data.year,
         };
       } catch (error) {
-        this.showErrorMessage(error.message);
+        this.showErrorMessage(error.response.data.error.message);
       } finally {
         this.store.commit("loader/updateLoader", false);
       }

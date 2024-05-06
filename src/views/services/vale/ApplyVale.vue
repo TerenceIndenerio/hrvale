@@ -73,7 +73,7 @@
                   <p>{{ valeDataResult.loanInterest }}%</p>
                 </ion-col>
               </ion-row>
-
+              <!--  -->
               <ion-row>
                 <ion-col size="6">
                   <p>Amount of Approval:</p>
@@ -88,11 +88,13 @@
                     <ion-input
                       v-model="approvalAmount"
                       placeholder="Enter amount"
+                      @ionBlur="formatApprovalAmount"
                       @ionChange="updateTotalLoan()"
                     ></ion-input>
                   </div>
                 </ion-col>
               </ion-row>
+              <!--  -->
 
               <ion-row>
                 <ion-col size="6">
@@ -112,16 +114,28 @@
                 </ion-col>
               </ion-row>
 
-              <ion-col size="6">
-                <ion-label>Reasons*:</ion-label>
-              </ion-col>
-
+              <!-- Reason -->
               <ion-col class="reason-container">
-                <ion-card class="reason-card">
-                  <ion-textarea
+                <ion-label>
+                  <strong>Reason*</strong>
+                </ion-label>
+                <ion-card class="reason-select-container neomorphic-input-2">
+                  <ion-select
+                    placeholder="Select Reason"
+                    label-placement="floating"
                     v-model="reason"
-                    placeholder="Enter your reason here..."
-                  ></ion-textarea>
+                    class="reason-select"
+                    aria-label="Reason"
+                  >
+                    <div slot="label">Select Reason</div>
+                    <ion-select-option
+                      v-for="option in reasonOptions"
+                      :key="option.value"
+                      :value="option.content"
+                    >
+                      {{ option.content }}
+                    </ion-select-option>
+                  </ion-select>
                 </ion-card>
               </ion-col>
             </ion-col>
@@ -159,6 +173,8 @@ import {
   toastController,
   IonTextarea,
   IonInput,
+  IonSelect,
+  IonSelectOption,
 } from "@ionic/vue";
 import HeaderReturn from "@/components/header/HeaderReturn.vue";
 import { getThemeData } from "@/theme/theme";
@@ -184,6 +200,8 @@ export default {
     IonTextarea,
     IonInput,
     Refresher,
+    IonSelect,
+    IonSelectOption,
   },
   setup() {
     return {
@@ -205,6 +223,8 @@ export default {
       siblingsChecked: false,
       reason: "",
       approvalAmount: "",
+      reasonOptions: [],
+      selectedReason: "",
       valeDataResult: {
         creditableService: "",
         rulePerYearOfService: "",
@@ -222,6 +242,34 @@ export default {
     };
   },
   methods: {
+    async fetchReasonOptions() {
+      try {
+        await this.checkTokenExpiration();
+
+        this.storedToken = localStorage.getItem("token");
+        const baseURL = localStorage.getItem("baseUrl");
+        const headers = {
+          Authorization: `Bearer ${this.storedToken}`,
+        };
+
+        const api =
+          baseURL +
+          `api/v2/reasons?limit=50&offset=0&sortField=r.id&sortOrder=DESC`;
+
+        const response = await axios.get(api, { headers });
+
+        this.reasonOptions = response.data.data
+          .filter((item) => item.code == "employee_loan")
+          .map((item) => ({
+            id: item.id,
+            type: item.type,
+            content: item.content,
+          }));
+      } catch (error) {
+        console.error("Error fetching reason options:", error);
+      }
+    },
+
     formatWithCommas(value) {
       if (typeof value === "number") {
         const parts = value.toFixed(2).toString().split(".");
@@ -258,7 +306,23 @@ export default {
     },
     async applyVale() {
       try {
+        const approvalAmount = parseInt(this.approvalAmount.replace(/,/g, ""));
+        const loanBalance = parseInt(
+          this.loanDataResult.balance.replace(/,/g, "")
+        );
+
+        if (approvalAmount > loanBalance) {
+          this.showErrorMessage("Invalid Amount for Approval");
+          this.invalidAmount = true;
+          return;
+        }
+
+        if (!this.reason.trim()) {
+          this.showErrorMessage("Please fill in all required fields.");
+          return;
+        }
         this.updateTotalLoan();
+
         if (!this.invalidAmount) {
           this.storedToken = localStorage.getItem("token");
 
@@ -267,35 +331,39 @@ export default {
           };
           const baseURL = localStorage.getItem("baseUrl");
           const api = baseURL + `api/payroll/vale`;
-
           const currentDate = new Date().toISOString().split("T")[0];
+
+          const loanAmount = parseFloat(
+            this.approvalAmount.replace(/,/g, "")
+          ).toString();
 
           const payload = {
             empNumber: this.empNumber,
-            loanAmount: this.approvalAmount,
+            loanAmount: loanAmount,
             loanDate: currentDate,
             reason: this.reason,
           };
 
           const dataResponse = await axios.post(api, payload, { headers });
 
-          await new Promise((resolve) => {
-            this.$router.go(-1);
-            setTimeout(resolve, 1000);
-          });
-          let id = dataResponse.data.data.id;
+          if (dataResponse.status === 200) {
+            this.showAlertMessage("Vale Applied Successfully!");
 
-          this.$router.push({ path: "/viewvale", query: { id } });
+            setTimeout(() => {
+              let id = dataResponse.data.data.id;
+              this.$router.push({ path: "/viewvale", query: { id } });
+            }, 1000);
+          }
         }
       } catch (error) {
         if (!this.invalidAmount) {
           this.showErrorMessage(error.response?.data?.error?.message);
         }
       } finally {
-        this.showAlertMessage("Vale Applied Successfully!");
         this.store.commit("loader/updateLoader", false);
       }
     },
+
     async fetchLoanBudget() {
       try {
         this.store.commit("loader/updateLoader", true);
@@ -319,7 +387,7 @@ export default {
           year: dataResponse.data.data.year,
         };
       } catch (error) {
-        this.showErrorMessage(error.message);
+        this.showErrorMessage(error.response.statusText);
       } finally {
         this.store.commit("loader/updateLoader", false);
       }
@@ -341,7 +409,9 @@ export default {
 
         this.valeDataResult = {
           creditableService: dataResponse.data.data.creditableService,
-          rulePerYearOfService: dataResponse.data.data.rulePerYearOfService,
+          rulePerYearOfService: parseFloat(
+            dataResponse.data.data.rulePerYearOfService
+          ).toLocaleString(),
           carryOverInterest: dataResponse.data.data.carryOverInterest,
           loanInterest: dataResponse.data.data.loanInterest,
           amortizationValue: dataResponse.data.data.amortizationValue,
@@ -359,7 +429,6 @@ export default {
           message: message,
           duration: 3000,
           position: "top",
-          color: "success",
           buttons: [
             {
               icon: "close-outline",
@@ -391,14 +460,29 @@ export default {
         console.error("Error displaying toast:", error);
       }
     },
+
+    formatApprovalAmount() {
+      let numberValue = parseFloat(this.approvalAmount.replace(/,/g, ""));
+      this.approvalAmount = numberValue.toLocaleString();
+    },
+
     updateTotalLoan() {
-      const approvalAmount = parseInt(this.approvalAmount);
+      const approvalAmount = parseInt(this.approvalAmount.replace(/,/g, ""));
       const previousBalance = parseInt(this.valeDataResult.previousBalance);
+      const loanBalance = parseInt(
+        this.loanDataResult.balance.replace(/,/g, "")
+      );
 
       if (!isNaN(approvalAmount) && approvalAmount > 0) {
-        const totalLoan = approvalAmount + previousBalance;
-        this.totalLoan = isNaN(totalLoan) ? 0 : totalLoan;
-        this.invalidAmount = false;
+        if (approvalAmount <= loanBalance) {
+          const totalLoan = approvalAmount + previousBalance;
+          this.totalLoan = isNaN(totalLoan) ? 0 : totalLoan;
+          this.invalidAmount = false;
+        } else {
+          this.showErrorMessage("Invalid Amount for Approval");
+          this.totalLoan = 0;
+          this.invalidAmount = true;
+        }
       } else {
         this.totalLoan = previousBalance;
         this.showErrorMessage("Invalid Amount for Approval");
@@ -411,6 +495,7 @@ export default {
     this.fetchTheme();
     this.fetchValeDetails();
     this.fetchLoanBudget();
+    this.fetchReasonOptions();
   },
 };
 </script>
