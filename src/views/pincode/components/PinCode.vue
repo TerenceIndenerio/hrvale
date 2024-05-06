@@ -195,15 +195,6 @@
           </div>
         </div>
 
-        <div class="forgot-pin">
-          <a
-            href="https://hrp-uat-app.bapplware.com/web/index.php/reset/form/pincode"
-            @click="forgotPin"
-          >
-            Forgot your PIN?
-          </a>
-        </div>
-
         <div class="bottom-text">
           <p
             :style="{
@@ -215,7 +206,7 @@
         </div>
       </div>
       <div class="app-version">
-        <p>App Version: 0.1.23</p>
+        <p>App Version: 0.1.16</p>
       </div>
     </ion-content>
   </ion-page>

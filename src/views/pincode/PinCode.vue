@@ -12,7 +12,9 @@
         </div>
       </div>
 
-      <div class="bottom container">
+      <PinCode @login="validatePincode" :theme="theme" :logo="logo" />
+
+      <!-- <div class="bottom container">
         <div class="pincode-container">
           <h4 class="input-title">Please Enter Your PIN</h4>
           <div class="pincode-circle-container">
@@ -42,7 +44,7 @@
         <div class="bottom-text">
           <p>© 2023 BAPPLWARE Technologies, <br />Inc. All rights reserved.</p>
         </div>
-      </div>
+      </div> -->
     </ion-content>
   </ion-page>
 </template>
@@ -58,6 +60,7 @@ import {
   IonButton,
   toastController,
   IonIcon,
+  alertController,
 } from "@ionic/vue";
 import ChangePinBottomInputContainer from "@/components/others/ChangePinBottomInputContainer.vue";
 import { defineComponent, ref } from "vue";
@@ -65,6 +68,7 @@ import axios from "axios";
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
 import { GlobalConstants } from "@/config/constants";
+import PinCode from "@/views/pincode/components/PinCode.vue";
 
 export default defineComponent({
   components: {
@@ -78,6 +82,8 @@ export default defineComponent({
     IonButton,
     toastController,
     IonIcon,
+    PinCode,
+    alertController,
   },
   setup() {
     return {
@@ -112,6 +118,32 @@ export default defineComponent({
       if (Date.now() > expirationTime) {
         console.log("Token expired. Redirecting to login...");
         this.router.push("/login");
+      }
+    },
+    async validatePincode(pincode) {
+      try {
+        const storedToken = localStorage.getItem("token");
+        const baseURL = localStorage.getItem("baseUrl");
+        const authToken = `Bearer ${storedToken}`;
+        const apiUrl = baseURL + `api/auth/pincode`;
+
+        const headers = {
+          Authorization: authToken,
+        };
+
+        const postData = {
+          pincode: pincode,
+        };
+
+        const response = await axios.post(apiUrl, postData, { headers });
+
+        if (response.data.data.status) {
+          await this.$router.push("/viewpayslip");
+        } else {
+          this.alertError();
+        }
+      } catch (error) {
+        console.log(error.response?.data?.error?.message);
       }
     },
 
@@ -211,6 +243,29 @@ export default defineComponent({
         console.error("Error displaying toast:", error);
       }
     },
+    async alertError() {
+      const showAlert = async () => {
+        const alert = await alertController.create({
+          header: "Invalid Pincode",
+          message: "The pincode you entered is incorrect. Please try again.",
+          buttons: [
+            {
+              text: "Close",
+              htmlAttributes: {
+                "aria-label": "close",
+              },
+            },
+          ],
+        });
+        await alert.present();
+      };
+      return showAlert();
+    },
+    fetchLogo() {
+      const baseURL = localStorage.getItem("baseUrl");
+
+      this.logo = baseURL + "admin/theme/image/clientBanner";
+    },
     fetchTheme() {
       const storedThemeData = localStorage.getItem("themeData");
 
@@ -220,6 +275,7 @@ export default defineComponent({
     },
   },
   created() {
+    this.fetchLogo();
     this.fetchTheme();
     this.hasPincode();
   },
