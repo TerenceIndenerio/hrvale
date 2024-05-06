@@ -134,6 +134,7 @@ const routes: Array<RouteRecordRaw> = [
         path: "/viewschedule",
         component: ViewSchedule,
       },
+
       {
         path: "/attendancecorrection",
         component: AttendanceCorrection,
