@@ -94,6 +94,11 @@ export default defineComponent({
   methods: {
     async hasPincode() {
       try {
+        const hasSetup = localStorage.getItem("hasSetup");
+        if (!hasSetup) {
+          this.router.push("/welcomepage");
+        }
+
         await this.fetchToken();
 
         const storedToken = localStorage.getItem("token");
@@ -104,7 +109,7 @@ export default defineComponent({
         const response = await axios.get(apiUrl, { headers });
 
         if (!response.data.data.pincode) {
-          this.router.push("/setuplogin");
+          this.router.push("/welcomepage");
         }
       } catch (error) {
         console.log(error.message);
@@ -137,7 +142,7 @@ export default defineComponent({
         }
       } else {
         console.log("No token found");
-        this.router.push("/setuplogin");
+        this.router.push("/welcomepage");
       }
     },
 
@@ -153,33 +158,6 @@ export default defineComponent({
         this.hasToken = true;
       } catch (error) {
         await this.checkToken();
-      }
-    },
-
-    async fetchStoredTheme() {
-      try {
-        const storedThemeData = localStorage.getItem("configs");
-
-        const themeData = storedThemeData ? JSON.parse(storedThemeData) : [];
-
-        let themeConfiguration = null;
-
-        for (const data of themeData) {
-          if (data.configuration && data.configuration.theme) {
-            themeConfiguration = data.configuration.theme;
-            break;
-          }
-        }
-
-        if (themeConfiguration) {
-          this.theme = themeConfiguration;
-        } else {
-          console.error(
-            "No theme data found in local storage or theme configuration not available."
-          );
-        }
-      } catch (error) {
-        console.error("Error fetching or parsing theme data:", error);
       }
     },
 
@@ -252,6 +230,7 @@ export default defineComponent({
         await this.validatePincode(pincode);
       } catch (error) {
         console.error(error);
+        console.log("error");
       } finally {
         this.store.commit("loader/updateLoader", false);
       }
@@ -261,6 +240,33 @@ export default defineComponent({
       const baseURL = localStorage.getItem("baseUrl");
 
       this.logo = baseURL + "admin/theme/image/clientBanner";
+    },
+
+    async fetchStoredTheme() {
+      try {
+        const storedThemeData = localStorage.getItem("configs");
+
+        const themeData = storedThemeData ? JSON.parse(storedThemeData) : [];
+
+        let themeConfiguration = null;
+
+        for (const data of themeData) {
+          if (data.configuration && data.configuration.theme) {
+            themeConfiguration = data.configuration.theme;
+            break;
+          }
+        }
+
+        if (themeConfiguration) {
+          this.theme = themeConfiguration;
+        } else {
+          console.error(
+            "No theme data found in local storage or theme configuration not available."
+          );
+        }
+      } catch (error) {
+        console.error("Error fetching or parsing theme data:", error);
+      }
     },
 
     async alertError() {
