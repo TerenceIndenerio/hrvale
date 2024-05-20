@@ -184,23 +184,33 @@ export default defineComponent({
         const configs = storedThemeData ? JSON.parse(storedThemeData) : [];
 
         const brandingConfig = configs.find((item) => item.name === "branding");
+        const authConfigs = configs.find(
+          (item) => item.name === "authentication"
+        );
 
+        console.log("authConfigs: ", authConfigs);
+
+        // Branding
         if (brandingConfig) {
-          const apiHost = brandingConfig.configuration.apiHost;
-          localStorage.setItem("baseUrl", apiHost);
-          console.log(apiHost);
-
           const theme = brandingConfig.configuration.theme;
 
           if (theme) {
             localStorage.setItem("themeData", JSON.stringify(theme));
             this.theme = theme;
-            console.log(theme);
           } else {
             console.error("Theme not found in the branding configuration.");
           }
         } else {
           console.error("Configuration for branding not found.");
+        }
+
+        // Authentication
+        if (authConfigs) {
+          const apiHost = authConfigs.configuration.apiHost;
+          localStorage.setItem("baseUrl", apiHost);
+          console.log("apihost: ", apiHost);
+        } else {
+          console.error("Configuration for Auth not found.");
         }
       } catch (error) {
         console.error("Error fetching or parsing theme data:", error);

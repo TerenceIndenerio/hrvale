@@ -135,7 +135,7 @@
         <div class="flex-center btn-container">
           <ion-button
             class="neomorphic-btn-1"
-            @click="sendLeaveRequest"
+            @click="sendRetract"
             color="none"
             :style="{
               backgroundColor: theme.primaryColor,
@@ -163,6 +163,7 @@ import {
   toastController,
   IonCol,
   IonRow,
+  IonLabel,
 } from "@ionic/vue";
 import Calendar from "@/views/services/leave/components/Calendar.vue";
 import HeaderReturn from "@/components/header/HeaderReturn.vue";
@@ -190,6 +191,7 @@ export default defineComponent({
     Calendar,
     IonCol,
     IonRow,
+    IonLabel,
   },
   setup() {
     return {
@@ -344,7 +346,7 @@ export default defineComponent({
       }
     },
     async applyAndRetract() {
-      await this.sendLeaveRequest();
+      // await this.sendLeaveRequest();
       await this.sendRetract();
       this.router.push("/applyLeave2");
     },
@@ -440,6 +442,18 @@ export default defineComponent({
 
     async sendRetract() {
       try {
+        if (
+          !this.selectedDates_ ||
+          !this.selectedDates_.length ||
+          !this.durationSelectedValue ||
+          !this.selectedLeaveID
+        ) {
+          this.showErrorMessage(
+            "Invalid Leave request. Please fill in all required fields."
+          );
+          return;
+        }
+
         const storedToken = localStorage.getItem("token");
         const baseURL = localStorage.getItem("baseUrl");
         if (!storedToken) {
@@ -459,8 +473,38 @@ export default defineComponent({
           Authorization: authToken,
         };
         const response = await axios.post(apiUrl, payload, { headers });
+
+        if (response.status === 200) {
+          const toast = await toastController.create({
+            message: "Retract leave sent successfully!",
+            duration: 3000,
+            position: "top",
+            color: "light",
+            icon: "alert-circle-outline",
+            buttons: [
+              {
+                icon: "close-outline",
+                role: "cancel",
+              },
+            ],
+          });
+
+          await toast.present();
+
+          this.reason = null;
+          this.durationSelectedValue = null;
+          this.selectedLeaveID = null;
+          this.selectedDates_ = null;
+          this.$router.go(-1);
+        } else {
+          throw new Error(
+            "Failed to send leave request. Status: " + response.status
+          );
+        }
       } catch (error) {
         console.error(error.message);
+      } finally {
+        this.store.commit("loader/updateLoader", false);
       }
     },
 
@@ -484,13 +528,16 @@ export default defineComponent({
           "Content-Type": "application/json",
         };
         const baseURL = localStorage.getItem("baseUrl");
-        const api = baseURL + "api/v3/leave/leave-requests";
+        const api = baseURL + "api/v2/leave/retract";
+
+        const cardId = parseInt(this.cardId);
 
         const requestData = {
           filedDates: this.selectedDates_,
           duration: this.durationSelectedValue,
           comment: this.selectedReason,
           leaveTypeId: this.selectedLeaveID,
+          leaveRequestId: cardId,
         };
 
         const response = await axios.post(api, requestData, { headers });
@@ -524,7 +571,6 @@ export default defineComponent({
         this.selectedLeaveID = null;
         this.selectedDates_ = null;
 
-        await toast.present();
         this.router.push("/leave");
       } catch (error) {
         console.error("Error sending leave request:", error);

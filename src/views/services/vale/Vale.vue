@@ -30,6 +30,13 @@
 
       <ion-card class="card result-container">
         <h4 class="text-center outlineColor">{{ totalRec }} Records Found</h4>
+        <!-- <div class="no-data-container">
+          <img
+            src="src\assets\images\buzz_no_posts.svg"
+            alt=""
+            v-if="this.results.length == 0"
+          />
+        </div> -->
         <ion-card class="card" v-for="(result, index) in results" :key="index">
           <ion-grid>
             <ion-col size="6">
@@ -527,5 +534,12 @@ p {
   padding: 5px 10px;
   border-radius: 10px;
   overflow: hidden;
+}
+.no-data-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  margin: 20px 0;
 }
 </style>

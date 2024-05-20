@@ -7,6 +7,7 @@
       :headerTextColor="theme.primaryFontColor"
     />
     <ion-content>
+      <Refresher />
       <!-- Request Number -->
       <ion-card class="card-req neomorphic-card-1">
         <h4 class="ion-text-center ref-code">
@@ -18,91 +19,95 @@
             <strong> Request Number </strong>
           </span>
         </p>
-
-        <!-- Work Shift -->
-
-        <!-- <ion-label :style="{ color: theme.primaryColor }"
-          ><strong>Work Shift*</strong></ion-label
-        >
-
-        <ion-card class="workshift-select-container neomorphic-input-2">
-          <ion-select
-            placeholder="Select Work Shift"
-            v-model="selectedWorkShift"
-            class="workshift-select"
-            aria-label="Work Shift"
-          > -->
-        <!-- Options for Work Shift -->
-        <!-- <div slot="label">Select work-shift:</div>
-            <ion-select-option
-              v-for="option in workShiftOptions"
-              :key="option.id"
-              :value="option"
-            >
-              {{ option.code }}
-            </ion-select-option> -->
-        <!-- </ion-select>
-        </ion-card> -->
       </ion-card>
 
       <!-- Sched In and Out -->
-      <!-- <div class="flex-center workshift-container">
+      <div class="flex-center workshift-container">
         <ion-card
           class="ion-margin-bottom input-card work-shift neomorphic-card-1"
         >
           <div class="time-container-schedule">
             <div class="ion-margin-bottom sched-container">
               <ion-label :style="{ color: theme.primaryColor }">
-                <strong>Schedule In:</strong>
+                <strong>Change Date From:</strong>
               </ion-label>
               <p class="ion-text-center sched-val neomorphic-input-2">
-                {{ this.selectedWorkShift.regularWorkHourStart }}
+                {{ this.changeDateFrom }}
               </p>
             </div>
 
             <div class="ion-margin-bottom sched-container">
               <ion-label :style="{ color: theme.primaryColor }">
-                <strong>Schedule Out:</strong>
+                <strong>Change Workshift From:</strong>
               </ion-label>
               <p class="ion-text-center sched-val neomorphic-input-2">
-                {{ this.selectedWorkShift.regularWorkHourEnd }}
+                {{ this.workShiftCode }}
               </p>
             </div>
           </div>
         </ion-card>
-      </div> -->
+      </div>
 
-      <!-- Actual In and Out -->
-      <div class="time-container">
+      <div class="option-container">
         <ion-card class="ion-margin-bottom actual-container neomorphic-card-1">
+          <!-- Work Shift -->
+
           <ion-label :style="{ color: theme.primaryColor }"
-            ><strong>Actual In*:</strong></ion-label
+            ><strong>Change Schedule To*</strong></ion-label
           >
-          <div class="actual-input-container">
-            <input
-              type="time"
-              v-model="actualIn"
-              class="actual-input neomorphic-input-2"
-            />
-          </div>
+
+          <ion-card class="workshift-select-container neomorphic-input-2">
+            <ion-select
+              placeholder="Select Work Shift"
+              v-model="selectedSchedule"
+              class="workshift-select"
+              aria-label="Work Shift"
+              @ionChange="
+                this.fetchWorkShiftOptions(
+                  selectedSchedule.regularWorkHourStart,
+                  selectedSchedule.regularWorkHourEnd
+                )
+              "
+            >
+              <!-- Options for Work Shift -->
+              <div slot="label">Select work-shift:</div>
+              <ion-select-option
+                v-for="option in scheduleOptions"
+                :key="option.id"
+                :value="option"
+              >
+                {{ option.workShiftCode }} - {{ option.scheduleDate }}
+              </ion-select-option>
+            </ion-select>
+          </ion-card>
         </ion-card>
+      </div>
 
-        <ion-card class="ion-margin-bottom actual-container neomorphic-card-1">
-          <ion-label :style="{ color: theme.primaryColor }"
-            ><strong>Actual Out*:</strong></ion-label
-          >
-          <div class="actual-input-container">
-            <input
-              type="time"
-              v-model="actualOut"
-              class="actual-input neomorphic-input-2"
-            />
+      <!-- Regular work hr start and end -->
+      <div class="flex-center regular-work-container">
+        <ion-card class="ion-margin-bottom neomorphic-card-1 regular-work-card">
+          <div class="ion-margin-bottom sched-container">
+            <ion-label :style="{ color: theme.primaryColor }">
+              <strong>Regular Work Hour Start:</strong>
+            </ion-label>
+            <p class="ion-text-center sched-val neomorphic-input-2">
+              {{ this.regularWorkHourStart }}
+            </p>
+          </div>
+
+          <div class="ion-margin-bottom sched-container">
+            <ion-label :style="{ color: theme.primaryColor }">
+              <strong>Regular Work Hour End:</strong>
+            </ion-label>
+            <p class="ion-text-center sched-val neomorphic-input-2">
+              {{ this.regularWorkHourEnd }}
+            </p>
           </div>
         </ion-card>
       </div>
 
       <!-- Reason Dropdown -->
-      <div class="flex-center">
+      <div class="option-container">
         <ion-card class="ion-margin-bottom reason-card neomorphic-card-1">
           <ion-label :style="{ color: theme.primaryColor }">
             <strong>Reason*</strong>
@@ -126,20 +131,6 @@
             </ion-select>
           </ion-card>
         </ion-card>
-      </div>
-
-      <!-- Comment Textarea -->
-      <div class="ion-margin-bottom comment">
-        <ion-label position="stacked" :style="{ color: theme.primaryColor }"
-          ><strong>Comment:</strong></ion-label
-        >
-        <ion-textarea
-          v-model="comment"
-          rows="4"
-          class="neomorphic-textarea-1"
-          aria-label="Comment"
-          placeholder="Enter your comment here..."
-        ></ion-textarea>
       </div>
 
       <!-- Save Button -->
@@ -210,7 +201,7 @@ export default defineComponent({
   },
   data() {
     return {
-      headerTitle: "Attendance",
+      headerTitle: "Change DO",
       selectedWorkShift: [],
       scheduleIn: "8:00 AM",
       scheduleOut: "5:00 PM",
@@ -224,9 +215,14 @@ export default defineComponent({
       workShiftOptions: [],
       reasonOptions: [],
       idVal: null,
-      previousIn: "",
-      previousOut: "",
-      empNumber: null,
+      changeDateFrom: null,
+      changeDateTo: null,
+      workShift: "",
+      workShiftCode: "",
+      selectedSchedule: null,
+      scheduleOptions: [],
+      regularWorkHourStart: "",
+      regularWorkHourEnd: "",
     };
   },
   methods: {
@@ -250,10 +246,37 @@ export default defineComponent({
       }
     },
 
-    async fetchData(date, startDate, endDate) {
+    async fetchDataById(changeDateFrom, changeDateTo, workShift) {
       try {
-        this.hasSearched = true;
-        this.store.commit("loader/updateLoader", true);
+        await this.checkTokenExpiration();
+        const baseURL = localStorage.getItem("baseUrl");
+        this.storedToken = localStorage.getItem("token");
+
+        const headers = {
+          Authorization: `Bearer ${this.storedToken}`,
+        };
+        const api =
+          baseURL +
+          `api/v1/employee/schedules?changeDateFrom=${changeDateFrom}&changeDateTo=${changeDateTo}`;
+        const response = await axios.get(api, { headers });
+
+        this.scheduleOptions = response.data.data.map((item) => ({
+          id: item.id,
+          workShiftCode: item.workShift.code,
+          regularWorkHourStart: item.regularWorkHourStart,
+          regularWorkHourEnd: item.regularWorkHourEnd,
+          scheduleDate: new Date(item.scheduleDate.date).toLocaleDateString(
+            "en-US",
+            { timeZone: "Asia/Manila" }
+          ),
+        }));
+      } catch (error) {
+        console.error("Error fetching data by id:", error);
+      }
+    },
+
+    async fetchWorkShiftOptions(regularWorkHourStart, regularWorkHourEnd) {
+      try {
         await this.checkTokenExpiration();
         const baseURL = localStorage.getItem("baseUrl");
         this.storedToken = localStorage.getItem("token");
@@ -263,88 +286,14 @@ export default defineComponent({
         };
 
         const api =
-          baseURL + `api/v2/daily-logs?limit=50&offset=0&date=${date}`;
-        const dataResponse = await axios.get(api, { headers });
-
-        if (dataResponse.data && Array.isArray(dataResponse.data.data)) {
-          this.results = dataResponse.data.data.map((period) => ({
-            id: period.id,
-            date: period.date,
-            day: period.day,
-            actualIn: period.actualIn,
-            actualOut: period.actualOut,
-          }));
-
-          this.actualIn = this.convertTo24HourFormat(
-            dataResponse.data.data[0].actualIn
-          );
-
-          this.actualOut = this.convertTo24HourFormat(
-            dataResponse.data.data[0].actualOut
-          );
-
-          this.previousIn = this.convertTo24HourFormat(
-            dataResponse.data.data[0].actualIn
-          );
-
-          this.previousOut = this.convertTo24HourFormat(
-            dataResponse.data.data[0].actualOut
-          );
-        }
-      } catch (error) {
-        console.error("Error fetching payroll period options: ", error);
-        this.showErrorMessage(error.message);
-
-        const errorMessage =
-          error.response.data.error.message || "Failed to load data";
-      } finally {
-        this.store.commit("loader/updateLoader", false);
-      }
-    },
-
-    convertTo24HourFormat(timeString) {
-      var timeComponents = timeString.split(" ");
-      var time24hr = "";
-      if (timeComponents.length === 2) {
-        var time = timeComponents[0];
-        var meridiem = timeComponents[1].toUpperCase();
-        var timeParts = time.split(":");
-        var hours = parseInt(timeParts[0]);
-        var minutes = parseInt(timeParts[1]);
-        if (meridiem === "PM" && hours < 12) {
-          hours += 12;
-        }
-        if (meridiem === "AM" && hours === 12) {
-          hours = 0;
-        }
-        time24hr =
-          hours.toString().padStart(2, "0") +
-          ":" +
-          minutes.toString().padStart(2, "0");
-      }
-      return time24hr;
-    },
-
-    async fetchWorkShiftOptions() {
-      try {
-        await this.checkTokenExpiration();
-        const baseURL = localStorage.getItem("baseUrl");
-        this.storedToken = localStorage.getItem("token");
-
-        const headers = {
-          Authorization: `Bearer ${this.storedToken}`,
-        };
-
-        const api = baseURL + `api/v2/admin/work-shifts?limit=50&offset=0`;
+          baseURL +
+          `api/v1/employee/schedules?changeDateFrom=${this.changeDateFrom}&changeDateTo=${this.changeDateTo}&changeWorkShiftFrom=${this.workShift}`;
 
         const response = await axios.get(api, { headers });
 
-        this.workShiftOptions = response.data.data.map((item) => ({
-          id: item.id,
-          code: item.code,
-          regularWorkHourStart: item.regularWorkHourStart,
-          regularWorkHourEnd: item.regularWorkHourEnd,
-        }));
+        this.regularWorkHourStart = regularWorkHourStart;
+        this.regularWorkHourEnd = regularWorkHourEnd;
+        console.log(this.workShift);
       } catch (error) {
         console.error("Error fetching work shift options:", error);
       }
@@ -367,7 +316,7 @@ export default defineComponent({
         const response = await axios.get(api, { headers });
 
         this.reasonOptions = response.data.data
-          .filter((item) => item.code == "attendance_correction")
+          .filter((item) => item.code == "schedule_adjustment")
           .map((item) => ({
             id: item.id,
             type: item.type,
@@ -389,85 +338,33 @@ export default defineComponent({
           Authorization: `Bearer ${this.storedToken}`,
         };
 
-        const api = baseURL + `api/v2/ess/apply-attendance-correction`;
-
-        const empNumber = parseInt(this.empNumber);
-
-        // Check if any required field is empty
-        if (
-          !this.actualIn ||
-          !this.actualOut ||
-          !this.comment ||
-          !this.selectedReason.content
-        ) {
-          // If any required field is empty, show an alert
-          const toast = await toastController.create({
-            message: "Please complete all input fields.",
-            duration: 3000,
-            position: "top",
-            icon: "alert-circle-outline",
-            buttons: [
-              {
-                icon: "close-outline",
-                role: "cancel",
-              },
-            ],
-          });
-          await toast.present();
-          return;
-        }
+        const api = baseURL + `api/v1/schedule-adjustments`;
 
         const payload = {
-          requestNo: this.requestNumber,
-          applyActualIn: this.actualIn,
-          applyActualOut: this.actualOut,
-          comment: this.comment,
+          changeDateFrom: this.changeDateFrom,
+          changeDateTo: this.changeDateTo,
+          changeWorkShiftFrom: this.workShiftCode,
+          changeWorkShiftTo: this.selectedSchedule.workShiftCode,
           reason: this.selectedReason.content,
-          date: this.date,
-          empNumber: empNumber,
-          previousIn: this.previousIn,
-          previousOut: this.previousOut,
         };
 
         const dataResponse = await axios.post(api, payload, { headers });
-
-        if (dataResponse.status >= 200 && dataResponse.status < 300) {
-          // If the response is successful, show success message and navigate back
-          const toast = await toastController.create({
-            message: "Attendance Correction Successfully Sent!",
-            duration: 3000,
-            position: "top",
-            icon: "alert-circle-outline",
-            buttons: [
-              {
-                icon: "close-outline",
-                role: "cancel",
-              },
-            ],
-          });
-          await toast.present();
-          this.$router.go(-1);
-        } else {
-          // If the response is not successful, show an error message
-          console.log("Error occurred while sending attendance correction.");
-          const toast = await toastController.create({
-            message: "Error occurred while sending attendance correction.",
-            duration: 3000,
-            position: "top",
-            icon: "alert-circle-outline",
-            buttons: [
-              {
-                icon: "close-outline",
-                role: "cancel",
-              },
-            ],
-          });
-          await toast.present();
-        }
-      } catch (error) {
-        console.log(error.response.data.error.message);
         const toast = await toastController.create({
-          message: error.response.data.error.message,
+          message: "Change DO Successfully Sent!",
+          duration: 3000,
+          position: "top",
+          icon: "alert-circle-outline",
+          buttons: [
+            {
+              icon: "close-outline",
+              role: "cancel",
+            },
+          ],
+        });
+        await toast.present();
+      } catch (error) {
+        const toast = await toastController.create({
+          message: error.message,
           duration: 3000,
           position: "top",
           icon: "alert-circle-outline",
@@ -481,6 +378,7 @@ export default defineComponent({
         await toast.present();
       } finally {
         this.store.commit("loader/updateLoader", false);
+        this.$router.go(-1);
       }
     },
 
@@ -527,18 +425,16 @@ export default defineComponent({
     },
   },
   created() {
-    this.empNumber = localStorage.getItem("empNumber");
-    console.log(this.empNumber);
-    this.fetchTheme();
-    this.fetchWorkShiftOptions();
-    this.fetchReasonOptions();
-    this.idVal = this.$route.query.id;
-    this.startDate = this.$route.query.startDate;
-    this.endDate = this.$route.query.endDate;
-    this.date = this.$route.query.date;
+    const idVal = this.$route.query.id;
+    this.workShift = this.$route.query.workShift;
+    this.changeDateFrom = this.$route.query.date;
+    this.changeDateTo = this.$route.query.changeDateTo;
+    this.workShiftCode = this.$route.query.workShiftCode;
 
-    this.fetchData(this.date, this.startDate, this.endDate, this.idVal);
+    this.fetchTheme();
+    this.fetchReasonOptions();
     this.requestNumberGenerator();
+    this.fetchDataById(this.changeDateFrom, this.changeDateTo, this.workShift);
     this.loading = false;
   },
 });
@@ -597,7 +493,7 @@ export default defineComponent({
   width: fit-content;
   min-width: 100px;
 }
-.time-container {
+.option-container {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
@@ -636,7 +532,8 @@ export default defineComponent({
 .reason-card {
   padding: 10px;
   width: fit-content;
-  min-width: 150px;
+  min-width: 270px;
+  max-width: 300px;
   margin: 0;
   border-radius: 10px;
 }
@@ -649,6 +546,7 @@ export default defineComponent({
 }
 .reason-select {
   width: fit-content;
+  max-width: 250px;
 }
 .comment {
   padding: 5px;
@@ -664,5 +562,9 @@ export default defineComponent({
   margin: 10px auto 0 auto;
   border-bottom: 2px solid rgb(171, 171, 171);
   width: 60%;
+}
+.regular-work-card {
+  display: flex;
+  justify-content: center;
 }
 </style>

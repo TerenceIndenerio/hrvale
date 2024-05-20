@@ -215,7 +215,7 @@
         </div>
       </div>
       <div class="app-version">
-        <p>App Version: 0.1.23</p>
+        <p>App Version: 0.1.25</p>
       </div>
     </ion-content>
   </ion-page>

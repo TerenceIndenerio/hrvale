@@ -1,0 +1,630 @@
+<template>
+  <ion-page>
+    <HeaderReturn
+      v-if="!loading"
+      :headerTitle="headerTitle"
+      :headerColor="theme.primaryColor"
+      :headerTextColor="theme.primaryFontColor"
+    />
+    <ion-content :fullscreen="true" v-if="!loading">
+      <Refresher />
+
+      <!-- Loan Date & Start of Payment -->
+      <ion-card class="neomorphic-card-1 selectdate-card">
+        <div class="selectdate-container">
+          <div class="selectdate-container-inner">
+            <p :style="{ color: theme.primaryColor }" class="label">
+              <strong>Loan Date</strong>
+            </p>
+            <div class="select-option neomorphic-input-2">
+              <ion-input type="date" v-model="loanDate" />
+            </div>
+          </div>
+        </div>
+      </ion-card>
+
+      <!-- Loan Type -->
+      <div class="flex-center">
+        <ion-card class="loantype-card neomorphic-card-1">
+          <p :style="{ color: theme.primaryColor }">
+            <strong>Loan Type</strong>
+          </p>
+
+          <ion-card class="neomorphic-input-2">
+            <ion-select
+              v-model="selectedLoanType"
+              class="reason-select"
+              aria-label="LoanType"
+              label="Select Loan Type"
+              label-placement="floating"
+              @ion-change="validate(selectedLoanType)"
+            >
+              <ion-select-option
+                v-for="loanType in loanTypes"
+                :key="loanType.id"
+                :value="loanType.id"
+              >
+                {{ loanType.loanTypeName }}
+              </ion-select-option>
+            </ion-select>
+          </ion-card>
+        </ion-card>
+      </div>
+
+      <!-- <ion-card class="neomorphic-card-1 selectdate-card">
+        <div class="selectdate-container">
+          <div class="selectdate-container-inner">
+            <p :style="{ color: theme.primaryColor }" class="label">
+              <strong>Loan Date</strong>
+            </p>
+            <div class="select-option neomorphic-input-2">
+              <ion-input type="date" v-model="loanDate" />
+            </div>
+          </div>
+
+          <div class="selectdate-container-inner">
+            <p :style="{ color: theme.primaryColor }" class="label">
+              <strong>Start of Payment</strong>
+            </p>
+            <div class="select-option neomorphic-input-2">
+              <ion-input type="date" v-model="startOfPayment" />
+            </div>
+          </div>
+        </div>
+      </ion-card> -->
+
+      <!-- Frequency -->
+      <!-- <div class="flex-center">
+        <ion-card class="employee-card neomorphic-card-1">
+          <p :style="{ color: theme.primaryColor }">
+            <strong>Frequency</strong>
+          </p>
+
+          <ion-card class="neomorphic-input-2">
+            <ion-select
+              v-model="selectedFrequency"
+              class="reason-select"
+              aria-label="Frequency"
+              label="Select Frequency"
+              label-placement="floating"
+            >
+              <ion-select-option
+                v-for="option in frequencyOption"
+                :key="option.value"
+                :value="option.id"
+              >
+                {{ option.frequencyName }}
+              </ion-select-option>
+            </ion-select>
+          </ion-card>
+        </ion-card>
+      </div> -->
+
+      <!-- Loan Amount -->
+      <ion-card class="neomorphic-card-1 input-num-card">
+        <p :style="{ color: theme.primaryColor }" class="label">
+          <strong>Loan Amount </strong>
+        </p>
+        <ion-card class="neomorphic-input-2">
+          <ion-input
+            label="Enter Loan Amount"
+            type="number"
+            label-placement="floating"
+            placeholder="0"
+            v-model="loanAmount"
+            @ion-change="validateMaxLoan()"
+          ></ion-input>
+        </ion-card>
+        <p v-if="this.maximumLoanableOptionlabel">
+          Min: 0 - Max: {{ this.maxLoanAmount }}
+        </p>
+      </ion-card>
+
+      <!-- Beginning of Payment -->
+      <!-- <ion-card class="neomorphic-card-1 input-num-card">
+        <p :style="{ color: theme.primaryColor }" class="label">
+          <strong>Beginning of Payment</strong>
+        </p>
+        <ion-card class="neomorphic-input-2">
+          <ion-input
+            label="Enter Beginning of Payment"
+            type="number"
+            label-placement="floating"
+            placeholder="0"
+            v-model="beginningPayment"
+            @ion-change="calculateBalance()"
+          ></ion-input>
+        </ion-card>
+      </ion-card> -->
+
+      <!-- Balance -->
+      <!-- <ion-card class="neomorphic-card-1 input-num-card">
+        <p :style="{ color: theme.primaryColor }" class="label">
+          <strong>Balance</strong>
+        </p>
+        <ion-card class="neomorphic-input-2 computed-value">
+          <strong>
+            <ion-input
+              type="number"
+              :disabled="true"
+              style="color: black"
+              v-model="balance"
+            ></ion-input>
+          </strong>
+        </ion-card>
+      </ion-card> -->
+
+      <!-- Ammortization Amount -->
+      <!-- <ion-card class="neomorphic-card-1 input-num-card">
+        <p :style="{ color: theme.primaryColor }" class="label">
+          <strong>Ammortization Amount</strong>
+        </p>
+        <ion-card class="neomorphic-input-2">
+          <ion-input
+            label="Enter Ammortization Amount"
+            type="number"
+            label-placement="floating"
+            placeholder="0"
+            v-model="amortizationAmount"
+          ></ion-input>
+        </ion-card>
+      </ion-card> -->
+
+      <!-- Payment terms per months -->
+      <!-- <ion-card class="neomorphic-card-1 input-num-card">
+        <p :style="{ color: theme.primaryColor }" class="label">
+          <strong>Payment terms per months</strong>
+        </p>
+        <ion-card class="neomorphic-input-2">
+          <ion-input
+            label="Payment terms per months"
+            type="number"
+            label-placement="floating"
+            placeholder="0"
+            v-model="termsPaymentPeriod"
+          ></ion-input>
+        </ion-card>
+      </ion-card> -->
+
+      <!-- Interest -->
+      <!-- <ion-card class="neomorphic-card-1 input-num-card">
+        <p :style="{ color: theme.primaryColor }" class="label">
+          <strong>Interest</strong>
+        </p>
+        <ion-card class="neomorphic-input-2 computed-value">
+          <strong>
+            <ion-input
+              label="Loan Interest"
+              label-placement="floating"
+              type="number"
+              :disabled="true"
+              style="color: black"
+              v-model="loanInterest"
+            ></ion-input>
+          </strong>
+        </ion-card>
+      </ion-card> -->
+
+      <!-- Reason -->
+      <div class="flex-center">
+        <ion-card class="loantype-card neomorphic-card-1">
+          <p :style="{ color: theme.primaryColor }">
+            <strong>Reason</strong>
+          </p>
+
+          <ion-card class="neomorphic-input-2">
+            <ion-select
+              v-model="selectedReason"
+              class="reason-select"
+              aria-label="Reason"
+              label="Select Reason"
+              label-placement="floating"
+            >
+              <ion-select-option
+                v-for="option in reasonOptions"
+                :key="option.value"
+                :value="option"
+              >
+                {{ option.content }}
+              </ion-select-option>
+            </ion-select>
+          </ion-card>
+        </ion-card>
+      </div>
+
+      <!-- Save Button -->
+      <ion-button
+        expand="full"
+        color="none"
+        @click="onSubmit"
+        class="submit-btn neomorphic-btn-1"
+        :style="{ backgroundColor: theme.primaryColor }"
+      >
+        Submit
+      </ion-button>
+    </ion-content>
+  </ion-page>
+</template>
+
+<script>
+import {
+  IonPage,
+  IonContent,
+  IonCard,
+  IonSelect,
+  IonSelectOption,
+  IonGrid,
+  IonRow,
+  IonCol,
+  IonToast,
+  toastController,
+  IonButton,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
+  IonCardSubtitle,
+  IonInput,
+  IonIcon,
+  IonLabel,
+} from "@ionic/vue";
+import Refresher from "@/components/refresher/Refresher.vue";
+import HeaderReturn from "@/components/header/HeaderReturn.vue";
+import { defineComponent } from "vue";
+import axios from "axios";
+import { useStore } from "vuex";
+import { useRouter } from "vue-router";
+import { GlobalConstants } from "@/config/constants";
+import { mapState } from "vuex";
+import { getThemeData } from "@/theme/theme";
+import LoanBalanceModal from "@/views/services/loanBalance/component/loadBalanceModal.vue";
+
+export default defineComponent({
+  components: {
+    IonPage,
+    IonContent,
+    IonCard,
+    HeaderReturn,
+    IonSelect,
+    IonSelectOption,
+    Refresher,
+    IonGrid,
+    IonRow,
+    IonCol,
+    IonToast,
+    toastController,
+    IonButton,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCardSubtitle,
+    IonInput,
+    LoanBalanceModal,
+    IonIcon,
+    IonLabel,
+  },
+  setup() {
+    return {
+      router: useRouter(),
+      store: useStore(),
+    };
+  },
+  data() {
+    return {
+      headerTitle: "Other Loans",
+      payrollPeriodOption: [],
+      authToken: null,
+      noResult: false,
+      results: [],
+      onLoadResult: [],
+      theme: {},
+      loading: true,
+      storedToken: null,
+      startDate: new Date().toISOString().split("T")[0],
+      endDate: new Date().toISOString().split("T")[0],
+      showModal: false,
+      selectedResult: null,
+      loanTypes: [],
+      selectedLoanType: null,
+      filteredResults: [],
+
+      reasonOptions: [],
+      selectedEmployee: null,
+
+      startOfPayment: new Date().toISOString().split("T")[0],
+      loanDate: new Date().toISOString().split("T")[0],
+      loanAmount: null,
+      beginningPayment: null,
+      amortization: null,
+      amortizationAmount: null,
+      paymentTerms: null,
+      selectedReason: null,
+      termsPaymentPeriod: null,
+      loanInterest: null,
+      balance: null,
+      selectedFrequency: null,
+      maxLoanAmount: null,
+      maximumLoanableOptionlabel: null,
+      frequencyOption: [
+        {
+          id: 52,
+          frequencyName: "30th",
+        },
+        {
+          id: 2,
+          frequencyName: "Every Payroll",
+        },
+        {
+          id: 3,
+          frequencyName: "15th",
+        },
+      ],
+    };
+  },
+
+  created() {
+    this.fetchTheme();
+    this.fetchLoanBal();
+    this.empNum = localStorage.getItem("empNumber");
+    this.fetchReasonOptions();
+    this.loading = false;
+  },
+
+  methods: {
+    // Expiration of token
+    async checkTokenExpiration() {
+      const storedToken = localStorage.getItem("token");
+
+      if (!storedToken) {
+        console.error("Token not available.");
+        console.log("Token is missing. Redirecting to login...");
+        this.router.push("/login");
+        return;
+      }
+
+      const tokenData = JSON.parse(atob(storedToken.split(".")[1]));
+      const expirationTime = tokenData.exp * 1000;
+
+      if (Date.now() > expirationTime) {
+        console.log("Token expired. Redirecting to login...");
+        this.router.push("/login");
+      }
+    },
+
+    async fetchLoanBal() {
+      try {
+        this.store.commit("loader/updateLoader", true);
+        await this.checkTokenExpiration();
+
+        this.storedToken = localStorage.getItem("token");
+        const baseURL = localStorage.getItem("baseUrl");
+        const headers = {
+          Authorization: `Bearer ${this.storedToken}`,
+        };
+        const api = baseURL + `api/loanType`;
+
+        const dataResponse = await axios.get(api, { headers });
+
+        this.loanTypes = dataResponse.data.data.map((loan) => ({
+          id: loan.id,
+          loanTypeName: loan.loanTypeName,
+        }));
+      } catch (error) {
+        this.showErrorMessage("An error occurred: " + error.message);
+      } finally {
+        this.store.commit("loader/updateLoader", false);
+      }
+    },
+
+    // searchByLoanType(selectedLoanType) {
+    //   if (selectedLoanType) {
+    //     this.filteredResults = this.results.filter(
+    //       (result) => result.loanTypeId === selectedLoanType
+    //     );
+    //   } else {
+    //     this.filteredResults = this.results;
+    //   }
+    // },
+
+    async onSubmit() {
+      try {
+        await this.checkTokenExpiration();
+
+        const empNumber = localStorage.getItem("empNumber");
+
+        if (
+          this.maximumLoanableOptionlabel !== "No Maximum Loanable Amount" &&
+          this.maximumLoanableOptionlabel !== null
+        ) {
+          console.log(this.maximumLoanableOptionlabel);
+          if (this.loanAmount > this.maxLoanAmount) {
+            this.showErrorMessage("Exceeded Loan Amount!");
+            return;
+          }
+        }
+
+        if (
+          !this.loanAmount ||
+          !this.selectedReason.content ||
+          !this.selectedLoanType ||
+          !this.loanDate
+        ) {
+          await this.showErrorMessage("Please complete all required fields.");
+          return;
+        }
+
+        const payload = {
+          loanAmount: this.loanAmount,
+          reason: this.selectedReason.content,
+          loanType: this.selectedLoanType,
+          loanDate: this.loanDate,
+        };
+
+        console.log("Processing ", payload);
+
+        this.storedToken = localStorage.getItem("token");
+        const baseURL = localStorage.getItem("baseUrl");
+        const headers = {
+          Authorization: `Bearer ${this.storedToken}`,
+        };
+        const api = baseURL + `api/ess/other-loan`;
+
+        const dataResponse = await axios.post(api, payload, { headers });
+
+        if (dataResponse.status === 200) {
+          await this.showErrorMessage("Validation successful");
+        }
+      } catch (error) {
+        console.error("Error in onSubmit:", error);
+        await this.showErrorMessage("Error occurred while validating");
+      }
+    },
+
+    async validate(loanTypeId, loanType) {
+      await this.checkTokenExpiration();
+      this.loanType = loanType;
+      this.loanTypeId = loanTypeId;
+
+      const empNumber = localStorage.getItem("empNumber");
+
+      this.storedToken = localStorage.getItem("token");
+      const baseURL = localStorage.getItem("baseUrl");
+      const headers = {
+        Authorization: `Bearer ${this.storedToken}`,
+      };
+      const api =
+        baseURL +
+        `api/payroll/employee-loan/validate?loanTypeId=${loanTypeId}&employee=${empNumber}`;
+
+      const dataResponse = await axios.get(api, { headers });
+
+      this.termsPaymentPeriod = dataResponse.data.data.termsPaymentPeriod;
+      this.loanInterest = dataResponse.data.data.loanInterest;
+      this.amortization = dataResponse.data.data.amortizationValue;
+      this.maxLoanAmount = dataResponse.data.data.maxLoanAmount;
+      this.maximumLoanableOptionlabel =
+        dataResponse.data.data.maximumLoanableOption.label;
+    },
+
+    validateMaxLoan() {
+      if (
+        this.maximumLoanableOptionlabel !== "No Maximum Loanable Amount" &&
+        this.maximumLoanableOptionlabel !== null
+      ) {
+        console.log(this.maximumLoanableOptionlabel);
+        if (this.loanAmount > this.maxLoanAmount) {
+          this.showErrorMessage("Exceeded Loan Amount!");
+          return;
+        }
+      }
+    },
+
+    calculateBalance() {
+      this.balance = this.loanAmount - this.beginningPayment;
+    },
+    calculateAmortization() {
+      console.log("amort");
+      if (this.amortization == 0) {
+        this.amortization = 0;
+      }
+      this.amortizationAmount = this.loanAmount / this.amortization;
+    },
+
+    async fetchReasonOptions() {
+      try {
+        await this.checkTokenExpiration();
+
+        this.storedToken = localStorage.getItem("token");
+        const baseURL = localStorage.getItem("baseUrl");
+        const headers = {
+          Authorization: `Bearer ${this.storedToken}`,
+        };
+
+        const api =
+          baseURL +
+          `api/v2/reasons?limit=50&offset=0&sortField=r.id&sortOrder=DESC`;
+
+        const response = await axios.get(api, { headers });
+
+        this.reasonOptions = response.data.data
+          .filter((item) => item.code == "employee_loan")
+          .map((item) => ({
+            id: item.id,
+            type: item.type,
+            content: item.content,
+          }));
+      } catch (error) {
+        console.error("Error fetching reason options:", error);
+      }
+    },
+
+    async navigateToViewPage(result) {
+      let id = result.id;
+      this.$router.push({ path: "/loanbalanceview", query: { id } });
+    },
+
+    fetchTheme() {
+      const storedThemeData = localStorage.getItem("themeData");
+
+      const themeData = storedThemeData ? JSON.parse(storedThemeData) : {};
+
+      this.theme = themeData;
+    },
+
+    async showErrorMessage(message) {
+      try {
+        const toast = await toastController.create({
+          message: message,
+          duration: 3000,
+          position: "top",
+          color: "light",
+          buttons: [
+            {
+              icon: "close-outline",
+              role: "cancel",
+            },
+          ],
+        });
+        await toast.present();
+      } catch (error) {
+        console.error("Error displaying toast:", error);
+      }
+    },
+  },
+});
+</script>
+
+<style scoped>
+.employee-card {
+  margin: 10px auto;
+  width: 300px;
+}
+.loantype-card {
+  margin: 10px auto;
+  width: 300px;
+}
+.selectdate-card {
+  width: fit-content;
+  margin: 10px auto;
+  padding: 10px 10px 20px 10px;
+}
+.selectdate-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+}
+.selectdate-container-inner {
+  width: 150px;
+}
+.input-num-card {
+  margin: 10px auto;
+  width: 300px;
+}
+.submit-btn {
+  margin: 30px auto;
+  width: 200px;
+}
+.computed-value {
+  background-color: rgb(233, 233, 233);
+}
+</style>

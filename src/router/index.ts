@@ -25,6 +25,7 @@ import GPSOffline from "@/views/GPSOffline.vue";
 import PinCode from "@/views/pincode/PinCode.vue";
 import PinCodeSetup from "@/views/pincode/PinCodeSetup.vue";
 import PinCodeAccountSettings from "@/views/pincode/PinCodeAccountSettings.vue";
+import OtherLoans from "@/views/services/LoanBalance/OtherLoans.vue";
 import LoanBalance from "@/views/services/loanBalance/loanBalance.vue";
 import LoanBalanceView from "@/views/services/loanBalance/LoanBalanceView.vue";
 import NotifToken from "@/views/dev/NotifToken.vue";
@@ -43,6 +44,8 @@ import BillsVale from "@/views/services/vale/bills_vale/BillsVale.vue";
 import GroceryVale from "@/views/services/vale/grocery_vale/GroceryVale.vue";
 import Notification from "@/views/notification/Notification.vue";
 import ValeMain from "@/views/services/vale/vale_main/ValeMain.vue";
+import ScheduleAdjustment from "@/views/services/schedule_adjustment/ScheduleAdjustment.vue";
+import ScheduleAdjustmentEdit from "@/views/services/schedule_adjustment/ScheduleAdjustmentEdit.vue";
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -97,7 +100,6 @@ const routes: Array<RouteRecordRaw> = [
         path: "services",
         component: () => import("@/views/services/Services.vue"),
       },
-
       {
         path: "approval",
         component: () => import("@/views/approval/Approval.vue"),
@@ -134,7 +136,14 @@ const routes: Array<RouteRecordRaw> = [
         path: "/viewschedule",
         component: ViewSchedule,
       },
-
+      {
+        path: "/scheduleadjustment",
+        component: ScheduleAdjustment,
+      },
+      {
+        path: "/scheduleadjustmentedit",
+        component: ScheduleAdjustmentEdit,
+      },
       {
         path: "/attendancecorrection",
         component: AttendanceCorrection,
@@ -148,7 +157,10 @@ const routes: Array<RouteRecordRaw> = [
         path: "/applyot",
         component: ApplyOT,
       },
-
+      {
+        path: "/otherloans",
+        component: OtherLoans,
+      },
       {
         path: "/loanbalance",
         component: LoanBalance,

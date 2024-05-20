@@ -22,6 +22,15 @@
           />
         </div>
       </div>
+
+      <!-- <div class="no-data-container">
+        <img
+          src="src\assets\images\buzz_no_posts.svg"
+          alt=""
+          v-if="this.results.length == 0"
+        />
+       
+      </div> -->
     </ion-content>
   </ion-page>
 </template>
@@ -236,6 +245,7 @@ export default defineComponent({
     this.fetchPaygrade();
 
     this.loading = false;
+    console.log(this.results.length);
   },
 });
 </script>
@@ -305,5 +315,11 @@ ion-modal#example-modal {
   --min-width: 250px;
   --height: fit-content;
   --border-radius: 20px;
+}
+.no-data-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
 }
 </style>

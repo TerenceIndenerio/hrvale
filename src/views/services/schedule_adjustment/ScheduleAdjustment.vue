@@ -26,13 +26,31 @@
             </div>
           </div>
         </div>
+        <!-- <ion-card class="workshift-select-container neomorphic-input-2">
+          <ion-select
+            placeholder="Select Work Shift"
+            v-model="selectedWorkShift"
+            class="workshift-select"
+            aria-label="Work Shift"
+          >
+           
+            <div slot="label">Select work-shift:</div>
+            <ion-select-option
+              v-for="option in workShiftOptions"
+              :key="option.id"
+              :value="option.id"
+            >
+              {{ option.code }}
+            </ion-select-option>
+          </ion-select>
+        </ion-card> -->
 
         <ion-button
           expand="full"
-          class="pos-right search-btn-container neomorphic-btn-2"
+          class="search-btn-container neomorphic-btn-2"
           color="none"
           :style="{ backgroundColor: theme.primaryColor }"
-          @click="fetchData"
+          @click="fetchSchedules"
         >
           Search
         </ion-button>
@@ -48,101 +66,44 @@
             class="header-outline"
             :style="{ backgroundColor: theme.primaryColor }"
           >
-            <p class="header-label">{{ result.day }} - {{ result.date }}</p>
+            <p class="header-label">{{ result.workShift }}</p>
           </div>
 
-          <ion-grid v-if="hasSearched">
+          <ion-grid>
             <div class="card-content">
-              <ion-row class="data-container">
+              <ion-row>
                 <ion-col size="6">
-                  <p>Actual In:</p>
+                  <p>Day:</p>
                 </ion-col>
                 <ion-col size="6">
-                  <p>
-                    <strong>{{ result.actualIn }}</strong>
-                  </p>
+                  <p>{{ result.day }}</p>
                 </ion-col>
               </ion-row>
 
-              <ion-row class="data-container">
+              <ion-row>
                 <ion-col size="6">
-                  <p>Actual Out:</p>
+                  <p>Date:</p>
                 </ion-col>
                 <ion-col size="6">
-                  <p>
-                    <strong>{{ result.actualOut }}</strong>
-                  </p>
-                </ion-col>
-              </ion-row>
-            </div>
-          </ion-grid>
-
-          <!-- Default -->
-          <ion-grid v-if="!hasSearched">
-            <div class="card-content">
-              <ion-row class="data-container">
-                <ion-col size="6">
-                  <p>Applied Date:</p>
-                </ion-col>
-                <ion-col size="6">
-                  <p>
-                    <strong>{{ result.appliedDate.split(" ")[0] }}</strong>
-                  </p>
+                  <p>{{ result.date }}</p>
                 </ion-col>
               </ion-row>
 
-              <ion-row class="data-container">
+              <ion-row>
                 <ion-col size="6">
-                  <p>Previous Actual In:</p>
+                  <p>Schedule In:</p>
                 </ion-col>
                 <ion-col size="6">
-                  <p>
-                    <strong>{{ result.previousActualIn }}</strong>
-                  </p>
+                  <p>{{ result.scheduleIn }}</p>
                 </ion-col>
               </ion-row>
 
-              <ion-row class="data-container">
+              <ion-row>
                 <ion-col size="6">
-                  <p>Actual In:</p>
+                  <p>Schedule Out:</p>
                 </ion-col>
                 <ion-col size="6">
-                  <p>
-                    <strong>{{ result.actualIn }}</strong>
-                  </p>
-                </ion-col>
-              </ion-row>
-
-              <ion-row class="data-container">
-                <ion-col size="6">
-                  <p>Previous Actual Out:</p>
-                </ion-col>
-                <ion-col size="6">
-                  <p>
-                    <strong>{{ result.previousActualOut }}</strong>
-                  </p>
-                </ion-col>
-              </ion-row>
-
-              <ion-row class="data-container">
-                <ion-col size="6">
-                  <p>Actual Out:</p>
-                </ion-col>
-                <ion-col size="6">
-                  <p>
-                    <strong>{{ result.actualOut }}</strong>
-                  </p>
-                </ion-col>
-              </ion-row>
-
-              <ion-row class="data-container">
-                <ion-col size="6">
-                  <p>Status:</p>
-                </ion-col>
-                <ion-col size="6">
-                  <p>
-                    <strong>{{ result.status }}</strong>
-                  </p>
+                  <p>{{ result.scheduleOut }}</p>
                 </ion-col>
               </ion-row>
             </div>
@@ -152,8 +113,16 @@
             expand="full"
             color="light"
             class="edit-btn neomorphic-btn-2"
-            @click="navigateToEditPage(result.id, result.date)"
-            v-if="hasSearched"
+            @click="
+              navigateToEditPage(
+                result.id,
+                this.startDate,
+                this.endDate,
+                result.date,
+                this.selectedWorkShift,
+                result.workShift
+              )
+            "
           >
             <ion-icon name="create-outline"></ion-icon> Edit
           </ion-button>
@@ -222,7 +191,7 @@ export default defineComponent({
   },
   data() {
     return {
-      headerTitle: "Attendance",
+      headerTitle: "Change DO",
       payrollPeriodOption: [],
       authToken: null,
       noResult: false,
@@ -234,14 +203,15 @@ export default defineComponent({
       startDate: new Date().toISOString().split("T")[0],
       endDate: new Date().toISOString().split("T")[0],
       empNumber: "",
-      hasSearched: false,
-      results2: [],
+      workShiftOptions: [],
+      selectedWorkShift: 85,
     };
   },
   created() {
     this.empNumber = localStorage.getItem("empNumber");
     this.fetchTheme();
-    this.applyAttendanceCorrection();
+    this.fetchWorkShiftOptions();
+    this.fetchSchedules();
     this.loading = false;
   },
 
@@ -263,6 +233,78 @@ export default defineComponent({
       if (Date.now() > expirationTime) {
         console.log("Token expired. Redirecting to login...");
         this.router.push("/login");
+      }
+    },
+
+    // Schedules
+    async fetchSchedules() {
+      try {
+        this.store.commit("loader/updateLoader", true);
+        await this.checkTokenExpiration();
+        const baseURL = localStorage.getItem("baseUrl");
+        this.storedToken = localStorage.getItem("token");
+
+        const headers = {
+          Authorization: `Bearer ${this.storedToken}`,
+        };
+
+        const api = `${baseURL}api/v1/employee/schedules`;
+        const queryParams = new URLSearchParams({
+          changeDateFrom: this.startDate,
+          changeDateTo: this.endDate,
+          changeWorkShiftFrom: this.selectedWorkShift,
+        });
+
+        // if (this.selectedWorkShift !== undefined) {
+        //   queryParams.append("changeWorkShiftFrom", this.selectedWorkShift);
+        // }
+
+        const response = await axios.get(`${api}?${queryParams.toString()}`, {
+          headers,
+        });
+
+        const results = response.data.data.map((schedule) => ({
+          id: schedule.id,
+          day: new Date(schedule.scheduleDate.date).toLocaleDateString(
+            "en-US",
+            { weekday: "long" }
+          ),
+          date: schedule.date,
+          scheduleIn: schedule.lunchBreakStart,
+          scheduleOut: schedule.lunchBreakEnd,
+          workShift: schedule.workShift.code,
+          workShiftID: schedule.workShift.id,
+        }));
+
+        this.results = results;
+      } catch (error) {
+        this.showErrorMessage(error.message);
+      } finally {
+        this.store.commit("loader/updateLoader", false);
+      }
+    },
+    async fetchWorkShiftOptions() {
+      try {
+        await this.checkTokenExpiration();
+        const baseURL = localStorage.getItem("baseUrl");
+        this.storedToken = localStorage.getItem("token");
+
+        const headers = {
+          Authorization: `Bearer ${this.storedToken}`,
+        };
+
+        const api = baseURL + `api/v2/admin/work-shifts`;
+
+        const response = await axios.get(api, { headers });
+
+        this.workShiftOptions = response.data.data.map((item) => ({
+          id: item.id,
+          code: item.code,
+          regularWorkHourStart: item.regularWorkHourStart,
+          regularWorkHourEnd: item.regularWorkHourEnd,
+        }));
+      } catch (error) {
+        console.error("Error fetching work shift options:", error);
       }
     },
 
@@ -305,82 +347,6 @@ export default defineComponent({
           toast.present();
         });
     },
-    async applyAttendanceCorrection() {
-      try {
-        this.store.commit("loader/updateLoader", true);
-        await this.checkTokenExpiration();
-        const baseURL = localStorage.getItem("baseUrl");
-
-        this.storedToken = localStorage.getItem("token");
-
-        const headers = {
-          Authorization: `Bearer ${this.storedToken}`,
-        };
-        const api =
-          baseURL +
-          `api/v2/ess/apply-attendance-correction?empNumber=${this.empNumber}`;
-
-        const dataResponse = await axios.get(api, { headers });
-
-        if (dataResponse.data && Array.isArray(dataResponse.data.data)) {
-          this.results = dataResponse.data.data.map((period) => ({
-            date: period.date,
-            day: period.day,
-            previousActualIn: period.previousActualIn,
-            previousActualOut: period.previousActualOut,
-            appliedDate: period.appliedDate.date,
-            fixedOt: period.fixedOt,
-            fixedOtIn: period.fixedOtIn,
-            fixedOtOut: period.fixedOtOut,
-            actualIn: period.applyActualIn,
-            actualOut: period.applyActualOut,
-            status: period.status,
-          }));
-        }
-      } catch (error) {
-        console.error("Error fetching payroll period options: ", error);
-        this.showErrorMessage("An error occurred: " + error.message);
-      } finally {
-        this.store.commit("loader/updateLoader", false);
-      }
-    },
-
-    async fetchData() {
-      try {
-        this.hasSearched = true;
-        this.store.commit("loader/updateLoader", true);
-        await this.checkTokenExpiration();
-        const baseURL = localStorage.getItem("baseUrl");
-        this.storedToken = localStorage.getItem("token");
-
-        const headers = {
-          Authorization: `Bearer ${this.storedToken}`,
-        };
-
-        const api =
-          baseURL +
-          `api/v2/daily-logs?limit=50&offset=0&date=${this.startDate}&dateEnd=${this.endDate}`;
-        const dataResponse = await axios.get(api, { headers });
-
-        if (dataResponse.data && Array.isArray(dataResponse.data.data)) {
-          this.results = dataResponse.data.data.map((period) => ({
-            id: period.id,
-            date: period.date,
-            day: period.day,
-            actualIn: period.actualIn,
-            actualOut: period.actualOut,
-          }));
-        }
-      } catch (error) {
-        console.error("Error fetching payroll period options: ", error);
-        this.showErrorMessage("An error occurred: " + error.message);
-
-        const errorMessage =
-          error.response.data.error.message || "Failed to load data";
-      } finally {
-        this.store.commit("loader/updateLoader", false);
-      }
-    },
 
     async showErrorMessage(message) {
       try {
@@ -401,17 +367,26 @@ export default defineComponent({
         console.error("Error displaying toast:", error);
       }
     },
-    navigateToEditPage(idVal, date) {
+
+    navigateToEditPage(
+      id,
+      changeDateFrom,
+      changeDateTo,
+      date,
+      workShiftID,
+      workShiftCode
+    ) {
       this.$router.push({
-        path: "/attendancecorrectionedit",
+        path: "/scheduleadjustmentedit",
         query: {
-          id: idVal,
-          endDate: this.endDate,
-          startDate: this.startDate,
+          changeDateFrom: changeDateFrom,
+          changeDateTo: changeDateTo,
+          workShift: workShiftID,
+          workShiftCode: workShiftCode,
           date: date,
+          id: id,
         },
       });
-      console.log(date);
     },
   },
 });
@@ -504,6 +479,7 @@ p {
 .input-container {
   display: flex;
   flex-direction: row;
+  align-items: center;
 }
 .header-row {
   border-bottom: 1px solid #000;
@@ -512,13 +488,10 @@ p {
 .outlineColor {
   border-radius: 20px;
 }
-.pos-right {
-  float: right;
-  right: 10px;
-}
 .search-btn-container {
   height: 30px;
   width: 100px;
+  float: right;
 }
 .edit-btn {
   width: 100%;
@@ -549,7 +522,7 @@ p {
   padding-left: 20px;
 }
 .card-container {
-  width: 270px;
+  width: 300px;
   margin: 10px auto;
 }
 .header-outline {
@@ -563,10 +536,5 @@ p {
 .header-label {
   color: #fff;
   font-size: 12px;
-}
-.data-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
 }
 </style>

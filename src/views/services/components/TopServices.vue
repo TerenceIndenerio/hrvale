@@ -10,12 +10,20 @@
             color: btnTextColor,
           }"
         >
-          <img
-            src="@/assets/images/hrvalewhiteicon.png"
-            alt="Vale Icon"
-            class="icon-btn"
-            style="width: 30px; height: 30px"
-          />
+          <div class="color-filter-container">
+            <div
+              class="vale-colorfilter"
+              :style="{ backgroundColor: btnTextColor }"
+            ></div>
+            <img
+              src="@/assets/images/hrvalewhiteicon.png"
+              alt="Vale Icon"
+              class="icon-btn"
+              style="width: 40px; height: 40px"
+              id="vale-mask"
+            />
+          </div>
+
           <h4>Vale</h4>
         </a>
       </ion-col>
@@ -174,5 +182,20 @@ a {
   justify-content: center;
   flex-direction: column;
   gap: 15px;
+}
+
+.vale-colorfilter {
+  width: 40px;
+  height: 40px;
+  position: absolute;
+  mask-image: url("@/assets/images/hrvalewhiteicon.png");
+  mask-size: cover;
+  mask-position: center;
+  mix-blend-mode: multiply;
+}
+.color-filter-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 </style>

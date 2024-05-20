@@ -59,6 +59,8 @@
         <BuzzFeedCardEmpty />
       </div>
 
+      <div class="no-news-container" v-if="!newsFeed"></div>
+
       <div v-for="(cardData, index) in newsFeed" :key="index">
         <ion-card class="neomorphic-card-1 card-box">
           <div class="card-header">

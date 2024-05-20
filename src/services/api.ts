@@ -13,7 +13,7 @@ interface ApiResponse {
 
 export const generateToken = async (payload: any): Promise<any> => {
   try {
-    const response: AxiosResponse<ApiResponse> = await api.post("/auth/token", {
+    const response: AxiosResponse<ApiResponse> = await api.post("auth/token/", {
       clientId: payload.username,
       clientSecret: payload.password,
       userId: GlobalConstants.USER_ID,

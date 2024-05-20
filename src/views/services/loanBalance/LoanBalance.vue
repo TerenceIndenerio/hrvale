@@ -25,7 +25,11 @@
           </ion-select-option>
         </ion-select>
       </ion-card>
-
+      <!-- <img
+        src="src\assets\images\buzz_no_posts.svg"
+        alt=""
+        v-if="filteredResults.length == 0"
+      /> -->
       <div class="result-container">
         <ion-card
           class="card-content neomorphic-card-1"
@@ -100,6 +104,19 @@
         :theme="theme"
       />
     </ion-content>
+    <div class="btn-container">
+      <ion-button
+        class="otherloan-btn neomorphic-btn-1"
+        :style="{
+          backgroundColor: theme.primaryColor,
+          color: theme.primaryFontColor,
+        }"
+        color="none"
+        @click="navigateOtherLoans"
+      >
+        Apply Other Loans
+      </ion-button>
+    </div>
   </ion-page>
 </template>
 
@@ -191,7 +208,7 @@ export default defineComponent({
   },
 
   methods: {
-    // Exppiration of token
+    // Expiration of token
     async checkTokenExpiration() {
       const storedToken = localStorage.getItem("token");
 
@@ -282,6 +299,10 @@ export default defineComponent({
       } else {
         this.filteredResults = this.results;
       }
+    },
+
+    navigateOtherLoans() {
+      this.$router.push("/otherloans");
     },
 
     async showErrorMessage(message) {
@@ -439,5 +460,16 @@ export default defineComponent({
 }
 .card-content {
   padding: 30px 10px 0 10px;
+}
+.btn-container {
+  margin: 0px auto 20px auto;
+  z-index: 100;
+}
+.otherloan-btn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  overflow: hidden;
 }
 </style>
