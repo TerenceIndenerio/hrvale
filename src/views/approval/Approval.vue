@@ -16,21 +16,22 @@
         >
           <ion-select-option
             v-for="option in requestTypeOption"
-            :key="option.value"
-            :value="option.value"
+            :key="option"
+            :value="option"
             class="non-center"
           >
-            {{ option.label }}
+            {{ option }}
           </ion-select-option>
         </ion-select>
       </ion-card>
 
       <div
-        v-for="(result, index) in results"
+        v-for="(result, index) in filteredResults"
         :key="index"
         class="card-container"
       >
         <ApprovalCard
+          :empId="result.employeeId"
           :status="result.status"
           :employeeName="result.employee"
           :requestType="result.requestType"
@@ -39,8 +40,53 @@
           :requestId="result.id"
           :date="result.date"
           @checkButtonClick="handleCheckButtonClick"
+          @viewButtonClick="handleView"
         />
       </div>
+
+      <ion-modal :is-open="isOpen" id="modal">
+        <ion-card class="card-modal">
+          <ion-icon
+            @click="modalClose"
+            name="close"
+            :style="{ color: theme.primaryColor }"
+            class="close-btn"
+          ></ion-icon>
+          <br />
+          <h4 style="text-align: center">Details</h4>
+
+          <ion-grid class="modal-content" v-if="responseDetails">
+            <ion-row v-for="(value, key) in responseDetails" :key="key">
+              <ion-col>
+                <p>
+                  <strong>{{ key }}</strong>
+                </p>
+              </ion-col>
+              <ion-col>
+                <p>{{ value }}</p>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+
+          <div
+            class="edit-loan-container"
+            v-if="responseDetails['Request Type'] === 'Vale Request'"
+          >
+            <ion-button @click="editApplyLoan()">
+              <ion-icon name="create"></ion-icon>Edit Loan
+            </ion-button>
+          </div>
+
+          <div
+            class="edit-loan-container"
+            v-if="responseDetails['Request Type'] === 'Attendance'"
+          >
+            <ion-button @click="downloadTimesheet()">
+              <ion-icon name="create"></ion-icon>Download Timesheet
+            </ion-button>
+          </div>
+        </ion-card>
+      </ion-modal>
     </ion-content>
   </ion-page>
 </template>
@@ -53,6 +99,13 @@ import {
   IonSelect,
   IonSelectOption,
   toastController,
+  IonModal,
+  IonGrid,
+  IonCol,
+  IonRow,
+  IonIcon,
+  IonAlert,
+  IonButton,
 } from "@ionic/vue";
 import { defineComponent } from "vue";
 import HeaderUser from "@/components/header/HeaderUser.vue";
@@ -62,6 +115,7 @@ import { useStore } from "vuex";
 import { useRouter } from "vue-router";
 import axios from "axios";
 import { GlobalConstants } from "@/config/constants";
+import { alertController } from "@ionic/vue";
 
 export default defineComponent({
   components: {
@@ -74,6 +128,13 @@ export default defineComponent({
     IonSelect,
     IonSelectOption,
     toastController,
+    IonModal,
+    IonGrid,
+    IonCol,
+    IonRow,
+    IonIcon,
+    IonAlert,
+    IonButton,
   },
   setup() {
     return {
@@ -84,14 +145,28 @@ export default defineComponent({
   data() {
     return {
       headerTitle: "Approval",
-      requestTypeOption: [],
+      requestTypeOption: [
+        "Leave Request",
+        "Overtime Request",
+        "Attendance Correction",
+        "Vale Request",
+        "Attendance",
+        "Schedule Adjustment",
+        "Other Loan",
+      ],
       results: [],
+      filteredResults: [],
+      loanDetails: [],
+      responseDetails: [],
       theme: {},
       loading: true,
+      isOpen: false,
+      applyLoanAmount: 0,
+      requestDataIdStored: null,
     };
   },
   methods: {
-    // Exppiration of token
+    // Expiration of token
     async checkTokenExpiration() {
       const storedToken = localStorage.getItem("token");
 
@@ -111,22 +186,139 @@ export default defineComponent({
       }
     },
 
-    handleCheckButtonClick(action, code, requestDataId, requestId) {
+    async editApplyLoan() {
+      console.log(this.requestDataIdStored);
+      const alert = await alertController.create({
+        header: "Edit Apply Loan Amount",
+
+        inputs: [
+          {
+            name: "loanAmount",
+            type: "number",
+            placeholder: "Enter Loan Amount",
+            value: this.applyLoanAmount,
+          },
+        ],
+
+        buttons: [
+          {
+            text: "Cancel",
+            role: "cancel",
+            handler: () => {
+              console.log("Cancel clicked");
+            },
+          },
+          {
+            text: "Save",
+            handler: async (data) => {
+              console.log("Save clicked", data.loanAmount);
+              await this.processEditApplyLoan(data.loanAmount);
+            },
+          },
+        ],
+      });
+
+      await alert.present();
+    },
+
+    // Process Edit Apply Loan
+    async processEditApplyLoan(loanAmount) {
+      try {
+        this.store.commit("loader/updateLoader", true);
+        const baseURL = localStorage.getItem("baseUrl");
+        const storedToken = localStorage.getItem("token");
+
+        if (!storedToken) {
+          throw new Error("Authentication token is missing.");
+        }
+
+        const headers = {
+          Authorization: `Bearer ${storedToken}`,
+        };
+
+        const payload = {
+          loanAmount: loanAmount,
+          requestId: this.requestDataIdStored,
+          status: "approved",
+        };
+
+        const api = baseURL + `api/v2/vale/${this.requestDataIdStored}`;
+        const dataResponse = await axios.put(api, payload, { headers });
+
+        if (dataResponse.status >= 200 && dataResponse.status < 300) {
+          await this.showSuccessMessage(
+            "Successfully Saved Apply Loan Amount!"
+          );
+          window.location.reload();
+        }
+
+        this.store.commit("loader/updateLoader", false);
+      } catch (error) {
+        console.error(error);
+        this.store.commit("loader/updateLoader", false);
+      }
+    },
+
+    async handleCheckButtonClick(
+      action,
+      code,
+      requestDataId,
+      requestId,
+      status,
+      date
+    ) {
+      const alert = await alertController.create({
+        header: "Confirm Action",
+        message: `Do you want to ${action} this request?`,
+        buttons: [
+          {
+            text: "No",
+            role: "cancel",
+            handler: () => {
+              console.log("Action cancelled");
+            },
+          },
+          {
+            text: "Yes",
+            handler: () => {
+              this.processAction(
+                action,
+                code,
+                requestDataId,
+                requestId,
+                status,
+                date
+              );
+            },
+          },
+        ],
+      });
+
+      await alert.present();
+    },
+
+    processAction(action, code, requestId, requestDataId, status, date) {
       switch (code) {
         case "leave":
-          this.leaveRequest(requestId, action);
+          this.leaveRequest(requestDataId, action);
           break;
         case "overtime":
           this.otRequest(requestId, action);
           break;
         case "attendance_correction":
-          this.attendanceCorrection(requestId, action);
+          this.attendanceCorrection(requestDataId, action);
           break;
         case "vale":
           this.valeRequest(requestId, action);
           break;
         case "attendance":
-          this.attendance(requestId, action);
+          this.attendance(requestId, action, status, date);
+          break;
+        case "schedule_adjustment":
+          this.scheduleAdjustment(requestId, action);
+          break;
+        case "other_loan":
+          this.otherLoan(requestId, action, requestDataId);
           break;
         default:
           break;
@@ -149,7 +341,7 @@ export default defineComponent({
 
         const api =
           baseURL +
-          "api/v2/admin/requests?limit=50&offset=0&sortField=e.dateApplied&sortOrder=DESC";
+          "api/v2/admin/requests?limit=150&offset=0&sortField=e.dateApplied&sortOrder=DESC";
         const dataResponse = await axios.get(api, { headers });
 
         if (dataResponse.data && Array.isArray(dataResponse.data.data)) {
@@ -157,13 +349,6 @@ export default defineComponent({
           dataResponse.data.data.forEach((period) => {
             uniqueRequestTypes[period.requestType] = period.requestType;
           });
-
-          this.requestTypeOption = Object.values(uniqueRequestTypes).map(
-            (requestType) => ({
-              label: requestType,
-              value: requestType,
-            })
-          );
 
           this.results = dataResponse.data.data.map((period) => ({
             id: period.id,
@@ -174,8 +359,11 @@ export default defineComponent({
             requestDataId: period.requestDataId,
             status: period.status,
             date: period.dateApplied,
+            employeeId: period.employeeId,
           }));
         }
+        // filtered result as default
+        this.filteredResults = this.results;
 
         this.store.commit("loader/updateLoader", false);
         this.loading = false;
@@ -186,7 +374,7 @@ export default defineComponent({
           console.log("Session expired. Redirecting to login...");
           this.$router.push("/login");
         } else {
-          this.showErrorMessage("An error occurred: " + error.message);
+          this.showErrorMessage(error.response.error.message);
         }
       }
     },
@@ -195,41 +383,18 @@ export default defineComponent({
       try {
         this.store.commit("loader/updateLoader", true);
 
-        const storedToken = localStorage.getItem("token");
-        if (!storedToken) {
-          throw new Error("Authentication token is missing.");
+        if (!this.results || !Array.isArray(this.results)) {
+          throw new Error("Results data is not available.");
         }
-        const baseURL = localStorage.getItem("baseUrl");
-        const headers = {
-          Authorization: `Bearer ${storedToken}`,
-        };
 
-        const api =
-          baseURL +
-          "api/v2/admin/requests?limit=50&offset=0&requestTypeId=5&sortField=e.dateApplied&sortOrder=DESC";
-        const dataResponse = await axios.get(api, { headers });
-
-        if (dataResponse.data && Array.isArray(dataResponse.data.data)) {
-          this.results = dataResponse.data.data.map((period) => ({
-            id: period.id,
-            employee: period.employeeName,
-            requestTypeId: period.requestTypeId,
-            requestType: selectedRequestType,
-            code: period.code,
-            requestId: period.id,
-            requestDataId: period.requestDataId,
-            status: period.status,
-            date: period.dateApplied,
-          }));
-        }
+        this.filteredResults = this.results.filter(
+          (period) => period.requestType === selectedRequestType
+        );
 
         this.store.commit("loader/updateLoader", false);
       } catch (error) {
-        console.error("Error fetching payroll period options: ", error);
+        console.error("Error filtering payroll period options: ", error);
         this.showErrorMessage("An error occurred: " + error.message);
-
-        const errorMessage = error.response.data.error.message;
-        const fullErrorMessage = `Failed to load data, ${errorMessage}`;
       }
     },
     // Leave Request
@@ -275,7 +440,7 @@ export default defineComponent({
         this.fetchRequest();
       } catch (error) {
         console.error("Error updating Attendance Correction: ", error);
-        this.showErrorMessage("An error occurred: " + error.message);
+        this.showErrorMessage(error.response?.data?.error?.message);
 
         const errorMessage = error.response?.data?.error?.message;
         const fullErrorMessage = `An error occurred: ${errorMessage}`;
@@ -323,7 +488,7 @@ export default defineComponent({
         this.fetchRequest();
       } catch (error) {
         console.error("Error updating overtime request: ", error);
-        this.showErrorMessage("An error occurred: " + error.message);
+        this.showErrorMessage(error.response?.data?.error?.message);
       }
     },
     // Attendance
@@ -357,8 +522,8 @@ export default defineComponent({
 
         const successMessage =
           action === "approve"
-            ? "Attendance request successfully approved!"
-            : "Attendance request successfully declined";
+            ? "Attendance Correction successfully approved!"
+            : "Attendance Correction successfully declined";
 
         if (dataResponse.status >= 200 && dataResponse.status < 300) {
           this.showSuccessMessage(successMessage);
@@ -368,7 +533,55 @@ export default defineComponent({
         this.fetchRequest();
       } catch (error) {
         console.error("Error updating Attendance Correction: ", error);
-        this.showErrorMessage("An error occurred: " + error.message);
+        this.showErrorMessage(error.response?.data?.error?.message);
+
+        const errorMessage = error.response?.data?.error?.message;
+        const fullErrorMessage = `An error occurred: ${errorMessage}`;
+      }
+    },
+    // scheduleAdjustment
+    async scheduleAdjustment(requestId, action) {
+      try {
+        this.store.commit("loader/updateLoader", true);
+
+        const storedToken = localStorage.getItem("token");
+        const baseURL = localStorage.getItem("baseUrl");
+        if (!storedToken) {
+          throw new Error("Authentication token is missing.");
+        }
+
+        const headers = {
+          Authorization: `Bearer ${storedToken}`,
+        };
+
+        const payloadVal = action === "approve" ? "approved" : "declined";
+        const payload =
+          action === "approve"
+            ? { status: "approved" }
+            : { status: "declined" };
+
+        const api =
+          baseURL +
+          "api/v2/admin/update-request/" +
+          requestId +
+          "?status=" +
+          payloadVal;
+        const dataResponse = await axios.put(api, payload, { headers });
+
+        const successMessage =
+          action === "approve"
+            ? "Schedule Adjustment request successfully approved!"
+            : "Schedule Adjustment request successfully declined";
+
+        if (dataResponse.status >= 200 && dataResponse.status < 300) {
+          this.showSuccessMessage(successMessage);
+        }
+
+        this.store.commit("loader/updateLoader", false);
+        this.fetchRequest();
+      } catch (error) {
+        console.error("Error updating Attendance Correction: ", error);
+        this.showErrorMessage(error.response?.data?.error?.message);
 
         const errorMessage = error.response?.data?.error?.message;
         const fullErrorMessage = `An error occurred: ${errorMessage}`;
@@ -407,7 +620,7 @@ export default defineComponent({
         await this.valePayroll(requestDataId, action);
       } catch (error) {
         console.error("Error updating Attendance Correction: ", error);
-        this.showErrorMessage("An error occurred: " + error.message);
+        this.showErrorMessage(error.response?.data?.error?.message);
       } finally {
         this.store.commit("loader/updateLoader", false);
       }
@@ -440,13 +653,13 @@ export default defineComponent({
         this.fetchRequest();
       } catch (error) {
         console.error("Error updating Attendance Correction: ", error);
-        this.showErrorMessage("An error occurred: " + error.message);
+        this.showErrorMessage(error.response?.data?.error?.message);
       } finally {
         this.store.commit("loader/updateLoader", false);
       }
     },
     // attendance
-    async attendance(requestId, action) {
+    async attendance(requestId, action, status, date) {
       try {
         this.store.commit("loader/updateLoader", true);
 
@@ -487,14 +700,370 @@ export default defineComponent({
         this.fetchRequest();
       } catch (error) {
         console.error("Error updating overtime request: ", error);
-        this.showErrorMessage("An error occurred: " + error.message);
+        this.showErrorMessage(error.response?.data?.error?.message);
       }
+    },
+
+    // Other Loan
+    async otherLoan(requestId, action, requestDataId) {
+      try {
+        this.store.commit("loader/updateLoader", true);
+
+        const storedToken = localStorage.getItem("token");
+        const baseURL = localStorage.getItem("baseUrl");
+        if (!storedToken) {
+          throw new Error("Authentication token is missing.");
+        }
+
+        const headers = {
+          Authorization: `Bearer ${storedToken}`,
+        };
+
+        const payloadVal = action === "approve" ? "approved" : "declined";
+        const payload =
+          action === "approve"
+            ? { status: "approved" }
+            : { status: "declined" };
+
+        const api =
+          baseURL +
+          "api/v2/admin/update-request/" +
+          requestId +
+          "?status=" +
+          payloadVal;
+        const dataResponse = await axios.put(api, payload, { headers });
+
+        await this.otherLoan2(requestId, action, requestDataId);
+
+        const successMessage =
+          action === "approve"
+            ? "Other Loan successfully approved!"
+            : "Other Loan successfully declined";
+
+        if (dataResponse.status >= 200 && dataResponse.status < 300) {
+          this.showSuccessMessage(successMessage);
+        }
+
+        this.store.commit("loader/updateLoader", false);
+        this.fetchRequest();
+      } catch (error) {
+        console.error("Error updating overtime request: ", error);
+        tthis.showErrorMessage(error.response?.data?.error?.message);
+      }
+    },
+    // OtherLoan 2
+    async otherLoan2(requestId, action, requestDataId) {
+      try {
+        this.store.commit("loader/updateLoader", true);
+
+        const storedToken = localStorage.getItem("token");
+        const baseURL = localStorage.getItem("baseUrl");
+        if (!storedToken) {
+          throw new Error("Authentication token is missing.");
+        }
+
+        const headers = {
+          Authorization: `Bearer ${storedToken}`,
+        };
+
+        const payloadVal = action === "approve" ? "approved" : "declined";
+        const payload =
+          action === "approve"
+            ? { status: "approved" }
+            : { status: "declined" };
+
+        const api = baseURL + "api/ess/other-loans/" + requestDataId;
+        const dataResponse = await axios.put(api, payload, { headers });
+      } catch (error) {
+        console.error(error);
+        this.showErrorMessage(error.response?.data?.error?.message);
+      }
+    },
+
+    // fetchValeDetails
+    async fetchValeDetails(requestDataId) {
+      try {
+        const storedToken = localStorage.getItem("token");
+        const baseURL = localStorage.getItem("baseUrl");
+        if (!storedToken) {
+          throw new Error("Authentication token is missing.");
+        }
+
+        const headers = {
+          Authorization: `Bearer ${storedToken}`,
+        };
+
+        const api = baseURL + `api/v2/vale/${requestDataId}`;
+        const dataResponse = await axios.get(api, { headers });
+        console.log(dataResponse.data.data.loanAmount);
+        this.applyLoanAmount = dataResponse.data.data.loanAmount;
+      } catch (error) {
+        console.error(error);
+        this.showErrorMessage(error.response?.data?.error?.message);
+      }
+    },
+
+    // Handle View
+
+    async handleView(
+      action,
+      code,
+      requestDataId,
+      requestId,
+      employeeName,
+      requestType,
+      status,
+      date,
+      employeeId
+    ) {
+      await this.fetchLoanDetails(
+        code,
+        requestDataId,
+        employeeName,
+        requestType,
+        status,
+        date,
+        employeeId
+      );
+    },
+
+    async fetchLoanDetails(
+      code,
+      requestDataId,
+      employeeName,
+      requestType,
+      status,
+      date,
+      employeeId
+    ) {
+      try {
+        this.store.commit("loader/updateLoader", true);
+        const baseURL = localStorage.getItem("baseUrl");
+        const storedToken = localStorage.getItem("token");
+
+        this.requestDataIdStored = requestDataId;
+
+        if (!storedToken) {
+          throw new Error("Authentication token is missing.");
+        }
+
+        const headers = {
+          Authorization: `Bearer ${storedToken}`,
+        };
+
+        const api = `${baseURL}api/v2/request-details?requestId=${requestDataId}&requestType=${code}`;
+
+        const response = await axios.get(api, { headers });
+
+        this.responseDetails = response.data.data[0];
+
+        switch (code) {
+          case "attendance":
+            console.log("Handling Attendance Request");
+
+            this.responseDetails = {
+              "Employee Id": employeeId,
+              "Employee Name": employeeName,
+              "Request Type": requestType,
+              Status: status,
+              "Date Applied": date,
+              Id: response.data.data[0].id,
+              "Date From": response.data.data[0].dateFrom,
+              "Date To": response.data.data[0].dateTo,
+            };
+            break;
+          case "leave":
+            console.log("Handling Leave Request");
+            this.responseDetails = {
+              "Employee Id": employeeId,
+              "Employee Name": employeeName,
+              "Request Type": requestType,
+              Status: status,
+              "Date Applied": date,
+              "Number Of Days": response.data.data[0].numberOfDays,
+              "From Date": response.data.data[0].fromDate,
+              "To Date": response.data.data[0].toDate,
+              "Leave Type": response.data.data[0].leaveType,
+              "Leave Balance": response.data.data[0].leaveBalance,
+              "Duration Type": response.data.data[0].durationType,
+            };
+            break;
+          case "vale":
+            console.log("Handling Vale Request");
+            this.responseDetails = {
+              "Employee Id": employeeId,
+              "Employee Name": employeeName,
+              "Request Type": requestType,
+              Status: status,
+              "Date Applied": date,
+              "Rule Per Year of Service":
+                response.data.data[0].rulePerYearOfService,
+              "Year Of Service": response.data.data[0].yearOfService,
+              Budget: response.data.data[0].budget,
+              "Previous Balance": response.data.data[0].previousBalance,
+              "Loanable Amount": response.data.data[0].loanableAmount,
+              Amortization: response.data.data[0].amortization,
+              "Exceed Amount": response.data.data[0].exceedAmount,
+              Interest: response.data.data[0].interest,
+              "Loan Amount": response.data.data[0].loanAmountForApproval,
+              Reason: response.data.data[0].reason,
+              Comment: response.data.data[0].comment,
+            };
+            await this.fetchValeDetails(requestDataId);
+            break;
+          case "other_loan":
+            console.log("Handling Other Loan Request");
+            this.responseDetails = {
+              "Employee Id": employeeId,
+              "Employee Name": employeeName,
+              "Request Type": requestType,
+              Status: status,
+              "Date Applied": date,
+              "Loan Date": response.data.data[0].loanDate,
+              "Loan Type Name": response.data.data[0].loanTypeName,
+              "Emp Number": response.data.data[0].empNumber,
+              Name: response.data.data[0].name,
+              "Loan Amount": response.data.data[0].loanAmount,
+              Reason: response.data.data[0].reason,
+            };
+            break;
+          case "schedule_adjustment":
+            console.log("Handling Schedule Adjustment Request");
+            this.responseDetails = {
+              "Employee Id": employeeId,
+              "Employee Name": employeeName,
+              "Request Type": requestType,
+              Status: status,
+              "Date Applied": date,
+              Id: requestDataId,
+              Employee: response.data.data[0].employee,
+              "Change Date From": response.data.data[0].changeDateFrom,
+              "Change Date To": response.data.data[0].changeDateTo,
+              "Change Work Shift Code From":
+                response.data.data[0].changeWorkShiftCodeFrom,
+              "Change Work Shift Code To":
+                response.data.data[0].changeWorkShiftCodeTo,
+              Status: response.data.data[0].status,
+              Reason: response.data.data[0].reason,
+            };
+            break;
+          case "overtime":
+            console.log("Handling overtime Request");
+            this.responseDetails = {
+              "Employee Id": employeeId,
+              "Employee Name": employeeName,
+              "Request Type": requestType,
+              Status: status,
+              "Date Applied": date,
+              Date: response.data.data[0].date,
+              "Total Hours": response.data.data[0].totalHours,
+              Reason: response.data.data[0].reason,
+            };
+            break;
+          case "attendance_correction":
+            console.log("Handling attendance correction");
+            this.responseDetails = {
+              "Employee Id": employeeId,
+              "Employee Name": employeeName,
+              "Request Type": requestType,
+              Status: status,
+              "Date Applied": date,
+              "Previous Actual In": response.data.data[0].previousActualIn,
+              "Applying Actual In": response.data.data[0].applyingActualIn,
+              "Previous Actual Out": response.data.data[0].previousActualOut,
+              "Applying Actual Out": response.data.data[0].applyingActualOut,
+              "Applied Date": response.data.data[0].appliedDate,
+              Day: response.data.data[0].day,
+              Reason: response.data.data[0].reason,
+            };
+            break;
+
+          default:
+            console.log("Unknown Request Type");
+
+            break;
+        }
+        this.isOpen = true;
+
+        this.store.commit("loader/updateLoader", false);
+      } catch (error) {
+        this.isOpen = false;
+        if (error.response && error.response.status === 401) {
+          console.log("Session expired. Redirecting to login...");
+          this.$router.push("/login");
+        } else {
+          this.showErrorMessage(error.response?.data?.error?.message);
+        }
+      }
+    },
+
+    async downloadTimesheet() {
+      try {
+        this.store.commit("loader/updateLoader", true);
+        const baseURL = localStorage.getItem("baseUrl");
+        const storedToken = localStorage.getItem("token");
+
+        if (!storedToken) {
+          throw new Error("Authentication token is missing.");
+        }
+
+        const headers = {
+          Authorization: `Bearer ${storedToken}`,
+        };
+
+        const api =
+          baseURL + `api/report/maintenance/dtr-report/350?isExcel=true`;
+        const dataResponse = await axios.get(api, { headers });
+
+        if (dataResponse.status >= 200 && dataResponse.status < 300) {
+          console.log(dataResponse.data);
+          let base64String = dataResponse.data.data.excel;
+
+          if (!base64String) {
+            throw new Error("Excel data is missing in the response.");
+          }
+
+          while (base64String.length % 4 !== 0) {
+            base64String += "=";
+          }
+
+          const byteCharacters = atob(base64String);
+          const byteNumbers = new Array(byteCharacters.length);
+          for (let i = 0; i < byteCharacters.length; i++) {
+            byteNumbers[i] = byteCharacters.charCodeAt(i);
+          }
+          const byteArray = new Uint8Array(byteNumbers);
+          const blob = new Blob([byteArray], {
+            type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+          });
+          const url = URL.createObjectURL(blob);
+
+          const link = document.createElement("a");
+          link.href = url;
+          link.setAttribute("download", "timesheet.xlsx");
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+
+          await this.showSuccessMessage("Successfully Downloaded Excel!");
+        }
+
+        this.store.commit("loader/updateLoader", false);
+      } catch (error) {
+        console.error(error);
+        this.store.commit("loader/updateLoader", false);
+      }
+    },
+
+    modalClose() {
+      this.responseDetails = [];
+      this.isOpen = false;
     },
 
     async showSuccessMessage(message) {
       const successToast = await toastController.create({
         message: message,
-        duration: 3000,
+        duration: 5000,
         position: "top",
         buttons: [
           {
@@ -535,7 +1104,6 @@ export default defineComponent({
   created() {
     this.checkTokenExpiration();
     this.fetchRequest();
-
     this.fetchTheme();
   },
 });
@@ -569,5 +1137,42 @@ export default defineComponent({
 }
 .request-type-container {
   margin: 20px auto;
+}
+.close-btn {
+  position: absolute;
+  top: 5px;
+  right: 10px;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  margin: 0;
+  box-shadow: var(--neomorphism-convex-4);
+  border-radius: 50%;
+  background-color: rgb(246, 246, 246);
+  overflow: hidden;
+}
+.modal-content {
+  margin: 20px 0;
+}
+#modal {
+  --background: rgba(255, 0, 0, 0);
+}
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-direction: row;
+  padding: 0 5px 0 20px;
+}
+.card-modal {
+  border-radius: 20px;
+  max-width: 400px;
+  overflow-y: scroll;
+}
+.edit-loan-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 10px;
 }
 </style>

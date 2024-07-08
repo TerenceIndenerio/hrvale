@@ -258,7 +258,7 @@ export default defineComponent({
 
     fetchLogo() {
       const baseURL = localStorage.getItem("baseUrl");
-      // const baseURL = "https://hrp-uat-app.bapplware.com/web/index.php/";
+
       this.logo = baseURL + "admin/theme/image/clientBanner";
       console.log("logo", this.logo);
     },

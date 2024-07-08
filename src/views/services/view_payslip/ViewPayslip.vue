@@ -8,6 +8,37 @@
     <ion-content :fullscreen="true" v-if="!loading">
       <Refresher />
 
+      <ion-card class="neomorphic-card-1 search-container">
+        <h5 :style="{ color: theme.primaryColor }" class="search-title">
+          Select Date
+        </h5>
+        <div class="input-container">
+          <div class="container-inner">
+            <p :style="{ color: theme.primaryColor }" class="label">From</p>
+            <div class="select-option neomorphic-input-2">
+              <ion-input type="date" v-model="fromDate" class="date-input" />
+            </div>
+          </div>
+
+          <div class="container-inner">
+            <p :style="{ color: theme.primaryColor }" class="label">To</p>
+            <div class="select-option neomorphic-input-2">
+              <ion-input type="date" v-model="toDate" class="date-input" />
+            </div>
+          </div>
+        </div>
+
+        <ion-button
+          expand="full"
+          class="search-btn-container neomorphic-btn-2"
+          color="none"
+          :style="{ backgroundColor: theme.primaryColor }"
+          @click="fetchData(this.fromDate, this.toDate)"
+        >
+          Search
+        </ion-button>
+      </ion-card>
+
       <div class="container">
         <ion-card class="card result-container">
           <h4
@@ -90,6 +121,7 @@ import {
   IonGrid,
   toastController,
   IonIcon,
+  IonInput,
 } from "@ionic/vue";
 import HeaderReturn from "@/components/header/HeaderReturnPayslip.vue";
 import Refresher from "@/components/refresher/Refresher.vue";
@@ -126,6 +158,7 @@ export default defineComponent({
     Directory,
     Filesystem,
     IonIcon,
+    IonInput,
   },
   setup() {
     return {
@@ -141,6 +174,26 @@ export default defineComponent({
       loading: true,
       payslipData: [],
       cardData: [],
+      selectedMonth: null,
+      selectedYear: null,
+      selectedMonthYear: null,
+      filteredCardData: [],
+      fromDate: new Date().toISOString().split("T")[0],
+      toDate: new Date().toISOString().split("T")[0],
+      months: [
+        { label: "January", value: 1 },
+        { label: "February", value: 2 },
+        { label: "March", value: 3 },
+        { label: "April", value: 4 },
+        { label: "May", value: 5 },
+        { label: "June", value: 6 },
+        { label: "July", value: 7 },
+        { label: "August", value: 8 },
+        { label: "September", value: 9 },
+        { label: "October", value: 10 },
+        { label: "November", value: 11 },
+        { label: "December", value: 12 },
+      ],
     };
   },
   methods: {
@@ -162,6 +215,31 @@ export default defineComponent({
         console.log("Token expired. Redirecting to login...");
         this.router.push("/login");
       }
+    },
+
+    filterResults() {
+      const [selectedYear, selectedMonth] = this.selectedMonthYear.split("-");
+
+      this.filteredCardData = this.cardData.filter((result) => {
+        if (result.month && result.year) {
+          const monthName = new Date(`${result.year}-${result.month}-01`)
+            .toLocaleString("default", { month: "long" })
+            .toLowerCase();
+
+          const selectedMonthName = new Date(
+            `${selectedYear}-${selectedMonth}-01`
+          )
+            .toLocaleString("default", { month: "long" })
+            .toLowerCase();
+
+          return (
+            result.year.toString() === selectedYear &&
+            monthName === selectedMonthName
+          );
+        } else {
+          return false;
+        }
+      });
     },
 
     async requestData() {
@@ -331,6 +409,53 @@ export default defineComponent({
       }
     },
 
+    async fetchData(fromDate, toDate) {
+      try {
+        console.log(fromDate, toDate);
+        this.store.commit("loader/updateLoader", true);
+        await this.checkTokenExpiration();
+        const storedToken = localStorage.getItem("token");
+        const baseURL = localStorage.getItem("baseUrl");
+        const authToken = `Bearer ${storedToken}`;
+
+        const apiUrl =
+          baseURL +
+          `api/web/ess/view-payslip?limit=50&offset=0&date=${fromDate}&dateEnd=${toDate}`;
+        const headers = {
+          Authorization: authToken,
+        };
+
+        const response = await axios.get(apiUrl, { headers });
+
+        this.payslipData = response.data.data;
+
+        const extractedData = this.payslipData.map((entry) => ({
+          month: entry.month,
+          year: entry.year,
+          frequency: entry.frequency,
+          net_pay: entry.net_pay,
+          id: entry.id,
+        }));
+        this.cardData = extractedData;
+      } catch (error) {
+        if (
+          error.response &&
+          error.response.data &&
+          error.response.data.error &&
+          error.response.data.error.message ===
+            "Employee does not have a pincode"
+        ) {
+          this.$router.push("/pincodesetup");
+        } else {
+          this.showErrorMessage(
+            "An error occurred: " + error.response?.data?.error?.message
+          );
+        }
+      } finally {
+        this.store.commit("loader/updateLoader", false);
+      }
+    },
+
     async showAlertMessage(message) {
       try {
         const toast = await toastController.create({
@@ -398,5 +523,68 @@ p {
 .container {
   max-width: 500px;
   margin: auto;
+}
+.filter-container {
+  margin: 0 auto;
+  overflow: hidden;
+  padding: 5px 20px 20px 10px;
+}
+.input-container {
+  overflow: hidden;
+  height: 70px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.date-picker {
+  margin: 0;
+  padding: 0;
+  width: 270px;
+}
+.label {
+  margin-bottom: 5px;
+  text-align: center;
+}
+.arrow-container {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+.arrow-icons {
+  font-size: 20px;
+  margin-right: 5px;
+}
+.search-container {
+  margin: 10px auto 20px auto;
+  padding: 10px;
+}
+.search-title {
+  font-family: "Inter";
+  font-weight: bold;
+  text-align: center;
+  margin: 0 0 10px 0;
+}
+.container-inner p {
+  padding-left: 20px;
+  width: fit-content;
+}
+.search-btn-container {
+  height: 30px;
+  width: 100px;
+  float: right;
+  right: 10px;
+}
+.label {
+  font-family: "Inter";
+  font-weight: bold;
+}
+.date-input {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  width: 120px;
 }
 </style>

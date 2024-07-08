@@ -36,7 +36,10 @@
               ></ion-icon>
             </button>
           </div>
-          <p class="date">{{ result.dateCreated }}</p>
+          <p class="date">
+            {{ result.dateCreated.date.split(" ")[0] }}
+            {{ this.convertTo12Hour(result.dateCreated.date.split(" ")[1]) }}
+          </p>
         </div>
       </div>
     </ion-content>
@@ -149,6 +152,28 @@ export default defineComponent({
         console.log("Token expired. Redirecting to login...");
         this.router.push("/login");
       }
+    },
+
+    convertTo12Hour(timeString) {
+      let timePart = timeString.split(".")[0];
+
+      let date = new Date("1970-01-01T" + timePart + "Z");
+
+      let hours = date.getUTCHours();
+      let minutes = date.getUTCMinutes();
+      let seconds = date.getUTCSeconds();
+
+      let ampm = hours >= 12 ? "PM" : "AM";
+
+      hours = hours % 12;
+      hours = hours ? hours : 12;
+
+      minutes = minutes < 10 ? "0" + minutes : minutes;
+      seconds = seconds < 10 ? "0" + seconds : seconds;
+
+      let formattedTime = hours + ":" + minutes + ":" + seconds + " " + ampm;
+
+      return formattedTime;
     },
 
     async fetchNotif() {

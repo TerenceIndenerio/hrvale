@@ -207,7 +207,7 @@ export default defineComponent({
       scheduleOut: "5:00 PM",
       actualIn: null,
       actualOut: null,
-      selectedReason: null,
+      selectedReason: "",
       comment: "",
       loading: true,
       storedToken: null,
@@ -329,6 +329,23 @@ export default defineComponent({
 
     async saveCorrection() {
       try {
+        if (!this.selectedReason || !this.selectedReason.content) {
+          const toast = await toastController.create({
+            message: "Please provide a reason for the change.",
+            duration: 3000,
+            position: "top",
+            icon: "alert-circle-outline",
+            buttons: [
+              {
+                icon: "close-outline",
+                role: "cancel",
+              },
+            ],
+          });
+          await toast.present();
+          return;
+        }
+
         this.store.commit("loader/updateLoader", true);
         await this.checkTokenExpiration();
         const baseURL = localStorage.getItem("baseUrl");

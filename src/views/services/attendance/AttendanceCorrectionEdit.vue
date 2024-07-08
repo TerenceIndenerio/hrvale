@@ -19,6 +19,26 @@
           </span>
         </p>
 
+        <div class="time-container-schedule">
+          <div class="ion-margin-bottom sched-container">
+            <ion-label :style="{ color: theme.primaryColor }">
+              <strong>Schedule In:</strong>
+            </ion-label>
+            <p class="ion-text-center sched-val neomorphic-input-2">
+              {{ this.regularWorkHourStart }}
+            </p>
+          </div>
+
+          <div class="ion-margin-bottom sched-container">
+            <ion-label :style="{ color: theme.primaryColor }">
+              <strong>Schedule Out:</strong>
+            </ion-label>
+            <p class="ion-text-center sched-val neomorphic-input-2">
+              {{ this.regularWorkHourEnd }}
+            </p>
+          </div>
+        </div>
+
         <!-- Work Shift -->
 
         <!-- <ion-label :style="{ color: theme.primaryColor }"
@@ -70,7 +90,7 @@
             </div>
           </div>
         </ion-card>
-      </div> -->
+      </div>  -->
 
       <!-- Actual In and Out -->
       <div class="time-container">
@@ -227,6 +247,8 @@ export default defineComponent({
       previousIn: "",
       previousOut: "",
       empNumber: null,
+      regularWorkHourStart: "",
+      regularWorkHourEnd: "",
     };
   },
   methods: {
@@ -325,6 +347,27 @@ export default defineComponent({
       return time24hr;
     },
 
+    async fetchSchedules(changeDateFrom, changeDateTo) {
+      try {
+        await this.checkTokenExpiration();
+        const baseURL = localStorage.getItem("baseUrl");
+        this.storedToken = localStorage.getItem("token");
+
+        const headers = {
+          Authorization: `Bearer ${this.storedToken}`,
+        };
+        const api =
+          baseURL +
+          `api/v1/employee/schedules?changeDateFrom=${changeDateFrom}&changeDateTo=${changeDateTo}`;
+        const response = await axios.get(api, { headers });
+
+        this.regularWorkHourStart = response.data.data[0].regularWorkHourStart;
+        this.regularWorkHourEnd = response.data.data[0].regularWorkHourEnd;
+      } catch (error) {
+        console.error("Error fetching data by id:", error);
+      }
+    },
+
     async fetchWorkShiftOptions() {
       try {
         await this.checkTokenExpiration();
@@ -393,14 +436,12 @@ export default defineComponent({
 
         const empNumber = parseInt(this.empNumber);
 
-        // Check if any required field is empty
         if (
           !this.actualIn ||
           !this.actualOut ||
           !this.comment ||
           !this.selectedReason.content
         ) {
-          // If any required field is empty, show an alert
           const toast = await toastController.create({
             message: "Please complete all input fields.",
             duration: 3000,
@@ -432,7 +473,6 @@ export default defineComponent({
         const dataResponse = await axios.post(api, payload, { headers });
 
         if (dataResponse.status >= 200 && dataResponse.status < 300) {
-          // If the response is successful, show success message and navigate back
           const toast = await toastController.create({
             message: "Attendance Correction Successfully Sent!",
             duration: 3000,
@@ -448,7 +488,6 @@ export default defineComponent({
           await toast.present();
           this.$router.go(-1);
         } else {
-          // If the response is not successful, show an error message
           console.log("Error occurred while sending attendance correction.");
           const toast = await toastController.create({
             message: "Error occurred while sending attendance correction.",
@@ -528,7 +567,7 @@ export default defineComponent({
   },
   created() {
     this.empNumber = localStorage.getItem("empNumber");
-    console.log(this.empNumber);
+
     this.fetchTheme();
     this.fetchWorkShiftOptions();
     this.fetchReasonOptions();
@@ -538,6 +577,8 @@ export default defineComponent({
     this.date = this.$route.query.date;
 
     this.fetchData(this.date, this.startDate, this.endDate, this.idVal);
+
+    this.fetchSchedules(this.date, this.date);
     this.requestNumberGenerator();
     this.loading = false;
   },

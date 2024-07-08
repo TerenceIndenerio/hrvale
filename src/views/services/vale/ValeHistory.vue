@@ -8,24 +8,6 @@
     <ion-content :fullscreen="true">
       <Refresher />
 
-      <ion-card
-        class="card loan-budget-container"
-        v-if="!loading"
-        :style="{ backgroundColor: theme.primaryColor }"
-      >
-        <div class="loanbalance-container">
-          <div class="loan-budget-val">
-            <p :style="{ color: theme.primaryFontColor }">PHP</p>
-            <h4 :style="{ color: theme.primaryFontColor }">
-              {{ loanDataResult.balance }}
-            </h4>
-          </div>
-          <div class="loan-budget-text">
-            <p :style="{ color: theme.primaryFontColor }">Loanable Amount</p>
-          </div>
-        </div>
-      </ion-card>
-
       <ion-card class="card result-container">
         <ion-card class="neomorphic-card-1 search-container">
           <h5 :style="{ color: theme.primaryColor }" class="search-title">
@@ -47,6 +29,7 @@
             </div>
           </div>
         </ion-card>
+
         <ion-card
           class="card"
           v-for="(result, index) in displayedResults"
@@ -86,29 +69,13 @@
           <ion-button
             expand="full"
             color="light"
-            class="edit-btn"
+            class="view-btn"
             @click="navigateToViewPage(result)"
           >
             View
           </ion-button>
         </ion-card>
       </ion-card>
-
-      <div class="vale-history-container">
-        <ion-button class="vale-history-btn" shape="round" fill="outline"
-          >All</ion-button
-        >
-      </div>
-
-      <ion-button
-        color="none"
-        class="create-vale-btn"
-        :style="{ backgroundColor: theme.secondaryColor }"
-        @click="navigateToApplyVale"
-      >
-        <h2><ion-icon name="add"></ion-icon></h2>
-        Apply Vale
-      </ion-button>
     </ion-content>
   </ion-page>
 </template>
@@ -155,7 +122,7 @@ export default defineComponent({
   },
   data() {
     return {
-      headerTitle: "Vale",
+      headerTitle: "Vale History",
       results: [],
       theme: {},
       loading: true,
@@ -265,7 +232,7 @@ export default defineComponent({
           }
         }
       } catch (error) {
-        this.showErrorMessage(error.response.data.error.message);
+        this.showErrorMessage("An error occurred: " + error.message);
       } finally {
         this.store.commit("loader/updateLoader", false);
       }
@@ -472,10 +439,10 @@ p {
   overflow: hidden;
   border-radius: 10px;
 }
-.edit-btn {
+.view-btn {
   padding: 0;
   overflow: hidden;
-  margin: 10px auto;
+  margin: 0 auto 10px auto;
   width: 100%;
 }
 .create-vale-btn {

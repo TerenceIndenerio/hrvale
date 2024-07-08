@@ -31,11 +31,9 @@ import axios from "axios";
 import { getThemeData, setThemeData } from "@/theme/theme";
 import { runBackgroundScript } from "@/notification/Notification.ts";
 import { newToken } from "@/store/token/newToken.ts";
-import { adminUserDetails, userDetails } from "@/store/login/onLoad";
+import { adminUserDetails } from "@/store/login/onLoad";
 import generateToken from "@/store/token/accessToken.ts";
 import Refresher from "@/components/refresher/Refresher.vue";
-
-const id = GlobalConstants.USER_ID;
 
 export default defineComponent({
   components: {
@@ -75,6 +73,7 @@ export default defineComponent({
       empNumber: "",
       pincodeData: "",
       empID: "",
+      appVersion: "0.1.29",
     };
   },
 
@@ -84,6 +83,38 @@ export default defineComponent({
       localStorage.removeItem("clickedTab");
       this.fetchStoredTheme();
       this.fetchLogo();
+
+      const storedThemeData = localStorage.getItem("configs");
+      const storedCredentials = JSON.parse(
+        localStorage.getItem("userCredentials")
+      );
+
+      const response = await generateToken(
+        storedCredentials.username,
+        storedCredentials.password,
+        storedCredentials.client
+      );
+
+      const brandingConfig = response.data.configs.find(
+        (item) => item.name === "branding"
+      );
+
+      const servicesConfig = brandingConfig.configuration.services;
+      const client = brandingConfig.configuration.client;
+      localStorage.setItem("servicesConfig", JSON.stringify(servicesConfig));
+      localStorage.setItem("client", JSON.stringify(client));
+
+      const requiredAppVersion = brandingConfig.configuration.appVersion;
+
+      localStorage.setItem("appVersion", this.appVersion);
+
+      if (this.appVersion !== requiredAppVersion) {
+        const message = `App Version Needs to be ${requiredAppVersion}. Please Update your App.`;
+        await this.presentAlert(message, () => {
+          window.location.href =
+            "https://play.google.com/store/apps/details?id=com.bapplware.hrvale&pcampaignid=web_share";
+        });
+      }
     } catch (error) {
       console.error("Error checking setup status:", error);
     } finally {
@@ -224,9 +255,7 @@ export default defineComponent({
         await this.checkToken();
         await this.fetchToken();
         await this.fetchUserDetails();
-
         await runBackgroundScript();
-        await userDetails(this.empNumber);
         await this.validatePincode(pincode);
       } catch (error) {
         console.error(error);
@@ -267,6 +296,21 @@ export default defineComponent({
       } catch (error) {
         console.error("Error fetching or parsing theme data:", error);
       }
+    },
+
+    async presentAlert(message, onOkay) {
+      const alert = await alertController.create({
+        header: "Update!",
+        message: message,
+        buttons: [
+          {
+            text: "Okay",
+            handler: onOkay,
+          },
+        ],
+      });
+
+      await alert.present();
     },
 
     async alertError() {

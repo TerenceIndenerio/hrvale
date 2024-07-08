@@ -15,14 +15,14 @@
           <div class="container-inner">
             <p :style="{ color: theme.primaryColor }" class="label">From</p>
             <div class="select-option neomorphic-input-2">
-              <ion-input type="date" v-model="startDate" />
+              <ion-input type="date" v-model="startDate" class="date-input" />
             </div>
           </div>
 
           <div class="container-inner">
             <p :style="{ color: theme.primaryColor }" class="label">To</p>
             <div class="select-option neomorphic-input-2">
-              <ion-input type="date" v-model="endDate" />
+              <ion-input type="date" v-model="endDate" class="date-input" />
             </div>
           </div>
         </div>
@@ -499,7 +499,7 @@ p {
 .select-option {
   border-radius: 20px;
   margin: 5px;
-  width: 150px;
+  width: fit-content;
 }
 .input-container {
   display: flex;
@@ -568,5 +568,12 @@ p {
   display: flex;
   justify-content: center;
   align-items: center;
+}
+.date-input {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  width: 120px;
 }
 </style>

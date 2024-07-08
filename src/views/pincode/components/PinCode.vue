@@ -205,9 +205,6 @@
           </p>
         </div>
       </div>
-      <div class="app-version">
-        <p>App Version: 0.1.16</p>
-      </div>
     </ion-content>
   </ion-page>
 </template>

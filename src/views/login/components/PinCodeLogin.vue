@@ -215,7 +215,7 @@
         </div>
       </div>
       <div class="app-version">
-        <p>App Version: 0.1.25</p>
+        <p>App Version: {{ this.appVersion }}</p>
       </div>
     </ion-content>
   </ion-page>
@@ -262,6 +262,7 @@ export default {
       form: {},
       inputs: "",
       actualDigits: "",
+      appVersion: "",
     };
   },
   emits: ["login"],
@@ -291,6 +292,9 @@ export default {
     forgotPin() {
       localStorage.removeItem("pincode");
     },
+  },
+  created() {
+    this.appVersion = localStorage.getItem("appVersion");
   },
 };
 </script>

@@ -119,12 +119,12 @@ export default defineComponent({
     },
     servicesData() {
       try {
-        const storedUser = localStorage.getItem("userDetails");
+        const myDetails = localStorage.getItem("myDetails");
 
-        if (storedUser) {
-          const parsedUser = JSON.parse(storedUser);
+        if (myDetails) {
+          const parsedUser = JSON.parse(myDetails);
 
-          this.cardHeader = "Hello, " + parsedUser.firstName + "!";
+          this.cardHeader = "Hello, " + parsedUser.employee.firstName + "!";
           this.cardText =
             "Welcome to ESS (Employee Self-Service). Feel free to explore or ask any questions. Wishing you a wonderful day!";
         }
@@ -136,10 +136,10 @@ export default defineComponent({
     },
     fetchUser() {
       try {
-        const userDetails = localStorage.getItem("userDetails");
-        this.profileDetails = JSON.parse(userDetails);
+        const myDetails = localStorage.getItem("myDetails");
+        this.profileDetails = JSON.parse(myDetails);
 
-        this.employeeName = this.profileDetails.firstName;
+        this.employeeName = this.profileDetails.employee.firstName;
       } catch (error) {
         console.log(error);
       }

@@ -11,104 +11,59 @@
       <ion-card
         class="card loan-budget-container"
         v-if="!loading"
-        :style="{ backgroundColor: theme.primaryColor }"
+        :style="{
+          background: `linear-gradient(to right, ${theme.primaryGradientStartColor}, ${theme.primaryGradientEndColor})`,
+        }"
       >
         <div class="loanbalance-container">
+          <div class="loan-budget-text">
+            <p :style="{ color: theme.primaryFontColor }">
+              <strong>Loanable Amount</strong>
+            </p>
+          </div>
           <div class="loan-budget-val">
             <p :style="{ color: theme.primaryFontColor }">PHP</p>
             <h4 :style="{ color: theme.primaryFontColor }">
-              {{ loanDataResult.balance }}
+              <strong>{{ loanDataResult.balance }}</strong>
             </h4>
           </div>
-          <div class="loan-budget-text">
-            <p :style="{ color: theme.primaryFontColor }">Loanable Amount</p>
-          </div>
+        </div>
+        <div class="card-bottom">
+          <p :style="{ color: theme.primaryFontColor }">
+            <strong>Cash Vale</strong>
+          </p>
+          <img
+            src="@/assets/images/hrvalewhiteicon.png"
+            alt="Vale Icon"
+            class="icon-btn"
+            style="width: 30px; height: 30px"
+            id="vale-mask"
+          />
         </div>
       </ion-card>
 
-      <ion-card class="card result-container">
-        <ion-card class="neomorphic-card-1 search-container">
-          <h5 :style="{ color: theme.primaryColor }" class="search-title">
-            Select Date
+      <div class="bottom">
+        <div class="vale-history-container">
+          <h5 class="recent-transation-label">
+            <strong>Recent Transactions:</strong>
           </h5>
-          <div class="input-container">
-            <div class="container-inner">
-              <p :style="{ color: theme.primaryColor }" class="label">From</p>
-              <div class="neomorphic-input-2">
-                <ion-input type="date" v-model="startDate" class="date-input" />
-              </div>
-            </div>
+          <p class="vale-history-btn" @click="navigateToValeHistory">
+            <strong>View All</strong>
+          </p>
+        </div>
 
-            <div class="container-inner">
-              <p :style="{ color: theme.primaryColor }" class="label">To</p>
-              <div class="neomorphic-input-2">
-                <ion-input type="date" v-model="endDate" class="date-input" />
-              </div>
-            </div>
-          </div>
-        </ion-card>
-        <ion-card
-          class="card"
-          v-for="(result, index) in displayedResults"
-          :key="index"
+        <ion-button
+          class="applyvale-btn neomorphic-btn-1"
+          :style="{
+            backgroundColor: theme.secondaryColor,
+            color: theme.primaryFontColor,
+          }"
+          color="none"
+          @click="navigateToApplyVale"
         >
-          <ion-grid>
-            <ion-col size="6">
-              <ion-row>
-                <ion-col size="6">
-                  <p>Loan Amount:</p>
-                </ion-col>
-                <ion-col size="6">
-                  <p>{{ result.loanAmount }}</p>
-                </ion-col>
-              </ion-row>
-
-              <ion-row>
-                <ion-col size="6">
-                  <p>Loan Date:</p>
-                </ion-col>
-                <ion-col size="6">
-                  <p>{{ result.loanDate }}</p>
-                </ion-col>
-              </ion-row>
-
-              <ion-row>
-                <ion-col size="6">
-                  <p>Status:</p>
-                </ion-col>
-                <ion-col size="6">
-                  <p>{{ result.status }}</p>
-                </ion-col>
-              </ion-row>
-            </ion-col>
-          </ion-grid>
-
-          <ion-button
-            expand="full"
-            color="light"
-            class="edit-btn"
-            @click="navigateToViewPage(result)"
-          >
-            View
-          </ion-button>
-        </ion-card>
-      </ion-card>
-
-      <div class="vale-history-container">
-        <ion-button class="vale-history-btn" shape="round" fill="outline"
-          >All</ion-button
-        >
+          Apply Vale
+        </ion-button>
       </div>
-
-      <ion-button
-        color="none"
-        class="create-vale-btn"
-        :style="{ backgroundColor: theme.secondaryColor }"
-        @click="navigateToApplyVale"
-      >
-        <h2><ion-icon name="add"></ion-icon></h2>
-        Apply Vale
-      </ion-button>
     </ion-content>
   </ion-page>
 </template>
@@ -184,7 +139,8 @@ export default defineComponent({
       this.fetchData();
     },
   },
-  created() {
+  async created() {
+    await this.checkTokenExpiration();
     this.empNumber = localStorage.getItem("empNumber");
     this.fetchTheme();
     this.fetchData();
@@ -216,6 +172,9 @@ export default defineComponent({
     },
     async navigateToViewPage(result) {
       this.$router.push({ path: "/viewvale", query: { id: result.id } });
+    },
+    async navigateToValeHistory() {
+      this.$router.push("/valehistory");
     },
     async fetchData() {
       try {
@@ -375,10 +334,17 @@ p {
   gap: 5px;
   text-align: center;
   min-width: 270px;
-  width: fit-content;
+  width: 95%;
   padding: 20px;
   margin: 5px auto;
-  border-radius: 10px 10px 50% 50%;
+  border-radius: 10px;
+  height: 200px;
+  position: absolute;
+  top: 25%;
+  left: 0;
+  right: 0;
+  box-shadow: 6px 6px 12px #000000, -6px -6px 12px #b1b1b1;
+  max-width: 500px;
 }
 .loan-budget-val {
   display: flex;
@@ -543,10 +509,58 @@ p {
 }
 .applyvale-btn {
   width: 230px;
+  border-radius: 10px;
+  position: absolute;
+  bottom: 40px;
+  left: 0;
+  right: 0;
+  margin: 0 auto;
 }
 
 .vale-history-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+}
+
+.bottom {
+  overflow-y: auto;
+  position: fixed;
+  bottom: 0px;
+  left: 0;
+  right: 0;
+  width: 85%;
+  max-width: 500px;
+  padding: 10px 20px;
+  background-color: white;
+  border-radius: 50px 50px 0px 0px;
+  height: 23vh;
+  box-shadow: 0px -5px 7px #dbdbdb;
+  border: none;
+  outline: none;
+  margin: 0 auto;
+}
+.container {
+  border-top: 1px solid rgb(157, 157, 157);
+  width: 100%;
+}
+.recent-transation-label {
+  color: gray;
+  margin: 0;
+}
+.card-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 90%;
   position: absolute;
-  right: 10px;
+  bottom: 10px;
+}
+.vale-history-btn {
+  color: rgb(5, 113, 255);
+  outline: 1px solid rgb(5, 113, 255);
+  padding: 3px 10px;
+  border-radius: 30px;
 }
 </style>

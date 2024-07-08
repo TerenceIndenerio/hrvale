@@ -237,7 +237,7 @@ export default defineComponent({
   },
 
   methods: {
-    // Exppiration of token
+    // Expiration of token
     async checkTokenExpiration() {
       const storedToken = localStorage.getItem("token");
 
@@ -284,31 +284,39 @@ export default defineComponent({
 
         this.storedToken = localStorage.getItem("token");
         const baseURL = localStorage.getItem("baseUrl");
+
         const headers = {
           Authorization: `Bearer ${this.storedToken}`,
         };
-        const api = baseURL + `api/payroll/vale/${id}`;
+
+        const api = `${baseURL}api/v2/vale`;
 
         const dataResponse = await axios.get(api, { headers });
 
         const responseData = dataResponse.data.data;
 
-        this.results = [
-          {
-            id: responseData.id,
-            loanAmount: responseData.loanAmount,
-            loanDate: responseData.loanDate,
-            amortization: responseData.amortization,
-            effectiveLoan: responseData.effectiveLoan,
-            status: responseData.status,
-            interestRate: responseData.interest,
-            startOfPayment: responseData.startOfPayment,
-            totalAmountPaid: responseData.totalAmountPaid,
-            reason: responseData.reason,
-          },
-        ];
+        const result = responseData.find((item) => item.id === Number(id));
 
-        this.totalRec = this.results.length;
+        if (result) {
+          this.results = [
+            {
+              id: result.id,
+              loanAmount: result.loanAmount,
+              loanDate: result.loanDate,
+              amortization: result.amortization,
+              effectiveLoan: result.effectiveLoan,
+              status: result.status,
+              interestRate: result.interest,
+              startOfPayment: result.startOfPayment,
+              totalAmountPaid: result.totalAmountPaid,
+              reason: result.reason,
+            },
+          ];
+
+          this.totalRec = this.results.length;
+        } else {
+          this.showErrorMessage(`No data found for ID: ${id}`);
+        }
       } catch (error) {
         this.showErrorMessage("An error occurred: " + error.message);
       } finally {

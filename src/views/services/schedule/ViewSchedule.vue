@@ -69,16 +69,30 @@
                   <div class="details-row">
                     <strong>Date:</strong>
                     <div>
-                      <template v-if="date.start === date.end">
+                      <template
+                        v-if="formatDate(date.start) === formatDate(date.end)"
+                      >
                         <div>
-                          {{ formatDate(date.start) }} -
-                          {{ formatTime(date.start) }}
+                          {{ date.date.split(" ")[0] }}
                         </div>
                       </template>
                       <template v-else>
-                        {{ date.start.split(" ")[0] }} -
-                        {{ date.end.split(" ")[0] }}
+                        {{ formatDate(date.start.split(" ")[0]) }}
+                        {{ date.formattedStartTime }} -
+                        <br />
+                        {{ formatDate(date.end.split(" ")[0]) }}
+                        {{ date.formattedEndTime }}
                       </template>
+                    </div>
+                  </div>
+                  <div
+                    class="details-row"
+                    v-if="formatDate(date.start) === formatDate(date.end)"
+                  >
+                    <strong>Time:</strong>
+                    <div>
+                      {{ date.formattedStartTime }} -
+                      {{ date.formattedEndTime }}
                     </div>
                   </div>
                 </ion-note>
@@ -166,20 +180,83 @@ export default defineComponent({
   },
   computed: {
     filteredHighlightedDates() {
+      const groupEntriesByDate = (entries) => {
+        const grouped = {};
+
+        entries.forEach((entry) => {
+          const date = new Date(entry.start).toISOString().split("T")[0];
+          if (!grouped[date]) {
+            grouped[date] = [];
+          }
+          grouped[date].push(entry);
+        });
+
+        return grouped;
+      };
+
+      const mergeEntries = (
+        groupedEntries,
+        inTitle,
+        outTitle,
+        combinedTitle
+      ) => {
+        const merged = [];
+
+        Object.keys(groupedEntries).forEach((date) => {
+          const entries = groupedEntries[date];
+          const entryIn = entries.find((entry) => entry.title === inTitle);
+          const entryOut = entries.find((entry) => entry.title === outTitle);
+
+          if (entryIn && entryOut) {
+            merged.push({
+              title: combinedTitle,
+              start: entryIn.start,
+              end: entryOut.end,
+              borderColor: entryIn.borderColor,
+              backgroundColor: entryIn.backgroundColor,
+              tooltipTitle: entryIn.tooltipTitle,
+              tooltipContent: entryIn.tooltipContent,
+              isHoliday: entryIn.isHoliday,
+            });
+          } else {
+            merged.push(...entries);
+          }
+        });
+
+        return merged;
+      };
+
       if (this.selectedOption === "Actual In & Out") {
-        return this.scheduleData
-          .filter(
-            (entry) =>
-              entry.title === "Actual IN" || entry.title === "Actual OUT"
-          )
+        const actualEntries = this.scheduleData.filter(
+          (entry) => entry.title === "Actual IN" || entry.title === "Actual OUT"
+        );
+
+        const groupedEntries = groupEntriesByDate(actualEntries);
+        const mergedEntries = mergeEntries(
+          groupedEntries,
+          "Actual IN",
+          "Actual OUT",
+          "Actual IN and OUT"
+        );
+
+        return mergedEntries
           .map((entry) => this.mapEntry(entry))
           .sort((a, b) => new Date(a.start) - new Date(b.end));
       } else if (this.selectedOption === "Schedule In & Out") {
-        return this.scheduleData
-          .filter(
-            (entry) =>
-              entry.title === "Schedule IN" || entry.title === "Schedule OUT"
-          )
+        const scheduleEntries = this.scheduleData.filter(
+          (entry) =>
+            entry.title === "Schedule IN" || entry.title === "Schedule OUT"
+        );
+
+        const groupedEntries = groupEntriesByDate(scheduleEntries);
+        const mergedEntries = mergeEntries(
+          groupedEntries,
+          "Schedule IN",
+          "Schedule OUT",
+          "Schedule IN and OUT"
+        );
+
+        return mergedEntries
           .map((entry) => this.mapEntry(entry))
           .sort((a, b) => new Date(a.start) - new Date(b.end));
       } else if (this.selectedOption === "Others") {
@@ -203,43 +280,68 @@ export default defineComponent({
   methods: {
     mapEntry(entry) {
       let backgroundColor = entry.backgroundColor;
-      let textColor = "#FFFFFF"; // default text color is white
+      let textColor = "#FFFFFF";
 
-      // Check if the background color is dark
       if (this.isDarkColor(backgroundColor)) {
-        // If the background color is dark, change the text color to a lighter color
-        textColor = "#FFFFFF"; // white text color for dark background
+        textColor = "#FFFFFF";
       } else {
-        // If the background color is light, change the text color to a darker color
-        textColor = "#161716"; // black text color for light background
+        textColor = "#161716";
       }
 
       return {
         id: entry.id,
-        date: this.formatDateCalendar(entry.start.split(" ")[0]),
+        date: this.formatDate(entry.start),
+        formattedStartTime: this.formatTime(entry.start),
+        formattedEndTime: this.formatTime(entry.end),
         title: entry.title,
         start: entry.start,
-        end: entry.start,
+        end: entry.end,
         borderColor: entry.backgroundColor,
         backgroundColor: backgroundColor,
         tooltipTitle: entry.tooltipTitle,
         tooltipContent: entry.tooltipContent,
         scheduleColor: entry.tooltipContent,
-        textColor: textColor, // set the text color
+        textColor: textColor,
       };
+    },
+    formatDate(date) {
+      const options = { year: "numeric", month: "2-digit", day: "2-digit" };
+      return new Date(date).toLocaleDateString(undefined, options);
+    },
+    formatTime(date) {
+      const options = { hour: "2-digit", minute: "2-digit", hour12: true };
+      return new Date(date).toLocaleTimeString(undefined, options);
+    },
+    isDarkColor(color) {
+      const rgb = this.hexToRgb(color);
+      if (!rgb) return false;
+      const brightness = (rgb.r * 299 + rgb.g * 587 + rgb.b * 114) / 1000;
+      return brightness < 128;
+    },
+    hexToRgb(hex) {
+      let shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
+      hex = hex.replace(shorthandRegex, function (m, r, g, b) {
+        return r + r + g + g + b + b;
+      });
+
+      let result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+      return result
+        ? {
+            r: parseInt(result[1], 16),
+            g: parseInt(result[2], 16),
+            b: parseInt(result[3], 16),
+          }
+        : null;
     },
 
     isDarkColor(color) {
-      // Convert color to RGB
       let rgb = parseInt(color.substring(1), 16);
       let r = (rgb >> 16) & 0xff;
       let g = (rgb >> 8) & 0xff;
       let b = (rgb >> 0) & 0xff;
 
-      // Calculate luminance
       let luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b;
 
-      // Return true if luminance is less than a threshold (color is dark), otherwise false
       return luminance < 128;
     },
     dateDetails(date) {

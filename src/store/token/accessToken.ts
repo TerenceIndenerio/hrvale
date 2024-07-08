@@ -23,7 +23,7 @@ async function generateToken(
         localStorage.setItem("refreshtoken", res.data.refresh_token);
 
         const configs: Config[] = res.data.configs;
-        console.log("configs: ", res.data);
+
         localStorage.setItem("configs", JSON.stringify(configs));
 
         resolve(res);

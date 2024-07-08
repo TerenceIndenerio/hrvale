@@ -9,20 +9,6 @@
     <ion-content :fullscreen="true" v-if="!loading">
       <Refresher />
 
-      <!-- Loan Date & Start of Payment -->
-      <ion-card class="neomorphic-card-1 selectdate-card">
-        <div class="selectdate-container">
-          <div class="selectdate-container-inner">
-            <p :style="{ color: theme.primaryColor }" class="label">
-              <strong>Loan Date</strong>
-            </p>
-            <div class="select-option neomorphic-input-2">
-              <ion-input type="date" v-model="loanDate" />
-            </div>
-          </div>
-        </div>
-      </ion-card>
-
       <!-- Loan Type -->
       <div class="flex-center">
         <ion-card class="loantype-card neomorphic-card-1">
@@ -49,6 +35,113 @@
             </ion-select>
           </ion-card>
         </ion-card>
+      </div>
+
+      <div class="note-text-container" v-if="!isElegible">
+        <p>Note: Please select loan type to validate.</p>
+      </div>
+
+      <div v-if="isElegible">
+        <div class="readonly-container">
+          <!-- Payment Terms -->
+          <ion-card class="neomorphic-card-1 read-num-card">
+            <p :style="{ color: theme.primaryColor }" class="label">
+              <strong>Payment Terms</strong>
+            </p>
+            <ion-card class="neomorphic-input-2 readonly-card">
+              <p>{{ this.termsPaymentPeriod }}</p>
+            </ion-card>
+          </ion-card>
+
+          <!-- Interest -->
+          <ion-card class="neomorphic-card-1 read-num-card">
+            <p :style="{ color: theme.primaryColor }" class="label">
+              <strong>Interest</strong>
+            </p>
+            <ion-card class="neomorphic-input-2 readonly-card">
+              <p>{{ this.loanInterest }}</p>
+            </ion-card>
+          </ion-card>
+
+          <!-- Amortization -->
+          <ion-card class="neomorphic-card-1 read-num-card">
+            <p :style="{ color: theme.primaryColor }" class="label">
+              <strong>Amortization</strong>
+            </p>
+            <ion-card class="neomorphic-input-2 readonly-card">
+              <p>{{ this.amortization }}</p>
+            </ion-card>
+          </ion-card>
+        </div>
+
+        <!-- Loan Amount -->
+        <ion-card class="neomorphic-card-1 input-num-card">
+          <p :style="{ color: theme.primaryColor }" class="label">
+            <strong>Loan Amount </strong>
+          </p>
+          <ion-card class="neomorphic-input-2">
+            <ion-input
+              label="Enter Loan Amount"
+              type="number"
+              label-placement="floating"
+              placeholder="0"
+              v-model="loanAmount"
+              @ion-change="validateMaxLoan()"
+            ></ion-input>
+          </ion-card>
+        </ion-card>
+
+        <!-- Loan Date & Start of Payment -->
+        <ion-card class="neomorphic-card-1 selectdate-card">
+          <div class="selectdate-container">
+            <div class="selectdate-container-inner">
+              <p :style="{ color: theme.primaryColor }" class="label">
+                <strong>Loan Date</strong>
+              </p>
+              <div class="select-option neomorphic-input-2">
+                <ion-input type="date" v-model="loanDate" />
+              </div>
+            </div>
+          </div>
+        </ion-card>
+
+        <!-- Reason -->
+        <div class="flex-center">
+          <ion-card class="loantype-card neomorphic-card-1">
+            <p :style="{ color: theme.primaryColor }">
+              <strong>Reason</strong>
+            </p>
+
+            <ion-card class="neomorphic-input-2">
+              <ion-select
+                v-model="selectedReason"
+                class="reason-select"
+                aria-label="Reason"
+                label="Select Reason"
+                label-placement="floating"
+              >
+                <ion-select-option
+                  v-for="option in reasonOptions"
+                  :key="option.value"
+                  :value="option"
+                >
+                  {{ option.content }}
+                </ion-select-option>
+              </ion-select>
+            </ion-card>
+          </ion-card>
+        </div>
+
+        <!-- Save Button -->
+        <ion-button
+          expand="full"
+          color="none"
+          @click="onSubmit"
+          class="submit-btn neomorphic-btn-1"
+          :style="{ backgroundColor: theme.primaryColor }"
+        >
+          Submit
+        </ion-button>
       </div>
 
       <!-- <ion-card class="neomorphic-card-1 selectdate-card">
@@ -99,26 +192,6 @@
           </ion-card>
         </ion-card>
       </div> -->
-
-      <!-- Loan Amount -->
-      <ion-card class="neomorphic-card-1 input-num-card">
-        <p :style="{ color: theme.primaryColor }" class="label">
-          <strong>Loan Amount </strong>
-        </p>
-        <ion-card class="neomorphic-input-2">
-          <ion-input
-            label="Enter Loan Amount"
-            type="number"
-            label-placement="floating"
-            placeholder="0"
-            v-model="loanAmount"
-            @ion-change="validateMaxLoan()"
-          ></ion-input>
-        </ion-card>
-        <p v-if="this.maximumLoanableOptionlabel">
-          Min: 0 - Max: {{ this.maxLoanAmount }}
-        </p>
-      </ion-card>
 
       <!-- Beginning of Payment -->
       <!-- <ion-card class="neomorphic-card-1 input-num-card">
@@ -204,44 +277,6 @@
           </strong>
         </ion-card>
       </ion-card> -->
-
-      <!-- Reason -->
-      <div class="flex-center">
-        <ion-card class="loantype-card neomorphic-card-1">
-          <p :style="{ color: theme.primaryColor }">
-            <strong>Reason</strong>
-          </p>
-
-          <ion-card class="neomorphic-input-2">
-            <ion-select
-              v-model="selectedReason"
-              class="reason-select"
-              aria-label="Reason"
-              label="Select Reason"
-              label-placement="floating"
-            >
-              <ion-select-option
-                v-for="option in reasonOptions"
-                :key="option.value"
-                :value="option"
-              >
-                {{ option.content }}
-              </ion-select-option>
-            </ion-select>
-          </ion-card>
-        </ion-card>
-      </div>
-
-      <!-- Save Button -->
-      <ion-button
-        expand="full"
-        color="none"
-        @click="onSubmit"
-        class="submit-btn neomorphic-btn-1"
-        :style="{ backgroundColor: theme.primaryColor }"
-      >
-        Submit
-      </ion-button>
     </ion-content>
   </ion-page>
 </template>
@@ -326,7 +361,7 @@ export default defineComponent({
       loanTypes: [],
       selectedLoanType: null,
       filteredResults: [],
-
+      isElegible: false,
       reasonOptions: [],
       selectedEmployee: null,
 
@@ -338,7 +373,7 @@ export default defineComponent({
       amortizationAmount: null,
       paymentTerms: null,
       selectedReason: null,
-      termsPaymentPeriod: null,
+      termsPaymentPeriod: 0,
       loanInterest: null,
       balance: null,
       selectedFrequency: null,
@@ -400,7 +435,7 @@ export default defineComponent({
         const headers = {
           Authorization: `Bearer ${this.storedToken}`,
         };
-        const api = baseURL + `api/loanType`;
+        const api = baseURL + `api/loanType?isEmployee=true`;
 
         const dataResponse = await axios.get(api, { headers });
 
@@ -415,16 +450,6 @@ export default defineComponent({
       }
     },
 
-    // searchByLoanType(selectedLoanType) {
-    //   if (selectedLoanType) {
-    //     this.filteredResults = this.results.filter(
-    //       (result) => result.loanTypeId === selectedLoanType
-    //     );
-    //   } else {
-    //     this.filteredResults = this.results;
-    //   }
-    // },
-
     async onSubmit() {
       try {
         await this.checkTokenExpiration();
@@ -435,7 +460,6 @@ export default defineComponent({
           this.maximumLoanableOptionlabel !== "No Maximum Loanable Amount" &&
           this.maximumLoanableOptionlabel !== null
         ) {
-          console.log(this.maximumLoanableOptionlabel);
           if (this.loanAmount > this.maxLoanAmount) {
             this.showErrorMessage("Exceeded Loan Amount!");
             return;
@@ -451,31 +475,38 @@ export default defineComponent({
           await this.showErrorMessage("Please complete all required fields.");
           return;
         }
+        const empID = Number(localStorage.getItem("empNumber"));
 
         const payload = {
+          amortization: this.amortization,
+          beginningPayment: 0,
+          employee: empID,
+          interest: this.loanInterest,
           loanAmount: this.loanAmount,
-          reason: this.selectedReason.content,
-          loanType: this.selectedLoanType,
           loanDate: this.loanDate,
+          loanType: this.selectedLoanType,
+          paymentTerms: this.paymentTerms,
+          reason: this.selectedReason.content,
         };
-
-        console.log("Processing ", payload);
 
         this.storedToken = localStorage.getItem("token");
         const baseURL = localStorage.getItem("baseUrl");
         const headers = {
           Authorization: `Bearer ${this.storedToken}`,
         };
-        const api = baseURL + `api/ess/other-loan`;
+        const api = baseURL + `api/ess/other-loans`;
 
         const dataResponse = await axios.post(api, payload, { headers });
 
         if (dataResponse.status === 200) {
           await this.showErrorMessage("Validation successful");
+          window.location.replace("/loanbalance");
+        } else {
+          await this.showErrorMessage(dataResponse.message);
         }
       } catch (error) {
-        console.error("Error in onSubmit:", error);
-        await this.showErrorMessage("Error occurred while validating");
+        console.error(error);
+        await this.showErrorMessage(error.response.data.error.message);
       }
     },
 
@@ -497,12 +528,25 @@ export default defineComponent({
 
       const dataResponse = await axios.get(api, { headers });
 
-      this.termsPaymentPeriod = dataResponse.data.data.termsPaymentPeriod;
-      this.loanInterest = dataResponse.data.data.loanInterest;
-      this.amortization = dataResponse.data.data.amortizationValue;
-      this.maxLoanAmount = dataResponse.data.data.maxLoanAmount;
-      this.maximumLoanableOptionlabel =
-        dataResponse.data.data.maximumLoanableOption.label;
+      this.isElegible = dataResponse.data.status;
+
+      if (dataResponse.data.status !== false) {
+        console.log(dataResponse.data.status !== "false");
+        this.termsPaymentPeriod = dataResponse.data.data.termsPaymentPeriod;
+        this.loanInterest = dataResponse.data.data.loanInterest;
+        this.amortization =
+          dataResponse.data.data.amortizationValue !== null
+            ? dataResponse.data.data.amortizationValue
+            : 0;
+        this.maxLoanAmount = dataResponse.data.data.maxLoanAmount;
+        this.maximumLoanableOptionlabel =
+          dataResponse.data.data.maximumLoanableOption.label;
+        this.paymentTerms = dataResponse.data.data.termsPaymentPeriod;
+      } else {
+        await this.showErrorMessage(
+          "Employee is not eligible to apply this loan."
+        );
+      }
     },
 
     validateMaxLoan() {
@@ -510,7 +554,6 @@ export default defineComponent({
         this.maximumLoanableOptionlabel !== "No Maximum Loanable Amount" &&
         this.maximumLoanableOptionlabel !== null
       ) {
-        console.log(this.maximumLoanableOptionlabel);
         if (this.loanAmount > this.maxLoanAmount) {
           this.showErrorMessage("Exceeded Loan Amount!");
           return;
@@ -522,7 +565,6 @@ export default defineComponent({
       this.balance = this.loanAmount - this.beginningPayment;
     },
     calculateAmortization() {
-      console.log("amort");
       if (this.amortization == 0) {
         this.amortization = 0;
       }
@@ -606,6 +648,7 @@ export default defineComponent({
   width: fit-content;
   margin: 10px auto;
   padding: 10px 10px 20px 10px;
+  width: 300px;
 }
 .selectdate-container {
   display: flex;
@@ -614,7 +657,7 @@ export default defineComponent({
   gap: 5px;
 }
 .selectdate-container-inner {
-  width: 150px;
+  width: 100%;
 }
 .input-num-card {
   margin: 10px auto;
@@ -626,5 +669,22 @@ export default defineComponent({
 }
 .computed-value {
   background-color: rgb(233, 233, 233);
+}
+.note-text-container p {
+  color: gray;
+  text-align: center;
+}
+.read-num-card {
+  min-width: 145px;
+  width: fit-content;
+}
+.readonly-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+}
+.readonly-card {
+  background-color: rgb(231, 231, 231);
 }
 </style>

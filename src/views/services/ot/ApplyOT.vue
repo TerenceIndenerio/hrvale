@@ -18,7 +18,11 @@
             <div class="card-inner-inner">
               <p :style="{ color: theme.primaryColor }" class="label">From</p>
               <div class="neomorphic-datepicker-1 date-picker">
-                <ion-input v-model="selectedDateFrom" type="date"></ion-input>
+                <ion-input
+                  v-model="selectedDateFrom"
+                  type="date"
+                  class="date-input"
+                ></ion-input>
               </div>
             </div>
 
@@ -26,7 +30,11 @@
             <div class="card-inner-inner">
               <p :style="{ color: theme.primaryColor }" class="label">To</p>
               <div class="neomorphic-datepicker-1 date-picker">
-                <ion-input v-model="selectedDateTo" type="date"></ion-input>
+                <ion-input
+                  v-model="selectedDateTo"
+                  type="date"
+                  class="date-input"
+                ></ion-input>
               </div>
             </div>
           </div>
@@ -40,6 +48,7 @@
                 <ion-input
                   v-model="requestDateSelected"
                   type="date"
+                  class="date-input"
                 ></ion-input>
               </div>
             </div>
@@ -308,7 +317,7 @@ export default defineComponent({
   },
 
   methods: {
-    // Exppiration of token
+    // Expiration of token
     async checkTokenExpiration() {
       const storedToken = localStorage.getItem("token");
 
@@ -720,5 +729,12 @@ ion-textarea {
 }
 .modal-content {
   margin-top: 20px;
+}
+.date-input {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  width: 120px;
 }
 </style>

@@ -12,17 +12,23 @@
       <div class="content-container">
         <!-- Leave Balance Card -->
         <ion-card class="leavebal-card neomorphic-card-1">
-          <!-- Leave Balance -->
-          <ion-row class="leave-bal">
+          <!-- Available balance -->
+          <ion-row class="leave-bal-detail">
             <ion-col size="7">
-              <strong>
-                <p :style="{ color: theme.primaryColor }">Leave Balance:</p>
-              </strong>
+              <p>Available Balance:</p>
             </ion-col>
             <ion-col size="4">
-              <p :style="{ color: theme.primaryColor }">
-                <strong>{{ employeeDetail2.balance }} day(s)</strong>
-              </p>
+              <p>{{ this.availableBalance }} day(s)</p>
+            </ion-col>
+          </ion-row>
+
+          <!-- Leave Balance -->
+          <ion-row class="leave-bal-detail">
+            <ion-col size="7">
+              <p>Leave Balance:</p>
+            </ion-col>
+            <ion-col size="4">
+              <p>{{ employeeDetail2.balance }} day(s)</p>
             </ion-col>
           </ion-row>
 
@@ -33,7 +39,7 @@
             </ion-col>
             <ion-col size="4">
               <p>
-                <strong>{{ employeeDetail2.entitled }}</strong>
+                {{ employeeDetail2.entitled }}
               </p>
             </ion-col>
           </ion-row>
@@ -45,7 +51,7 @@
             </ion-col>
             <ion-col size="4">
               <p>
-                <strong>{{ dateDifference }}</strong>
+                <strong>{{ this.valueDates.length }}</strong>
               </p>
             </ion-col>
           </ion-row>
@@ -99,12 +105,47 @@
           </div>
         </div>
 
+        <!-- Effective Date -->
+        <div class="effective-date-container">
+          <p
+            class="effective-date-label"
+            :style="{ color: theme.primaryColor }"
+          >
+            Effective Date
+          </p>
+          <div class="neomorphic-input-2">
+            <ion-input
+              type="date"
+              v-model="effectiveDate"
+              @ionChange="handleDateChange"
+              class="date-input"
+            />
+          </div>
+        </div>
+        <!-- <ion-card class="neomorphic-card-1 calendar-container">
+          <ion-datetime
+            presentation="date"
+            :multiple="true"
+            :highlighted-dates="this.combinedDates"
+          ></ion-datetime>
+        </ion-card> -->
+
         <ion-card class="neomorphic-card-1 calendar-container">
+          <ion-datetime
+            presentation="date"
+            :multiple="true"
+            :value="this.valueDates"
+            :highlighted-dates="this.combinedDates"
+            @ionChange="handleCalendarChange"
+          ></ion-datetime>
+        </ion-card>
+
+        <!-- <ion-card class="neomorphic-card-1 calendar-container">
           <Calendar
             :disabledDates="this.disabledDates_"
             @selectedDatesChanged="updateSelectedDates"
           />
-        </ion-card>
+        </ion-card> -->
 
         <!-- Reason -->
         <div class="reason-container">
@@ -164,6 +205,8 @@ import {
   IonCol,
   IonRow,
   IonLabel,
+  IonInput,
+  IonDatetime,
 } from "@ionic/vue";
 import Calendar from "@/views/services/leave/components/Calendar.vue";
 import HeaderReturn from "@/components/header/HeaderReturn.vue";
@@ -192,6 +235,8 @@ export default defineComponent({
     IonCol,
     IonRow,
     IonLabel,
+    IonInput,
+    IonDatetime,
   },
   setup() {
     return {
@@ -228,6 +273,10 @@ export default defineComponent({
       selectedLeaveType: null,
       selectedLeaveID: null,
       selectedReason: null,
+      effectiveDate: null,
+      availableBalance: 0,
+      hundredDays: [],
+      leaveTypeOptions: ["Office Employee", "Sample 100 Days"],
       reasonOptions: [],
       reason: null,
       employeeDetail: { firstName: "-", employeeId: "-" },
@@ -235,10 +284,13 @@ export default defineComponent({
       hasLeaveType: true,
       durations: [
         { key: "full_day", label: "Full Day" },
-        { key: "half_day", label: "Half Day" },
+        // { key: "half_day", label: "Half Day" },
       ],
       disabledDates_: [],
       selectedDates_: [],
+      highlightedDates: [],
+      combinedDates: [],
+      valueDates: [],
     };
   },
   watch: {
@@ -287,9 +339,7 @@ export default defineComponent({
   },
   computed: {
     dateDifference() {
-      let differenceInDays = this.selectedDates_
-        ? this.selectedDates_.length
-        : 0;
+      let differenceInDays = this.hundredDays ? this.hundredDays.length : 0;
 
       if (this.durationSelectedValue === "half_day") {
         differenceInDays *= 0.5;
@@ -345,10 +395,135 @@ export default defineComponent({
       }
     },
 
-    updateSelectedDates({ selectedDates, month, year }) {
-      this.selectedDates_ = selectedDates;
-      this.fetchCalendarDisable(month, year);
+    handleDateChange(event) {
+      const selectedDate = event.detail.value;
+
+      const generateDates = (startDate, days) => {
+        const dates = [];
+        for (let i = 0; i < days; i++) {
+          const date = new Date(startDate);
+          date.setDate(date.getDate() + i);
+          dates.push({ date: date.toISOString().split("T")[0] });
+        }
+        return dates;
+      };
+
+      const startDate = new Date(selectedDate);
+      this.hundredDays = generateDates(startDate, this.employeeDetail2.balance);
+
+      this.combinedDates = [];
+      this.valueDates = [];
+
+      let disabledCount = 0;
+
+      this.hundredDays.forEach((day) => {
+        const isDisabled = this.disabledDates_.some(
+          (disabledDate) => disabledDate.date === day.date
+        );
+        const textColor = isDisabled ? "white" : "green";
+        const backgroundColor = isDisabled ? "lightcoral" : "lightgreen";
+        this.combinedDates.push({ ...day, textColor, backgroundColor });
+
+        if (!isDisabled) {
+          this.valueDates.push(day.date);
+        } else {
+          disabledCount++;
+        }
+      });
+
+      this.disabledDates_.forEach((disabledDate) => {
+        const exists = this.combinedDates.some(
+          (combinedDate) => combinedDate.date === disabledDate.date
+        );
+        if (!exists) {
+          this.combinedDates.push({
+            ...disabledDate,
+            textColor: "red",
+            backgroundColor: "lightcoral",
+          });
+        }
+      });
+
+      let currentDate = new Date(
+        this.hundredDays[this.hundredDays.length - 1].date
+      );
+      while (disabledCount > 0) {
+        currentDate.setDate(currentDate.getDate() + 1);
+        const extraDateStr = currentDate.toISOString().split("T")[0];
+        if (!this.disabledDates_.some((d) => d.date === extraDateStr)) {
+          this.valueDates.push(extraDateStr);
+          disabledCount--;
+        }
+      }
     },
+
+    handleCalendarChange(event) {
+      const selectedDates = event.detail.value;
+
+      const disabledCount = selectedDates.filter((date) =>
+        this.disabledDates_.some((disabledDate) => disabledDate.date === date)
+      ).length;
+
+      this.valueDates = selectedDates.filter((date) => {
+        return !this.disabledDates_.some(
+          (disabledDate) => disabledDate.date === date
+        );
+      });
+
+      if (disabledCount > 0) {
+        let lastSelectedDate = new Date(
+          selectedDates[selectedDates.length - 1]
+        );
+        while (disabledCount > 0) {
+          lastSelectedDate.setDate(lastSelectedDate.getDate() + 1);
+          const extraDateStr = lastSelectedDate.toISOString().split("T")[0];
+          if (!this.disabledDates_.some((d) => d.date === extraDateStr)) {
+            this.valueDates.push(extraDateStr);
+            disabledCount--;
+          }
+        }
+      }
+    },
+
+    updateSelectedDates({ selectedDates, month, year }) {
+      const generateDates = (startDate, days) => {
+        const dates = [];
+        for (let i = 0; i < days; i++) {
+          const date = new Date(startDate);
+          date.setDate(date.getDate() + i);
+          dates.push({ date: date.toISOString().split("T")[0] });
+        }
+        return dates;
+      };
+
+      const startDate = new Date(selectedDates[0]);
+      this.hundredDays = generateDates(startDate, 100);
+
+      this.combinedDates = [];
+
+      this.hundredDays.forEach((day) => {
+        const isDisabled = this.disabledDates_.some(
+          (disabledDate) => disabledDate.date === day.date
+        );
+        const textColor = isDisabled ? "red" : "green";
+        const backgroundColor = isDisabled ? "lightcoral" : "lightgreen";
+        this.combinedDates.push({ ...day, textColor, backgroundColor });
+      });
+
+      this.disabledDates_.forEach((disabledDate) => {
+        const exists = this.combinedDates.some(
+          (combinedDate) => combinedDate.date === disabledDate.date
+        );
+        if (!exists) {
+          this.combinedDates.push({
+            ...disabledDate,
+            textColor: "red",
+            backgroundColor: "lightcoral",
+          });
+        }
+      });
+    },
+
     async fetchData() {
       try {
         this.store.commit("loader/updateLoader", true);
@@ -362,7 +537,7 @@ export default defineComponent({
           return;
         }
         const authToken = `Bearer ${storedToken}`;
-        const apiUrl = baseURL + `api/v2/leave/leave-types`;
+        const apiUrl = baseURL + `api/v2/leave/leave-types/eligible`;
         const headers = {
           Authorization: authToken,
         };
@@ -378,19 +553,12 @@ export default defineComponent({
         this.hasLeaveType = false;
       } finally {
         this.loading = false;
-        this.store.commit("loader/updateLoader", false);
       }
     },
 
-    async fetchCalendarDisable(month, year) {
+    async fetchCalendarDisable() {
       try {
         const storedToken = localStorage.getItem("token");
-
-        if (month === undefined || year === undefined) {
-          const currentDate = new Date();
-          month = currentDate.getMonth() + 1;
-          year = currentDate.getFullYear();
-        }
 
         if (!storedToken) {
           console.error("Token not available.");
@@ -401,25 +569,47 @@ export default defineComponent({
 
         const authToken = `Bearer ${storedToken}`;
         const baseURL = localStorage.getItem("baseUrl");
-        const apiUrl =
-          baseURL + `api/v2/leave/disabledDates?month=${month}&year=${year}`;
         const headers = {
           Authorization: authToken,
         };
-        const response = await axios.get(apiUrl, { headers });
+        const allDisabledDates = [];
+        const currentDate = new Date();
+        const currentYear = currentDate.getFullYear();
+        const years = [currentYear - 1, currentYear, currentYear + 1];
 
-        this.disabledDates_ = response.data.data;
+        for (let year of years) {
+          const apiUrl = `${baseURL}api/v2/leave/disabledDates?year=${year}`;
+          const response = await axios.get(apiUrl, { headers });
+          allDisabledDates.push(...response.data.data);
+        }
+
+        this.disabledDates_ = allDisabledDates;
+        this.disabledDates_.forEach((disabledDate) => {
+          const exists = this.combinedDates.some(
+            (combinedDate) => combinedDate.date === disabledDate.date
+          );
+          if (!exists) {
+            this.combinedDates.push({
+              ...disabledDate,
+              textColor: "white",
+              backgroundColor: "lightcoral",
+            });
+          }
+        });
       } catch (error) {
         console.error(error.message);
+      } finally {
+        this.store.commit("loader/updateLoader", false);
       }
     },
 
     async sendLeaveRequest() {
       try {
         if (
-          !this.selectedDates_ ||
-          !this.selectedDates_.length ||
+          !this.valueDates ||
+          !this.valueDates.length ||
           !this.durationSelectedValue ||
+          !this.selectedReason ||
           !this.selectedLeaveID
         ) {
           this.showErrorMessage(
@@ -438,13 +628,15 @@ export default defineComponent({
         const api = baseURL + "api/v3/leave/leave-requests";
 
         const requestData = {
-          filedDates: this.selectedDates_,
+          filedDates: this.valueDates,
           duration: this.durationSelectedValue,
           comment: this.selectedReason,
           leaveTypeId: this.selectedLeaveID,
         };
 
         const response = await axios.post(api, requestData, { headers });
+        console.log(this.valueDates.length);
+        console.log(requestData);
 
         if (response.status === 200) {
           const toast = await toastController.create({
@@ -498,6 +690,7 @@ export default defineComponent({
 
       this.fetchLeaveBalance(this.selectedLeaveID);
     },
+
     async fetchLeaveBalance(leaveTypeId) {
       const token = localStorage.getItem("token");
       const headers = {
@@ -516,7 +709,9 @@ export default defineComponent({
           employeeId,
         };
 
-        const { entitled, balance } = response.data.data.balance;
+        const { entitled, taken, balance } = response.data.data.balance;
+        this.availableBalance = entitled - taken;
+
         this.employeeDetail2 = {
           entitled,
           balance,
@@ -526,6 +721,9 @@ export default defineComponent({
         this.showErrorMessage("Error fetching leave balance: " + error.message);
       }
     },
+
+    async effectiveDateApply() {},
+
     fetchTheme() {
       const storedThemeData = localStorage.getItem("themeData");
 
@@ -575,12 +773,11 @@ export default defineComponent({
   },
   async created() {
     this.checkTokenExpiration();
-    this.fetchCalendarDisable();
     this.fetchReasonOptions();
     const data = await this.fetchData();
     this.leaveOptionsWithIds = data;
     this.fetchTheme();
-    this.store.commit("loader/updateLoader", false);
+    await this.fetchCalendarDisable();
   },
 });
 </script>
@@ -642,10 +839,11 @@ export default defineComponent({
   gap: 10px;
   justify-content: space-evenly;
   margin: 0 10px 20px 10px;
+  text-align: center;
 }
 .calendar-container {
   margin: 20px auto;
-  height: 330px;
+  height: 350px;
   width: 330px;
 }
 
@@ -659,7 +857,7 @@ export default defineComponent({
 }
 .reason-label {
   font-weight: bold;
-  width: fit-content;
+  text-align: center;
 }
 .reason-container {
   margin: 0 auto 50px auto;
@@ -674,5 +872,15 @@ export default defineComponent({
 .content-container {
   max-width: 800px;
   margin: 0 auto;
+}
+.effective-date-container {
+  width: fit-content;
+  min-width: 130px;
+  margin: 0 auto;
+  text-align: center;
+}
+.effective-date-label {
+  font-weight: bold;
+  text-align: center;
 }
 </style>

@@ -1,50 +1,42 @@
 <template>
   <ion-card class="neomorphic-card-1 approval-card">
-    <div class="leave-type" :style="{ backgroundColor: theme.primaryColor }">
-      <p :style="{ color: theme.primaryFontColor }">{{ status }}</p>
+    <div class="leave-type">
+      <p :class="statusClass">{{ status }}</p>
     </div>
     <ion-grid class="card-content">
-      <ion-row class="pad-w">
-        <ion-col class="col-name">
-          <p>Date:</p>
-        </ion-col>
+      <div @click="handleViewButtonClick">
+        <ion-row class="pad-w">
+          <ion-col class="col-name">
+            <p>Date:</p>
+          </ion-col>
 
-        <ion-col class="col-data">
-          <p>{{ date }}</p>
-        </ion-col>
-      </ion-row>
+          <ion-col class="col-data">
+            <p>{{ date }}</p>
+          </ion-col>
+        </ion-row>
 
-      <ion-row class="pad-w">
-        <ion-col class="col-name">
-          <p>Employee Name:</p>
-        </ion-col>
+        <ion-row class="pad-w">
+          <ion-col class="col-name">
+            <p>Request Type:</p>
+          </ion-col>
 
-        <ion-col class="col-data">
-          <p>{{ employeeName }}</p>
-        </ion-col>
-      </ion-row>
+          <ion-col class="col-data">
+            <p>{{ requestType }}</p>
+          </ion-col>
+        </ion-row>
 
-      <ion-row class="pad-w">
-        <ion-col class="col-name">
-          <p>Request ID:</p>
-        </ion-col>
+        <ion-row class="pad-w">
+          <ion-col class="col-name">
+            <p>Employee:</p>
+          </ion-col>
 
-        <ion-col class="col-data">
-          <p>{{ requestId }}</p>
-        </ion-col>
-      </ion-row>
+          <ion-col class="col-data">
+            <p>{{ employeeName }}</p>
+          </ion-col>
+        </ion-row>
+      </div>
 
-      <ion-row class="pad-w">
-        <ion-col class="col-name">
-          <p>Request Type:</p>
-        </ion-col>
-
-        <ion-col class="col-data">
-          <p>{{ requestType }}</p>
-        </ion-col>
-      </ion-row>
-
-      <ion-row class="pad-w action-container">
+      <ion-row class="pad-w action-container" v-if="status === 'Pending'">
         <ion-col class="col-name">
           <ion-button
             expand="block"
@@ -52,9 +44,8 @@
             class="btn"
             @click="handleCheckButtonClick"
             :disabled="status === 'Approved' || status === 'Rejected'"
-            v-if="status === 'Pending'"
           >
-            <ion-icon name="checkmark-sharp" class="btn-icon"></ion-icon>
+            <ion-icon name="checkmark-sharp" class="btn-icon"></ion-icon>APPROVE
           </ion-button>
         </ion-col>
 
@@ -65,9 +56,8 @@
             class="btn"
             @click="handleCheckButtonClickReject"
             :disabled="status === 'Approved' || status === 'Rejected'"
-            v-if="status === 'Pending'"
           >
-            <ion-icon name="close-sharp" class="btn-icon"></ion-icon>
+            <ion-icon name="close-sharp" class="btn-icon"></ion-icon>DECLINE
           </ion-button>
         </ion-col>
       </ion-row>
@@ -104,11 +94,35 @@ export default {
     requestDataId: Number,
     requestId: Number,
     date: String,
+    empId: String,
   },
+
   data() {
     return {
       theme: {},
     };
+  },
+  computed: {
+    statusClass() {
+      return {
+        "status-pending": this.status === "Pending",
+        "status-approved": this.status === "Approved",
+        "status-rejected": this.status === "Rejected",
+        "status-rejected": this.status === "Declined",
+      };
+    },
+    backgroundColor() {
+      switch (this.status) {
+        case "Pending":
+          return { backgroundColor: "yellow" };
+        case "Approved":
+          return { backgroundColor: "green" };
+        case "Rejected":
+          return { backgroundColor: "red" };
+        default:
+          return { backgroundColor: this.theme.primaryColor };
+      }
+    },
   },
   methods: {
     async handleCheckButtonClick() {
@@ -122,7 +136,7 @@ export default {
         );
       } catch (error) {
         console.error("Error handling check button click: ", error);
-        this.showErrorMessage("An error occurred: " + error.message);
+        this.showErrorMessage(error.message);
       }
     },
     async handleCheckButtonClickReject() {
@@ -136,7 +150,26 @@ export default {
         );
       } catch (error) {
         console.error("Error handling check button click: ", error);
-        this.showErrorMessage("An error occurred: " + error.message);
+        this.showErrorMessage(error.message);
+      }
+    },
+    async handleViewButtonClick() {
+      try {
+        this.$emit(
+          "viewButtonClick",
+          "view",
+          this.code,
+          this.requestDataId,
+          this.requestId,
+          this.employeeName,
+          this.requestType,
+          this.status,
+          this.date,
+          this.empId
+        );
+      } catch (error) {
+        console.error("Error handling check button click: ", error);
+        this.showErrorMessage(error.message);
       }
     },
   },
@@ -208,7 +241,7 @@ ion-grid {
 }
 .btn2 {
   background-color: rgba(254, 138, 138, 0.2);
-  color: #ff3535;
+  color: rgb(255, 120, 120) 5;
 }
 .btn3 {
   background-color: #fff;
@@ -230,6 +263,24 @@ ion-grid {
   width: 40px;
   height: 30px;
 }
+.status-pending {
+  background-color: #ffeb3b;
+  color: rgb(132, 132, 132);
+  border-radius: 20px 0 0 20px;
+}
+
+.status-approved {
+  background-color: #8bc34a;
+  color: rgb(255, 255, 255);
+  border-radius: 20px 0 0 20px;
+}
+
+.status-rejected {
+  background-color: #ff695e;
+  color: rgb(54, 54, 54);
+  border-radius: 20px 0 0 20px;
+}
+
 .outlineColor {
   border: 1px solid #828282;
   color: #828282;
@@ -274,6 +325,12 @@ ion-grid {
   box-shadow: 8px 8px 16px rgba(0, 0, 0, 0.1),
     -8px -8px 16px rgba(255, 255, 255, 0.8), 0px -4px 8px rgba(0, 0, 0, 0.05);
 }
+.view-detail-btn {
+  margin: 0;
+}
+.view-detail-btn-2 {
+  width: 150px;
+}
 
 .btn-icon {
   margin: 0;
@@ -282,9 +339,10 @@ ion-grid {
 }
 .action-container {
   margin-top: 10px;
+  z-index: 1000;
 }
 .card-content {
-  margin-top: 25px;
+  margin: 25px 0 0 0;
 }
 .approval-card {
   width: 300px;

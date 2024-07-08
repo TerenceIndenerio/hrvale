@@ -1,7 +1,11 @@
 <template>
   <ion-grid class="button-container">
     <ion-row>
-      <ion-col class="card btn-text" expand="full" color="none">
+      <ion-col
+        :class="['card btn-text', { soon: !isValeAllowed }]"
+        expand="full"
+        color="none"
+      >
         <a
           @click="navigateVale"
           class="clockin btn-container"
@@ -23,11 +27,13 @@
               id="vale-mask"
             />
           </div>
-
           <h4>Vale</h4>
         </a>
       </ion-col>
-      <ion-col class="card btn-text" expand="full">
+      <ion-col
+        :class="['card btn-text', { soon: !isClockInOutAllowed }]"
+        expand="full"
+      >
         <a
           @click="navigateclockin"
           class="clockin btn-container"
@@ -47,13 +53,13 @@
               d="M256 48C141.13 48 48 141.13 48 256s93.13 208 208 208 208-93.13 208-208S370.87 48 256 48zm96 240h-96a16 16 0 01-16-16V128a16 16 0 0132 0v128h80a16 16 0 010 32z"
             />
           </svg>
-
           <h4>Clock In / Out</h4>
         </a>
       </ion-col>
     </ion-row>
   </ion-grid>
 </template>
+
 <script>
 import { IonButton, IonCol, IonGrid, IonRow, IonIcon } from "@ionic/vue";
 import { defineComponent } from "vue";
@@ -67,6 +73,18 @@ export default defineComponent({
     theme: Object,
   },
 
+  computed: {
+    servicesConfig() {
+      return JSON.parse(localStorage.getItem("servicesConfig"));
+    },
+    isValeAllowed() {
+      return this.servicesConfig?.vale?.hidden ?? false;
+    },
+    isClockInOutAllowed() {
+      return this.servicesConfig?.clockInOut?.hidden ?? false;
+    },
+  },
+
   methods: {
     navigateSoon() {
       this.$router.push("/soon");
@@ -75,7 +93,11 @@ export default defineComponent({
       this.$router.push("/leave");
     },
     navigateclockin() {
-      this.$router.push("/clockin");
+      if (this.isClockInOutAllowed) {
+        this.$router.push("/clockin");
+      } else {
+        this.navigateSoon();
+      }
     },
     navigateviewschedule() {
       this.$router.push("/viewschedule");
@@ -96,7 +118,12 @@ export default defineComponent({
       this.$router.push("/pincode");
     },
     navigateVale() {
-      this.$router.push("/vale");
+      if (this.isValeAllowed) {
+        const storedClient = JSON.parse(localStorage.getItem("client"));
+        this.$router.push(`/vale${storedClient}`);
+      } else {
+        this.navigateSoon();
+      }
     },
   },
 });
@@ -197,5 +224,18 @@ a {
   display: flex;
   justify-content: center;
   align-items: center;
+}
+.not-available-label {
+  background-color: rgba(255, 255, 255, 0.593);
+  position: absolute;
+  left: 0;
+  right: 0;
+  text-align: center;
+  color: black;
+  border-radius: 30px;
+  padding: 35px 0;
+}
+.soon {
+  opacity: 0.5;
 }
 </style>

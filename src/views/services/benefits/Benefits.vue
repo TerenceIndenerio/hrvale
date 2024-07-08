@@ -113,7 +113,7 @@ export default defineComponent({
   },
 
   methods: {
-    // Exppiration of token
+    // Expiration of token
     async checkTokenExpiration() {
       const storedToken = localStorage.getItem("token");
 

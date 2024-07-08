@@ -6,16 +6,20 @@
   >
     <img :src="this.logo" alt="Logo" class="logo" />
 
-    <ion-icon
-      name="notifications"
-      class="icon1"
-      @click="rotateIcon"
-      :class="{ rotateIcon: rotationState === 'rotateIcon' }"
-      :key="rotationState"
-      :style="{
-        backgroundColor: headerColor,
-      }"
-    ></ion-icon>
+    <div class="notif-bell-container">
+      <div class="redDot" v-if="newNotif"></div>
+      <ion-icon
+        name="notifications"
+        class="icon1"
+        @click="rotateIcon"
+        :class="{ rotateIcon: rotationState === 'rotateIcon' }"
+        :key="rotationState"
+        :style="{
+          backgroundColor: headerColor,
+        }"
+      >
+      </ion-icon>
+    </div>
 
     <div class="profile-img-container" @click="openProfileModal">
       <img :src="profileImageUrl" alt="" />
@@ -43,13 +47,15 @@
 
           <div class="location-container">
             <p>
+              Name: {{ this.myProfileDetails.employee.firstName }}
+              {{ this.myProfileDetails.employee.middleName }}
+              {{ this.myProfileDetails.employee.lastName }}
+            </p>
+            <p>
               Employee Number: {{ this.myProfileDetails.employee.empNumber }}
             </p>
             <p>Employee ID: {{ this.myProfileDetails.employee.employeeId }}</p>
             <p>Username: {{ this.myProfileDetails.userName }}</p>
-            <p>Birth Date: {{ this.profileDetails.birthday }}</p>
-            <p>Status: {{ this.profileDetails.status }}</p>
-            <p>Nationality: {{ this.profileDetails.nationality.name }}</p>
           </div>
         </div>
       </ion-card>
@@ -106,6 +112,7 @@ export default defineComponent({
       profileDetails: "",
       logo: "",
       myProfileDetails: "",
+      newNotif: "",
     };
   },
   created() {
@@ -113,6 +120,7 @@ export default defineComponent({
     this.fetchProfilePhoto(empNumber);
     this.fetchProfileDirectory();
     this.fetchLogo();
+    this.fetchNotification();
   },
   methods: {
     openProfileModal() {
@@ -155,6 +163,46 @@ export default defineComponent({
       }
     },
 
+    async fetchNotification() {
+      try {
+        const baseURL = localStorage.getItem("baseUrl");
+        const storedToken = localStorage.getItem("token");
+        const apiUrl = `${baseURL}api/push-notification/messages`;
+        const headers = {
+          Authorization: `Bearer ${storedToken}`,
+        };
+
+        const response = await axios.get(apiUrl, { headers });
+        const notifications = response.data.data;
+
+        if (notifications) {
+          const currentTime = new Date();
+          const currentFormattedTime = currentTime.toLocaleTimeString("en-US", {
+            hour12: false,
+          });
+
+          notifications.forEach((notification) => {
+            if (notification.dateCreated) {
+              const dateCreated = new Date(notification.dateCreated.date);
+              const formattedDateCreatedTime = dateCreated.toLocaleTimeString(
+                "en-US",
+                { hour12: false }
+              );
+
+              const timeDifference = (currentTime - dateCreated) / (1000 * 60);
+
+              if (timeDifference <= 30) {
+                this.newNotif = true;
+              }
+            }
+          });
+        }
+      } catch (error) {
+        console.error("Error:", error);
+        return null;
+      }
+    },
+
     navigateAcctSettings() {
       this.$router.push("/tabs/accsettings");
       this.popoverOpen = false;
@@ -164,9 +212,8 @@ export default defineComponent({
     },
     async fetchProfileDirectory() {
       try {
-        const userDetails = localStorage.getItem("userDetails");
-        this.profileDetails = JSON.parse(userDetails);
         const myDetails = localStorage.getItem("myDetails");
+
         this.myProfileDetails = JSON.parse(myDetails);
       } catch (error) {
         console.error("Error:", error);
@@ -219,8 +266,6 @@ export default defineComponent({
   height: 30px;
 }
 .icon1 {
-  position: absolute;
-  right: 20px;
   font-size: 20px;
   border: 3px solid white;
   border-radius: 100%;
@@ -322,6 +367,21 @@ ion-popover {
 .location-container p {
   margin: 0;
   padding: 0;
+}
+.redDot {
+  background-color: red;
+  width: 15px;
+  height: 15px;
+  border-radius: 100%;
+  position: absolute;
+  right: 0px;
+  top: 0;
+  z-index: 1;
+}
+.notif-bell-container {
+  position: absolute;
+  right: 20px;
+  padding: 3px;
 }
 
 @keyframes rotateKeyframes {

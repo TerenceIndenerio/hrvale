@@ -17,13 +17,11 @@
           <div class="loan-budget-val">
             <p :style="{ color: theme.primaryFontColor }">PHP</p>
             <h4 :style="{ color: theme.primaryFontColor }">
-              {{ loanDataResult.balance }}
+              {{ valeDataResult.balance }}
             </h4>
           </div>
           <div class="loan-budget-text">
-            <p :style="{ color: theme.primaryFontColor }">
-              Available Loan Balance
-            </p>
+            <p :style="{ color: theme.primaryFontColor }">Loanable Amount</p>
           </div>
         </div>
       </ion-card>
@@ -40,43 +38,7 @@
             <ion-col size="6">
               <ion-row>
                 <ion-col size="6">
-                  <p>Creditable years of Service:</p>
-                </ion-col>
-                <ion-col size="6">
-                  <p>{{ valeDataResult.creditableService }} years</p>
-                </ion-col>
-              </ion-row>
-
-              <ion-row>
-                <ion-col size="6">
-                  <p>Rule/Year of Service:</p>
-                </ion-col>
-                <ion-col size="6">
-                  <p>Php {{ valeDataResult.rulePerYearOfService }}</p>
-                </ion-col>
-              </ion-row>
-
-              <ion-row>
-                <ion-col size="6">
-                  <p>Carry over interest:</p>
-                </ion-col>
-                <ion-col size="6">
-                  <p>{{ valeDataResult.carryOverInterest }}%</p>
-                </ion-col>
-              </ion-row>
-
-              <ion-row>
-                <ion-col size="6">
-                  <p>Percentage (%):</p>
-                </ion-col>
-                <ion-col size="6">
-                  <p>{{ valeDataResult.loanInterest }}%</p>
-                </ion-col>
-              </ion-row>
-              <!--  -->
-              <ion-row>
-                <ion-col size="6">
-                  <p>Amount of Approval:</p>
+                  <p>Vale Request:</p>
                 </ion-col>
                 <ion-col size="6">
                   <div
@@ -94,14 +56,13 @@
                   </div>
                 </ion-col>
               </ion-row>
-              <!--  -->
 
               <ion-row>
                 <ion-col size="6">
                   <p>Previous Balance:</p>
                 </ion-col>
                 <ion-col size="6">
-                  <p>{{ formatWithCommas(valeDataResult.previousBalance) }}</p>
+                  <p>{{ valeDataResult.previousBalance }}</p>
                 </ion-col>
               </ion-row>
 
@@ -111,6 +72,15 @@
                 </ion-col>
                 <ion-col size="6">
                   <p>{{ formatWithCommas(totalLoan) }}</p>
+                </ion-col>
+              </ion-row>
+
+              <ion-row>
+                <ion-col size="6">
+                  <p>Amortization:</p>
+                </ion-col>
+                <ion-col size="6">
+                  <p>{{ this.amortizationPercentage }}</p>
                 </ion-col>
               </ion-row>
 
@@ -130,7 +100,7 @@
                     <div slot="label">Select Reason</div>
                     <ion-select-option
                       v-for="option in reasonOptions"
-                      :key="option.value"
+                      :key="option.content"
                       :value="option.content"
                     >
                       {{ option.content }}
@@ -138,6 +108,37 @@
                   </ion-select>
                 </ion-card>
               </ion-col>
+
+              <!-- Other Reason Textarea -->
+              <div
+                class="ion-margin-bottom comment"
+                v-if="this.reason === 'Others'"
+              >
+                <ion-label position="stacked"
+                  ><strong>Reason:</strong></ion-label
+                >
+                <ion-textarea
+                  v-model="reasonText"
+                  rows="4"
+                  class="neomorphic-textarea-1"
+                  aria-label="Reason"
+                  placeholder="Enter your reason here..."
+                ></ion-textarea>
+              </div>
+
+              <!-- Comment Textarea -->
+              <div class="ion-margin-bottom comment">
+                <ion-label position="stacked"
+                  ><strong>Comment:</strong></ion-label
+                >
+                <ion-textarea
+                  v-model="comment"
+                  rows="4"
+                  class="neomorphic-textarea-1"
+                  aria-label="Comment"
+                  placeholder="Enter your comment here..."
+                ></ion-textarea>
+              </div>
             </ion-col>
           </div>
           <ion-button
@@ -150,6 +151,39 @@
             Apply Loan
           </ion-button>
         </ion-card>
+
+        <ion-modal :is-open="isOpen" id="modal">
+          <ion-card class="card-modal">
+            <ion-card-header>
+              <ion-card-title class="modal-header"
+                >Confirmation Required</ion-card-title
+              >
+            </ion-card-header>
+            <ion-icon
+              @click="isOpen = false"
+              name="close"
+              :style="{ color: theme.primaryColor }"
+              class="close-btn"
+            ></ion-icon>
+
+            <ion-grid class="modal-content">
+              <p>
+                Your inputted loan amount exceeds the available loanable amount.
+                Do you still wish to proceed? This is subject to approval.
+              </p>
+              <ion-row>
+                <ion-col>
+                  <ion-button @click="confirmProceed">Yes, Confirm</ion-button>
+                </ion-col>
+                <ion-col>
+                  <ion-button @click="cancelProceed" color="light"
+                    >No, Cancel</ion-button
+                  >
+                </ion-col>
+              </ion-row>
+            </ion-grid>
+          </ion-card>
+        </ion-modal>
       </div>
     </ion-content>
   </ion-page>
@@ -175,6 +209,12 @@ import {
   IonInput,
   IonSelect,
   IonSelectOption,
+  IonCheckbox,
+  IonItem,
+  IonList,
+  IonModal,
+  IonCardTitle,
+  IonCardHeader,
 } from "@ionic/vue";
 import HeaderReturn from "@/components/header/HeaderReturn.vue";
 import { getThemeData } from "@/theme/theme";
@@ -202,6 +242,13 @@ export default {
     Refresher,
     IonSelect,
     IonSelectOption,
+    IonCheckbox,
+    IonItem,
+    IonList,
+    IonModal,
+    IonIcon,
+    IonCardTitle,
+    IonCardHeader,
   },
   setup() {
     return {
@@ -221,10 +268,18 @@ export default {
       spouseChecked: false,
       childChecked: false,
       siblingsChecked: false,
-      reason: "",
       approvalAmount: "",
       reasonOptions: [],
       selectedReason: "",
+      comment: null,
+      reason: "",
+      parsedOptions: [],
+      selectedOption: "",
+      selectedCheckbox: [],
+      reasonText: null,
+      isOpen: false,
+      finalReason: null,
+      amortizationPercentage: 0,
       valeDataResult: {
         creditableService: "",
         rulePerYearOfService: "",
@@ -304,64 +359,80 @@ export default {
 
       this.theme = themeData;
     },
+
     async applyVale() {
+      if (!this.reason || this.reason.trim() === "") {
+        this.showErrorMessage("Please fill in all required fields.");
+        return;
+      }
+
+      this.finalReason =
+        this.reason === "Others" ? this.reasonText.trim() : this.reason.trim();
+
+      if (!this.finalReason || !this.comment.trim()) {
+        this.showErrorMessage("Please fill in all required fields.");
+        return;
+      }
+
+      const approvalAmount = parseInt(this.approvalAmount.replace(/,/g, ""));
+      const loanBalance = this.valeDataResult.balance;
+
+      if (approvalAmount > loanBalance) {
+        this.showErrorMessage("Invalid Amount for Approval");
+        this.invalidAmount = true;
+        this.isOpen = true;
+      } else {
+        await this.proceedWithAPI(this.finalReason);
+      }
+
+      this.updateTotalLoan();
+    },
+
+    async proceedWithAPI(reason) {
       try {
-        const approvalAmount = parseInt(this.approvalAmount.replace(/,/g, ""));
-        const loanBalance = parseInt(
-          this.loanDataResult.balance.replace(/,/g, "")
-        );
+        const headers = {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        };
+        const baseURL = localStorage.getItem("baseUrl");
+        const api = `${baseURL}api/v2/apply-vale`;
+        const loanAmount = parseFloat(
+          this.approvalAmount.replace(/,/g, "")
+        ).toString();
 
-        if (approvalAmount > loanBalance) {
-          this.showErrorMessage("Invalid Amount for Approval");
-          this.invalidAmount = true;
-          return;
-        }
+        const payload = {
+          loanAmount: loanAmount,
+          reason: reason,
+          comment: this.comment.trim(),
+        };
 
-        if (!this.reason.trim()) {
-          this.showErrorMessage("Please fill in all required fields.");
-          return;
-        }
-        this.updateTotalLoan();
+        const dataResponse = await axios.post(api, payload, { headers });
 
-        if (!this.invalidAmount) {
-          this.storedToken = localStorage.getItem("token");
+        console.log("resp", dataResponse);
 
-          const headers = {
-            Authorization: `Bearer ${this.storedToken}`,
-          };
-          const baseURL = localStorage.getItem("baseUrl");
-          const api = baseURL + `api/payroll/vale`;
-          const currentDate = new Date().toISOString().split("T")[0];
-
-          const loanAmount = parseFloat(
-            this.approvalAmount.replace(/,/g, "")
-          ).toString();
-
-          const payload = {
-            empNumber: this.empNumber,
-            loanAmount: loanAmount,
-            loanDate: currentDate,
-            reason: this.reason,
-          };
-
-          const dataResponse = await axios.post(api, payload, { headers });
-
-          if (dataResponse.status === 200) {
-            this.showAlertMessage("Vale Applied Successfully!");
-
-            setTimeout(() => {
-              let id = dataResponse.data.data.id;
-              this.$router.push({ path: "/viewvale", query: { id } });
-            }, 1000);
-          }
+        if (dataResponse.status === 200) {
+          this.showAlertMessage("Vale Applied Successfully!");
+          setTimeout(() => {
+            window.location.replace(
+              `/viewvale?id=${dataResponse.data.data.id}`
+            );
+          }, 1000);
         }
       } catch (error) {
-        if (!this.invalidAmount) {
-          this.showErrorMessage(error.response?.data?.error?.message);
-        }
+        this.showErrorMessage(error.response?.data?.error?.message);
+        console.log("message", error.response?.data?.error?.message);
       } finally {
         this.store.commit("loader/updateLoader", false);
       }
+    },
+
+    confirmProceed() {
+      this.isOpen = false;
+      this.invalidAmount = false;
+      this.proceedWithAPI(this.finalReason);
+    },
+    cancelProceed() {
+      this.isOpen = false;
+      this.invalidAmount = false;
     },
 
     async fetchLoanBudget() {
@@ -403,22 +474,23 @@ export default {
           Authorization: `Bearer ${this.storedToken}`,
         };
         const baseURL = localStorage.getItem("baseUrl");
-        const api = baseURL + `api/v2/ess/apply/vale-details`;
+        const api = baseURL + `api/v2/apply-vale?limit=50&offset=0`;
 
         const dataResponse = await axios.get(api, { headers });
 
         this.valeDataResult = {
-          creditableService: dataResponse.data.data.creditableService,
-          rulePerYearOfService: parseFloat(
-            dataResponse.data.data.rulePerYearOfService
-          ).toLocaleString(),
+          creditableService: dataResponse.data.data.yearOfService,
+          rulePerYearOfService: dataResponse.data.data.yearPerService,
           carryOverInterest: dataResponse.data.data.carryOverInterest,
           loanInterest: dataResponse.data.data.loanInterest,
           amortizationValue: dataResponse.data.data.amortizationValue,
           previousBalance: dataResponse.data.data.previousBalance,
+          budget: dataResponse.data.data.budget,
+          balance: dataResponse.data.data.loanableAmount,
+          availableAmount: dataResponse.data.data.availableAmount,
         };
       } catch (error) {
-        this.showErrorMessage(error.message);
+        this.showErrorMessage(error.response.data.error.message);
       } finally {
         this.store.commit("loader/updateLoader", false);
       }
@@ -467,20 +539,21 @@ export default {
     },
 
     updateTotalLoan() {
-      const approvalAmount = parseInt(this.approvalAmount.replace(/,/g, ""));
-      const previousBalance = parseInt(this.valeDataResult.previousBalance);
-      const loanBalance = parseInt(
-        this.loanDataResult.balance.replace(/,/g, "")
+      const approvalAmount = parseFloat(this.approvalAmount.replace(/,/g, ""));
+      const previousBalance = parseFloat(
+        this.valeDataResult.previousBalance.replace(/,/g, "")
       );
-
+      const availableAmount = parseFloat(this.valeDataResult.availableAmount);
+      const amortizationValue = parseFloat(
+        this.valeDataResult.amortizationValue.replace(/,/g, "")
+      );
+      this.amortizationPercentage = approvalAmount / amortizationValue;
+      this.totalLoan = approvalAmount + previousBalance;
       if (!isNaN(approvalAmount) && approvalAmount > 0) {
-        if (approvalAmount <= loanBalance) {
-          const totalLoan = approvalAmount + previousBalance;
-          this.totalLoan = isNaN(totalLoan) ? 0 : totalLoan;
+        if (approvalAmount <= availableAmount) {
           this.invalidAmount = false;
         } else {
           this.showErrorMessage("Invalid Amount for Approval");
-          this.totalLoan = 0;
           this.invalidAmount = true;
         }
       } else {
@@ -540,10 +613,6 @@ p {
 .card {
   padding: 0 10px 0 10px;
   border-radius: 20px;
-  /* box-shadow: 8px 8px 16px rgba(0, 0, 0, 0.1),
-                    -8px -8px 16px rgba(255, 255, 255, 0.8), 
-                    0px -4px 8px rgba(0, 0, 0, 0.05),
-                    -8px -8px 16px rgba(0, 0, 0, 0.1); */
 }
 
 .apply-btn {
@@ -635,5 +704,34 @@ p {
 
 .invalid-input {
   border: 1px solid red;
+}
+
+.modal-content {
+  margin: 0 0 10px 0;
+  text-align: center;
+}
+#modal {
+  --background: rgba(255, 0, 0, 0);
+}
+.modal-header {
+  text-align: center;
+}
+.card-modal {
+  border-radius: 20px;
+  max-width: 400px;
+  margin-top: 50%;
+}
+.close-btn {
+  position: absolute;
+  top: 5px;
+  right: 10px;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  margin: 0;
+  box-shadow: var(--neomorphism-convex-4);
+  border-radius: 50%;
+  background-color: rgb(246, 246, 246);
+  overflow: hidden;
 }
 </style>

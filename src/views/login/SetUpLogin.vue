@@ -46,9 +46,7 @@ import { GlobalConstants } from "@/config/constants";
 import generateToken from "@/store/token/accessToken.ts";
 import axios from "axios";
 import { runBackgroundScript } from "@/notification/Notification.ts";
-import { adminUserDetails, userDetails } from "@/store/login/onLoad";
-
-// const id = GlobalConstants.USER_ID;
+import { adminUserDetails } from "@/store/login/onLoad";
 
 export default defineComponent({
   components: {
@@ -91,6 +89,7 @@ export default defineComponent({
   methods: {
     async OnLogin(value) {
       try {
+        this.store.commit("loader/updateLoader", true);
         const response = await generateToken(
           value.username,
           value.password,
@@ -103,8 +102,20 @@ export default defineComponent({
           await this.fetchStoredTheme();
           await this.hasPincode();
         }
+
+        const userCredentials = {
+          username: value.username,
+          password: value.password,
+          client: value.client,
+        };
+
+        localStorage.setItem(
+          "userCredentials",
+          JSON.stringify(userCredentials)
+        );
       } catch (error) {
         console.error(error.message);
+        this.store.commit("loader/updateLoader", false);
         await this.alertError();
       }
     },
@@ -136,17 +147,22 @@ export default defineComponent({
         const response = await axios.get(apiUrl, { headers });
 
         if (response.data.data.pincode) {
-          await this.fetchUserDetails();
-          await runBackgroundScript();
-          await userDetails(this.empNumber);
+          try {
+            await Promise.all([this.fetchUserDetails(), runBackgroundScript()]);
 
-          localStorage.setItem("pincode", response.data.data.pincode);
-          this.router.push("/tabs/buzzfeed");
+            localStorage.setItem("pincode", response.data.data.pincode);
+            this.router.push("/tabs/buzzfeed");
+          } catch (innerError) {
+            console.log(innerError.message);
+            location.reload();
+          }
         } else {
           this.router.push("/setuppincodelogin");
         }
       } catch (error) {
         console.log(error.message);
+      } finally {
+        this.store.commit("loader/updateLoader", false);
       }
     },
 
@@ -188,15 +204,17 @@ export default defineComponent({
           (item) => item.name === "authentication"
         );
 
-        console.log("authConfigs: ", authConfigs);
-
-        // Branding
+        // Branding Theme
         if (brandingConfig) {
           const theme = brandingConfig.configuration.theme;
+          const services = brandingConfig.configuration.services;
+          const client = brandingConfig.configuration.client;
 
           if (theme) {
             localStorage.setItem("themeData", JSON.stringify(theme));
             this.theme = theme;
+            localStorage.setItem("servicesConfig", JSON.stringify(services));
+            localStorage.setItem("client", JSON.stringify(client));
           } else {
             console.error("Theme not found in the branding configuration.");
           }
@@ -208,7 +226,6 @@ export default defineComponent({
         if (authConfigs) {
           const apiHost = authConfigs.configuration.apiHost;
           localStorage.setItem("baseUrl", apiHost);
-          console.log("apihost: ", apiHost);
         } else {
           console.error("Configuration for Auth not found.");
         }

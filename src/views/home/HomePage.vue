@@ -85,7 +85,7 @@ export default defineComponent({
   methods: {
     ...mapMutations("loader", ["updateLoader"]),
 
-    // Exppiration of token
+    // Expiration of token
     async checkTokenExpiration() {
       const storedToken = localStorage.getItem("token");
 

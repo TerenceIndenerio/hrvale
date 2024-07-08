@@ -11,7 +11,7 @@
       <ion-card class="filter-container neomorphic-card-1">
         <ion-select
           v-model="selectedLoanType"
-          @ionChange="searchByLoanType(selectedLoanType)"
+          @ionChange="filterResults"
           label-placement="floating"
           label="Select Loan Type"
           class="select-option neomorphic-input-2"
@@ -24,12 +24,38 @@
             {{ loanType.loanType }}
           </ion-select-option>
         </ion-select>
+
+        <div class="date-container">
+          <div class="inner-container">
+            <p :style="{ color: theme.primaryColor }" class="label">
+              <strong>From:</strong>
+            </p>
+            <div class="neomorphic-input-2">
+              <ion-input
+                type="date"
+                v-model="startDate"
+                @ionChange="filterResults"
+                class="date-input"
+              />
+            </div>
+          </div>
+
+          <div class="inner-container">
+            <p :style="{ color: theme.primaryColor }" class="label">
+              <strong>To:</strong>
+            </p>
+            <div class="neomorphic-input-2">
+              <ion-input
+                type="date"
+                v-model="endDate"
+                @ionChange="filterResults"
+                class="date-input"
+              />
+            </div>
+          </div>
+        </div>
       </ion-card>
-      <!-- <img
-        src="src\assets\images\buzz_no_posts.svg"
-        alt=""
-        v-if="filteredResults.length == 0"
-      /> -->
+
       <div class="result-container">
         <ion-card
           class="card-content neomorphic-card-1"
@@ -50,10 +76,10 @@
             <ion-col size="6" class="card-content">
               <ion-row>
                 <ion-col size="6">
-                  <p>Loan Type:</p>
+                  <p>Loan Date:</p>
                 </ion-col>
                 <ion-col size="6">
-                  <p>{{ result.loanType }}</p>
+                  <p>{{ result.loanDate }}</p>
                 </ion-col>
               </ion-row>
 
@@ -182,7 +208,7 @@ export default defineComponent({
   },
   data() {
     return {
-      headerTitle: "Loan Balance",
+      headerTitle: "Other Loans",
       payrollPeriodOption: [],
       authToken: null,
       noResult: false,
@@ -251,7 +277,10 @@ export default defineComponent({
         const headers = {
           Authorization: `Bearer ${this.storedToken}`,
         };
-        const api = baseURL + `api/v2/ess/employee/loan-balances`;
+
+        const api =
+          baseURL +
+          `api/ess/other-loans?limit=50&offset=0&sortField=el.id&sortOrder=DESC`;
 
         const dataResponse = await axios.get(api, { headers });
 
@@ -259,8 +288,8 @@ export default defineComponent({
           this.results = dataResponse.data.data.map((data) => ({
             id: data.id,
             name: data.name,
-            loanDate: data.loanDate.date.split(" ")[0],
-            startPaymentDate: data.startPaymentDate.date.split(" ")[0],
+            loanDate: data.loanDate?.date?.split(" ")[0] ?? "",
+            startPaymentDate: data.startPaymentDate?.date?.split(" ")[0] ?? "",
             loanType: data.loanTypeName,
             loanTypeId: data.loanTypeId,
             loanAmount: data.loanAmount,
@@ -286,19 +315,34 @@ export default defineComponent({
         this.filteredResults = this.results;
       } catch (error) {
         this.showErrorMessage("An error occurred: " + error.message);
+        console.log(error);
       } finally {
         this.store.commit("loader/updateLoader", false);
       }
     },
 
-    searchByLoanType(selectedLoanType) {
-      if (selectedLoanType) {
-        this.filteredResults = this.results.filter(
-          (result) => result.loanTypeId === selectedLoanType
+    filterResults() {
+      let filtered = this.results;
+
+      if (this.selectedLoanType) {
+        filtered = filtered.filter(
+          (result) => result.loanTypeId === this.selectedLoanType
         );
-      } else {
-        this.filteredResults = this.results;
       }
+
+      if (this.startDate) {
+        filtered = filtered.filter(
+          (result) => new Date(result.loanDate) >= new Date(this.startDate)
+        );
+      }
+
+      if (this.endDate) {
+        filtered = filtered.filter(
+          (result) => new Date(result.loanDate) <= new Date(this.endDate)
+        );
+      }
+
+      this.filteredResults = filtered;
     },
 
     navigateOtherLoans() {
@@ -373,6 +417,7 @@ export default defineComponent({
   justify-content: center;
   padding: 10px;
   margin: 10px auto;
+  flex-direction: column;
 }
 
 .result-container {
@@ -471,5 +516,20 @@ export default defineComponent({
   align-items: center;
   width: 100%;
   overflow: hidden;
+}
+.date-container {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+.date-container .inner-container {
+  width: 135px;
+}
+.date-input {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  width: 120px;
 }
 </style>

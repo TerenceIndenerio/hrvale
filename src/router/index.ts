@@ -46,6 +46,8 @@ import Notification from "@/views/notification/Notification.vue";
 import ValeMain from "@/views/services/vale/vale_main/ValeMain.vue";
 import ScheduleAdjustment from "@/views/services/schedule_adjustment/ScheduleAdjustment.vue";
 import ScheduleAdjustmentEdit from "@/views/services/schedule_adjustment/ScheduleAdjustmentEdit.vue";
+import ValeSuysingVersion from "@/views/services/vale/ValeSuysingVersion.vue";
+import ValeHistory from "@/views/services/vale/ValeHistory.vue";
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -180,6 +182,14 @@ const routes: Array<RouteRecordRaw> = [
       {
         path: "/applyvale",
         component: ApplyVale,
+      },
+      {
+        path: "/valesuysing",
+        component: ValeSuysingVersion,
+      },
+      {
+        path: "/valehistory",
+        component: ValeHistory,
       },
       {
         path: "/soon",

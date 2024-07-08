@@ -1,12 +1,14 @@
 <template>
+  <!-- Leave -->
   <div class="button-container">
-    <div class="card btn-text neomorphic-card-1" expand="full">
+    <div :class="[`card btn-text`, { soon: !isleaveAllowed }]" expand="full">
       <a
         @click="navigateLeave"
         :style="{
           background: `linear-gradient(to right, ${theme.primaryGradientStartColor}, ${theme.primaryGradientEndColor})`,
           color: theme.primaryFontColor,
         }"
+        disabled
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -23,7 +25,12 @@
         <h4 :style="{ color: btnTextColor }">Leave</h4>
       </a>
     </div>
-    <div class="card btn-text" expand="full" color="none">
+    <!-- Schedule -->
+    <div
+      :class="[`card btn-text`, { soon: !isScheduleAllowed }]"
+      expand="full"
+      color="none"
+    >
       <a
         @click="navigateviewschedule"
         :style="{
@@ -45,13 +52,19 @@
         <h4 :style="{ color: btnTextColor }">Schedule</h4>
       </a>
     </div>
-    <div class="card btn-text" expand="full" color="none">
+    <!-- Attendance -->
+    <div
+      :class="[`card btn-text`, { soon: !isAttendanceAllowed }]"
+      expand="full"
+      color="none"
+    >
       <a
         @click="navigateattendancecorrection"
         :style="{
           background: `linear-gradient(to right, ${theme.primaryGradientStartColor}, ${theme.primaryGradientEndColor})`,
           color: theme.primaryFontColor,
         }"
+        disabled
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -68,13 +81,19 @@
         <h4 :style="{ color: btnTextColor }">Attendance</h4>
       </a>
     </div>
-    <div class="card btn-text" expand="full" color="none">
+    <!-- OT -->
+    <div
+      :class="[`card btn-text`, { soon: !isOTAllowed }]"
+      expand="full"
+      color="none"
+    >
       <a
         @click="navigateOTApply"
         :style="{
           background: `linear-gradient(to right, ${theme.primaryGradientStartColor}, ${theme.primaryGradientEndColor})`,
           color: theme.primaryFontColor,
         }"
+        disabled
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -91,8 +110,12 @@
         <h4 :style="{ color: btnTextColor }">OT</h4>
       </a>
     </div>
-
-    <div class="card btn-text" expand="full" color="none">
+    <!-- payslip -->
+    <div
+      :class="[`card btn-text`, { soon: !isPayslipAllowed }]"
+      expand="full"
+      color="none"
+    >
       <a
         @click="navigateViewPayslip"
         :style="{
@@ -120,7 +143,12 @@
         <h4 :style="{ color: btnTextColor }">Payslip</h4>
       </a>
     </div>
-    <div class="card btn-text" expand="full" color="none">
+    <!-- Benefits -->
+    <div
+      :class="[`card btn-text`, { soon: !isBenefitsAllowed }]"
+      expand="full"
+      color="none"
+    >
       <a
         @click="navigateBenefits"
         :style="{
@@ -148,7 +176,12 @@
         <h4 :style="{ color: btnTextColor }">Benefits</h4>
       </a>
     </div>
-    <div class="card btn-text" expand="full" color="none">
+    <!-- Other Loans -->
+    <div
+      :class="[`card btn-text`, { soon: !isLoanBalanceAllowed }]"
+      expand="full"
+      color="none"
+    >
       <a
         @click="navigateloanBal"
         :style="{
@@ -178,11 +211,15 @@
           />
         </svg>
 
-        <h4 :style="{ color: btnTextColor }">Loan</h4>
+        <h4 :style="{ color: btnTextColor }">Other Loan</h4>
       </a>
     </div>
-
-    <div class="card btn-text" expand="full" color="none">
+    <!-- Change DO / schedule Adjustment -->
+    <div
+      :class="[`card btn-text`, { soon: !isSchedAdjustment }]"
+      expand="full"
+      color="none"
+    >
       <a
         @click="navigateSchedAdjustment"
         :style="{
@@ -206,8 +243,13 @@
         <h4 :style="{ color: btnTextColor }">Change DO</h4>
       </a>
     </div>
-
-    <div class="card btn-text" expand="full" color="none" v-if="isUserRoleESS">
+    <!-- Approval -->
+    <div
+      :class="[`card btn-text`, { soon: !isApprovalAllowed }]"
+      expand="full"
+      color="none"
+      v-if="isUserRoleESS"
+    >
       <a
         @click="navigateApproval"
         :style="{
@@ -246,9 +288,39 @@ export default defineComponent({
     theme: Object,
   },
   computed: {
+    servicesConfig() {
+      return JSON.parse(localStorage.getItem("servicesConfig"));
+    },
     isUserRoleESS() {
       const myDetails = JSON.parse(localStorage.getItem("myDetails"));
       return myDetails.isApprover;
+    },
+    isleaveAllowed() {
+      return this.servicesConfig?.leave?.hidden ?? false;
+    },
+    isScheduleAllowed() {
+      return this.servicesConfig?.schedule?.hidden ?? false;
+    },
+    isAttendanceAllowed() {
+      return this.servicesConfig?.attendance?.hidden ?? false;
+    },
+    isOTAllowed() {
+      return this.servicesConfig?.ot?.hidden ?? false;
+    },
+    isPayslipAllowed() {
+      return this.servicesConfig?.payslip?.hidden ?? false;
+    },
+    isBenefitsAllowed() {
+      return this.servicesConfig?.benefits?.hidden ?? false;
+    },
+    isLoanBalanceAllowed() {
+      return this.servicesConfig?.otherLoan?.hidden ?? false;
+    },
+    isSchedAdjustment() {
+      return this.servicesConfig?.changeDO?.hidden ?? false;
+    },
+    isApprovalAllowed() {
+      return this.servicesConfig?.approval?.hidden ?? false;
     },
   },
   methods: {
@@ -256,37 +328,73 @@ export default defineComponent({
       this.$router.push("/soon");
     },
     navigateLeave() {
-      this.$router.push("/leave");
+      if (this.isleaveAllowed) {
+        this.$router.push("/leave");
+      } else {
+        this.navigateSoon();
+      }
     },
     navigateclockin() {
       this.$router.push("/clockin");
     },
     navigateviewschedule() {
-      this.$router.push("/viewschedule");
+      if (this.isScheduleAllowed) {
+        this.$router.push("/viewschedule");
+      } else {
+        this.navigateSoon();
+      }
     },
     navigateattendancecorrection() {
-      this.$router.push("/attendancecorrection");
+      if (this.isAttendanceAllowed) {
+        this.$router.push("/attendancecorrection");
+      } else {
+        this.navigateSoon();
+      }
     },
     navigateOTApply() {
-      this.$router.push("/applyot");
+      if (this.isOTAllowed) {
+        this.$router.push("/applyot");
+      } else {
+        this.navigateSoon();
+      }
     },
     navigateloanBal() {
-      this.$router.push("/loanbalance");
+      if (this.isLoanBalanceAllowed) {
+        this.$router.push("/loanbalance");
+      } else {
+        this.navigateSoon();
+      }
     },
     navigateBenefits() {
-      this.$router.push("/benefits");
+      if (this.isBenefitsAllowed) {
+        this.$router.push("/benefits");
+      } else {
+        this.navigateSoon();
+      }
     },
     navigateViewPayslip() {
-      this.$router.push("/pincode");
+      if (this.isPayslipAllowed) {
+        this.$router.push("/pincode");
+      } else {
+        this.navigateSoon();
+      }
     },
     navigateVale() {
       this.$router.push("/vale");
     },
     navigateApproval() {
-      this.$router.push("/tabs/approval");
+      if (this.isApprovalAllowed) {
+        this.$router.push("/tabs/approval");
+      } else {
+        this.navigateSoon();
+      }
     },
     navigateSchedAdjustment() {
-      this.$router.push("/scheduleadjustment");
+      if (this.isSchedAdjustment) {
+        this.$router.push("/scheduleadjustment");
+      } else {
+        this.navigateSoon();
+      }
     },
   },
 });
@@ -379,5 +487,18 @@ a {
 .icon-btn {
   font-size: 30px;
   height: 35px;
+}
+.not-available-label {
+  background-color: rgba(255, 255, 255, 0.593);
+  position: absolute;
+  left: 0;
+  right: 0;
+  text-align: center;
+  color: black;
+  border-radius: 30px;
+  padding: 20px 0;
+}
+.soon {
+  opacity: 0.5;
 }
 </style>

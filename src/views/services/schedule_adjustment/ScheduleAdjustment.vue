@@ -15,35 +15,17 @@
           <div class="container-inner">
             <p :style="{ color: theme.primaryColor }" class="label">From</p>
             <div class="select-option neomorphic-input-2">
-              <ion-input type="date" v-model="startDate" />
+              <ion-input type="date" v-model="startDate" class="date-input" />
             </div>
           </div>
 
           <div class="container-inner">
             <p :style="{ color: theme.primaryColor }" class="label">To</p>
             <div class="select-option neomorphic-input-2">
-              <ion-input type="date" v-model="endDate" />
+              <ion-input type="date" v-model="endDate" class="date-input" />
             </div>
           </div>
         </div>
-        <!-- <ion-card class="workshift-select-container neomorphic-input-2">
-          <ion-select
-            placeholder="Select Work Shift"
-            v-model="selectedWorkShift"
-            class="workshift-select"
-            aria-label="Work Shift"
-          >
-           
-            <div slot="label">Select work-shift:</div>
-            <ion-select-option
-              v-for="option in workShiftOptions"
-              :key="option.id"
-              :value="option.id"
-            >
-              {{ option.code }}
-            </ion-select-option>
-          </ion-select>
-        </ion-card> -->
 
         <ion-button
           expand="full"
@@ -65,46 +47,23 @@
           <div
             class="header-outline"
             :style="{ backgroundColor: theme.primaryColor }"
+            v-if="!isDefault"
           >
             <p class="header-label">{{ result.workShift }}</p>
           </div>
 
           <ion-grid>
             <div class="card-content">
-              <ion-row>
+              <ion-row v-for="(value, label) in result" :key="label">
                 <ion-col size="6">
-                  <p>Day:</p>
+                  <strong
+                    ><p>{{ formatLabel(label) }}:</p></strong
+                  >
                 </ion-col>
                 <ion-col size="6">
-                  <p>{{ result.day }}</p>
+                  <p>{{ value }}</p>
                 </ion-col>
-              </ion-row>
-
-              <ion-row>
-                <ion-col size="6">
-                  <p>Date:</p>
-                </ion-col>
-                <ion-col size="6">
-                  <p>{{ result.date }}</p>
-                </ion-col>
-              </ion-row>
-
-              <ion-row>
-                <ion-col size="6">
-                  <p>Schedule In:</p>
-                </ion-col>
-                <ion-col size="6">
-                  <p>{{ result.scheduleIn }}</p>
-                </ion-col>
-              </ion-row>
-
-              <ion-row>
-                <ion-col size="6">
-                  <p>Schedule Out:</p>
-                </ion-col>
-                <ion-col size="6">
-                  <p>{{ result.scheduleOut }}</p>
-                </ion-col>
+                <div class="underline"></div>
               </ion-row>
             </div>
           </ion-grid>
@@ -123,6 +82,7 @@
                 result.workShift
               )
             "
+            v-if="!isDefault"
           >
             <ion-icon name="create-outline"></ion-icon> Edit
           </ion-button>
@@ -205,13 +165,15 @@ export default defineComponent({
       empNumber: "",
       workShiftOptions: [],
       selectedWorkShift: 85,
+      isDefault: true,
     };
   },
   created() {
+    this.isDefault = true;
     this.empNumber = localStorage.getItem("empNumber");
     this.fetchTheme();
     this.fetchWorkShiftOptions();
-    this.fetchSchedules();
+    this.fetchScheduleAdjustments();
     this.loading = false;
   },
 
@@ -235,6 +197,11 @@ export default defineComponent({
         this.router.push("/login");
       }
     },
+    formatLabel(label) {
+      return label
+        .replace(/([A-Z])/g, " $1")
+        .replace(/^./, (str) => str.toUpperCase());
+    },
 
     // Schedules
     async fetchSchedules() {
@@ -255,16 +222,11 @@ export default defineComponent({
           changeWorkShiftFrom: this.selectedWorkShift,
         });
 
-        // if (this.selectedWorkShift !== undefined) {
-        //   queryParams.append("changeWorkShiftFrom", this.selectedWorkShift);
-        // }
-
         const response = await axios.get(`${api}?${queryParams.toString()}`, {
           headers,
         });
 
         const results = response.data.data.map((schedule) => ({
-          id: schedule.id,
           day: new Date(schedule.scheduleDate.date).toLocaleDateString(
             "en-US",
             { weekday: "long" }
@@ -273,16 +235,52 @@ export default defineComponent({
           scheduleIn: schedule.lunchBreakStart,
           scheduleOut: schedule.lunchBreakEnd,
           workShift: schedule.workShift.code,
-          workShiftID: schedule.workShift.id,
         }));
 
         this.results = results;
+        this.isDefault = false;
       } catch (error) {
         this.showErrorMessage(error.message);
       } finally {
         this.store.commit("loader/updateLoader", false);
       }
     },
+    //schedule-adjustments
+    async fetchScheduleAdjustments() {
+      try {
+        this.store.commit("loader/updateLoader", true);
+        await this.checkTokenExpiration();
+        const baseURL = localStorage.getItem("baseUrl");
+        this.storedToken = localStorage.getItem("token");
+
+        const headers = {
+          Authorization: `Bearer ${this.storedToken}`,
+        };
+
+        const api = `${baseURL}api/v1/schedule-adjustments`;
+
+        const response = await axios.get(`${api}`, {
+          headers,
+        });
+
+        const results = response.data.data.map((schedule) => ({
+          changeDateFrom: schedule.changeDateFrom,
+          changeDateTo: schedule.changeDateTo,
+          changeWorkShiftCodeFrom: schedule.changeWorkShiftCodeFrom,
+          changeWorkShiftCodeTo: schedule.changeWorkShiftCodeTo,
+          reason: schedule.reason,
+          status: schedule.status,
+        }));
+
+        this.results = results;
+      } catch (error) {
+        console.log(error);
+        this.showErrorMessage(error.message);
+      } finally {
+        this.store.commit("loader/updateLoader", false);
+      }
+    },
+
     async fetchWorkShiftOptions() {
       try {
         await this.checkTokenExpiration();
@@ -427,7 +425,7 @@ p {
 }
 .card-content {
   padding: 0 0 0 20px;
-  margin-top: 30px;
+  margin: 30px auto 10px auto;
 }
 .card h5 {
   margin: 0;
@@ -536,5 +534,16 @@ p {
 .header-label {
   color: #fff;
   font-size: 12px;
+}
+.date-input {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  width: 120px;
+}
+.underline {
+  border: 1px solid rgb(233, 233, 233);
+  width: 100%;
 }
 </style>

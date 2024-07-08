@@ -240,7 +240,9 @@ export default defineComponent({
           Authorization: `Bearer ${this.storedToken}`,
         };
 
-        const api = baseURL + `api/v2/ess/employee/loan-balances`;
+        const api =
+          baseURL +
+          `api/ess/other-loans?limit=50&offset=0&sortField=el.id&sortOrder=DESC`;
 
         const response = await axios.get(api, { headers });
 
@@ -254,8 +256,9 @@ export default defineComponent({
           this.results = matchingEntries.map((foundEntry) => ({
             id: foundEntry.id,
             name: foundEntry.name,
-            loanDate: foundEntry.loanDate.date.split(" ")[0],
-            startPaymentDate: foundEntry.startPaymentDate.date.split(" ")[0],
+            loanDate: foundEntry.loanDate?.date?.split(" ")[0] ?? "",
+            startPaymentDate:
+              foundEntry.startPaymentDate?.date?.split(" ")[0] ?? "",
             loanType: foundEntry.loanTypeName,
             loanAmount: foundEntry.loanAmount,
             schedOfDeduction: foundEntry.frequencyName,
@@ -271,6 +274,7 @@ export default defineComponent({
         }
       } catch (error) {
         this.showErrorMessage("An error occurred: " + error.message);
+        console.log(error);
       } finally {
         this.store.commit("loader/updateLoader", false);
       }
