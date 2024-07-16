@@ -37,29 +37,25 @@
       </div>
 
       <ion-row class="pad-w action-container" v-if="status === 'Pending'">
-        <ion-col class="col-name">
-          <ion-button
-            expand="block"
-            color="light"
-            class="btn"
-            @click="handleCheckButtonClick"
-            :disabled="status === 'Approved' || status === 'Rejected'"
-          >
-            <ion-icon name="checkmark-sharp" class="btn-icon"></ion-icon>APPROVE
-          </ion-button>
-        </ion-col>
+        <ion-button
+          expand="block"
+          color="light"
+          class="btn"
+          @click="handleCheckButtonClick"
+          :disabled="status === 'Approved' || status === 'Rejected'"
+        >
+          <ion-icon name="checkmark-sharp" class="btn-icon"></ion-icon>APPROVE
+        </ion-button>
 
-        <ion-col class="col-data">
-          <ion-button
-            expand="block"
-            color="light"
-            class="btn"
-            @click="handleCheckButtonClickReject"
-            :disabled="status === 'Approved' || status === 'Rejected'"
-          >
-            <ion-icon name="close-sharp" class="btn-icon"></ion-icon>DECLINE
-          </ion-button>
-        </ion-col>
+        <ion-button
+          expand="block"
+          color="light"
+          class="btn"
+          @click="handleCheckButtonClickReject"
+          :disabled="status === 'Approved' || status === 'Rejected'"
+        >
+          <ion-icon name="close-sharp" class="btn-icon"></ion-icon>DECLINE
+        </ion-button>
       </ion-row>
     </ion-grid>
   </ion-card>
@@ -229,12 +225,7 @@ ion-grid {
   padding: 5px 10px;
   margin: 0;
 }
-.btn {
-  color: black;
-  width: 100%;
-  height: 35px;
-  border-radius: 5px;
-}
+
 .btn1 {
   background-color: #d1efea;
   color: #319582;
@@ -340,6 +331,10 @@ ion-grid {
 .action-container {
   margin-top: 10px;
   z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: row;
 }
 .card-content {
   margin: 25px 0 0 0;

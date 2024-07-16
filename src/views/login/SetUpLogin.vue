@@ -146,9 +146,11 @@ export default defineComponent({
         const headers = { Authorization: authToken };
         const response = await axios.get(apiUrl, { headers });
 
+        await this.fetchUserDetails()
+
         if (response.data.data.pincode) {
           try {
-            await Promise.all([this.fetchUserDetails(), runBackgroundScript()]);
+            await runBackgroundScript();
 
             localStorage.setItem("pincode", response.data.data.pincode);
             this.router.push("/tabs/buzzfeed");

@@ -109,6 +109,12 @@
           </div>
         </ion-card>
       </div>
+      <ion-infinite-scroll threshold="100px" @ionInfinite="loadMoreData">
+        <ion-infinite-scroll-content
+          loading-spinner="bubbles"
+          loading-text="Loading more data..."
+        ></ion-infinite-scroll-content>
+      </ion-infinite-scroll>
     </ion-content>
   </ion-page>
 </template>
@@ -127,6 +133,8 @@ import {
   IonIcon,
   IonSpinner,
   IonCard,
+  IonInfiniteScroll,
+  IonInfiniteScrollContent,
 } from "@ionic/vue";
 import GreetingsCard from "@/views/home/components/GreetingsCard.vue";
 import HeaderUser from "@/components/header/HeaderUser.vue";
@@ -170,6 +178,8 @@ export default defineComponent({
     BuzzFeedCardEmpty,
     IonSpinner,
     IonCard,
+    IonInfiniteScroll,
+    IonInfiniteScrollContent,
   },
   setup() {
     return {
@@ -205,6 +215,25 @@ export default defineComponent({
   },
   methods: {
     ...mapMutations("loader", ["updateLoader"]),
+
+    async checkTokenExpiration() {
+      const storedToken = localStorage.getItem("token");
+
+      if (!storedToken) {
+        console.error("Token not available.");
+        console.log("Token is missing. Redirecting to login...");
+        this.router.push("/login");
+        return;
+      }
+
+      const tokenData = JSON.parse(atob(storedToken.split(".")[1]));
+      const expirationTime = tokenData.exp * 1000;
+
+      if (Date.now() > expirationTime) {
+        console.log("Token expired. Redirecting to login...");
+        this.router.push("/login");
+      }
+    },
 
     async fetchNewsFeed(filterVal) {
       try {
@@ -506,9 +535,51 @@ export default defineComponent({
         console.log("No token found");
       }
     },
+
+    async loadMoreData(event) {
+      try {
+        // Example logic for fetching additional data
+        const storedToken = localStorage.getItem("token");
+        const apiUrl = `${this.baseURL}api/v2/buzz/feed?limit=10&offset=${this.newsFeed.length}&sortOrder=DESC&sortField=share.numOfComments`;
+        const headers = {
+          Authorization: `Bearer ${storedToken}`,
+        };
+
+        const dataResponse = await axios.get(apiUrl, { headers });
+        if (dataResponse.data && Array.isArray(dataResponse.data.data)) {
+          const promises = dataResponse.data.data.map(async (data) => {
+            const profileImg = await this.fetchProfilePhoto(
+              data.employee.empNumber
+            );
+            return {
+              id: data.id,
+              employee: `${data.employee.firstName} ${data.employee.middleName} ${data.employee.lastName}`,
+              text: data.text,
+              numOfLikes: data.stats.numOfLikes,
+              numOfShares: data.stats.numOfShares,
+              photoIds: data.photoIds,
+              date: data.createdDate,
+              time: data.createdTime,
+              postId: data.post.id,
+              empNumber: data.employee.empNumber,
+              profileImg: profileImg,
+            };
+          });
+
+          const newItems = await Promise.all(promises);
+          this.newsFeed = [...this.newsFeed, ...newItems];
+          this.fetchImagesForNewsFeed();
+        }
+      } catch (error) {
+        console.error("Error loading more data:", error);
+      } finally {
+        event.target.complete();
+      }
+    },
   },
 
   async mounted() {
+    await this.checkTokenExpiration();
     this.baseURL = localStorage.getItem("baseUrl");
     const adminUserDetails = localStorage.getItem("adminUserDetails");
     this.profileDetails = JSON.parse(adminUserDetails);

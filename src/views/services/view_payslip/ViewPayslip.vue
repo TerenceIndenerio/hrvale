@@ -517,7 +517,7 @@ p {
 
 .card-container {
   border-radius: 20px;
-  width: 270px;
+  width: 90%;
   margin: 20px auto;
 }
 .container {
@@ -565,6 +565,9 @@ p {
   font-weight: bold;
   text-align: center;
   margin: 0 0 10px 0;
+}
+.container-inner {
+  margin: 5px;
 }
 .container-inner p {
   padding-left: 20px;

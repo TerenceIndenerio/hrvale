@@ -44,6 +44,14 @@
         />
       </div>
 
+      <ion-infinite-scroll threshold="100px" @ionInfinite="loadMoreData">
+        <ion-infinite-scroll-content
+          loading-spinner="bubbles"
+          loading-text="Loading more data..."
+        >
+        </ion-infinite-scroll-content>
+      </ion-infinite-scroll>
+
       <ion-modal :is-open="isOpen" id="modal">
         <ion-card class="card-modal">
           <ion-icon
@@ -106,6 +114,8 @@ import {
   IonIcon,
   IonAlert,
   IonButton,
+  IonInfiniteScroll,
+  IonInfiniteScrollContent,
 } from "@ionic/vue";
 import { defineComponent } from "vue";
 import HeaderUser from "@/components/header/HeaderUser.vue";
@@ -135,6 +145,8 @@ export default defineComponent({
     IonIcon,
     IonAlert,
     IonButton,
+    IonInfiniteScroll,
+    IonInfiniteScrollContent,
   },
   setup() {
     return {
@@ -163,6 +175,8 @@ export default defineComponent({
       isOpen: false,
       applyLoanAmount: 0,
       requestDataIdStored: null,
+      currentOffset: 0,
+      limit: 10,
     };
   },
   methods: {
@@ -297,16 +311,16 @@ export default defineComponent({
       await alert.present();
     },
 
-    processAction(action, code, requestId, requestDataId, status, date) {
+    processAction(action, code, requestDataId, requestId, status, date) {
       switch (code) {
         case "leave":
-          this.leaveRequest(requestDataId, action);
+          this.leaveRequest(requestId, action);
           break;
         case "overtime":
           this.otRequest(requestId, action);
           break;
         case "attendance_correction":
-          this.attendanceCorrection(requestDataId, action);
+          this.attendanceCorrection(requestId, action);
           break;
         case "vale":
           this.valeRequest(requestId, action);
@@ -315,7 +329,7 @@ export default defineComponent({
           this.attendance(requestId, action, status, date);
           break;
         case "schedule_adjustment":
-          this.scheduleAdjustment(requestId, action);
+          this.scheduleAdjustment(requestDataId, action);
           break;
         case "other_loan":
           this.otherLoan(requestId, action, requestDataId);
@@ -325,7 +339,7 @@ export default defineComponent({
       }
     },
 
-    async fetchRequest() {
+    async fetchRequest(offset = 0, append = false) {
       try {
         this.store.commit("loader/updateLoader", true);
         const baseURL = localStorage.getItem("baseUrl");
@@ -341,7 +355,7 @@ export default defineComponent({
 
         const api =
           baseURL +
-          "api/v2/admin/requests?limit=150&offset=0&sortField=e.dateApplied&sortOrder=DESC";
+          `api/v2/admin/requests?limit=${this.limit}&offset=${offset}&sortField=e.dateApplied&sortOrder=DESC`;
         const dataResponse = await axios.get(api, { headers });
 
         if (dataResponse.data && Array.isArray(dataResponse.data.data)) {
@@ -350,7 +364,7 @@ export default defineComponent({
             uniqueRequestTypes[period.requestType] = period.requestType;
           });
 
-          this.results = dataResponse.data.data.map((period) => ({
+          const newResults = dataResponse.data.data.map((period) => ({
             id: period.id,
             employee: period.employeeName,
             requestTypeId: period.requestTypeId,
@@ -361,10 +375,14 @@ export default defineComponent({
             date: period.dateApplied,
             employeeId: period.employeeId,
           }));
-        }
-        // filtered result as default
-        this.filteredResults = this.results;
 
+          if (append) {
+            this.results = [...this.results, ...newResults];
+          } else {
+            this.results = newResults;
+          }
+          this.filteredResults = this.results;
+        }
         this.store.commit("loader/updateLoader", false);
         this.loading = false;
       } catch (error) {
@@ -376,6 +394,21 @@ export default defineComponent({
         } else {
           this.showErrorMessage(error.response.error.message);
         }
+      }
+    },
+    loadMoreData(event) {
+      if (!isNaN(this.currentOffset)) {
+        this.currentOffset += this.limit;
+        this.fetchRequest(this.currentOffset, true)
+          .then(() => {
+            event.target.complete();
+          })
+          .catch(() => {
+            event.target.complete(); // Ensure the scroll is stopped in case of error
+          });
+      } else {
+        console.error("Invalid offset value");
+        event.target.complete(); // Stop infinite scroll if offset is invalid
       }
     },
     // Approval Filter
@@ -747,6 +780,7 @@ export default defineComponent({
         this.store.commit("loader/updateLoader", false);
         this.fetchRequest();
       } catch (error) {
+        this.store.commit("loader/updateLoader", false);
         console.error("Error updating overtime request: ", error);
         tthis.showErrorMessage(error.response?.data?.error?.message);
       }

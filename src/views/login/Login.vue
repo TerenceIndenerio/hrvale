@@ -73,7 +73,7 @@ export default defineComponent({
       empNumber: "",
       pincodeData: "",
       empID: "",
-      appVersion: "0.1.29",
+      appVersion: "0.1.33",
     };
   },
 
@@ -108,12 +108,15 @@ export default defineComponent({
 
       localStorage.setItem("appVersion", this.appVersion);
 
-      if (this.appVersion !== requiredAppVersion) {
-        const message = `App Version Needs to be ${requiredAppVersion}. Please Update your App.`;
-        await this.presentAlert(message, () => {
-          window.location.href =
-            "https://play.google.com/store/apps/details?id=com.bapplware.hrvale&pcampaignid=web_share";
-        });
+      const hasSetup = localStorage.getItem("hasSetup");
+      if (hasSetup) {
+        if (this.appVersion !== requiredAppVersion) {
+          const message = `App Version Needs to be ${requiredAppVersion}. Please Update your App.`;
+          await this.presentAlert(message, () => {
+            window.location.href =
+              "https://play.google.com/store/apps/details?id=com.bapplware.hrvale&pcampaignid=web_share";
+          });
+        }
       }
     } catch (error) {
       console.error("Error checking setup status:", error);

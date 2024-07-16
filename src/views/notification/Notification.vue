@@ -42,6 +42,13 @@
           </p>
         </div>
       </div>
+
+      <ion-infinite-scroll threshold="100px" @ionInfinite="loadMoreData">
+        <ion-infinite-scroll-content
+          loading-spinner="bubbles"
+          loading-text="Loading more notifications..."
+        ></ion-infinite-scroll-content>
+      </ion-infinite-scroll>
     </ion-content>
   </ion-page>
 </template>
@@ -66,6 +73,8 @@ import {
   IonIcon,
   IonCardHeader,
   IonCardContent,
+  IonInfiniteScroll,
+  IonInfiniteScrollContent,
 } from "@ionic/vue";
 import HeaderReturnNotification from "@/components/header/HeaderReturnNotification.vue";
 import { defineComponent } from "vue";
@@ -99,6 +108,8 @@ export default defineComponent({
     IonCard,
     IonCardHeader,
     IonCardContent,
+    IonInfiniteScroll,
+    IonInfiniteScrollContent,
   },
   setup() {
     return {
@@ -124,6 +135,7 @@ export default defineComponent({
       paygradeId: 0,
       empNumber: "",
       result: [],
+      limit: 10,
     };
   },
 
@@ -176,7 +188,7 @@ export default defineComponent({
       return formattedTime;
     },
 
-    async fetchNotif() {
+    async fetchNotif(loadMore = false) {
       try {
         this.store.commit("loader/updateLoader", true);
         const baseURL = localStorage.getItem("baseUrl");
@@ -188,10 +200,16 @@ export default defineComponent({
           Authorization: `Bearer ${storedToken}`,
         };
 
-        const api = baseURL + `api/push-notification/messages`;
-        const response = await axios.get(api, { headers });
+        const offset = loadMore ? this.results.length : 0;
+        const apiUrl = `${baseURL}api/push-notification/messages?limit=${this.limit}&offset=${offset}`;
 
-        this.results = response.data.data;
+        const response = await axios.get(apiUrl, { headers });
+
+        if (loadMore) {
+          this.results = this.results.concat(response.data.data);
+        } else {
+          this.results = response.data.data;
+        }
 
         this.store.commit("loader/updateLoader", false);
       } catch (error) {
@@ -199,6 +217,11 @@ export default defineComponent({
         console.error("Error fetching messages: ", error);
         this.showErrorMessage(error.response?.data?.error?.message);
       }
+    },
+
+    async loadMoreData(event) {
+      await this.fetchNotif(true);
+      event.target.complete();
     },
 
     async showErrorMessage(message) {
@@ -240,11 +263,12 @@ export default defineComponent({
       this.theme = themeData;
     },
   },
-  created() {
+  async created() {
+    await this.checkTokenExpiration();
     this.empNumber = localStorage.getItem("empNumber");
-    this.checkTokenExpiration();
+
     this.fetchTheme();
-    this.fetchNotif();
+    await this.fetchNotif();
     this.loading = false;
   },
 });

@@ -37,6 +37,13 @@
             />
           </div>
 
+          <ion-infinite-scroll threshold="100px" @ionInfinite="loadMoreData">
+            <ion-infinite-scroll-content
+              loading-spinner="bubbles"
+              loading-text="Loading more data..."
+            ></ion-infinite-scroll-content>
+          </ion-infinite-scroll>
+
           <div class="margin-bottom"></div>
         </div>
 
@@ -49,8 +56,9 @@
               backgroundColor: theme.primaryColor,
               color: theme.primaryFontColor,
             }"
-            >Apply Leave</ion-button
           >
+            Apply Leave
+          </ion-button>
         </div>
       </div>
     </ion-content>
@@ -64,10 +72,11 @@ import {
   IonText,
   IonContent,
   IonTitle,
-  IonAlert,
   IonIcon,
   IonButton,
   IonCard,
+  IonInfiniteScroll,
+  IonInfiniteScrollContent,
 } from "@ionic/vue";
 
 import HeaderReturn from "@/components/header/HeaderReturn.vue";
@@ -95,6 +104,8 @@ export default defineComponent({
     IonButton,
     Refresher,
     IonCard,
+    IonInfiniteScroll,
+    IonInfiniteScrollContent,
   },
   setup() {
     return {
@@ -125,12 +136,33 @@ export default defineComponent({
         title: "",
         colorBadge: "",
       },
+      offset: 0,
+      limit: 10,
     };
   },
   methods: {
+    async checkTokenExpiration() {
+      const storedToken = localStorage.getItem("token");
+
+      if (!storedToken) {
+        console.error("Token not available.");
+        console.log("Token is missing. Redirecting to login...");
+        this.router.push("/login");
+        return;
+      }
+
+      const tokenData = JSON.parse(atob(storedToken.split(".")[1]));
+      const expirationTime = tokenData.exp * 1000;
+
+      if (Date.now() > expirationTime) {
+        console.log("Token expired. Redirecting to login...");
+        this.router.push("/login");
+      }
+    },
+
     async fetchData() {
       try {
-        this.store.commit("loader/updateLoader", true);
+        await this.checkTokenExpiration();
         const baseURL = localStorage.getItem("baseUrl");
         const storedToken = localStorage.getItem("token");
 
@@ -140,9 +172,7 @@ export default defineComponent({
           return;
         }
 
-        const api =
-          baseURL +
-          "api/v2/leave/leave-requests?limit=50&offset=0&includeEmployees=onlyCurrent";
+        const api = `${baseURL}api/v2/leave/leave-requests?limit=${this.limit}&offset=${this.offset}&includeEmployees=onlyCurrent`;
         const headers = {
           Authorization: `Bearer ${storedToken}`,
         };
@@ -209,6 +239,17 @@ export default defineComponent({
       const themeData = storedThemeData ? JSON.parse(storedThemeData) : {};
 
       this.theme = themeData;
+    },
+    async loadMoreData(event) {
+      this.offset += this.limit;
+
+      const newData = await this.fetchData();
+
+      if (newData && newData.data.length > 0) {
+        this.requests = [...this.requests, ...newData.data];
+      }
+
+      event.target.complete();
     },
   },
 

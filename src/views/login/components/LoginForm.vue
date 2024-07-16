@@ -20,7 +20,7 @@
             label="Username"
             v-model="form.username"
             labelPlacement="floating"
-            placeholder="user@example.com"
+            placeholder=""
             class="input-text"
             required
           ></ion-input>

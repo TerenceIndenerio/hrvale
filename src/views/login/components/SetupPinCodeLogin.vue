@@ -9,10 +9,12 @@
       >
         <div class="title-container">
           <h1 class="title" :style="{ color: theme.primaryFontColor }">
-            <!-- <img src="@/assets/images/suysinglogobanner.png" alt="logo" /> -->
             <img :src="logo" alt="Logo" />
           </h1>
-          <h4 class="input-title">Setup your PIN</h4>
+          <h4 class="input-title">
+            Welcome! Please set up your 4 Digit PIN code by entering your
+            desired PIN
+          </h4>
           <div class="pincode-circle-container">
             <input
               v-model="inputs"
@@ -330,7 +332,7 @@ export default {
 .input-title {
   color: white;
   font-family: Poppins;
-  font-size: 20px;
+  font-size: 16px;
   font-style: normal;
   font-weight: 800;
   line-height: normal;
@@ -340,6 +342,8 @@ export default {
   column-gap: 10px;
   flex-wrap: wrap;
   justify-content: space-around;
+  text-align: center;
+  margin: 0 30px;
 }
 .dont-share {
   color: white;

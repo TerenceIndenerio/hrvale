@@ -499,7 +499,7 @@ export default defineComponent({
         const dataResponse = await axios.post(api, payload, { headers });
 
         if (dataResponse.status === 200) {
-          await this.showErrorMessage("Validation successful");
+          await this.showErrorMessage("Other Loan Applied Successfully!");
           window.location.replace("/loanbalance");
         } else {
           await this.showErrorMessage(dataResponse.message);
