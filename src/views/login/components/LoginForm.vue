@@ -26,16 +26,22 @@
           ></ion-input>
         </div>
 
-        <div class="box-container text-pad">
+        <div class="box-container text-pad password-container">
           <ion-input
+            :type="passwordType"
             label="Password"
             v-model="form.password"
             labelPlacement="floating"
-            type="password"
             placeholder="●●●●●●"
             class="input-text"
             :required="true"
           ></ion-input>
+          <ion-icon
+            :icon="passwordIcon"
+            @click="togglePasswordVisibility"
+            
+            class="password-toggle-icon"
+          ></ion-icon>
         </div>
       </div>
       <div class="flex-center margin-top">
@@ -59,7 +65,7 @@
 </template>
 
 <script>
-import { IonInput, IonPage, IonButton } from "@ionic/vue";
+import { IonInput, IonPage, IonButton, IonIcon } from "@ionic/vue";
 import Button from "@/components/buttons/Button.vue";
 
 export default {
@@ -67,6 +73,7 @@ export default {
     Button,
     IonInput,
     IonPage,
+    IonIcon,
     IonButton,
   },
   props: {
@@ -77,12 +84,23 @@ export default {
     return {
       buttonText: "Login",
       form: {},
+      passwordType: 'password',
+      passwordIcon: 'eye-off',
     };
   },
   emits: ["login"],
   methods: {
     submitForm() {
       this.$emit("login", this.form);
+    },
+    togglePasswordVisibility() {
+      if (this.passwordType === 'password') {
+        this.passwordType = 'text';
+        this.passwordIcon = 'eye';
+      } else {
+        this.passwordType = 'password';
+        this.passwordIcon = 'eye-off';
+      }
     },
   },
 };
@@ -230,5 +248,15 @@ a {
   font-family: Poppins;
   font-size: 16px;
   text-decoration: none;
+}
+.password-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.password-toggle-icon {
+  cursor: pointer;
+  font-size: 30px;
+  margin-right: 10px;
 }
 </style>

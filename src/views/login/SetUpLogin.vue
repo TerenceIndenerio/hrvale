@@ -89,6 +89,12 @@ export default defineComponent({
   methods: {
     async OnLogin(value) {
       try {
+        // Check if all required values are present
+        if (!value.username || !value.password || !value.client) {
+          await this.alertError();
+          return;
+        }
+
         this.store.commit("loader/updateLoader", true);
         const response = await generateToken(
           value.username,
@@ -116,7 +122,11 @@ export default defineComponent({
       } catch (error) {
         console.error(error.message);
         this.store.commit("loader/updateLoader", false);
-        await this.alertError();
+        if (error.response && error.response.status === 401) {
+          await this.alertError();
+        } else {
+          await this.maintenanceAlertError();
+        }
       }
     },
 
@@ -242,6 +252,26 @@ export default defineComponent({
           header: "Invalid Credentials",
           message:
             "Invalid credentials. Please check your username and password and try again. If you're having trouble, refer to the email containing your login details.",
+          buttons: [
+            {
+              text: "Close",
+              htmlAttributes: {
+                "aria-label": "close",
+              },
+            },
+          ],
+        });
+        await alert.present();
+      };
+      return showAlert();
+    },
+
+    async maintenanceAlertError() {
+      const showAlert = async () => {
+        const alert = await alertController.create({
+          header: "HR Vale App Under Maintenance",
+      message:
+        "The HR Vale App is currently undergoing maintenance. We apologize for any inconvenience this may cause. Please try again later.",
           buttons: [
             {
               text: "Close",
