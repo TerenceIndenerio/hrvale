@@ -8,107 +8,66 @@
       />
       <Refresher />
 
-      <ion-row class="load-contents">
-        <div class="load-credentials">
-          <h1>Select Telco</h1>
-          <ion-row>
-            <ion-col class="telco">
-              <a>
-                <img
-                  src="/assets/images/smart.png"
-                  alt="Telco Network"
-                  class="icon-btn"
-                  style="width: 40px; height: 30px"
-                />
-              </a>
-            </ion-col>
-            <ion-col class="telco">
-              <a>
-                <img
-                  src="/assets/images/tnt.png"
-                  alt="Telco Network"
-                  class="icon-btn"
-                  style="width: 40px; height: 30px"
-                />
-              </a>
-            </ion-col>
-            <ion-col class="telco">
-              <a>
-                <img
-                  src="/assets/images/globe.png"
-                  alt="Telco Network"
-                  class="icon-btn"
-                  style="width: 40px; height: 30px"
-                />
-              </a>
-            </ion-col>
-            <ion-col class="telco">
-              <a>
-                <img
-                  src="/assets/images/tm.png"
-                  alt="Telco Network"
-                  class="icon-btn"
-                  style="width: 40px; height: 30px"
-                />
-              </a>
-            </ion-col>
-            <ion-col class="telco">
-              <a>
-                <img
-                  src="/assets/images/gomo.png"
-                  alt="Telco Network"
-                  class="icon-btn"
-                  style="width: 40px; height: 30px"
-                />
-              </a>
-            </ion-col>
-            <ion-col class="telco">
-              <a>
-                <img
-                  src="/assets/images/dito.png"
-                  alt="Telco Network"
-                  class="icon-btn"
-                  style="width: 40px; height: 30px"
-                />
-              </a>
-            </ion-col>
-          </ion-row>
-          <ion-row>
-            <h1>Enter mobile number</h1>
-            <ion-input
-              placeholder="(+63)"
-              class="number-amount-text"
-              type="tel"
-              pattern="[0-9]+"
-            >
-              <ion-icon name="journal" class="contacts-icon"> </ion-icon>
-            </ion-input>
-          </ion-row>
-          <ion-row>
-            <h1>Enter desired amount</h1>
-            <ion-input
-              placeholder="Enter value from 5-1000"
-              class="number-amount-text"
-            ></ion-input>
-          </ion-row>
-          <ion-row class="checkbox-row">
-            <ion-col class="checkbox-col">
-              <ion-checkbox v-model="isChecked" class="checkbox-confirmation" />
-              <ion-label class="checkbox-text">
-                I confirm that the above details are correct.
-              </ion-label>
-            </ion-col>
-          </ion-row>
-        </div>
-      </ion-row>
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>Pay Bills</ion-card-title>
+          <ion-card-subtitle>Fill out all necessary fields.</ion-card-subtitle>
+        </ion-card-header>
 
-      <ion-button
-        color="none"
-        class="create-vale-btn"
-        :style="{ backgroundColor: theme.secondaryColor }"
-      >
-        Buy Load
-      </ion-button>
+        <ion-card-content>
+          <form @submit.prevent="onSubmit">
+            <ion-item>
+              <ion-input
+                type="number"
+                label="Enter amount to pay"
+                labelPlacement="floating"
+                fill="outline"
+                required
+              ></ion-input>
+            </ion-item>
+
+            <ion-item>
+              <ion-input
+                type="text"
+                label="Customer Account Number (CAN)"
+                labelPlacement="floating"
+                fill="outline"
+                required
+                maxlength="10"
+              ></ion-input>
+            </ion-item>
+
+            <ion-item>
+              <ion-input
+                type="email"
+                label="Email Address (optional)"
+                labelPlacement="floating"
+                fill="outline"
+              ></ion-input>
+            </ion-item>
+
+            <ion-item lines="none">
+              <ion-checkbox
+                slot="start"
+                aria-label="I agree to proceed payment and I am sure that the credentials I entered are correct."
+              ></ion-checkbox>
+              <span
+                >I agree to proceed payment and I am sure that the credentials I
+                entered are correct.</span
+              >
+            </ion-item>
+
+            <ion-button
+              expand="block"
+              type="submit"
+              color="none"
+              :style="{ backgroundColor: theme.primaryColor }"
+              class="pay-btn"
+              >Pay Now</ion-button
+            >
+          </form>
+        </ion-card-content>
+      </ion-card>
     </ion-content>
   </ion-page>
 </template>
@@ -125,7 +84,12 @@ import {
   IonCard,
   IonContent,
   IonPage,
+  IonCardTitle,
+  IonCardSubtitle,
+  IonCardHeader,
   IonLabel,
+  IonItem,
+  IonCardContent,
 } from "@ionic/vue";
 import { defineComponent } from "vue";
 import HeaderReturn from "@/components/header/HeaderReturn.vue";
@@ -145,15 +109,19 @@ export default defineComponent({
     IonPage,
     HeaderReturn,
     Refresher,
+    IonCardTitle,
+    IonCardSubtitle,
+    IonCardHeader,
     IonLabel,
+    IonItem,
+    IonCardContent,
   },
 
   data() {
     return {
-      headerTitle: "Load Vale",
+      headerTitle: "Payment",
       loading: true,
       theme: {},
-      isChecked: false,
     };
   },
 
@@ -373,6 +341,8 @@ export default defineComponent({
   min-width: 90px;
   border-radius: 10px;
   margin: 10px 5px 0 5px;
+  /* box-shadow: 8px 8px 16px rgba(0, 0, 0, 0.1),
+    -8px -8px 16px rgba(255, 255, 255, 0.8); */
   overflow: hidden;
   display: flex;
   justify-content: center;
@@ -427,123 +397,31 @@ export default defineComponent({
   font-weight: bold;
   margin-left: 10px;
 }
-
-/*  */
-.load-page {
-  margin: 0;
-  height: 100%;
-  display: flex;
-  flex-wrap: wrap;
-  border-radius: 0;
-  overflow-y: scroll;
+.pay-btn {
+  border-radius: 10px;
+}
+ion-card {
+  margin: 16px;
 }
 
-.load-contents h4 {
-  font-family: Poppins;
-  font-size: 25px;
-  color: white;
-  font-weight: 700;
+ion-card-header {
+  text-align: center;
 }
-.load-credentials {
-  flex-wrap: wrap;
-  background-color: white;
-  border-radius: 10px;
-  overflow: hidden;
-  margin: 20px auto;
-  width: 100%;
-  height: 85%;
-  min-width: 320px;
-  max-width: 500px;
-  padding: 15px;
+
+ion-item {
+  margin-bottom: 16px;
 }
-.load-credentials h1 {
-  font-family: Poppins;
-  font-size: 12px;
-  font-weight: 700;
-  color: #018593;
+
+.checkbox-label {
+  margin-left: 8px;
 }
-.return-btn {
-  border-radius: 100px;
-  overflow: hidden;
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  right: 0;
-  margin: 20px 0 0 5px;
-  width: 70%;
-  height: 30px;
-  max-width: 48px;
+
+ion-button {
+  margin-top: 16px;
 }
-.back-icon {
-  font-size: 20px;
-  color: #018593;
-}
-.telco {
-  padding: 0;
-  margin: 5px auto;
-  gap: 5px;
-  justify-content: space-evenly;
-}
-.number-amount-text {
-  font-family: Poppins;
-  font-size: 12px;
-  padding: 10px;
-  border-radius: 10px;
-  color: #018593;
-  font-weight: 600;
-  border: none;
-  --border-width: 0;
-  --padding-start: 10px;
-  --padding-end: 10px;
-  background-color: #f3f3f3;
-  box-shadow: inset 0 -4px 8px rgba(0, 0, 0, 0.1);
-}
-.contacts-icon {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  left: 90%;
-  color: #018593;
-  font-size: 15px;
-}
-.load-button {
-  position: relative;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 100%;
-  max-width: 350px;
-  margin: 150px 0 0 0;
-  text-transform: none;
-  font-family: Poppins;
-  color: white;
-  font-weight: 600;
-  font-size: 13px;
-  background-color: #018593;
-  transform: translateX(-50%);
-}
-.checkbox-row {
-  align-items: center;
-  justify-content: center;
-}
-.checkbox-col {
-  display: flex;
-  align-items: center;
-}
-.checkbox-confirmation {
-  margin: 15px 0 0 0;
-}
-.checkbox-text {
-  padding: 10px;
-  margin-top: 15px;
-  font-family: Poppins;
-  font-size: 10px;
-  color: rgb(155, 155, 155);
-}
-.invalid-input {
-  --ion-color-base: red;
-}
+
 @media screen and (max-height: 600px) {
-  .load-button {
+  .suggest-btn {
     bottom: 0;
   }
 }

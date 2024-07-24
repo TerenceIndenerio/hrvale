@@ -1,17 +1,19 @@
 <template>
   <ion-page>
-    <HeaderReturn
-      :headerTitle="headerTitle"
-      :headerColor="theme.primaryColor"
-      :headerTextColor="theme.primaryFontColor"
-    />
     <ion-content :fullscreen="true">
+      <HeaderReturn
+        :headerTitle="headerTitle"
+        :headerColor="theme.primaryColor"
+        :headerTextColor="theme.primaryFontColor"
+      />
       <Refresher />
 
       <ion-card
         class="card loan-budget-container"
         v-if="!loading"
-        :style="{ backgroundColor: theme.primaryColor }"
+        :style="{
+          backgroundColor: theme.primaryColor,
+        }"
       >
         <div class="loanbalance-container">
           <div class="loan-budget-val">
@@ -21,30 +23,81 @@
             </h4>
           </div>
           <div class="loan-budget-text">
-            <p :style="{ color: theme.primaryFontColor }">Loanable Amount</p>
+            <p :style="{ color: theme.primaryFontColor }">
+              Available Vale Credits
+            </p>
           </div>
         </div>
       </ion-card>
 
+      <div class="vale-btns-container">
+        <div class="vale-btn">
+          <ion-card
+            class="neomorphic-card-1 icon-container"
+            :style="{ backgroundColor: theme.primaryColor }"
+            @click="navigateToCashVale"
+          >
+            <ion-icon
+              name="card"
+              class="icon-btn"
+              :style="{ color: theme.primaryFontColor }"
+            ></ion-icon>
+          </ion-card>
+          <p class="btn-label" :style="{ color: theme.primaryColor }">
+            <strong>Cash Vale</strong>
+          </p>
+        </div>
+
+        <div class="vale-btn">
+          <ion-card
+            class="neomorphic-card-1 icon-container"
+            :style="{ backgroundColor: theme.primaryColor }"
+            @click="navigateToBillsVale"
+          >
+            <ion-icon
+              name="receipt"
+              class="icon-btn"
+              :style="{ color: theme.primaryFontColor }"
+            ></ion-icon>
+          </ion-card>
+          <p class="btn-label" :style="{ color: theme.primaryColor }">
+            <strong>Bills Vale</strong>
+          </p>
+        </div>
+
+        <div class="vale-btn">
+          <ion-card
+            class="neomorphic-card-1 icon-container"
+            :style="{ backgroundColor: theme.primaryColor }"
+            @click="navigateToLoadVale"
+          >
+            <ion-icon
+              name="phone-portrait"
+              class="icon-btn"
+              :style="{ color: theme.primaryFontColor }"
+            ></ion-icon>
+          </ion-card>
+          <p class="btn-label" :style="{ color: theme.primaryColor }">
+            <strong>Load Vale</strong>
+          </p>
+        </div>
+      </div>
+
       <ion-card class="card result-container">
         <ion-card class="neomorphic-card-1 search-container">
-          <h5 :style="{ color: theme.primaryColor }" class="search-title">
-            Select Date
-          </h5>
-          <div class="input-container">
-            <div class="container-inner">
-              <p :style="{ color: theme.primaryColor }" class="label">From</p>
-              <div class="neomorphic-input-2">
-                <ion-input type="date" v-model="startDate" class="date-input" />
-              </div>
-            </div>
+          <div class="recent-transanction-container">
+            <h5 :style="{ color: theme.primaryColor }" class="search-title">
+              <strong>Recent Transaction</strong>
+            </h5>
 
-            <div class="container-inner">
-              <p :style="{ color: theme.primaryColor }" class="label">To</p>
-              <div class="neomorphic-input-2">
-                <ion-input type="date" v-model="endDate" class="date-input" />
-              </div>
-            </div>
+            <p
+              class="vale-history-btn"
+              shape="round"
+              fill="outline"
+              @click="navigateToValeHistory"
+            >
+              See All
+            </p>
           </div>
         </ion-card>
         <ion-card
@@ -93,22 +146,6 @@
           </ion-button>
         </ion-card>
       </ion-card>
-
-      <div class="vale-history-container">
-        <ion-button class="vale-history-btn" shape="round" fill="outline"
-          >All</ion-button
-        >
-      </div>
-
-      <ion-button
-        color="none"
-        class="create-vale-btn"
-        :style="{ backgroundColor: theme.secondaryColor }"
-        @click="navigateToApplyVale"
-      >
-        <h2><ion-icon name="add"></ion-icon></h2>
-        Apply Vale
-      </ion-button>
     </ion-content>
   </ion-page>
 </template>
@@ -184,7 +221,8 @@ export default defineComponent({
       this.fetchData();
     },
   },
-  created() {
+  async created() {
+    await this.checkTokenExpiration();
     this.empNumber = localStorage.getItem("empNumber");
     this.fetchTheme();
     this.fetchData();
@@ -216,6 +254,9 @@ export default defineComponent({
     },
     async navigateToViewPage(result) {
       this.$router.push({ path: "/viewvale", query: { id: result.id } });
+    },
+    async navigateToValeHistory() {
+      this.$router.push("/valehistory");
     },
     async fetchData() {
       try {
@@ -285,8 +326,8 @@ export default defineComponent({
         const dataResponse = await axios.get(api, { headers });
 
         this.loanDataResult = {
-          budget: dataResponse.data.data.budget,
-          balance: dataResponse.data.data.loanableAmount,
+          budget: dataResponse.data.data.budget || 0,
+          balance: dataResponse.data.data.loanableAmount || 0,
         };
       } catch (error) {
         this.showErrorMessage(error.response.data.error.message);
@@ -294,8 +335,14 @@ export default defineComponent({
         this.store.commit("loader/updateLoader", false);
       }
     },
-    navigateToApplyVale() {
-      this.$router.push("/applyvale");
+    async navigateToCashVale() {
+      this.$router.push("/cashvale");
+    },
+    async navigateToBillsVale() {
+      this.$router.push("/billsVale");
+    },
+    async navigateToLoadVale() {
+      this.$router.push("/loadVale");
     },
     async showErrorMessage(message) {
       try {
@@ -379,6 +426,7 @@ p {
   padding: 20px;
   margin: 5px auto;
   border-radius: 10px 10px 50% 50%;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
 .loan-budget-val {
   display: flex;
@@ -407,6 +455,7 @@ p {
   width: fit-content;
   min-width: 300px;
   margin: 20px auto 50px auto;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 }
 .payroll-container {
   width: fit-content;
@@ -505,6 +554,7 @@ p {
 .search-container {
   margin: 10px auto 20px auto;
   padding: 10px;
+  width: 100%;
 }
 .search-title {
   font-family: "Inter";
@@ -532,6 +582,9 @@ p {
 .container-inner p {
   padding-left: 20px;
 }
+.container-inner {
+  margin: 0 5px;
+}
 .btn-container {
   bottom: 50px;
   margin: 0px auto 20px auto;
@@ -548,5 +601,45 @@ p {
 .vale-history-container {
   position: absolute;
   right: 10px;
+}
+
+.vale-btns-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 5px 10px;
+}
+.vale-btn {
+  text-align: center;
+}
+.icon-container {
+  width: 70px;
+  height: 70px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+.icon-btn {
+  font-size: 30px;
+}
+
+.recent-transanction-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px 10px;
+}
+.vale-history-btn {
+  padding: 0;
+  margin: 0;
+  font-size: small;
+  float: right;
+}
+.container-bg {
+  margin: 0;
+  height: 100%;
+  border-radius: 0;
+  overflow-y: scroll;
 }
 </style>

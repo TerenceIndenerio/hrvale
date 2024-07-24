@@ -388,31 +388,31 @@ export default defineComponent({
       }
     },
 
-    async fetchData() {
-      try {
-        const storedToken = localStorage.getItem("token");
+    // async fetchData() {
+    //   try {
+    //     const storedToken = localStorage.getItem("token");
 
-        if (!storedToken) {
-          console.log("Token is missing. Redirecting to login...");
-          this.router.push("/login");
-          return;
-        }
+    //     if (!storedToken) {
+    //       console.log("Token is missing. Redirecting to login...");
+    //       this.router.push("/login");
+    //       return;
+    //     }
 
-        const apiUrl = this.baseURL + `api/v2/admin/organization`;
+    //     const apiUrl = this.baseURL + `api/v2/admin/organization`;
 
-        const headers = {
-          Authorization: `Bearer ${storedToken}`,
-        };
+    //     const headers = {
+    //       Authorization: `Bearer ${storedToken}`,
+    //     };
 
-        const response = await axios.get(apiUrl, { headers });
+    //     const response = await axios.get(apiUrl, { headers });
 
-        const extractedData = response.data.data;
+    //     const extractedData = response.data.data;
 
-        this.extractedData = extractedData;
-      } catch (error) {
-        console.error("Error:", error);
-      }
-    },
+    //     this.extractedData = extractedData;
+    //   } catch (error) {
+    //     console.error("Error:", error);
+    //   }
+    // },
 
     async userDetails() {
       try {
@@ -585,7 +585,7 @@ export default defineComponent({
     this.profileDetails = JSON.parse(adminUserDetails);
     this.checkToken();
     this.updateLoader(false);
-    this.fetchData();
+    // this.fetchData();
     this.fetchNewsFeed(
       "api/v2/buzz/feed?limit=10&offset=0&sortOrder=DESC&sortField=share.numOfComments"
     );
@@ -694,6 +694,7 @@ export default defineComponent({
   max-width: 500px;
   margin: 10px auto 20px auto;
   padding: 0;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
 .action-container {
   margin: 0;

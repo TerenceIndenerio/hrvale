@@ -120,7 +120,14 @@ export default defineComponent({
     navigateVale() {
       if (this.isValeAllowed) {
         const storedClient = JSON.parse(localStorage.getItem("client"));
-        this.$router.push(`/vale${storedClient}`);
+        
+
+        if(storedClient==="suysing"){
+          this.$router.push(`/vale${storedClient}`);
+        } else {
+          this.$router.push(`/vale`);
+        }
+        
       } else {
         this.navigateSoon();
       }

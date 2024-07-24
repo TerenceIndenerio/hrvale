@@ -48,6 +48,11 @@ import ScheduleAdjustment from "@/views/services/schedule_adjustment/ScheduleAdj
 import ScheduleAdjustmentEdit from "@/views/services/schedule_adjustment/ScheduleAdjustmentEdit.vue";
 import ValeSuysingVersion from "@/views/services/vale/ValeSuysingVersion.vue";
 import ValeHistory from "@/views/services/vale/ValeHistory.vue";
+import ElectricityBillers from "@/views/services/vale/bills_vale/ElectricityBillers.vue";
+import WaterBillers from "@/views/services/vale/bills_vale/WaterBillers.vue";
+import CableBillers from "@/views/services/vale/bills_vale/CableBillers.vue";
+import TransportationBillers from "@/views/services/vale/bills_vale/TransportationBillers.vue";
+import PayBill from "@/views/services/vale/bills_vale/PayBill.vue";
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -171,26 +176,17 @@ const routes: Array<RouteRecordRaw> = [
         path: "/loanbalanceview",
         component: LoanBalanceView,
       },
-      {
-        path: "/vale",
-        component: Vale,
-      },
+
       {
         path: "/viewvale",
         component: ValeView,
       },
-      {
-        path: "/applyvale",
-        component: ApplyVale,
-      },
+
       {
         path: "/valesuysing",
         component: ValeSuysingVersion,
       },
-      {
-        path: "/valehistory",
-        component: ValeHistory,
-      },
+
       {
         path: "/soon",
         component: SoonPage,
@@ -257,10 +253,7 @@ const routes: Array<RouteRecordRaw> = [
     path: "/cashvale",
     component: CashVale,
   },
-  {
-    path: "/billsvale",
-    component: BillsVale,
-  },
+
   {
     path: "/loadvale",
     component: LoadVale,
@@ -268,6 +261,42 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: "/groceryvale",
     component: GroceryVale,
+  },
+  {
+    path: "/applyvale",
+    component: ApplyVale,
+  },
+  {
+    path: "/vale",
+    component: Vale,
+  },
+  {
+    path: "/valehistory",
+    component: ValeHistory,
+  },
+  {
+    path: "/electricitybillers",
+    component: ElectricityBillers,
+  },
+  {
+    path: "/waterbillers",
+    component: WaterBillers,
+  },
+  {
+    path: "/cablebillers",
+    component: CableBillers,
+  },
+  {
+    path: "/transportationbillers",
+    component: TransportationBillers,
+  },
+  {
+    path: "/paybill",
+    component: PayBill,
+  },
+  {
+    path: "/billsvale",
+    component: BillsVale,
   },
 ];
 

@@ -1,12 +1,13 @@
 <template>
   <ion-page>
-    <HeaderReturn
-      :headerTitle="headerTitle"
-      :headerColor="theme.primaryColor"
-      :headerTextColor="theme.primaryFontColor"
-    />
     <ion-content :fullscreen="true">
       <Refresher />
+
+      <HeaderReturn
+        :headerTitle="headerTitle"
+        :headerColor="theme.primaryColor"
+        :headerTextColor="theme.primaryFontColor"
+      />
 
       <ion-card class="card result-container">
         <ion-card class="neomorphic-card-1 search-container">
@@ -76,6 +77,7 @@
           </ion-button>
         </ion-card>
       </ion-card>
+      <!-- </div> -->
     </ion-content>
   </ion-page>
 </template>
@@ -374,6 +376,7 @@ p {
   width: fit-content;
   min-width: 300px;
   margin: 20px auto 50px auto;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 }
 .payroll-container {
   width: fit-content;
@@ -438,6 +441,7 @@ p {
 .search-btn-container {
   overflow: hidden;
   border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 }
 .view-btn {
   padding: 0;
@@ -515,5 +519,11 @@ p {
 .vale-history-container {
   position: absolute;
   right: 10px;
+}
+.container-bg {
+  margin: 0;
+  height: 100%;
+  border-radius: 0;
+  overflow-y: scroll;
 }
 </style>

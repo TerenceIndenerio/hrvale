@@ -100,8 +100,10 @@ export default defineComponent({
       );
 
       const servicesConfig = brandingConfig.configuration.services;
+      const theme = brandingConfig.configuration.theme;
       const client = brandingConfig.configuration.client;
       localStorage.setItem("servicesConfig", JSON.stringify(servicesConfig));
+      localStorage.setItem("themeData", JSON.stringify(theme));
       localStorage.setItem("client", JSON.stringify(client));
 
       const requiredAppVersion = brandingConfig.configuration.appVersion;

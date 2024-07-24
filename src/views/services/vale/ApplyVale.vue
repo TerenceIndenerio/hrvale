@@ -141,6 +141,7 @@
               </div>
             </ion-col>
           </div>
+
           <ion-button
             expand="full"
             color="none"
@@ -185,6 +186,7 @@
           </ion-card>
         </ion-modal>
       </div>
+      <!-- </div> -->
     </ion-content>
   </ion-page>
 </template>
@@ -453,8 +455,10 @@ export default {
         this.loanDataResult = {
           id: dataResponse.data.data.id,
           employee: dataResponse.data.data.employee,
-          budget: parseFloat(dataResponse.data.data.budget).toLocaleString(),
-          balance: parseFloat(dataResponse.data.data.balance).toLocaleString(),
+          budget:
+            parseFloat(dataResponse.data.data.budget).toLocaleString() || 0,
+          balance:
+            parseFloat(dataResponse.data.data.balance).toLocaleString() || 0,
           year: dataResponse.data.data.year,
         };
       } catch (error) {
@@ -486,7 +490,7 @@ export default {
           amortizationValue: dataResponse.data.data.amortizationValue,
           previousBalance: dataResponse.data.data.previousBalance,
           budget: dataResponse.data.data.budget,
-          balance: dataResponse.data.data.loanableAmount,
+          balance: dataResponse.data.data.loanableAmount || 0,
           availableAmount: dataResponse.data.data.availableAmount,
         };
       } catch (error) {
@@ -561,6 +565,10 @@ export default {
         this.showErrorMessage("Invalid Amount for Approval");
         this.invalidAmount = true;
       }
+    },
+
+    navigateToValeMain() {
+      this.$router.go(-1);
     },
   },
   created() {
@@ -657,6 +665,7 @@ p {
   padding: 20px;
   margin: 5px auto 20px auto;
   border-radius: 10px 10px 50% 50%;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
 .loan-budget-val {
   display: flex;
@@ -683,6 +692,7 @@ p {
 .card-details {
   border-radius: 20px;
   padding: 10px;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
 .card-inner {
   margin: 10px 5px 20px 5px;
@@ -733,5 +743,11 @@ p {
   border-radius: 50%;
   background-color: rgb(246, 246, 246);
   overflow: hidden;
+}
+.container-bg {
+  margin: 0;
+  height: 100%;
+  border-radius: 0;
+  overflow-y: scroll;
 }
 </style>

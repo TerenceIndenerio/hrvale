@@ -120,8 +120,7 @@ export default defineComponent({
   position: sticky;
   top: 0;
   z-index: 2;
-  box-shadow: 8px 8px 16px rgba(0, 0, 0, 0.2),
-    -8px -8px 16px rgba(255, 255, 255, 0.8), 0px -4px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 }
 .icon1 {
   font-size: 30px;
