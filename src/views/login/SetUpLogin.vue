@@ -135,13 +135,37 @@ export default defineComponent({
         const storedToken = localStorage.getItem("access_token");
         const baseURL = localStorage.getItem("baseUrl");
 
-        const response = await axios.post(baseURL + "auth/token", {
+        if (!storedToken || !baseURL) {
+          throw new Error("Missing storedToken or baseURL");
+        }
+
+        const response = await axios.post(`${baseURL}auth/token`, {
           secret: storedToken,
         });
         console.log("token response ", response);
+
         localStorage.setItem("token", response.data.token);
       } catch (error) {
-        console.error(error.response.data.error.status);
+        let errorMessage = "An unexpected error occurred.";
+        let errorStatus = "Unknown";
+
+        if (
+          error.response &&
+          error.response.data &&
+          error.response.data.error
+        ) {
+          errorStatus = error.response.data.error.status;
+          errorMessage = error.response.data.error.message;
+        } else if (error.message) {
+          errorMessage = error.message;
+        }
+
+        const alert = await alertController.create({
+          header: "Error!",
+          message: `Status: ${errorStatus} - ${errorMessage}`,
+          buttons: ["Okay"],
+        });
+        await alert.present();
       }
     },
 
@@ -156,7 +180,7 @@ export default defineComponent({
         const headers = { Authorization: authToken };
         const response = await axios.get(apiUrl, { headers });
 
-        await this.fetchUserDetails()
+        await this.fetchUserDetails();
 
         if (response.data.data.pincode) {
           try {
@@ -270,8 +294,8 @@ export default defineComponent({
       const showAlert = async () => {
         const alert = await alertController.create({
           header: "HR Vale App Under Maintenance",
-      message:
-        "The HR Vale App is currently undergoing maintenance. We apologize for any inconvenience this may cause. Please try again later.",
+          message:
+            "The HR Vale App is currently undergoing maintenance. We apologize for any inconvenience this may cause. Please try again later.",
           buttons: [
             {
               text: "Close",

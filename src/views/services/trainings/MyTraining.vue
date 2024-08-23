@@ -9,22 +9,64 @@
     <ion-content :fullscreen="true" v-if="!loading">
       <Refresher />
 
-      <div class="result-container neomorphic-card-1">
+      <div class="result-container">
         <h4 class="text-center neomorphic-input-2 record-label">
-          {{ totalRec }} Record Found
+          {{ totalRec }} Record(s) Found
         </h4>
 
-        <div v-for="(result, index) in results" :key="index">
-          <BenefitCard
-            :benefitCode="result.benefitCode"
-            :benefitName="result.benefitName"
-            :benefitType="result.benefitType"
-          />
+        <div
+          v-for="(result, index) in results"
+          :key="index"
+          class="session-card"
+        >
+          <div class="neomorphic-card-1 card-content-container">
+            <ion-card-header>
+              <ion-card-title>{{ result.name }}</ion-card-title>
+              <ion-card-subtitle>
+                {{ formatDate(result.startDate.date) }} -
+                {{ formatDate(result.endDate.date) }}
+              </ion-card-subtitle>
+            </ion-card-header>
+
+            <div class="card-content">
+              <ion-item>
+                <ion-label><strong>Location:</strong></ion-label>
+                <ion-text>{{ result.deliveryLocation }}</ion-text>
+              </ion-item>
+
+              <ion-item>
+                <ion-label><strong>Method:</strong></ion-label>
+                <ion-text>{{ result.deliveryMethod }}</ion-text>
+              </ion-item>
+
+              <ion-item>
+                <ion-label><strong>Status:</strong></ion-label>
+                <ion-text>{{ result.status }}</ion-text>
+              </ion-item>
+
+              <ion-button
+                expand="block"
+                fill="outline"
+                @click="handleViewTraining(result.trainingMaterials, result.id)"
+              >
+                View Training Materials
+              </ion-button>
+
+              <ion-button
+                expand="block"
+                color="primary"
+                @click="openAssessmentModal"
+              >
+                Take Assessment
+              </ion-button>
+            </div>
+          </div>
         </div>
       </div>
-
-      
     </ion-content>
+
+    <!-- Include the modal component -->
+    <AssessmentModal ref="assessmentModal" />
   </ion-page>
 </template>
 
@@ -35,27 +77,21 @@ import {
   IonInput,
   IonItem,
   IonLabel,
-  IonCard,
   IonButton,
-  IonButtons,
-  IonModal,
-  IonTitle,
-  IonToolbar,
-  IonHeader,
-  IonCol,
-  IonRow,
-  IonGrid,
-  IonIcon,
+  IonCardHeader,
+  IonCardTitle,
+  IonCardSubtitle,
+  IonText,
 } from "@ionic/vue";
 import HeaderReturn from "@/components/header/HeaderReturn.vue";
-import { defineComponent } from "vue";
 import Refresher from "@/components/refresher/Refresher.vue";
-import BenefitCard from "@/views/services/benefits/components/BenefitCard.vue";
+import { defineComponent } from "vue";
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
 import axios from "axios";
 import { GlobalConstants } from "@/config/constants";
 import { toastController } from "@ionic/vue";
+import AssessmentModal from "@/views/services/trainings/components/AssessmentModal.vue";
 
 export default defineComponent({
   components: {
@@ -66,18 +102,12 @@ export default defineComponent({
     HeaderReturn,
     IonLabel,
     Refresher,
-    IonCard,
-    BenefitCard,
     IonButton,
-    IonButtons,
-    IonModal,
-    IonTitle,
-    IonToolbar,
-    IonHeader,
-    IonCol,
-    IonRow,
-    IonGrid,
-    IonIcon,
+    IonCardHeader,
+    IonCardTitle,
+    IonCardSubtitle,
+    IonText,
+    AssessmentModal,
   },
   setup() {
     return {
@@ -91,7 +121,7 @@ export default defineComponent({
 
     return {
       results: [],
-      headerTitle: "Benefits",
+      headerTitle: "My Trainings",
       selectedDateFrom: formattedDate,
       selectedDateTo: formattedDate,
       isModalVisible: false,
@@ -104,9 +134,7 @@ export default defineComponent({
       empNumber: "",
     };
   },
-
   methods: {
-    // Expiration of token
     async checkTokenExpiration() {
       const storedToken = localStorage.getItem("token");
 
@@ -126,30 +154,9 @@ export default defineComponent({
       }
     },
 
-    async fetchPaygrade() {
-      try {
-        await this.checkTokenExpiration();
-        const baseURL = localStorage.getItem("baseUrl");
-        const storedToken = localStorage.getItem("token");
-
-        const headers = {
-          Authorization: `Bearer ${storedToken}`,
-        };
-
-        const api =
-          baseURL + `api/v2/ess/employee/benefit-package/${this.empNumber}`;
-
-        const dataResponse = await axios.get(api, { headers });
-
-        this.paygradeId = dataResponse.data.data.id;
-        this.fetchRequest();
-      } catch (error) {
-        console.log(error.response?.data?.error?.message);
-      }
-    },
-
     async fetchRequest() {
       try {
+        this.loading = true;
         this.store.commit("loader/updateLoader", true);
         const baseURL = localStorage.getItem("baseUrl");
         await this.checkTokenExpiration();
@@ -160,37 +167,26 @@ export default defineComponent({
           Authorization: `Bearer ${storedToken}`,
         };
 
-        const api =
-          baseURL +
-          `api/v2/benefit-packages/${this.paygradeId}?limit=50&offset=0`;
-        const dataResponse = await axios.get(api, { headers });
+        const api = baseURL + `api/v2/training/session?limit=50&offset=0`;
 
-        const { id, payGradeName, jobCategoryName, name, packageItems } =
-          dataResponse.data.data;
+        const response = await axios.get(api, { headers });
 
-        const mappedPackageItems = packageItems.map((item) => ({
-          benefitType: item.benefitType,
-          benefitName: item.benefitName,
-          benefitCode: item.benefitCode,
-        }));
-
-        const dataMap = {
-          id,
-          payGradeName,
-          jobCategoryName,
-          name,
-          packageItems: mappedPackageItems,
-        };
-        this.results = dataMap.packageItems;
+        this.results = response.data.data;
         this.totalRec = this.results.length;
-
-        this.store.commit("loader/updateLoader", false);
+        this.loading = false;
       } catch (error) {
-        this.store.commit("loader/updateLoader", false);
-        console.error("Error fetching benefit package: ", error);
+        this.loading = false;
+        console.error("Error fetching training sessions: ", error);
 
         this.showErrorMessage(error.response?.data?.error?.message);
+      } finally {
+        this.store.commit("loader/updateLoader", false);
       }
+    },
+
+    formatDate(dateString) {
+      const options = { year: "numeric", month: "long", day: "numeric" };
+      return new Date(dateString).toLocaleDateString(undefined, options);
     },
 
     async showErrorMessage(message) {
@@ -213,16 +209,6 @@ export default defineComponent({
       }
     },
 
-    handleView(result) {
-      this.selectedResult = result;
-      console.log("Selected", this.selectedResult);
-      console.log("Selected", result);
-      this.isOpen = true;
-    },
-
-    setOpen(val) {
-      this.isOpen = val;
-    },
     fetchTheme() {
       const storedThemeData = localStorage.getItem("themeData");
 
@@ -230,12 +216,23 @@ export default defineComponent({
 
       this.theme = themeData;
     },
+
+    handleViewTraining(trainingMaterials, id) {
+      this.router.push({
+        path: "/viewemployeesession",
+        query: { id: id },
+      });
+    },
+
+    openAssessmentModal() {
+      this.$refs.assessmentModal.openModal();
+    },
   },
   created() {
     this.empNumber = localStorage.getItem("empNumber");
     this.checkTokenExpiration();
     this.fetchTheme();
-    this.fetchPaygrade();
+    this.fetchRequest();
 
     this.loading = false;
     console.log(this.results.length);
@@ -278,7 +275,7 @@ export default defineComponent({
   color: #828282;
   border-radius: 20px;
   padding: 5px 10px;
-  width: 60%;
+  width: fit-content;
 }
 
 .modal-header {
@@ -314,5 +311,45 @@ ion-modal#example-modal {
   justify-content: center;
   align-items: center;
   flex-direction: column;
+}
+.result-container {
+  padding: 16px;
+}
+
+.summary-card {
+  margin: 0 auto 16px auto;
+  --ion-card-background: #f8f9fa;
+}
+
+.session-card {
+  margin-bottom: 16px;
+  --ion-card-background: #ffffff;
+  --ion-card-border-radius: 12px;
+  --ion-card-box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.text-center {
+  text-align: center;
+}
+
+ion-card-title {
+  font-size: 1.2em;
+  font-weight: bold;
+}
+
+ion-card-subtitle {
+  color: #6c757d;
+}
+
+ion-item {
+  --inner-padding-top: 4px;
+  --inner-padding-bottom: 4px;
+}
+
+ion-button {
+  margin-top: 8px;
+}
+.card-content-container {
+  width: 300px;
 }
 </style>

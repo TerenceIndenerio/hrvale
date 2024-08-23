@@ -549,9 +549,10 @@ p {
   right: 0;
   margin: 0 auto;
   width: 80%;
-  height: 30px;
+  height: 50px;
   max-width: 350px;
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  border-radius: 10px;
 }
 
 .vale-history-container {

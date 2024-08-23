@@ -40,7 +40,7 @@
     "vue-fullcalendar": "^1.0.9",
     "vue-router": "^4.1.6",
     "vue3-leaflet": "^1.0.48",
-    "vuex": "^4.1.0"
+    "vuex": "^4.0.2"
   },
   "devDependencies": {
     "@capacitor/cli": "5.2.3",

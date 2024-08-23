@@ -59,7 +59,11 @@
         <BuzzFeedCardEmpty />
       </div>
 
-      <div class="no-news-container" v-if="!newsFeed"></div>
+      <div class="no-news-container" v-if="!newsFeed || newsFeed.length === 0">
+        <div class="no-post-container neomorphic-input-2">
+          <img src="@/views/home/components/NoPost.svg" alt="" />
+        </div>
+      </div>
 
       <div v-for="(cardData, index) in newsFeed" :key="index">
         <ion-card class="neomorphic-card-1 card-box">
@@ -109,6 +113,7 @@
           </div>
         </ion-card>
       </div>
+
       <ion-infinite-scroll threshold="100px" @ionInfinite="loadMoreData">
         <ion-infinite-scroll-content
           loading-spinner="bubbles"
@@ -152,6 +157,7 @@ import { GlobalConstants } from "@/config/constants";
 import { PushNotifications } from "@capacitor/push-notifications";
 import BuzzFeedCard from "@/views/home/components/BuzzFeedCard.vue";
 import BuzzFeedCardEmpty from "@/views/home/components/BuzzFeedCardEmpty.vue";
+import NoPost from "@/views/home/components/NoPost.svg";
 import { IonImg } from "@ionic/vue";
 import { newToken } from "@/store/token/newToken.ts";
 
@@ -180,6 +186,7 @@ export default defineComponent({
     IonCard,
     IonInfiniteScroll,
     IonInfiniteScrollContent,
+    NoPost,
   },
   setup() {
     return {
@@ -762,5 +769,18 @@ export default defineComponent({
 .spinner {
   width: 50px;
   height: 50px;
+}
+.no-post-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 300px;
+  width: 300px;
+  margin: 20px auto;
+  overflow: hidden;
+}
+.no-post-container img {
+  border-radius: 100%;
+  overflow: hidden;
 }
 </style>

@@ -468,13 +468,15 @@ export default defineComponent({
 
         if (
           !this.loanAmount ||
-          !this.selectedReason.content ||
+          !this.selectedReason ||
+          !this.selectedReason.content || // added check for selectedReason
           !this.selectedLoanType ||
           !this.loanDate
         ) {
           await this.showErrorMessage("Please complete all required fields.");
           return;
         }
+
         const empID = Number(localStorage.getItem("empNumber"));
 
         const payload = {
@@ -494,7 +496,7 @@ export default defineComponent({
         const headers = {
           Authorization: `Bearer ${this.storedToken}`,
         };
-        const api = baseURL + `api/ess/other-loans`;
+        const api = `${baseURL}api/ess/other-loans`;
 
         const dataResponse = await axios.post(api, payload, { headers });
 
@@ -506,7 +508,16 @@ export default defineComponent({
         }
       } catch (error) {
         console.error(error);
-        await this.showErrorMessage(error.response.data.error.message);
+        if (
+          error.response &&
+          error.response.data &&
+          error.response.data.error &&
+          error.response.data.error.message
+        ) {
+          await this.showErrorMessage(error.response.data.error.message);
+        } else {
+          await this.showErrorMessage("An error occurred. Please try again.");
+        }
       }
     },
 
@@ -526,26 +537,33 @@ export default defineComponent({
         baseURL +
         `api/payroll/employee-loan/validate?loanTypeId=${loanTypeId}&employee=${empNumber}`;
 
-      const dataResponse = await axios.get(api, { headers });
+      try {
+        const dataResponse = await axios.get(api, { headers });
+       
+        if (dataResponse.data && dataResponse.data.includes("Fatal error")) {
+          await this.showErrorMessage("Employee is not eligible to apply this loan.");
+          return;
+        }
 
-      this.isElegible = dataResponse.data.status;
+        this.isElegible = dataResponse.data.status;
 
-      if (dataResponse.data.status !== false) {
-        console.log(dataResponse.data.status !== "false");
-        this.termsPaymentPeriod = dataResponse.data.data.termsPaymentPeriod;
-        this.loanInterest = dataResponse.data.data.loanInterest;
-        this.amortization =
-          dataResponse.data.data.amortizationValue !== null
-            ? dataResponse.data.data.amortizationValue
-            : 0;
-        this.maxLoanAmount = dataResponse.data.data.maxLoanAmount;
-        this.maximumLoanableOptionlabel =
-          dataResponse.data.data.maximumLoanableOption.label;
-        this.paymentTerms = dataResponse.data.data.termsPaymentPeriod;
-      } else {
-        await this.showErrorMessage(
-          "Employee is not eligible to apply this loan."
-        );
+        if (dataResponse.data.status !== false) {
+          this.termsPaymentPeriod = dataResponse.data.data.termsPaymentPeriod;
+          this.loanInterest = dataResponse.data.data.loanInterest;
+          this.amortization =
+            dataResponse.data.data.amortizationValue !== null
+              ? dataResponse.data.data.amortizationValue
+              : 0;
+          this.maxLoanAmount = dataResponse.data.data.maxLoanAmount;
+          this.maximumLoanableOptionlabel =
+            dataResponse.data.data.maximumLoanableOption.label;
+          this.paymentTerms = dataResponse.data.data.termsPaymentPeriod;
+        } else {
+          await this.showErrorMessage("Employee is not eligible to apply this loan.");
+        }
+      } catch (error) {
+        console.error("Error validating loan:", error);
+        await this.showErrorMessage("An error occurred while validating the loan.");
       }
     },
 

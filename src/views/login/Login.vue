@@ -73,7 +73,7 @@ export default defineComponent({
       empNumber: "",
       pincodeData: "",
       empID: "",
-      appVersion: "0.1.34",
+      appVersion: "0.1.35",
     };
   },
 

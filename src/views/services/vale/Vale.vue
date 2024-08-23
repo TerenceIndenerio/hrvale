@@ -30,7 +30,7 @@
         </div>
       </ion-card>
 
-      <div class="vale-btns-container">
+      <div class="vale-btns-container" v-if="!loading">
         <div class="vale-btn">
           <ion-card
             class="neomorphic-card-1 icon-container"
@@ -72,7 +72,7 @@
             @click="navigateToLoadVale"
           >
             <ion-icon
-              name="phone-portrait"
+              name="bar-chart"
               class="icon-btn"
               :style="{ color: theme.primaryFontColor }"
             ></ion-icon>
@@ -81,9 +81,26 @@
             <strong>Load Vale</strong>
           </p>
         </div>
+
+        <div class="vale-btn">
+          <ion-card
+            class="neomorphic-card-1 icon-container"
+            :style="{ backgroundColor: theme.primaryColor }"
+            @click="navigateToGadgetsVale"
+          >
+            <ion-icon
+              name="phone-portrait"
+              class="icon-btn"
+              :style="{ color: theme.primaryFontColor }"
+            ></ion-icon>
+          </ion-card>
+          <p class="btn-label" :style="{ color: theme.primaryColor }">
+            <strong>Gadgets Vale</strong>
+          </p>
+        </div>
       </div>
 
-      <ion-card class="card result-container">
+      <ion-card class="card result-container" v-if="!loading">
         <ion-card class="neomorphic-card-1 search-container">
           <div class="recent-transanction-container">
             <h5 :style="{ color: theme.primaryColor }" class="search-title">
@@ -222,12 +239,19 @@ export default defineComponent({
     },
   },
   async created() {
-    await this.checkTokenExpiration();
-    this.empNumber = localStorage.getItem("empNumber");
-    this.fetchTheme();
-    this.fetchData();
-    this.fetchLoanBudget();
-    this.loading = false;
+    try {
+      await this.fetchTheme();
+      await this.checkTokenExpiration();
+      await this.fetchLoanBudget();
+      await this.fetchData();
+      this.empNumber = localStorage.getItem("empNumber");
+    } catch (error) {
+      console.error("Error during initialization:", error);
+      // Handle errors appropriately here, e.g., show an error message
+    } finally {
+      // Ensure loading is set to false even if there's an error
+      this.loading = false;
+    }
   },
   methods: {
     async checkTokenExpiration() {
@@ -343,6 +367,9 @@ export default defineComponent({
     },
     async navigateToLoadVale() {
       this.$router.push("/loadVale");
+    },
+    async navigateToGadgetsVale() {
+      this.$router.push("/gadgetsvale");
     },
     async showErrorMessage(message) {
       try {
@@ -605,6 +632,7 @@ p {
 
 .vale-btns-container {
   display: flex;
+  flex-wrap: wrap;
   justify-content: center;
   align-items: center;
   gap: 5px 10px;

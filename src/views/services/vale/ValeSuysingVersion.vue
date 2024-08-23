@@ -47,9 +47,17 @@
           <h5 class="recent-transation-label">
             <strong>Recent Transactions:</strong>
           </h5>
-          <p class="vale-history-btn" @click="navigateToValeHistory">
+          <ion-button
+            class="vale-history-btn"
+            @click="navigateToValeHistory"
+            color="none"
+            fill="outline"
+            :style="{
+              color: theme.primaryColor,
+            }"
+          >
             <strong>View All</strong>
-          </p>
+          </ion-button>
         </div>
 
         <ion-button
@@ -534,7 +542,7 @@ p {
   max-width: 500px;
   padding: 10px 20px;
   background-color: white;
-  border-radius: 50px 50px 0px 0px;
+  border-radius: 50px 50px 50% 50%;
   height: 23vh;
   box-shadow: 0px -5px 7px #dbdbdb;
   border: none;
@@ -558,9 +566,9 @@ p {
   bottom: 10px;
 }
 .vale-history-btn {
-  color: rgb(5, 113, 255);
-  outline: 1px solid rgb(5, 113, 255);
-  padding: 3px 10px;
+  /* color: rgb(5, 113, 255); */
+  /* outline: 1px solid rgb(5, 113, 255); */
+  /* padding: 3px 10px;   */
   border-radius: 30px;
 }
 </style>

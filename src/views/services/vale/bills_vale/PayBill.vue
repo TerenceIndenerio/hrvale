@@ -8,43 +8,40 @@
       />
       <Refresher />
 
-      <ion-card>
+      <ion-card class="content-container">
         <ion-card-header>
           <ion-card-title>Pay Bills</ion-card-title>
           <ion-card-subtitle>Fill out all necessary fields.</ion-card-subtitle>
         </ion-card-header>
 
         <ion-card-content>
-          <form @submit.prevent="onSubmit">
-            <ion-item>
+          <form @submit.prevent="onSubmit" class="form-container">
+            <ion-card class="neomorphic-input-2">
               <ion-input
                 type="number"
                 label="Enter amount to pay"
                 labelPlacement="floating"
-                fill="outline"
                 required
               ></ion-input>
-            </ion-item>
+            </ion-card>
 
-            <ion-item>
+            <ion-card class="neomorphic-input-2">
               <ion-input
                 type="text"
                 label="Customer Account Number (CAN)"
                 labelPlacement="floating"
-                fill="outline"
                 required
                 maxlength="10"
               ></ion-input>
-            </ion-item>
+            </ion-card>
 
-            <ion-item>
+            <ion-card class="neomorphic-input-2">
               <ion-input
                 type="email"
                 label="Email Address (optional)"
                 labelPlacement="floating"
-                fill="outline"
               ></ion-input>
-            </ion-item>
+            </ion-card>
 
             <ion-item lines="none">
               <ion-checkbox
@@ -418,6 +415,14 @@ ion-item {
 
 ion-button {
   margin-top: 16px;
+}
+.content-container {
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  border-radius: 10px;
+}
+.form-container {
+  display: flex;
+  flex-direction: column;
 }
 
 @media screen and (max-height: 600px) {

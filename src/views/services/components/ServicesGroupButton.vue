@@ -1,7 +1,7 @@
 <template>
   <!-- Leave -->
   <div class="button-container">
-    <div :class="[`card btn-text`, { soon: !isleaveAllowed }]" expand="full">
+    <div :class="[`card btn-text`, { soon: !isleaveAllowed, hidden: !isleaveShown }]" expand="full">
       <a
         @click="navigateLeave"
         :style="{
@@ -27,7 +27,10 @@
     </div>
     <!-- Schedule -->
     <div
-      :class="[`card btn-text`, { soon: !isScheduleAllowed }]"
+      :class="[
+        `card btn-text`,
+        { soon: !isScheduleAllowed, hidden: !isScheduleShown },
+      ]"
       expand="full"
       color="none"
     >
@@ -52,9 +55,13 @@
         <h4 :style="{ color: btnTextColor }">Schedule</h4>
       </a>
     </div>
+
     <!-- Attendance -->
     <div
-      :class="[`card btn-text`, { soon: !isAttendanceAllowed }]"
+      :class="[
+        `card btn-text`,
+        { soon: !isAttendanceAllowed, hidden: !isAttendanceShown },
+      ]"
       expand="full"
       color="none"
     >
@@ -83,7 +90,7 @@
     </div>
     <!-- OT -->
     <div
-      :class="[`card btn-text`, { soon: !isOTAllowed }]"
+      :class="[`card btn-text`, { soon: !isOTAllowed, hidden: !isOTShown }]"
       expand="full"
       color="none"
     >
@@ -112,7 +119,7 @@
     </div>
     <!-- payslip -->
     <div
-      :class="[`card btn-text`, { soon: !isPayslipAllowed }]"
+      :class="[`card btn-text`, { soon: !isPayslipAllowed, hidden: !isPayslipShown }]"
       expand="full"
       color="none"
     >
@@ -145,7 +152,7 @@
     </div>
     <!-- Benefits -->
     <div
-      :class="[`card btn-text`, { soon: !isBenefitsAllowed }]"
+      :class="[`card btn-text`, { soon: !isBenefitsAllowed, hidden: !isBenefitsShown }]"
       expand="full"
       color="none"
     >
@@ -178,7 +185,7 @@
     </div>
     <!-- Other Loans -->
     <div
-      :class="[`card btn-text`, { soon: !isLoanBalanceAllowed }]"
+      :class="[`card btn-text`, { soon: !isOtherLoanAllowed, hidden: !isOtherLoanShown  }]"
       expand="full"
       color="none"
     >
@@ -216,7 +223,10 @@
     </div>
     <!-- Change DO / schedule Adjustment -->
     <div
-      :class="[`card btn-text`, { soon: !isSchedAdjustment }]"
+      :class="[
+        `card btn-text`,
+        { soon: !isSchedAdjustment, hidden: !ischangeDOShown },
+      ]"
       expand="full"
       color="none"
     >
@@ -273,6 +283,100 @@
         <h4 :style="{ color: btnTextColor }">Approval</h4>
       </a>
     </div>
+    <!--Trainings -->
+    <div
+      :class="[
+        `card btn-text`,
+        { soon: !isMyTrainingAllowed, hidden: !isTrainingShown },
+      ]"
+      expand="full"
+      color="none"
+    >
+      <a
+        @click="navigateMyTraining"
+        :style="{
+          background: `linear-gradient(to right, ${theme.primaryGradientStartColor}, ${theme.primaryGradientEndColor})`,
+          color: theme.primaryFontColor,
+        }"
+        disabled
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 512 512"
+          class="ionicon icon-btn"
+          :style="{ color: btnSecondaryColor }"
+        >
+          <path
+            fill="currentColor"
+            d="M312.55 479.9l-56.42-114-44.62-57a72.37 72.37 0 01-10.06-36.9V143.64H217a40 40 0 0140 40v182.21"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="32"
+          />
+          <path
+            d="M127.38 291.78v-74.07s37-74.07 74.07-74.07"
+            fill="currentColor"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="32"
+          />
+          <path
+            fill="currentColor"
+            d="M368.09 291.78a18.49 18.49 0 01-10.26-3.11L297.7 250a21.18 21.18 0 01-9.7-17.79v-23.7a5.65 5.65 0 018.69-4.77l81.65 54.11a18.52 18.52 0 01-10.29 33.93zM171.91 493.47a18.5 18.5 0 01-14.83-7.41c-6.14-8.18-4-17.18 3.7-25.92l59.95-74.66a7.41 7.41 0 0110.76 2.06c1.56 2.54 3.38 5.65 5.19 9.09 5.24 9.95 6 16.11-1.68 25.7-8 10-52 67.44-52 67.44-2.62 2.98-7.23 3.7-11.09 3.7z"
+          />
+          <circle
+            fill="currentColor"
+            cx="257"
+            cy="69.56"
+            r="37.04"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="16"
+          />
+        </svg>
+
+        <h4 :style="{ color: btnTextColor }">Trainings</h4>
+      </a>
+    </div>
+    <!-- Documents -->
+    <div
+      :class="[
+        `card btn-text`,
+        { soon: !isDocumentAllowed, hidden: !isDocumentShown },
+      ]"
+      expand="full"
+      color="none"
+    >
+      <a
+        @click="navigateDocument"
+        :style="{
+          background: `linear-gradient(to right, ${theme.primaryGradientStartColor}, ${theme.primaryGradientEndColor})`,
+          color: theme.primaryFontColor,
+        }"
+        disabled
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="ionicon icon-btn"
+          :style="{ color: btnSecondaryColor }"
+          viewBox="0 0 512 512"
+        >
+          <path
+            fill="currentColor"
+            d="M428 224H288a48 48 0 01-48-48V36a4 4 0 00-4-4h-92a64 64 0 00-64 64v320a64 64 0 0064 64h224a64 64 0 0064-64V228a4 4 0 00-4-4zm-92 160H176a16 16 0 010-32h160a16 16 0 010 32zm0-80H176a16 16 0 010-32h160a16 16 0 010 32z"
+          />
+          <path
+            fill="currentColor"
+            d="M419.22 188.59L275.41 44.78a2 2 0 00-3.41 1.41V176a16 16 0 0016 16h129.81a2 2 0 001.41-3.41z"
+          />
+        </svg>
+
+        <h4 :style="{ color: btnTextColor }">Documents</h4>
+      </a>
+    </div>
   </div>
 </template>
 <script>
@@ -313,15 +417,55 @@ export default defineComponent({
     isBenefitsAllowed() {
       return this.servicesConfig?.benefits?.hidden ?? false;
     },
-    isLoanBalanceAllowed() {
+    isOtherLoanAllowed() {
       return this.servicesConfig?.otherLoan?.hidden ?? false;
     },
     isSchedAdjustment() {
+      
       return this.servicesConfig?.changeDO?.hidden ?? false;
     },
     isApprovalAllowed() {
       return this.servicesConfig?.approval?.hidden ?? false;
     },
+    isDocumentAllowed() {
+      
+      return this.servicesConfig?.documents?.hidden ?? false;
+    },
+    isMyTrainingAllowed() {
+      return this.servicesConfig?.trainings?.hidden ?? false;
+    },
+    // shown
+    isScheduleShown() {
+      return this.servicesConfig?.schedule?.allowed ?? false;
+    },
+    isTrainingShown() {
+      return this.servicesConfig?.trainings?.allowed ?? false;
+    },
+    isDocumentShown() {
+      return this.servicesConfig?.documents?.allowed ?? false;
+    },
+    ischangeDOShown() {
+      return this.servicesConfig?.changeDO?.allowed ?? false;
+    },
+    isAttendanceShown() {
+      return this.servicesConfig?.attendance?.allowed ?? false;
+    },
+
+    isleaveShown() {
+      return this.servicesConfig?.leave?.allowed ?? false;
+    },
+    isOTShown(){
+      return this.servicesConfig?.ot?.allowed ?? false;
+    },
+    isPayslipShown() {
+      return this.servicesConfig?.payslip?.allowed ?? false;
+    },
+    isBenefitsShown() {
+      return this.servicesConfig?.benefits?.allowed ?? false;
+    },
+    isOtherLoanShown() {
+      return this.servicesConfig?.otherLoan?.allowed ?? false;
+    }
   },
   methods: {
     navigateSoon() {
@@ -359,7 +503,7 @@ export default defineComponent({
       }
     },
     navigateloanBal() {
-      if (this.isLoanBalanceAllowed) {
+      if (this.isOtherLoanAllowed) {
         this.$router.push("/loanbalance");
       } else {
         this.navigateSoon();
@@ -392,6 +536,20 @@ export default defineComponent({
     navigateSchedAdjustment() {
       if (this.isSchedAdjustment) {
         this.$router.push("/scheduleadjustment");
+      } else {
+        this.navigateSoon();
+      }
+    },
+    navigateDocument() {
+      if (this.isDocumentAllowed) {
+        this.$router.push("/document");
+      } else {
+        this.navigateSoon();
+      }
+    },
+    navigateMyTraining() {
+      if (this.isMyTrainingAllowed) {
+        this.$router.push("/mytraining");
       } else {
         this.navigateSoon();
       }
@@ -458,6 +616,7 @@ a {
   justify-content: center;
   align-items: center;
   overflow: hidden;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
 
 .btn-text h4 {
@@ -500,5 +659,8 @@ a {
 }
 .soon {
   opacity: 0.5;
+}
+.hidden {
+  display: none;
 }
 </style>

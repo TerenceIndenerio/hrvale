@@ -8,72 +8,38 @@
       />
       <Refresher />
 
-      <ion-row class="load-contents">
+      <div class="load-contents">
         <div class="load-credentials">
           <h1>Select Telco</h1>
-          <ion-row>
-            <ion-col class="telco">
-              <a>
-                <img
-                  src="/assets/images/smart.png"
-                  alt="Telco Network"
-                  class="icon-btn"
-                  style="width: 40px; height: 30px"
-                />
-              </a>
-            </ion-col>
-            <ion-col class="telco">
-              <a>
-                <img
-                  src="/assets/images/tnt.png"
-                  alt="Telco Network"
-                  class="icon-btn"
-                  style="width: 40px; height: 30px"
-                />
-              </a>
-            </ion-col>
-            <ion-col class="telco">
-              <a>
-                <img
-                  src="/assets/images/globe.png"
-                  alt="Telco Network"
-                  class="icon-btn"
-                  style="width: 40px; height: 30px"
-                />
-              </a>
-            </ion-col>
-            <ion-col class="telco">
-              <a>
-                <img
-                  src="/assets/images/tm.png"
-                  alt="Telco Network"
-                  class="icon-btn"
-                  style="width: 40px; height: 30px"
-                />
-              </a>
-            </ion-col>
-            <ion-col class="telco">
-              <a>
-                <img
-                  src="/assets/images/gomo.png"
-                  alt="Telco Network"
-                  class="icon-btn"
-                  style="width: 40px; height: 30px"
-                />
-              </a>
-            </ion-col>
-            <ion-col class="telco">
-              <a>
-                <img
-                  src="/assets/images/dito.png"
-                  alt="Telco Network"
-                  class="icon-btn"
-                  style="width: 40px; height: 30px"
-                />
-              </a>
-            </ion-col>
-          </ion-row>
-          <ion-row>
+          <div v-if="!selectedTelco" class="telco">
+            <div
+              v-for="(telco, key) in telcos"
+              :key="key"
+              @click="selectTelco(key)"
+              class="telco-container"
+            >
+              <img
+                :src="telco.img"
+                :alt="telco.name"
+                class="icon-btn"
+                style="width: 40px; height: 30px"
+              />
+              <p>{{ telco.name }}</p>
+            </div>
+          </div>
+          <div v-else>
+            <div class="telco">
+              <img
+                :src="telcos[selectedTelco].img"
+                :alt="telcos[selectedTelco].name"
+                class="icon-btn"
+                style="width: 40px; height: 30px"
+              />
+              <p>{{ telcos[selectedTelco].name }}</p>
+            </div>
+          </div>
+
+          <div v-if="selectedTelco">
             <h1>Enter mobile number</h1>
             <ion-input
               placeholder="(+63)"
@@ -83,28 +49,81 @@
             >
               <ion-icon name="journal" class="contacts-icon"> </ion-icon>
             </ion-input>
-          </ion-row>
-          <ion-row>
+          </div>
+          <div
+            v-if="
+              selectedTelco && !showPromoSelection && selectedPromo === null
+            "
+          >
             <h1>Enter desired amount</h1>
             <ion-input
               placeholder="Enter value from 5-1000"
               class="number-amount-text"
             ></ion-input>
-          </ion-row>
-          <ion-row class="checkbox-row">
+          </div>
+
+          <div v-if="selectedTelco">
+            <ion-button
+              color="none"
+              class="select-promo-btn"
+              @click="togglePromoSelection"
+              :style="{ backgroundColor: theme.primaryColor }"
+            >
+              {{
+                showPromoSelection && selectedPromo === null
+                  ? "Regular Load"
+                  : selectedPromo === null
+                  ? "Select Promo"
+                  : "Change Promo"
+              }}
+            </ion-button>
+          </div>
+
+          <div v-if="selectedTelco && showPromoSelection">
+            <h1>Unli Promo:</h1>
+            <div class="promo-examples">
+              <div
+                v-for="(promo, index) in promoExamples"
+                :key="index"
+                class="promo-container"
+                @click="selectPromo(index)"
+              >
+                <div class="promo-item-container">
+                  <p>
+                    <strong>{{ promo.price }}</strong> - {{ promo.description }}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div v-if="selectedPromo !== null">
+            <h1>Selected Promo</h1>
+            <div class="promo-container">
+              <div class="promo-item-container">
+                <p>
+                  <strong>{{ promoExamples[selectedPromo].price }}</strong> -
+                  {{ promoExamples[selectedPromo].description }}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div v-if="selectedTelco" class="checkbox-row">
             <ion-col class="checkbox-col">
               <ion-checkbox v-model="isChecked" class="checkbox-confirmation" />
               <ion-label class="checkbox-text">
                 I confirm that the above details are correct.
               </ion-label>
             </ion-col>
-          </ion-row>
+          </div>
         </div>
-      </ion-row>
+      </div>
 
       <ion-button
+        v-if="selectedTelco"
         color="none"
-        class="create-vale-btn"
+        class="create-vale-btn neomorphic-btn-1"
         :style="{ backgroundColor: theme.secondaryColor }"
       >
         Buy Load
@@ -154,6 +173,46 @@ export default defineComponent({
       loading: true,
       theme: {},
       isChecked: false,
+      selectedTelco: null,
+      selectedPromo: null,
+      showPromoSelection: false,
+      telcos: {
+        smart: {
+          name: "Smart",
+          img: "/assets/images/smart.png",
+        },
+        tnt: {
+          name: "TNT",
+          img: "/assets/images/tnt.png",
+        },
+        globe: {
+          name: "Globe",
+          img: "/assets/images/globe.png",
+        },
+        tm: {
+          name: "TM",
+          img: "/assets/images/tm.png",
+        },
+        gomo: {
+          name: "Gomo",
+          img: "/assets/images/gomo.png",
+        },
+        dito: {
+          name: "Dito",
+          img: "/assets/images/dito.png",
+        },
+      },
+      promoExamples: [
+        { description: "Unli Texts to all networks for 3 days", price: "₱20" },
+        { description: "Unli Texts to all networks for 7 days", price: "₱50" },
+        {
+          description: "Unli Calls and Texts to same network for 30 days",
+          price: "₱100",
+        },
+        { description: "Unli Data for 1 day", price: "₱50" },
+        { description: "Unli Data for 3 days", price: "₱70" },
+        { description: "Unli Data for 7 days", price: "₱99" },
+      ],
     };
   },
 
@@ -163,26 +222,21 @@ export default defineComponent({
   },
 
   methods: {
-    navigateToValeMain() {
-      this.$router.go(-1);
-    },
-    navigateRequestForm() {},
-    addFavorites() {},
-    async navigateElectricity() {
-      this.$router.push("/electricitybillers");
-    },
-    async navigateWater() {
-      this.$router.push("/electricitybillers");
-    },
-    async navigateCable() {
-      this.$router.push("/electricitybillers");
-    },
-    async navigateTransport() {
-      this.$router.push("/electricitybillers  ");
+    selectTelco(key) {
+      this.selectedTelco = key;
+      this.selectedPromo = null; // Reset selected promo when changing telco
+      this.showPromoSelection = false; // Hide promo selection when changing telco
     },
     fetchTheme() {
       const themeData = JSON.parse(localStorage.getItem("themeData")) || {};
       this.theme = themeData;
+    },
+    togglePromoSelection() {
+      this.showPromoSelection = !this.showPromoSelection;
+    },
+    selectPromo(index) {
+      this.selectedPromo = index;
+      this.showPromoSelection = false;
     },
   },
 });
@@ -389,8 +443,9 @@ export default defineComponent({
   right: 0;
   margin: 0 auto;
   width: 80%;
-  height: 30px;
+  height: 50px;
   max-width: 350px;
+  z-index: 1000;
 }
 .biller-categories {
   display: flex;
@@ -437,6 +492,13 @@ export default defineComponent({
   border-radius: 0;
   overflow-y: scroll;
 }
+.load-contents {
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  margin: 10px auto 100px auto;
+  width: fit-content;
+  max-width: 320px;
+  border-radius: 10px;
+}
 
 .load-contents h4 {
   font-family: Poppins;
@@ -449,7 +511,7 @@ export default defineComponent({
   background-color: white;
   border-radius: 10px;
   overflow: hidden;
-  margin: 20px auto;
+  margin: auto;
   width: 100%;
   height: 85%;
   min-width: 320px;
@@ -461,6 +523,7 @@ export default defineComponent({
   font-size: 12px;
   font-weight: 700;
   color: #018593;
+  margin: 10px 0;
 }
 .return-btn {
   border-radius: 100px;
@@ -497,6 +560,7 @@ export default defineComponent({
   --padding-end: 10px;
   background-color: #f3f3f3;
   box-shadow: inset 0 -4px 8px rgba(0, 0, 0, 0.1);
+  z-index: 0;
 }
 .contacts-icon {
   position: absolute;
@@ -541,6 +605,21 @@ export default defineComponent({
 }
 .invalid-input {
   --ion-color-base: red;
+}
+.telco {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+}
+.telco-container {
+  text-align: center;
+}
+.promo-item-container {
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  border-radius: 10px;
+  margin: 10px;
+  padding: 5px 10px;
 }
 @media screen and (max-height: 600px) {
   .load-button {

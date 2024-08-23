@@ -323,7 +323,7 @@ export default defineComponent({
           this.attendanceCorrection(requestId, action);
           break;
         case "vale":
-          this.valeRequest(requestId, action);
+          this.valeRequest(requestId, action, requestDataId);
           break;
         case "attendance":
           this.attendance(requestId, action, status, date);
@@ -621,7 +621,7 @@ export default defineComponent({
       }
     },
     // Vale
-    async valeRequest(requestId, action) {
+    async valeRequest(requestId, action, requestDataId) {
       try {
         this.store.commit("loader/updateLoader", true);
 
@@ -638,21 +638,61 @@ export default defineComponent({
         const payloadVal = action === "approve" ? "approved" : "declined";
         const payload = { status: payloadVal };
 
-        const api = `${baseURL}api/v2/admin/update-request/${requestId}`;
+        const api = `${baseURL}api/v2/admin/update-request/${requestId}?status=${payloadVal}`;
         const dataResponse = await axios.put(api, payload, { headers });
 
         const successMessage =
           action === "approve"
-            ? "Attendance request successfully approved!"
-            : "Attendance request successfully declined";
+            ? "Vale successfully approved!"
+            : "Vale successfully declined";
 
         if (dataResponse.status >= 200 && dataResponse.status < 300) {
           this.showSuccessMessage(successMessage);
         }
 
-        await this.valePayroll(requestDataId, action);
+        await this.applyVale(requestDataId, action);
       } catch (error) {
-        console.error("Error updating Attendance Correction: ", error);
+        console.error(error);
+        this.showErrorMessage(error.response?.data?.error?.message);
+      } finally {
+        this.store.commit("loader/updateLoader", false);
+      }
+    },
+
+    // https://hrp-uat-app.bapplware.com/web/index.php/
+
+    async applyVale(requestDataId, action) {
+      try {
+        this.store.commit("loader/updateLoader", true);
+
+        const storedToken = localStorage.getItem("token");
+        const baseURL = localStorage.getItem("baseUrl");
+        if (!storedToken) {
+          throw new Error("Authentication token is missing.");
+        }
+
+        const headers = {
+          Authorization: `Bearer ${storedToken}`,
+        };
+
+        const status = action === "approve" ? "approved" : "declined";
+
+        const api = `${baseURL}api/v2/apply-vale/${requestDataId}`;
+
+        const dataResponse = await axios.put(api, null, { headers });
+
+        const successMessage =
+          action === "approve"
+            ? "Vale successfully approved!"
+            : "Vale successfully declined";
+
+        if (dataResponse.status >= 200 && dataResponse.status < 300) {
+          this.showSuccessMessage(successMessage);
+        }
+
+        this.fetchRequest();
+      } catch (error) {
+        console.error(error);
         this.showErrorMessage(error.response?.data?.error?.message);
       } finally {
         this.store.commit("loader/updateLoader", false);

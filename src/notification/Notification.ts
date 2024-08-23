@@ -49,7 +49,7 @@ export async function runBackgroundScript() {
       console.warn("PushNotifications plugin is not available on the web.");
     }
   } catch (error) {
-    console.error("Background script failed:", error.message);
+    console.error("Background script failed:");
   }
 }
 
@@ -76,6 +76,6 @@ async function sendNotifToken(notifToken: string) {
 
     console.log("Notification token sent successfully:", response.data);
   } catch (error) {
-    console.error("Sending notification token failed:", error.message);
+    console.error("Sending notification token failed:");
   }
 }

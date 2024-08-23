@@ -22,8 +22,6 @@
           />
         </div>
       </div>
-
-      
     </ion-content>
   </ion-page>
 </template>
@@ -91,7 +89,7 @@ export default defineComponent({
 
     return {
       results: [],
-      headerTitle: "Benefits",
+      headerTitle: "Document",
       selectedDateFrom: formattedDate,
       selectedDateTo: formattedDate,
       isModalVisible: false,

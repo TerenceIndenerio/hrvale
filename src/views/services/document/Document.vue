@@ -11,72 +11,52 @@
 
       <div class="result-container neomorphic-card-1">
         <h4 class="text-center neomorphic-input-2 record-label">
-          {{ totalRec }} Record Found
+          {{ totalRec }} Record(s) Found
         </h4>
 
-        <div v-for="(result, index) in results" :key="index">
-          <BenefitCard
-            :benefitCode="result.benefitCode"
-            :benefitName="result.benefitName"
-            :benefitType="result.benefitType"
-          />
+        <div
+          v-for="(result, index) in results"
+          :key="index"
+          class="result-card"
+        >
+          <IonCard class="ion-padding neomorphic-card-1 card-content">
+            <h5>{{ result.topic }}</h5>
+            <p>Published Date: {{ formatDate(result.publishedDate.date) }}</p>
+            <p>Category: {{ result.category }}</p>
+            <div>
+              <a
+                :href="`data:${result.attachments.type};base64,${result.attachments.base64}`"
+                :download="result.attachments.name"
+                @click="onDownload(result.attachments.name)"
+              >
+                <IonIcon name="download-outline" />
+                {{ result.attachments.name }}
+              </a>
+            </div>
+          </IonCard>
         </div>
       </div>
-
-      
     </ion-content>
   </ion-page>
 </template>
 
 <script>
-import {
-  IonPage,
-  IonContent,
-  IonInput,
-  IonItem,
-  IonLabel,
-  IonCard,
-  IonButton,
-  IonButtons,
-  IonModal,
-  IonTitle,
-  IonToolbar,
-  IonHeader,
-  IonCol,
-  IonRow,
-  IonGrid,
-  IonIcon,
-} from "@ionic/vue";
+import { IonPage, IonContent, IonIcon, IonCard } from "@ionic/vue";
 import HeaderReturn from "@/components/header/HeaderReturn.vue";
 import { defineComponent } from "vue";
 import Refresher from "@/components/refresher/Refresher.vue";
-import BenefitCard from "@/views/services/benefits/components/BenefitCard.vue";
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
 import axios from "axios";
-import { GlobalConstants } from "@/config/constants";
 import { toastController } from "@ionic/vue";
 
 export default defineComponent({
   components: {
     IonPage,
     IonContent,
-    IonInput,
-    IonItem,
     HeaderReturn,
-    IonLabel,
     Refresher,
     IonCard,
-    BenefitCard,
-    IonButton,
-    IonButtons,
-    IonModal,
-    IonTitle,
-    IonToolbar,
-    IonHeader,
-    IonCol,
-    IonRow,
-    IonGrid,
     IonIcon,
   },
   setup() {
@@ -91,7 +71,7 @@ export default defineComponent({
 
     return {
       results: [],
-      headerTitle: "Benefits",
+      headerTitle: "Document",
       selectedDateFrom: formattedDate,
       selectedDateTo: formattedDate,
       isModalVisible: false,
@@ -100,19 +80,15 @@ export default defineComponent({
       theme: {},
       loading: true,
       totalRec: 0,
-      paygradeId: 0,
-      empNumber: "",
     };
   },
 
   methods: {
-    // Expiration of token
     async checkTokenExpiration() {
       const storedToken = localStorage.getItem("token");
 
       if (!storedToken) {
         console.error("Token not available.");
-        console.log("Token is missing. Redirecting to login...");
         this.router.push("/login");
         return;
       }
@@ -123,28 +99,6 @@ export default defineComponent({
       if (Date.now() > expirationTime) {
         console.log("Token expired. Redirecting to login...");
         this.router.push("/login");
-      }
-    },
-
-    async fetchPaygrade() {
-      try {
-        await this.checkTokenExpiration();
-        const baseURL = localStorage.getItem("baseUrl");
-        const storedToken = localStorage.getItem("token");
-
-        const headers = {
-          Authorization: `Bearer ${storedToken}`,
-        };
-
-        const api =
-          baseURL + `api/v2/ess/employee/benefit-package/${this.empNumber}`;
-
-        const dataResponse = await axios.get(api, { headers });
-
-        this.paygradeId = dataResponse.data.data.id;
-        this.fetchRequest();
-      } catch (error) {
-        console.log(error.response?.data?.error?.message);
       }
     },
 
@@ -160,30 +114,11 @@ export default defineComponent({
           Authorization: `Bearer ${storedToken}`,
         };
 
-        const api =
-          baseURL +
-          `api/v2/benefit-packages/${this.paygradeId}?limit=50&offset=0`;
+        const api = baseURL + `api/v2/admin/document-config`;
         const dataResponse = await axios.get(api, { headers });
 
-        const { id, payGradeName, jobCategoryName, name, packageItems } =
-          dataResponse.data.data;
-
-        const mappedPackageItems = packageItems.map((item) => ({
-          benefitType: item.benefitType,
-          benefitName: item.benefitName,
-          benefitCode: item.benefitCode,
-        }));
-
-        const dataMap = {
-          id,
-          payGradeName,
-          jobCategoryName,
-          name,
-          packageItems: mappedPackageItems,
-        };
-        this.results = dataMap.packageItems;
+        this.results = dataResponse.data.data;
         this.totalRec = this.results.length;
-
         this.store.commit("loader/updateLoader", false);
       } catch (error) {
         this.store.commit("loader/updateLoader", false);
@@ -191,6 +126,11 @@ export default defineComponent({
 
         this.showErrorMessage(error.response?.data?.error?.message);
       }
+    },
+
+    formatDate(dateStr) {
+      const options = { year: "numeric", month: "long", day: "numeric" };
+      return new Date(dateStr).toLocaleDateString(undefined, options);
     },
 
     async showErrorMessage(message) {
@@ -213,32 +153,24 @@ export default defineComponent({
       }
     },
 
-    handleView(result) {
-      this.selectedResult = result;
-      console.log("Selected", this.selectedResult);
-      console.log("Selected", result);
-      this.isOpen = true;
-    },
-
-    setOpen(val) {
-      this.isOpen = val;
-    },
     fetchTheme() {
       const storedThemeData = localStorage.getItem("themeData");
-
       const themeData = storedThemeData ? JSON.parse(storedThemeData) : {};
-
       this.theme = themeData;
     },
+
+    onDownload(filename) {
+      console.log(`Downloading file: ${filename}`);
+      // Add any additional logic if needed
+    },
   },
+
   created() {
-    this.empNumber = localStorage.getItem("empNumber");
     this.checkTokenExpiration();
     this.fetchTheme();
-    this.fetchPaygrade();
+    this.fetchRequest();
 
     this.loading = false;
-    console.log(this.results.length);
   },
 });
 </script>
@@ -278,7 +210,7 @@ export default defineComponent({
   color: #828282;
   border-radius: 20px;
   padding: 5px 10px;
-  width: 60%;
+  width: fit-content;
 }
 
 .modal-header {
@@ -314,5 +246,12 @@ ion-modal#example-modal {
   justify-content: center;
   align-items: center;
   flex-direction: column;
+}
+.card-content {
+  margin: 15px;
+  padding: 10px;
+}
+.card-content h5 {
+  margin: 0;
 }
 </style>

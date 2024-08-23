@@ -363,7 +363,7 @@ export default defineComponent({
   right: 0;
   margin: 0 auto;
   width: 80%;
-  height: 30px;
+  height: 50px;
   max-width: 350px;
 }
 

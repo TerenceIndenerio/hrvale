@@ -366,19 +366,39 @@ export default defineComponent({
         };
 
         const dataResponse = await axios.post(api, payload, { headers });
-        const toast = await toastController.create({
-          message: "Change DO Successfully Sent!",
-          duration: 3000,
-          position: "top",
-          icon: "alert-circle-outline",
-          buttons: [
-            {
-              icon: "close-outline",
-              role: "cancel",
-            },
-          ],
-        });
-        await toast.present();
+
+        if (dataResponse.status === 200 || dataResponse.status === 201) {
+          const toast = await toastController.create({
+            message: "Change DO Successfully Sent!",
+            duration: 3000,
+            position: "top",
+            icon: "alert-circle-outline",
+            buttons: [
+              {
+                icon: "close-outline",
+                role: "cancel",
+              },
+            ],
+          });
+          await toast.present();
+
+          this.store.commit("loader/updateLoader", false);
+          this.$router.go(-1);
+        } else {
+          const toast = await toastController.create({
+            message: "Failed to send change. Please try again.",
+            duration: 3000,
+            position: "top",
+            icon: "alert-circle-outline",
+            buttons: [
+              {
+                icon: "close-outline",
+                role: "cancel",
+              },
+            ],
+          });
+          await toast.present();
+        }
       } catch (error) {
         const toast = await toastController.create({
           message: error.message,
@@ -395,7 +415,6 @@ export default defineComponent({
         await toast.present();
       } finally {
         this.store.commit("loader/updateLoader", false);
-        this.$router.go(-1);
       }
     },
 

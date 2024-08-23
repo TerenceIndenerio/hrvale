@@ -8,7 +8,7 @@ import LeaveRequest from "@/views/services/leave/LeaveRequest.vue";
 import ClockIn from "@/views/services/clock_in/ClockIn.vue";
 import AttendanceCorrection from "@/views/services/attendance/AttendanceCorrection.vue";
 import Login from "@/views/login/Login.vue";
-import SetupLogin from "@/views/login/SetupLogin.vue";
+import SetUpLogin from "@/views/login/SetUpLogin.vue";
 import Flash from "@/views/login/Flash.vue";
 import ApplyOT from "@/views/services/ot/ApplyOT.vue";
 import Vale from "@/views/services/vale/Vale.vue";
@@ -25,8 +25,8 @@ import GPSOffline from "@/views/GPSOffline.vue";
 import PinCode from "@/views/pincode/PinCode.vue";
 import PinCodeSetup from "@/views/pincode/PinCodeSetup.vue";
 import PinCodeAccountSettings from "@/views/pincode/PinCodeAccountSettings.vue";
-import OtherLoans from "@/views/services/LoanBalance/OtherLoans.vue";
-import LoanBalance from "@/views/services/loanBalance/loanBalance.vue";
+import OtherLoans from "@/views/services/loanBalance/OtherLoans.vue";
+import LoanBalance from "@/views/services/loanBalance/LoanBalance.vue";
 import LoanBalanceView from "@/views/services/loanBalance/LoanBalanceView.vue";
 import NotifToken from "@/views/dev/NotifToken.vue";
 import LoginPinCodeSetup from "@/views/login/LoginPinCodeSetup.vue";
@@ -41,7 +41,7 @@ import WelcomePrivacyAndPolicy from "@/views/welcome/PrivacyAndPolicy.vue";
 import CashVale from "@/views/services/vale/cash_vale/CashVale.vue";
 import LoadVale from "@/views/services/vale/load_vale/LoadVale.vue";
 import BillsVale from "@/views/services/vale/bills_vale/BillsVale.vue";
-import GroceryVale from "@/views/services/vale/grocery_vale/GroceryVale.vue";
+// import GroceryVale from "@/views/services/vale/grocery_vale/GroceryVale.vue";
 import Notification from "@/views/notification/Notification.vue";
 import ValeMain from "@/views/services/vale/vale_main/ValeMain.vue";
 import ScheduleAdjustment from "@/views/services/schedule_adjustment/ScheduleAdjustment.vue";
@@ -53,6 +53,11 @@ import WaterBillers from "@/views/services/vale/bills_vale/WaterBillers.vue";
 import CableBillers from "@/views/services/vale/bills_vale/CableBillers.vue";
 import TransportationBillers from "@/views/services/vale/bills_vale/TransportationBillers.vue";
 import PayBill from "@/views/services/vale/bills_vale/PayBill.vue";
+import GadgetsVale from "@/views/services/vale/gadgets_vale/GadgetsVale.vue";
+import Document from "@/views/services/document/Document.vue";
+import MyTraining from "@/views/services/trainings/MyTraining.vue";
+import MyAssessment from "@/views/services/trainings/MyAssessment.vue";
+import ViewEmployeeSession from "@/views/services/trainings/ViewEmployeeSession.vue";
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -215,6 +220,22 @@ const routes: Array<RouteRecordRaw> = [
         path: "/notification",
         component: Notification,
       },
+      {
+        path: "/document",
+        component: Document,
+      },
+      {
+        path: "/mytraining",
+        component: MyTraining,
+      },
+      {
+        path: "/myassessment",
+        component: MyAssessment,
+      },
+      {
+        path: "/viewemployeesession",
+        component: ViewEmployeeSession,
+      },
     ],
   },
   {
@@ -223,7 +244,7 @@ const routes: Array<RouteRecordRaw> = [
   },
   {
     path: "/setuplogin",
-    component: SetupLogin,
+    component: SetUpLogin,
   },
   {
     path: "/tenant",
@@ -258,10 +279,10 @@ const routes: Array<RouteRecordRaw> = [
     path: "/loadvale",
     component: LoadVale,
   },
-  {
-    path: "/groceryvale",
-    component: GroceryVale,
-  },
+  // {
+  //   path: "/groceryvale",
+  //   component: GroceryVale,
+  // },
   {
     path: "/applyvale",
     component: ApplyVale,
@@ -297,6 +318,10 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: "/billsvale",
     component: BillsVale,
+  },
+  {
+    path: "/gadgetsvale",
+    component: GadgetsVale,
   },
 ];
 

@@ -31,7 +31,10 @@
         </a>
       </ion-col>
       <ion-col
-        :class="['card btn-text', { soon: !isClockInOutAllowed }]"
+        :class="[
+          'card btn-text',
+          { soon: !isClockInOutAllowed, hidden: !isClockInOutShown },
+        ]"
         expand="full"
       >
         <a
@@ -83,6 +86,9 @@ export default defineComponent({
     isClockInOutAllowed() {
       return this.servicesConfig?.clockInOut?.hidden ?? false;
     },
+    isClockInOutShown() {
+      return this.servicesConfig?.clockInOut?.allowed ?? false;
+    },
   },
 
   methods: {
@@ -120,14 +126,12 @@ export default defineComponent({
     navigateVale() {
       if (this.isValeAllowed) {
         const storedClient = JSON.parse(localStorage.getItem("client"));
-        
 
-        if(storedClient==="suysing"){
+        if (storedClient === "suysing") {
           this.$router.push(`/vale${storedClient}`);
         } else {
           this.$router.push(`/vale`);
         }
-        
       } else {
         this.navigateSoon();
       }
@@ -244,5 +248,8 @@ a {
 }
 .soon {
   opacity: 0.5;
+}
+.hidden {
+  display: none;
 }
 </style>
