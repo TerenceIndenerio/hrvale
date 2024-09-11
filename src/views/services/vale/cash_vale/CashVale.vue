@@ -287,7 +287,13 @@ export default defineComponent({
       }
     },
     navigateToApplyVale() {
-      this.$router.push("/applyvale");
+      const storedClient = JSON.parse(localStorage.getItem("client"));
+
+      if (storedClient === "suysing") {
+        this.$router.push("/applyvale");
+      } else {
+        this.$router.push("/applyvaleglobal");
+      }
     },
     navigateToValeHistory() {
       this.$router.push("/valehistory");

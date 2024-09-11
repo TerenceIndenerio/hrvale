@@ -108,6 +108,29 @@
                 </ion-card>
               </ion-col>
 
+              <!-- payment method -->
+              <ion-col class="reason-container">
+                <ion-label>
+                  <strong>Recepient Account*</strong>
+                </ion-label>
+                <ion-card class="reason-select-container neomorphic-input-2">
+                  <ion-select
+                    v-model="selectedPaymentMethod"
+                    label-placement="floating"
+                    placeholder="Payment Method"
+                  >
+                    <div slot="label">Select Recepient Account</div>
+                    <ion-select-option
+                      v-for="(option, index) in bankDetails"
+                      :key="index"
+                      :value="option.id"
+                    >
+                      {{ option.bankName }} - {{ option.accountNumber }}
+                    </ion-select-option>
+                  </ion-select>
+                </ion-card>
+              </ion-col>
+
               <!-- Other Reason Textarea -->
               <div
                 class="ion-margin-bottom comment"
@@ -295,6 +318,9 @@ export default {
         balance: 0,
       },
       invalidAmount: false,
+      selectedPaymentMethod: "",
+      recepientAccount: ["GCash", "Maya", "Gotyme", "Bank"],
+      bankDetails: null,
     };
   },
   methods: {
@@ -323,6 +349,35 @@ export default {
           }));
       } catch (error) {
         console.error("Error fetching reason options:", error);
+      }
+    },
+
+    // https://hrp-uat-app.bapplware.com/web/index.php/api/v2/employee/profile/bank-details?limit=50&offset=0&empNumber=129&sortField=ebd.accountNumber&sortOrder=DESC
+    async fetchBankDetails(empNumber) {
+      try {
+        await this.checkTokenExpiration();
+
+        this.storedToken = localStorage.getItem("token");
+        const baseURL = localStorage.getItem("baseUrl");
+        const headers = {
+          Authorization: `Bearer ${this.storedToken}`,
+        };
+
+        const api =
+          baseURL +
+          `api/v2/employee/profile/bank-details?limit=50&offset=0&empNumber=${empNumber}&sortField=ebd.accountNumber&sortOrder=DESC`;
+
+        const response = await axios.get(api, { headers });
+
+        this.bankDetails = response.data.data.map((item) => ({
+          id: item.id,
+          accountNumber: item.accountNumber,
+          bankName: item.bankName,
+          branchName: item.branchName,
+          ifscCode: item.ifscCode,
+        }));
+      } catch (error) {
+        console.error("Error fetching bank details:", error);
       }
     },
 
@@ -380,12 +435,12 @@ export default {
       console.log(approvalAmount, loanBalance)
 
       if (approvalAmount > loanBalance) {
-        this.isOpen = true;
         this.showErrorMessage("Invalid Amount for Approval");
         this.invalidAmount = true;
-        
+        this.isOpen = true;
       } else {
         await this.proceedWithAPI(this.finalReason);
+        console.log("proceed")
       }
 
       this.updateTotalLoan();
@@ -406,6 +461,7 @@ export default {
           loanAmount: loanAmount,
           reason: reason,
           comment: this.comment.trim(),
+          bankRecipient: this.selectedPaymentMethod,
         };
 
         const dataResponse = await axios.post(api, payload, { headers });
@@ -578,6 +634,7 @@ export default {
     this.fetchValeDetails();
     this.fetchLoanBudget();
     this.fetchReasonOptions();
+    this.fetchBankDetails(this.empNumber);
   },
 };
 </script>

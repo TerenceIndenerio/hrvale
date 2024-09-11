@@ -11,9 +11,11 @@ import Login from "@/views/login/Login.vue";
 import SetUpLogin from "@/views/login/SetUpLogin.vue";
 import Flash from "@/views/login/Flash.vue";
 import ApplyOT from "@/views/services/ot/ApplyOT.vue";
+import ApplyOTGlobal from "@/views/services/ot/ApplyOTGlobal.vue";
 import Vale from "@/views/services/vale/Vale.vue";
 import ValeView from "@/views/services/vale/ValeView.vue";
 import ApplyVale from "@/views/services/vale/ApplyVale.vue";
+import ApplyValeGlobal from "@/views/services/vale/ApplyValeGlobal.vue";
 import leaveEntitlement from "@/views/services/leave/LeaveEntitlement.vue";
 import ViewSchedule from "@/views/services/schedule/ViewSchedule.vue";
 import Benefits from "@/views/services/benefits/Benefits.vue";
@@ -170,6 +172,10 @@ const routes: Array<RouteRecordRaw> = [
         component: ApplyOT,
       },
       {
+        path: "/applyotglobal",
+        component: ApplyOTGlobal,
+      },
+      {
         path: "/otherloans",
         component: OtherLoans,
       },
@@ -286,6 +292,10 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: "/applyvale",
     component: ApplyVale,
+  },
+  {
+    path: "/applyvaleglobal",
+    component: ApplyValeGlobal,
   },
   {
     path: "/vale",
