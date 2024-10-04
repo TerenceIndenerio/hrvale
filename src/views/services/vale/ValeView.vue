@@ -19,24 +19,6 @@
             <ion-col size="6">
               <ion-row>
                 <ion-col size="6">
-                  <p>Loan Date:</p>
-                </ion-col>
-                <ion-col size="6">
-                  <p>{{ result.loanDate }}</p>
-                </ion-col>
-              </ion-row>
-
-              <ion-row>
-                <ion-col size="6">
-                  <p>Amortization:</p>
-                </ion-col>
-                <ion-col size="6">
-                  <p>{{ result.amortization }}</p>
-                </ion-col>
-              </ion-row>
-
-              <ion-row>
-                <ion-col size="6">
                   <p>Loan Amount:</p>
                 </ion-col>
                 <ion-col size="6">
@@ -46,19 +28,19 @@
 
               <ion-row>
                 <ion-col size="6">
-                  <p>Effective Loan:</p>
+                  <p>Loan Date:</p>
                 </ion-col>
                 <ion-col size="6">
-                  <p>{{ result.effectiveLoan }}</p>
+                  <p>{{ result.loanDate }}</p>
                 </ion-col>
               </ion-row>
 
               <ion-row>
                 <ion-col size="6">
-                  <p>Interest Rate:</p>
+                  <p>Exceed Amount:</p>
                 </ion-col>
                 <ion-col size="6">
-                  <p>{{ result.interestRate }}</p>
+                  <p>{{ result.exceedAmount }}</p>
                 </ion-col>
               </ion-row>
 
@@ -73,10 +55,10 @@
 
               <ion-row>
                 <ion-col size="6">
-                  <p>Total Amount Paid:</p>
+                  <p>Interest Rate:</p>
                 </ion-col>
                 <ion-col size="6">
-                  <p>{{ result.totalAmountPaid }}</p>
+                  <p>{{ result.interestRate }}</p>
                 </ion-col>
               </ion-row>
 
@@ -91,10 +73,57 @@
 
               <ion-row>
                 <ion-col size="6">
+                  <p>Amortization:</p>
+                </ion-col>
+                <ion-col size="6">
+                  <p>{{ result.amortization }}</p>
+                </ion-col>
+              </ion-row>
+
+              <ion-row>
+                <ion-col size="6">
                   <p>Reason:</p>
                 </ion-col>
                 <ion-col size="6">
                   <p>{{ result.reason }}</p>
+                </ion-col>
+              </ion-row>
+
+              <ion-row>
+                <ion-col size="6">
+                  <p>Previous Balance:</p>
+                </ion-col>
+                <ion-col size="6">
+                  <p> {{result.previousBalance}}
+                  </p>
+                </ion-col>
+              </ion-row>
+
+              <ion-row>
+                <ion-col size="6">
+                  <p>Total Amount Paid:</p>
+                </ion-col>
+                <ion-col size="6">
+                  <p>{{ result.totalAmountPaid }}</p>
+                </ion-col>
+              </ion-row>
+             
+              <ion-row>
+                <ion-col size="6">
+                  <p>Total Loan:</p>
+                </ion-col>
+                <ion-col size="6">
+                  <p>{{ result.totalLoan }}</p>
+                </ion-col>
+
+              </ion-row>
+
+              <ion-row>
+                <ion-col size="6">
+                  <p>Comment:</p>
+                </ion-col>
+                <ion-col size="6">
+                  <p>{{ result.comment }}</p>
                 </ion-col>
               </ion-row>
             </ion-col>
@@ -299,19 +328,24 @@ export default defineComponent({
 
         if (result) {
           this.results = [
-            {
-              id: result.id,
-              loanAmount: result.loanAmount,
-              loanDate: result.loanDate,
-              amortization: result.amortization,
-              effectiveLoan: result.effectiveLoan,
-              status: result.status,
-              interestRate: result.interest,
-              startOfPayment: result.startOfPayment,
-              totalAmountPaid: result.totalAmountPaid,
-              reason: result.reason,
-            },
-          ];
+  {
+    id: result.id,
+    loanAmount: parseFloat(result.loanAmount.replace(/,/g, '')) || 0.00, // Remove commas and convert to float
+    loanDate: result.loanDate,
+    amortization: result.amortization,
+    effectiveLoan: result.effectiveLoan,
+    status: result.status,
+    interestRate: result.interest,
+    startOfPayment: result.startOfPayment,
+    totalAmountPaid: result.totalAmountPaid || "0.00",
+    reason: result.reason,
+    comment: result.comment,
+    exceedAmount: parseFloat(result.exceedAmount.replace(/,/g, '')) || 0.00, // Remove commas and convert to float
+    previousBalance: parseFloat(result.previousBalance) || 0.00,
+    totalLoan: (parseFloat(result.loanAmount.replace(/,/g, '')) || 0.00) + (parseFloat(result.previousBalance) || 0.00), // Sum converted values
+  },
+];
+
 
           this.totalRec = this.results.length;
         } else {
@@ -349,6 +383,7 @@ export default defineComponent({
           paymentDate: data.paymentDate,
           status: data.status,
         }));
+
       } catch (error) {
         this.showErrorMessage("An error occurred: " + error.message);
       } finally {

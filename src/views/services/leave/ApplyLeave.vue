@@ -84,7 +84,7 @@
           </div>
 
           <!-- Duration -->
-          <div class="dropdown" id="duration">
+          <!-- <div class="dropdown" id="duration">
             <p class="dropdown-label" :style="{ color: theme.primaryColor }">
               Duration
             </p>
@@ -102,26 +102,26 @@
                 {{ duration.label }}
               </ion-select-option>
             </ion-select>
+          </div> -->
+          <!-- Effective Date -->
+          <div class="effective-date-container">
+            <p
+              class="effective-date-label"
+              :style="{ color: theme.primaryColor }"
+            >
+              Effective Date
+            </p>
+            <div class="neomorphic-input-2">
+              <ion-input
+                type="date"
+                v-model="effectiveDate"
+                @ionChange="handleDateChange"
+                class="date-input"
+              />
+            </div>
           </div>
         </div>
 
-        <!-- Effective Date -->
-        <div class="effective-date-container">
-          <p
-            class="effective-date-label"
-            :style="{ color: theme.primaryColor }"
-          >
-            Effective Date
-          </p>
-          <div class="neomorphic-input-2">
-            <ion-input
-              type="date"
-              v-model="effectiveDate"
-              @ionChange="handleDateChange"
-              class="date-input"
-            />
-          </div>
-        </div>
         <!-- <ion-card class="neomorphic-card-1 calendar-container">
           <ion-datetime
             presentation="date"
@@ -187,6 +187,29 @@
           </ion-button>
         </div>
       </div>
+
+      <!-- alert successfully submitted -->
+      <ion-modal :is-open="isSuccessful" id="modal">
+        <ion-card class="card-modal">
+          <ion-card-header>
+            <ion-card-title class="modal-header">Success</ion-card-title>
+          </ion-card-header>
+          <ion-icon
+            name="checkmark-circle"
+            :style="{ color: theme.successColor }"
+            class="close-btn"
+          ></ion-icon>
+
+          <ion-grid class="modal-content">
+            <p>Apply Leave Sent Successfully!</p>
+            <ion-row>
+              <ion-col>
+                <ion-button @click="confirmSuccess">Okay</ion-button>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </ion-card>
+      </ion-modal>
     </ion-content>
   </ion-page>
 </template>
@@ -207,6 +230,11 @@ import {
   IonLabel,
   IonInput,
   IonDatetime,
+  IonModal,
+  IonIcon,
+  IonCardTitle,
+  IonCardHeader,
+  IonGrid,
 } from "@ionic/vue";
 import Calendar from "@/views/services/leave/components/Calendar.vue";
 import HeaderReturn from "@/components/header/HeaderReturn.vue";
@@ -237,6 +265,11 @@ export default defineComponent({
     IonLabel,
     IonInput,
     IonDatetime,
+    IonModal,
+    IonIcon,
+    IonCardTitle,
+    IonCardHeader,
+    IonGrid,
   },
   setup() {
     return {
@@ -274,6 +307,7 @@ export default defineComponent({
       selectedLeaveID: null,
       selectedReason: null,
       effectiveDate: null,
+      isSuccessful: false,
       availableBalance: 0,
       hundredDays: [],
       leaveTypeOptions: ["Office Employee", "Sample 100 Days"],
@@ -605,10 +639,10 @@ export default defineComponent({
 
     async sendLeaveRequest() {
       try {
+        this.store.commit("loader/updateLoader", true);
         if (
           !this.valueDates ||
           !this.valueDates.length ||
-          !this.durationSelectedValue ||
           !this.selectedReason ||
           !this.selectedLeaveID
         ) {
@@ -629,48 +663,48 @@ export default defineComponent({
 
         const requestData = {
           filedDates: this.valueDates,
-          duration: this.durationSelectedValue,
+          // duration: this.durationSelectedValue,
+          duration: "Full Day",
           comment: this.selectedReason,
           leaveTypeId: this.selectedLeaveID,
         };
 
         const response = await axios.post(api, requestData, { headers });
-        console.log(this.valueDates.length);
-        console.log(requestData);
 
         if (response.status === 200) {
-          const toast = await toastController.create({
-            message: "Leave request sent successfully!",
-            duration: 3000,
-            position: "top",
-            color: "light",
-            icon: "alert-circle-outline",
-            buttons: [
-              {
-                icon: "close-outline",
-                role: "cancel",
-              },
-            ],
-          });
+          this.isSuccessful = true;
+          // const toast = await toastController.create({
+          //   message: "Leave request sent successfully!",
+          //   duration: 3000,
+          //   position: "top",
+          //   color: "light",
+          //   icon: "alert-circle-outline",
+          //   buttons: [
+          //     {
+          //       icon: "close-outline",
+          //       role: "cancel",
+          //     },
+          //   ],
+          // });
 
-          await toast.present();
+          // await toast.present();
         } else {
           throw new Error(
             "Failed to send leave request. Status: " + response.status
           );
         }
 
-        this.store.commit("loader/updateLoader", false);
-
         this.selectedReason = null;
         this.durationSelectedValue = null;
         this.selectedLeaveID = null;
         this.selectedDates_ = null;
 
-        this.router.push("/leave");
+        // this.router.push("/leave");
       } catch (error) {
         console.error("Error sending leave request:", error);
         this.showErrorMessage(error.response?.data?.error?.message);
+      } finally {
+        this.store.commit("loader/updateLoader", false);
       }
     },
 
@@ -750,6 +784,13 @@ export default defineComponent({
       } catch (error) {
         console.error("Error displaying toast:", error);
       }
+    },
+
+    confirmSuccess() {
+      this.isSuccessful = false;
+      setTimeout(() => {
+        window.location.replace(`/leave`);
+      }, 1000);
     },
 
     async checkTokenExpiration() {
@@ -882,5 +923,33 @@ export default defineComponent({
 .effective-date-label {
   font-weight: bold;
   text-align: center;
+}
+.modal-content {
+  margin: 0 0 10px 0;
+  text-align: center;
+}
+#modal {
+  --background: rgba(255, 0, 0, 0);
+}
+.modal-header {
+  text-align: center;
+}
+.card-modal {
+  border-radius: 20px;
+  max-width: 400px;
+  margin-top: 50%;
+}
+.close-btn {
+  position: absolute;
+  top: 5px;
+  right: 10px;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  margin: 0;
+  box-shadow: var(--neomorphism-convex-4);
+  border-radius: 50%;
+  background-color: rgb(246, 246, 246);
+  overflow: hidden;
 }
 </style>

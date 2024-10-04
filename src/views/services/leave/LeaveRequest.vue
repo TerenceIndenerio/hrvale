@@ -9,7 +9,7 @@
     <ion-content :fullscreen="true">
       <Refresher />
       <div v-if="showComponent">
-        <ion-card class="card-round neomorphic-card-1">
+        <!-- <ion-card class="card-round neomorphic-card-1">
           <div class="leave-request neomorphic-input-2">
             <p class="leave-text"><strong>Leave Request For:</strong></p>
 
@@ -17,7 +17,7 @@
               <strong>{{ leaveReqFor }}</strong>
             </p>
           </div>
-        </ion-card>
+        </ion-card> -->
 
         <div v-for="(cardData, index) in requests" :key="index">
           <LeaveRequestCard

@@ -184,6 +184,29 @@
             </ion-grid>
           </ion-card>
         </ion-modal>
+
+        <!-- alert successfully submitted -->
+        <ion-modal :is-open="isSuccessful" id="modal">
+          <ion-card class="card-modal">
+            <ion-card-header>
+              <ion-card-title class="modal-header">Success</ion-card-title>
+            </ion-card-header>
+            <ion-icon
+              name="checkmark-circle"
+              :style="{ color: theme.successColor }"
+              class="close-btn"
+            ></ion-icon>
+
+            <ion-grid class="modal-content">
+              <p>Vale Applied Successfully!</p>
+              <ion-row>
+                <ion-col>
+                  <ion-button @click="confirmSuccess">Okay</ion-button>
+                </ion-col>
+              </ion-row>
+            </ion-grid>
+          </ion-card>
+        </ion-modal>
       </div>
       <!-- </div> -->
     </ion-content>
@@ -280,6 +303,8 @@ export default {
       reasonText: null,
       isOpen: false,
       finalReason: null,
+      isSuccessful: false,
+      valeID: null,
       amortizationPercentage: 0,
       valeDataResult: {
         creditableService: "",
@@ -375,15 +400,13 @@ export default {
         return;
       }
 
-      const approvalAmount = parseInt(this.approvalAmount.replace(/,/g, ""));
-      const loanBalance = parseInt(this.valeDataResult.balance);
-      console.log(approvalAmount, loanBalance)
+      const approvalAmount = this.approvalAmount.replace(/,/g, "");
+      const loanBalance = this.valeDataResult.balance;
 
       if (approvalAmount > loanBalance) {
         this.isOpen = true;
         this.showErrorMessage("Invalid Amount for Approval");
         this.invalidAmount = true;
-        
       } else {
         await this.proceedWithAPI(this.finalReason);
       }
@@ -393,6 +416,7 @@ export default {
 
     async proceedWithAPI(reason) {
       try {
+        this.store.commit("loader/updateLoader", true);
         const headers = {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         };
@@ -410,15 +434,15 @@ export default {
 
         const dataResponse = await axios.post(api, payload, { headers });
 
-        console.log("resp", dataResponse);
-
         if (dataResponse.status === 200) {
-          this.showAlertMessage("Vale Applied Successfully!");
-          setTimeout(() => {
-            window.location.replace(
-              `/viewvale?id=${dataResponse.data.data.id}`
-            );
-          }, 1000);
+          // this.showAlertMessage("Vale Applied Successfully!");
+          // setTimeout(() => {
+          //   window.location.replace(
+          //     `/viewvale?id=${dataResponse.data.data.id}`
+          //   );
+          // }, 1000);
+          this.isSuccessful = true;
+          this.valeID = dataResponse.data.data.id;
         }
       } catch (error) {
         this.showErrorMessage(error.response?.data?.error?.message);
@@ -426,6 +450,14 @@ export default {
       } finally {
         this.store.commit("loader/updateLoader", false);
       }
+    },
+
+    confirmSuccess() {
+      this.isSuccessful = false;
+
+      setTimeout(() => {
+        window.location.replace(`/viewvale?id=${this.valeID}`);
+      }, 1000);
     },
 
     confirmProceed() {
@@ -493,6 +525,7 @@ export default {
           budget: dataResponse.data.data.budget,
           balance: dataResponse.data.data.loanableAmount || 0,
           availableAmount: dataResponse.data.data.availableAmount,
+          amortizationType: dataResponse.data.data.amortizationType,
         };
       } catch (error) {
         this.showErrorMessage(error.response.data.error.message);
@@ -544,6 +577,8 @@ export default {
     },
 
     updateTotalLoan() {
+      // console.log(this.valeDataResult.amortizationType);
+      const amortizationType = this.valeDataResult.amortizationType;
       const approvalAmount = parseFloat(this.approvalAmount.replace(/,/g, ""));
       const previousBalance = parseFloat(
         this.valeDataResult.previousBalance.replace(/,/g, "")
@@ -552,14 +587,20 @@ export default {
       const amortizationValue = parseFloat(
         this.valeDataResult.amortizationValue.replace(/,/g, "")
       );
-      this.amortizationPercentage = approvalAmount / amortizationValue;
+
+      if (amortizationType === "percentage") {
+  // Convert the whole number (amortizationValue) to decimal by dividing by 100
+  this.amortizationPercentage =
+    approvalAmount * (amortizationValue / 100);
+} else if (amortizationType === "decimal") {
+  this.amortizationPercentage = approvalAmount / amortizationValue;
+}
+
+
       this.totalLoan = approvalAmount + previousBalance;
       if (!isNaN(approvalAmount) && approvalAmount > 0) {
         if (approvalAmount <= availableAmount) {
           this.invalidAmount = false;
-        } else {
-          this.showErrorMessage("Invalid Amount for Approval");
-          this.invalidAmount = true;
         }
       } else {
         this.totalLoan = previousBalance;

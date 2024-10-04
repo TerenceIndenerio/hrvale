@@ -172,6 +172,28 @@
       >
         Save
       </ion-button>
+      <!-- alert successfully submitted -->
+      <ion-modal :is-open="isSuccessful" id="modal">
+        <ion-card class="card-modal">
+          <ion-card-header>
+            <ion-card-title class="modal-header">Success</ion-card-title>
+          </ion-card-header>
+          <ion-icon
+            name="checkmark-circle"
+            :style="{ color: theme.successColor }"
+            class="close-btn"
+          ></ion-icon>
+
+          <ion-grid class="modal-content">
+            <p>Attendance Correction Sent Successfully!</p>
+            <ion-row>
+              <ion-col>
+                <ion-button @click="confirmSuccess">Okay</ion-button>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </ion-card>
+      </ion-modal>
     </ion-content>
   </ion-page>
 </template>
@@ -191,6 +213,11 @@ import {
   IonCard,
   IonRow,
   IonCardContent,
+  IonList,
+  IonModal,
+  IonIcon,
+  IonCardTitle,
+  IonCardHeader,
 } from "@ionic/vue";
 import { defineComponent } from "vue";
 import Refresher from "@/components/refresher/Refresher.vue";
@@ -220,6 +247,10 @@ export default defineComponent({
     IonCard,
     IonRow,
     IonCardContent,
+    IonModal,
+    IonIcon,
+    IonCardTitle,
+    IonCardHeader,
   },
 
   setup() {
@@ -249,6 +280,7 @@ export default defineComponent({
       empNumber: null,
       regularWorkHourStart: "",
       regularWorkHourEnd: "",
+      isSuccessful: false,
     };
   },
   methods: {
@@ -473,20 +505,7 @@ export default defineComponent({
         const dataResponse = await axios.post(api, payload, { headers });
 
         if (dataResponse.status >= 200 && dataResponse.status < 300) {
-          const toast = await toastController.create({
-            message: "Attendance Correction Successfully Sent!",
-            duration: 3000,
-            position: "top",
-            icon: "alert-circle-outline",
-            buttons: [
-              {
-                icon: "close-outline",
-                role: "cancel",
-              },
-            ],
-          });
-          await toast.present();
-          this.$router.go(-1);
+          this.isSuccessful = true;
         } else {
           console.log("Error occurred while sending attendance correction.");
           const toast = await toastController.create({
@@ -521,6 +540,11 @@ export default defineComponent({
       } finally {
         this.store.commit("loader/updateLoader", false);
       }
+    },
+
+    confirmSuccess() {
+      this.isSuccessful = false;
+      this.$router.go(-1);
     },
 
     fetchTheme() {
@@ -705,5 +729,40 @@ export default defineComponent({
   margin: 10px auto 0 auto;
   border-bottom: 2px solid rgb(171, 171, 171);
   width: 60%;
+}
+
+.modal-content {
+  margin: 0 0 10px 0;
+  text-align: center;
+}
+#modal {
+  --background: rgba(255, 0, 0, 0);
+}
+.modal-header {
+  text-align: center;
+}
+.card-modal {
+  border-radius: 20px;
+  max-width: 400px;
+  margin-top: 50%;
+}
+.close-btn {
+  position: absolute;
+  top: 5px;
+  right: 10px;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  margin: 0;
+  box-shadow: var(--neomorphism-convex-4);
+  border-radius: 50%;
+  background-color: rgb(246, 246, 246);
+  overflow: hidden;
+}
+.container-bg {
+  margin: 0;
+  height: 100%;
+  border-radius: 0;
+  overflow-y: scroll;
 }
 </style>

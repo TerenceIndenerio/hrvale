@@ -329,7 +329,7 @@ export default defineComponent({
           this.attendance(requestId, action, status, date);
           break;
         case "schedule_adjustment":
-          this.scheduleAdjustment(requestDataId, action);
+          this.scheduleAdjustment(requestId, action, requestDataId);
           break;
         case "other_loan":
           this.otherLoan(requestId, action, requestDataId);
@@ -573,7 +573,7 @@ export default defineComponent({
       }
     },
     // scheduleAdjustment
-    async scheduleAdjustment(requestId, action) {
+    async scheduleAdjustment(requestId, action, requestDataId) {
       try {
         this.store.commit("loader/updateLoader", true);
 
@@ -677,9 +677,11 @@ export default defineComponent({
 
         const status = action === "approve" ? "approved" : "declined";
 
+        const _status = {"status": status}
+
         const api = `${baseURL}api/v2/apply-vale/${requestDataId}`;
 
-        const dataResponse = await axios.put(api, null, { headers });
+        const dataResponse = await axios.put(api, _status, { headers });
 
         const successMessage =
           action === "approve"
@@ -952,14 +954,16 @@ export default defineComponent({
               "Employee Id": employeeId,
               "Employee Name": employeeName,
               "Request Type": requestType,
-              Status: status,
-              "Date Applied": date,
-              "Number Of Days": response.data.data[0].numberOfDays,
-              "From Date": response.data.data[0].fromDate,
-              "To Date": response.data.data[0].toDate,
               "Leave Type": response.data.data[0].leaveType,
+             
+              "Date Applied": date,
+              
+              "Start Date": response.data.data[0].fromDate,
+              "End Date": response.data.data[0].toDate,
+              "Number Of Days": response.data.data[0].numberOfDays,
               "Leave Balance": response.data.data[0].leaveBalance,
-              "Duration Type": response.data.data[0].durationType,
+              Status: status,
+              // "Duration Type": response.data.data[0].durationType,
             };
             break;
           case "vale":

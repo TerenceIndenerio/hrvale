@@ -1,7 +1,13 @@
 <template>
   <!-- Leave -->
   <div class="button-container">
-    <div :class="[`card btn-text`, { soon: !isleaveAllowed, hidden: !isleaveShown }]" expand="full">
+    <div
+      :class="[
+        `card btn-text`,
+        { soon: !isleaveAllowed, hidden: !isleaveShown },
+      ]"
+      expand="full"
+    >
       <a
         @click="navigateLeave"
         :style="{
@@ -119,7 +125,10 @@
     </div>
     <!-- payslip -->
     <div
-      :class="[`card btn-text`, { soon: !isPayslipAllowed, hidden: !isPayslipShown }]"
+      :class="[
+        `card btn-text`,
+        { soon: !isPayslipAllowed, hidden: !isPayslipShown },
+      ]"
       expand="full"
       color="none"
     >
@@ -152,7 +161,10 @@
     </div>
     <!-- Benefits -->
     <div
-      :class="[`card btn-text`, { soon: !isBenefitsAllowed, hidden: !isBenefitsShown }]"
+      :class="[
+        `card btn-text`,
+        { soon: !isBenefitsAllowed, hidden: !isBenefitsShown },
+      ]"
       expand="full"
       color="none"
     >
@@ -185,7 +197,10 @@
     </div>
     <!-- Other Loans -->
     <div
-      :class="[`card btn-text`, { soon: !isOtherLoanAllowed, hidden: !isOtherLoanShown  }]"
+      :class="[
+        `card btn-text`,
+        { soon: !isOtherLoanAllowed, hidden: !isOtherLoanShown },
+      ]"
       expand="full"
       color="none"
     >
@@ -377,6 +392,42 @@
         <h4 :style="{ color: btnTextColor }">Documents</h4>
       </a>
     </div>
+    <!-- ApplyPreApprovedOT -->
+    <div
+      :class="[
+        `card btn-text`,
+        {
+          soon: !isApplyPreApprovedOTAllowed,
+          hidden: !isApplyPreApprovedOTShown,
+        },
+      ]"
+      expand="full"
+      color="none"
+    >
+      <a
+        @click="navigateApplyPreApprovedOT"
+        :style="{
+          background: `linear-gradient(to right, ${theme.primaryGradientStartColor}, ${theme.primaryGradientEndColor})`,
+          color: theme.primaryFontColor,
+        }"
+        disabled
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="ionicon icon-btn"
+          :style="{ color: btnSecondaryColor }"
+          viewBox="0 0 512 512"
+        >
+          <circle fill="currentColor" cx="256" cy="272" r="16" />
+          <path
+            fill="currentColor"
+            d="M280 81.5V72a24 24 0 00-48 0v9.5a191 191 0 00-84.43 32.13L137 103a24 24 0 00-34 34l8.6 8.6A191.17 191.17 0 0064 272c0 105.87 86.13 192 192 192s192-86.13 192-192c0-97.74-73.42-178.66-168-190.5zM256 320a48 48 0 01-16-93.25V152a16 16 0 0132 0v74.75A48 48 0 01256 320z"
+          />
+        </svg>
+
+        <h4 :style="{ color: btnTextColor }">Pre Approved <br />OT</h4>
+      </a>
+    </div>
   </div>
 </template>
 <script>
@@ -421,18 +472,19 @@ export default defineComponent({
       return this.servicesConfig?.otherLoan?.hidden ?? false;
     },
     isSchedAdjustment() {
-      
       return this.servicesConfig?.changeDO?.hidden ?? false;
     },
     isApprovalAllowed() {
       return this.servicesConfig?.approval?.hidden ?? false;
     },
     isDocumentAllowed() {
-      
       return this.servicesConfig?.documents?.hidden ?? false;
     },
     isMyTrainingAllowed() {
       return this.servicesConfig?.trainings?.hidden ?? false;
+    },
+    isApplyPreApprovedOTAllowed() {
+      return this.servicesConfig?.applyPreApprovedOT?.hidden ?? false;
     },
     // shown
     isScheduleShown() {
@@ -454,7 +506,7 @@ export default defineComponent({
     isleaveShown() {
       return this.servicesConfig?.leave?.allowed ?? false;
     },
-    isOTShown(){
+    isOTShown() {
       return this.servicesConfig?.ot?.allowed ?? false;
     },
     isPayslipShown() {
@@ -465,7 +517,10 @@ export default defineComponent({
     },
     isOtherLoanShown() {
       return this.servicesConfig?.otherLoan?.allowed ?? false;
-    }
+    },
+    isApplyPreApprovedOTShown() {
+      return this.servicesConfig?.applyPreApprovedOT?.allowed ?? false;
+    },
   },
   methods: {
     navigateSoon() {
@@ -550,6 +605,13 @@ export default defineComponent({
     navigateMyTraining() {
       if (this.isMyTrainingAllowed) {
         this.$router.push("/mytraining");
+      } else {
+        this.navigateSoon();
+      }
+    },
+    navigateApplyPreApprovedOT() {
+      if (this.isApplyPreApprovedOTAllowed) {
+        this.$router.push("/applypreapprovedot");
       } else {
         this.navigateSoon();
       }

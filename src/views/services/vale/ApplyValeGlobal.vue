@@ -440,7 +440,7 @@ export default {
         this.isOpen = true;
       } else {
         await this.proceedWithAPI(this.finalReason);
-        console.log("proceed")
+       
       }
 
       this.updateTotalLoan();
@@ -465,8 +465,6 @@ export default {
         };
 
         const dataResponse = await axios.post(api, payload, { headers });
-
-        console.log("resp", dataResponse);
 
         if (dataResponse.status === 200) {
           this.showAlertMessage("Vale Applied Successfully!");

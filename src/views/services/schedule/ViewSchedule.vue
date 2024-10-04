@@ -80,7 +80,7 @@
                         {{ formatDate(date.start.split(" ")[0]) }}
                         {{ date.formattedStartTime }} -
                         <br />
-                        {{ formatDate(date.end.split(" ")[0]) }}
+                        {{ safeFormatDate(date.end.split(" ")[0]) }}
                         {{ date.formattedEndTime }}
                       </template>
                     </div>
@@ -304,14 +304,14 @@ export default defineComponent({
         textColor: textColor,
       };
     },
-    formatDate(date) {
-      const options = { year: "numeric", month: "2-digit", day: "2-digit" };
-      return new Date(date).toLocaleDateString(undefined, options);
-    },
-    formatTime(date) {
-      const options = { hour: "2-digit", minute: "2-digit", hour12: true };
-      return new Date(date).toLocaleTimeString(undefined, options);
-    },
+    // formatDate(date) {
+    //   const options = { year: "numeric", month: "2-digit", day: "2-digit" };
+    //   return new Date(date).toLocaleDateString(undefined, options);
+    // },
+    // formatTime(date) {
+    //   const options = { hour: "2-digit", minute: "2-digit", hour12: true };
+    //   return new Date(date).toLocaleTimeString(undefined, options);
+    // },
     isDarkColor(color) {
       const rgb = this.hexToRgb(color);
       if (!rgb) return false;
@@ -454,6 +454,26 @@ export default defineComponent({
 
       return `${year}-${month}-${day}`;
     },
+    safeFormatDate(dateString) {
+    // Check if the string is valid
+    if (typeof dateString !== 'string' || dateString.trim() === '') {
+        console.error('Date string is not a valid string:', dateString);
+        return 'Invalid date format'; // Return or handle error as needed
+    }
+
+    // Trim whitespace and check if the string contains AM or PM
+    const trimmedDateString = dateString.trim();
+    const hasAM = trimmedDateString.includes("AM");
+    const hasPM = trimmedDateString.includes("PM");
+
+    if (!hasAM && !hasPM) {
+        console.error('Date string must contain AM or PM:', trimmedDateString);
+        return 'Invalid date format'; // Return or handle error as needed
+    }
+
+    // Call the original formatDate function
+    return formatDate(trimmedDateString);
+},
 
     formatDateCalendar(dateString) {
       const date = new Date(dateString);

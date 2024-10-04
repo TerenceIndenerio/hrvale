@@ -3,6 +3,7 @@
     <div class="leave-type" :style="{ backgroundColor: theme.primaryColor }">
       <p :style="{ color: theme.primaryFontColor }">{{ leaveType }}</p>
     </div>
+    <br>
     <ion-grid class="card-content">
       <ion-row class="pad-w">
         <ion-col class="col-name">
@@ -36,7 +37,7 @@
 
       <ion-row class="pad-w">
         <ion-col class="col-name">
-          <p>Duration (Hours):</p>
+          <p>Duration (Days):</p>
         </ion-col>
 
         <ion-col class="col-data">

@@ -16,25 +16,35 @@
           <div class="card-inner">
             <!-- from -->
             <div class="card-inner-inner">
-              <p :style="{ color: theme.primaryColor }" class="label">From</p>
+              <p :style="{ color: theme.primaryColor }" class="label">Date</p>
               <div class="neomorphic-datepicker-1 date-picker">
                 <ion-input
-                  v-model="selectedDateFrom"
+                  v-model="selectedDate"
                   type="date"
                   class="date-input"
                 ></ion-input>
               </div>
             </div>
 
-            <!-- to -->
+            <!-- Type -->
             <div class="card-inner-inner">
-              <p :style="{ color: theme.primaryColor }" class="label">To</p>
+              <p :style="{ color: theme.primaryColor }" class="label">Type</p>
               <div class="neomorphic-datepicker-1 date-picker">
-                <ion-input
-                  v-model="selectedDateTo"
-                  type="date"
-                  class="date-input"
-                ></ion-input>
+                <ion-select
+                  justify="space-between"
+                  placeholder="Type..."
+                  label="Select Type"
+                  label-placement="floating"
+                >
+                  <p>Select Type</p>
+                  <ion-select-option
+                    v-for="option in typeOptions"
+                    :key="option.id"
+                    :value="option.id"
+                  >
+                    {{ option.label }}
+                  </ion-select-option>
+                </ion-select>
               </div>
             </div>
           </div>
@@ -42,29 +52,43 @@
           <div class="card-inner">
             <div class="card-inner-inner">
               <p :style="{ color: theme.primaryColor }" class="label">
-                Request Date
+                Time In
               </p>
               <div class="neomorphic-datepicker-1 date-picker">
                 <ion-input
-                  v-model="requestDateSelected"
-                  type="date"
-                  class="date-input"
+                  type="time"
+                  class="time-input"
+                  v-model="timeIn"
                 ></ion-input>
               </div>
             </div>
+
             <div class="card-inner-inner">
-              <ion-button
-                @click="handleSearch"
-                class="neomorphic-btn-2 search-btn"
-                color="none"
-                :style="{ backgroundColor: theme.primaryColor }"
-                ><ion-icon name="search"></ion-icon>Search</ion-button
-              >
+              <p :style="{ color: theme.primaryColor }" class="label">
+                Time Out
+              </p>
+              <div class="neomorphic-datepicker-1 date-picker">
+                <ion-input
+                  type="time"
+                  class="time-input"
+                  v-model="timeOut"
+                ></ion-input>
+              </div>
             </div>
           </div>
+
+          <!-- <div class="card-inner-inner">
+            <ion-button
+              @click="handleSearch"
+              class="neomorphic-btn-2 search-btn"
+              color="none"
+              :style="{ backgroundColor: theme.primaryColor }"
+              ><ion-icon name="search"></ion-icon>Search</ion-button
+            >
+          </div> -->
         </ion-card>
 
-        <ion-card v-if="showCommentContainer" class="card comment-container">
+        <!-- <ion-card v-if="showCommentContainer" class="card comment-container">
           <ion-label :style="{ color: theme.primaryColor }">
             <strong>Reason*</strong>
           </ion-label>
@@ -99,9 +123,9 @@
           >
             Submit
           </ion-button>
-        </ion-card>
+        </ion-card> -->
 
-        <div class="result-container" v-if="results">
+        <!-- <div class="result-container" v-if="results">
           <OTCard
             v-for="result in results"
             :key="result.id"
@@ -118,9 +142,9 @@
             :reason="result.reason"
             @view="handleView(result)"
           />
-        </div>
+        </div> -->
       </div>
-      <ion-modal :is-open="isOpen" id="modal">
+      <!-- <ion-modal :is-open="isOpen" id="modal">
         <ion-card class="card-modal">
           <ion-icon
             @click="isOpen = false"
@@ -212,39 +236,16 @@
             </ion-row>
           </ion-grid>
         </ion-card>
-      </ion-modal>
+      </ion-modal> -->
 
       <ion-button
-        @click="toggleCommentContainer"
+        @click="handleSubmit"
         class="flex-right comment-btn-container neomorphic-btn-2"
         color="none"
         :style="{ backgroundColor: theme.primaryColor }"
       >
-        Comment
+        APPLY
       </ion-button>
-
-       <!-- alert successfully submitted -->
-       <ion-modal :is-open="isSuccessful" id="modal">
-          <ion-card class="card-modal">
-            <ion-card-header>
-              <ion-card-title class="modal-header">Success</ion-card-title>
-            </ion-card-header>
-            <ion-icon
-              name="checkmark-circle"
-              :style="{ color: theme.successColor }"
-              class="close-btn"
-            ></ion-icon>
-
-            <ion-grid class="modal-content">
-              <p>Apply OT Sent Successfully!</p>
-              <ion-row>
-                <ion-col>
-                  <ion-button @click="confirmSuccess">Okay</ion-button>
-                </ion-col>
-              </ion-row>
-            </ion-grid>
-          </ion-card>
-        </ion-modal>
     </ion-content>
   </ion-page>
 </template>
@@ -270,9 +271,6 @@ import {
   IonTextarea,
   IonSelect,
   IonSelectOption,
-  IonCardTitle,
-  IonCardHeader,
-  
 } from "@ionic/vue";
 import HeaderReturn from "@/components/header/HeaderReturn.vue";
 import { defineComponent } from "vue";
@@ -309,9 +307,7 @@ export default defineComponent({
     IonTextarea,
     IonSelect,
     IonSelectOption,
-    IonCardTitle,
-    IonCardHeader,
-    
+    toastController,
   },
   setup() {
     return {
@@ -321,7 +317,13 @@ export default defineComponent({
   },
   data() {
     const currentDate = new Date();
-    const formattedDate = currentDate.toISOString().split("T")[0];
+    const options = { timeZone: "Asia/Manila", hour12: false };
+    const formattedDate = currentDate.toLocaleDateString("en-CA", options);
+    const currentTime = currentDate.toLocaleTimeString("en-GB", {
+      ...options,
+      hour: "2-digit",
+      minute: "2-digit",
+    });
 
     return {
       headerTitle: "Approval",
@@ -342,7 +344,43 @@ export default defineComponent({
       storedToken: null,
       selectedReason: null,
       reasonOptions: [],
-      isSuccessful: false,
+      selectedDate: formattedDate,
+      timeIn: currentTime,
+      timeOut: currentTime,
+      typeOptions: [
+        {
+          id: "ordinary",
+          label: "Ordinary",
+        },
+        {
+          id: "rest_day",
+          label: "Rest Day",
+        },
+        {
+          id: "special_holiday",
+          label: "Special Holiday",
+        },
+        {
+          id: "legal_holiday",
+          label: "Legal Holiday",
+        },
+        {
+          id: "special_holiday_rest_day",
+          label: "Special Holiday Rest Day",
+        },
+        {
+          id: "legal_holiday_rest_day",
+          label: "Legal Holiday Rest Day",
+        },
+        {
+          id: "double_holiday",
+          label: "Double Holiday",
+        },
+        {
+          id: "double_holiday_rest_day",
+          label: "Double Holiday Rest Day",
+        },
+      ],
     };
   },
 
@@ -366,10 +404,11 @@ export default defineComponent({
         this.router.push("/login");
       }
     },
-
     toggleCommentContainer() {
       this.showCommentContainer = !this.showCommentContainer;
     },
+
+    // https://hrp-okada.bapplware.com/web/index.php/api/ess/pre-approved-overtime
 
     async handleSubmit() {
       try {
@@ -379,67 +418,57 @@ export default defineComponent({
 
         this.storedToken = localStorage.getItem("token");
         const baseURL = localStorage.getItem("baseUrl");
-        const apiUrl = baseURL + `api/v2/ess/overtime`;
-
-        if (!this.selectedReason || !this.comment) {
-          this.showErrorMessage("Please fill out all required fields.");
-          return;
-        }
-
-        const reasonIDs = [];
-
-        for (const requestDate of this.requestDates) {
-          reasonIDs.push({
-            reasonId: this.selectedReason,
-            date: requestDate,
-          });
-        }
+        const apiUrl = baseURL + `api/ess/pre-approved-overtime`;
 
         const payload = {
-          comment: this.comment,
-          fromDate: this.selectedDateFrom,
-          reasons: reasonIDs,
-          toDate: this.selectedDateTo,
-          requestDate: this.requestDateSelected,
+          date: this.selectedDate,
+          type: this.typeOptions,
+          timeIn: this.timeIn,
+          timeOut: this.timeOut,
         };
 
         const response = await axios.post(apiUrl, payload, {
           headers: {
-            "Content-Type": "application/json",
             Authorization: `Bearer ${this.storedToken}`,
           },
         });
 
         if (response.status >= 200 && response.status < 300) {
-          this.isSuccessful = true
-          // const toast = await toastController.create({
-          //   message: "Successfully Sent!",
-          //   duration: 3000,
-          //   position: "top",
-          //   icon: "alert-circle-outline",
-          //   buttons: [
-          //     {
-          //       icon: "close-outline",
-          //       role: "cancel",
-          //     },
-          //   ],
-          // });
-          // await toast.present();
+          await this.showToast("Successfully Sent!", "alert-circle-outline");
         }
       } catch (error) {
+        console.error("Error submitting overtime request: ", error);
         this.store.commit("loader/updateLoader", false);
-        console.error(
-          "Error submitting overtime request: ",
-          error.response.data.error.message
-        );
 
-        if (error.response.status === 500) {
-          this.showErrorMessage(error.response.data.error.message);
+        if (error.response) {
+          if (error.response.status === 500) {
+            this.showErrorMessage(error.response.data.error.message);
+          } else if (error.response.status === 403) {
+            this.showErrorMessage("Unauthorized!");
+          }
+        } else {
+          this.showErrorMessage("An unexpected error occurred.");
         }
       } finally {
         this.store.commit("loader/updateLoader", false);
         this.showCommentContainer = !this.showCommentContainer;
       }
+    },
+
+    async showToast(message, icon) {
+      const toast = await toastController.create({
+        message,
+        duration: 3000,
+        position: "top",
+        icon,
+        buttons: [
+          {
+            icon: "close-outline",
+            role: "cancel",
+          },
+        ],
+      });
+      await toast.present();
     },
 
     async fetchReasonOptions() {
@@ -485,7 +514,7 @@ export default defineComponent({
         const formattedDate = currentDate.toISOString().split("T")[0];
         const api =
           baseURL +
-          `api/ess/overtime?limit=50&offset=0&date=${formattedDate}&dateEnd=${formattedDate}`;
+          `api/v2/ess/overtime?limit=50&offset=0&date=${formattedDate}&dateEnd=${formattedDate}`;
         const dataResponse = await axios.get(api, { headers });
 
         this.results = dataResponse.data.data.map((val) => ({
@@ -541,7 +570,7 @@ export default defineComponent({
         const formattedDate = currentDate.toISOString().split("T")[0];
         const api =
           baseURL +
-          `api/ess/overtime?limit=50&offset=0&date=${this.selectedDateFrom}&dateEnd=${this.selectedDateTo}`;
+          `api/v2/ess/overtime?limit=50&offset=0&date=${this.selectedDateFrom}&dateEnd=${this.selectedDateTo}`;
         const dataResponse = await axios.get(api, { headers });
 
         this.results = dataResponse.data.data.map((val) => ({
@@ -597,17 +626,6 @@ export default defineComponent({
       }
     },
 
-    confirmSuccess() {
-      this.isSuccessful = false
-      
-      setTimeout(() => {
-            window.location.replace(
-              `/applyot`
-            );
-          }, 1000);
-    },
-
-
     handleView(result) {
       this.selectedResult = result;
       this.isOpen = true;
@@ -621,8 +639,7 @@ export default defineComponent({
       this.theme = themeData;
     },
   },
-  async created() {
-    await this.checkTokenExpiration();
+  created() {
     this.fetchTheme();
     this.fetchRequest();
     this.fetchReasonOptions();
@@ -644,6 +661,11 @@ export default defineComponent({
   width: fit-content;
 }
 
+.card-modal {
+  border-radius: 20px;
+  max-width: 400px;
+  margin-top: 50%;
+}
 .card-inner {
   display: flex;
   flex-direction: row;
@@ -675,6 +697,14 @@ export default defineComponent({
   color: #828282;
   border-radius: 20px;
   width: 90%;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-direction: row;
+  padding: 0 5px 0 20px;
 }
 
 .content-container {
@@ -758,41 +788,14 @@ ion-textarea {
   background-color: rgb(246, 246, 246);
   overflow: hidden;
 }
-
+.modal-content {
+  margin-top: 20px;
+}
 .date-input {
   display: flex;
   justify-content: center;
   align-items: center;
   text-align: center;
   width: 120px;
-}
-.modal-content {
-  margin: 0 0 10px 0;
-  text-align: center;
-}
-#modal {
-  --background: rgba(255, 0, 0, 0);
-}
-.modal-header {
-  text-align: center;
-  font-size: 18px
-}
-.card-modal {
-  border-radius: 20px;
-  max-width: 400px;
-  margin-top: 50%;
-}
-.close-btn {
-  position: absolute;
-  top: 5px;
-  right: 10px;
-  width: 30px;
-  height: 30px;
-  padding: 0;
-  margin: 0;
-  box-shadow: var(--neomorphism-convex-4);
-  border-radius: 50%;
-  background-color: rgb(246, 246, 246);
-  overflow: hidden;
 }
 </style>

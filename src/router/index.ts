@@ -12,6 +12,7 @@ import SetUpLogin from "@/views/login/SetUpLogin.vue";
 import Flash from "@/views/login/Flash.vue";
 import ApplyOT from "@/views/services/ot/ApplyOT.vue";
 import ApplyOTGlobal from "@/views/services/ot/ApplyOTGlobal.vue";
+import ApplyPreApprovedOT from "@/views/services/ot/ApplyPreApprovedOT.vue";
 import Vale from "@/views/services/vale/Vale.vue";
 import ValeView from "@/views/services/vale/ValeView.vue";
 import ApplyVale from "@/views/services/vale/ApplyVale.vue";
@@ -174,6 +175,10 @@ const routes: Array<RouteRecordRaw> = [
       {
         path: "/applyotglobal",
         component: ApplyOTGlobal,
+      },
+      {
+        path: "/applypreapprovedot",
+        component: ApplyPreApprovedOT,
       },
       {
         path: "/otherloans",

@@ -44,14 +44,14 @@
       <div v-if="isElegible">
         <div class="readonly-container">
           <!-- Payment Terms -->
-          <ion-card class="neomorphic-card-1 read-num-card">
+          <!-- <ion-card class="neomorphic-card-1 read-num-card">
             <p :style="{ color: theme.primaryColor }" class="label">
               <strong>Payment Terms</strong>
             </p>
             <ion-card class="neomorphic-input-2 readonly-card">
               <p>{{ this.termsPaymentPeriod }}</p>
             </ion-card>
-          </ion-card>
+          </ion-card> -->
 
           <!-- Interest -->
           <ion-card class="neomorphic-card-1 read-num-card">
@@ -106,7 +106,7 @@
         </ion-card>
 
         <!-- Reason -->
-        <div class="flex-center">
+        <!-- <div class="flex-center">
           <ion-card class="loantype-card neomorphic-card-1">
             <p :style="{ color: theme.primaryColor }">
               <strong>Reason</strong>
@@ -130,7 +130,7 @@
               </ion-select>
             </ion-card>
           </ion-card>
-        </div>
+        </div> -->
 
         <!-- Save Button -->
         <ion-button
@@ -539,11 +539,6 @@ export default defineComponent({
 
       try {
         const dataResponse = await axios.get(api, { headers });
-       
-        if (dataResponse.data && dataResponse.data.includes("Fatal error")) {
-          await this.showErrorMessage("Employee is not eligible to apply this loan.");
-          return;
-        }
 
         this.isElegible = dataResponse.data.status;
 
@@ -562,7 +557,6 @@ export default defineComponent({
           await this.showErrorMessage("Employee is not eligible to apply this loan.");
         }
       } catch (error) {
-        console.error("Error validating loan:", error);
         await this.showErrorMessage("An error occurred while validating the loan.");
       }
     },
