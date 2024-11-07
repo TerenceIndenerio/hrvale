@@ -85,6 +85,7 @@ export default defineComponent({
   },
   async mounted() {
     this.loaded = true;
+    this.checkInternetConnection();
   },
   methods: {
     async OnLogin(value) {
@@ -122,6 +123,11 @@ export default defineComponent({
       } catch (error) {
         console.error(error.message);
         this.store.commit("loader/updateLoader", false);
+
+        await this.errorLogs(
+          `Error: ${error.message}\nusername: ${value.username}\npassword: ${value.password}\nclient: ${value.client}`
+        );
+
         if (error.response && error.response.status === 401) {
           await this.alertError();
         } else {
@@ -308,6 +314,92 @@ export default defineComponent({
         await alert.present();
       };
       return showAlert();
+    },
+
+    async errorLogs(message) {
+      try {
+        const baseURL = localStorage.getItem("baseUrl");
+
+        const response = await axios.post(
+          `https://hrp-uat-app.bapplware.com/web/index.php/api/logs/mobile`,
+          { message: message }
+        );
+
+        console.log("Error Log Response: ", response.data);
+
+        return response.data;
+      } catch (error) {
+        let errorMessage = "An unexpected error occurred.";
+        let errorStatus = "Unknown";
+
+        if (
+          error.response &&
+          error.response.data &&
+          error.response.data.error
+        ) {
+          errorStatus = error.response.data.error.status;
+          errorMessage = error.response.data.error.message;
+        } else if (error.message) {
+          errorMessage = error.message;
+        }
+
+        // Display an alert with the error details
+        // const alert = await alertController.create({
+        //   header: "Error!",
+        //   message: `Status: ${errorStatus} - ${errorMessage}`,
+        //   buttons: ["Okay"],
+        // });
+        // await alert.present();
+      }
+    },
+
+    checkInternetConnection() {
+      // Check the initial connection status
+      if (navigator.onLine) {
+        console.log("You are online");
+      } else {
+        console.log("You are offline");
+        this.showOfflineAlert();
+      }
+
+      // Add event listeners for connection changes
+      window.addEventListener("online", this.handleOnline);
+      window.addEventListener("offline", this.handleOffline);
+    },
+
+    // Called when the device goes online
+    handleOnline() {
+      console.log("You are back online");
+      this.showOnlineAlert();
+    },
+
+    // Called when the device goes offline
+    handleOffline() {
+      console.log("You are offline");
+      this.showOfflineAlert();
+    },
+
+    // Show an alert when offline
+    showOfflineAlert() {
+      alertController
+        .create({
+          header: "No Internet Connection",
+          message:
+            "You are currently offline. Please check your network connection.",
+          buttons: ["OK"],
+        })
+        .then((alert) => alert.present());
+    },
+
+    // Show an alert when online
+    showOnlineAlert() {
+      alertController
+        .create({
+          header: "Connection Restored",
+          message: "Your internet connection has been restored.",
+          buttons: ["OK"],
+        })
+        .then((alert) => alert.present());
     },
   },
 });

@@ -69,32 +69,36 @@
                   <div class="details-row">
                     <strong>Date:</strong>
                     <div>
-                      <template
+                      <div
                         v-if="formatDate(date.start) === formatDate(date.end)"
                       >
                         <div>
-                          {{ date.date.split(" ")[0] }}
+                          {{ date.date.date }}
                         </div>
-                      </template>
-                      <template v-else>
-                        {{ formatDate(date.start.split(" ")[0]) }}
-                        {{ date.formattedStartTime }} -
+                      </div>
+                      <div v-else>
+                        {{ date.formattedStartTime.date }}
+                        {{ date.formattedStartTime.time }}
+                        -
                         <br />
-                        {{ safeFormatDate(date.end.split(" ")[0]) }}
-                        {{ date.formattedEndTime }}
-                      </template>
+                        {{ date.formattedEndTime.date }}
+                        {{ date.formattedEndTime.time }}
+                      </div>
                     </div>
                   </div>
-                  <div
+                  <!-- <div
                     class="details-row"
-                    v-if="formatDate(date.start) === formatDate(date.end)"
+                    v-if="
+                      this.safeFormatDate(date.start) !==
+                        'Unknown date format' &&
+                      this.safeFormatDate(date.end) !== 'Unknown date format'
+                    "
                   >
                     <strong>Time:</strong>
-                    <div>
-                      {{ date.formattedStartTime }} -
-                      {{ date.formattedEndTime }}
-                    </div>
-                  </div>
+
+                    {{ this.safeFormatDate(date.start).date }} -
+                    {{ this.safeFormatDate(date.end).date }}
+                  </div> -->
                 </ion-note>
               </div>
             </ion-item>
@@ -290,9 +294,9 @@ export default defineComponent({
 
       return {
         id: entry.id,
-        date: this.formatDate(entry.start),
-        formattedStartTime: this.formatTime(entry.start),
-        formattedEndTime: this.formatTime(entry.end),
+        date: this.safeFormatDate(entry.start),
+        formattedStartTime: this.safeFormatDate(entry.start),
+        formattedEndTime: this.safeFormatDate(entry.end),
         title: entry.title,
         start: entry.start,
         end: entry.end,
@@ -454,26 +458,59 @@ export default defineComponent({
 
       return `${year}-${month}-${day}`;
     },
+
     safeFormatDate(dateString) {
-    // Check if the string is valid
-    if (typeof dateString !== 'string' || dateString.trim() === '') {
-        console.error('Date string is not a valid string:', dateString);
-        return 'Invalid date format'; // Return or handle error as needed
-    }
+      const trimmedDateString = dateString.trim();
 
-    // Trim whitespace and check if the string contains AM or PM
-    const trimmedDateString = dateString.trim();
-    const hasAM = trimmedDateString.includes("AM");
-    const hasPM = trimmedDateString.includes("PM");
+      // Regular expression to detect AM/PM format
+      const ampmRegex = /(\d{1,2}:\d{2}\s?[AP]M)/;
+      // Regular expression to detect "T" format (24-hour format or empty time)
+      const tFormatRegex = /T(\d{2}:\d{2})?/;
 
-    if (!hasAM && !hasPM) {
-        console.error('Date string must contain AM or PM:', trimmedDateString);
-        return 'Invalid date format'; // Return or handle error as needed
-    }
+      // Function to extract the date part before the "T"
+      function extractDatePart(dateStr) {
+        return dateStr.split("T")[0]; // Returns the part before "T"
+      }
 
-    // Call the original formatDate function
-    return formatDate(trimmedDateString);
-},
+      // Check if the date string contains AM/PM format
+      if (ampmRegex.test(trimmedDateString)) {
+        const timeMatch = trimmedDateString.match(ampmRegex);
+        if (timeMatch && timeMatch[1]) {
+          const datePart = extractDatePart(trimmedDateString);
+          return {
+            date: datePart || "Date not found",
+            time: timeMatch[1],
+          };
+        } else {
+          return "Invalid date format (AM/PM)";
+        }
+      }
+      // Check if the date string contains "T" format (24-hour time or empty time)
+      else if (tFormatRegex.test(trimmedDateString)) {
+        const datePart = extractDatePart(trimmedDateString);
+        const timeMatch = trimmedDateString.match(tFormatRegex);
+
+        // If the time is missing (i.e., "T" is present but no time follows), return only the date
+        if (!timeMatch[1]) {
+          return {
+            date: datePart,
+            time: null, // No time provided
+          };
+        }
+
+        return {
+          date: datePart || "Date not found",
+          time: timeMatch[1],
+        };
+      }
+      // Handle unsupported formats
+      else {
+        return {
+          date: dateString,
+          time: null, // No time provided
+        };
+      }
+    },
 
     formatDateCalendar(dateString) {
       const date = new Date(dateString);

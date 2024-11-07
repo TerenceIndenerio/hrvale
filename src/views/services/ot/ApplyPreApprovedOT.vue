@@ -35,6 +35,7 @@
                   placeholder="Type..."
                   label="Select Type"
                   label-placement="floating"
+                  v-model="typeSelected"
                 >
                   <p>Select Type</p>
                   <ion-select-option
@@ -76,8 +77,53 @@
               </div>
             </div>
           </div>
+          <!-- Reason Dropdown -->
+          <div class="card-inner">
+            <div class="card-inner-inner">
+              <p :style="{ color: theme.primaryColor }" class="label">Reason</p>
+              <div class="neomorphic-datepicker-1 date-picker">
+                <ion-select
+                  placeholder="Select Reason..."
+                  v-model="reasonSelected"
+                  interface="popover"
+                  class=""
+                >
+                  <ion-select-option
+                    v-for="option in reasonOptions"
+                    :key="option.id"
+                    :value="option.type"
+                  >
+                    {{ option.content }}
+                  </ion-select-option>
+                </ion-select>
+              </div>
+            </div>
+            <ion-button
+              @click="handleSubmit"
+              class="comment-btn-container neomorphic-btn-2"
+              color="none"
+              :style="{ backgroundColor: theme.primaryColor }"
+            >
+              APPLY
+            </ion-button>
+          </div>
+          <!-- Show Textarea if "Others" is selected -->
+          <div
+            v-if="reasonSelected === 'Other'"
+            class="card-inner-inner text-area-container"
+          >
+            <p :style="{ color: theme.primaryColor }" class="label">
+              Other Reason
+            </p>
+            <ion-textarea
+              class="text-area-container"
+              v-model="otherReason"
+              placeholder="Specify other reason..."
+            ></ion-textarea>
+          </div>
+        </ion-card>
 
-          <!-- <div class="card-inner-inner">
+        <!-- <div class="card-inner-inner">
             <ion-button
               @click="handleSearch"
               class="neomorphic-btn-2 search-btn"
@@ -86,7 +132,6 @@
               ><ion-icon name="search"></ion-icon>Search</ion-button
             >
           </div> -->
-        </ion-card>
 
         <!-- <ion-card v-if="showCommentContainer" class="card comment-container">
           <ion-label :style="{ color: theme.primaryColor }">
@@ -124,27 +169,28 @@
             Submit
           </ion-button>
         </ion-card> -->
-
-        <!-- <div class="result-container" v-if="results">
-          <OTCard
+        <h2
+          class="filed-ot-title neomorphic-input-2"
+          :style="{ color: theme.primaryColor }"
+        >
+          Filed OT
+        </h2>
+        <div class="result-container" v-if="results">
+          <PreApprovedOTCard
             v-for="result in results"
             :key="result.id"
             :date="result.date"
             :status="result.status"
-            :scheduleIn="result.scheduleIn"
-            :scheduleOut="result.scheduleOut"
-            :actualIn="result.actualIn"
-            :actualOut="result.actualOut"
-            :day="result.day"
-            :fixedOtIn="result.fixedOtIn"
-            :fixedOtOut="result.fixedOtOut"
-            :otHours="result.otHours"
+            :type="result.type"
+            :timeIn="result.timeIn"
+            :timeOut="result.timeOut"
+            :totalOvertime="result.totalOvertime"
             :reason="result.reason"
             @view="handleView(result)"
           />
-        </div> -->
+        </div>
       </div>
-      <!-- <ion-modal :is-open="isOpen" id="modal">
+      <ion-modal :is-open="isOpen" id="modal">
         <ion-card class="card-modal">
           <ion-icon
             @click="isOpen = false"
@@ -168,7 +214,7 @@
                 <p><strong>OT Hours:</strong></p>
               </ion-col>
               <ion-col>
-                <p>{{ selectedResult.otHours }}</p>
+                <p>{{ selectedResult.totalOvertime }}</p>
               </ion-col>
             </ion-row>
 
@@ -177,7 +223,7 @@
                 <p><strong>Schedule In:</strong></p>
               </ion-col>
               <ion-col>
-                <p>{{ selectedResult.scheduleIn }}</p>
+                <p>{{ selectedResult.timeIn }}</p>
               </ion-col>
             </ion-row>
 
@@ -186,43 +232,7 @@
                 <p><strong>Schedule Out:</strong></p>
               </ion-col>
               <ion-col>
-                <p>{{ selectedResult.scheduleOut }}</p>
-              </ion-col>
-            </ion-row>
-
-            <ion-row>
-              <ion-col>
-                <p><strong>Actual In:</strong></p>
-              </ion-col>
-              <ion-col>
-                <p>{{ selectedResult.actualIn }}</p>
-              </ion-col>
-            </ion-row>
-
-            <ion-row>
-              <ion-col>
-                <p><strong>Actual Out:</strong></p>
-              </ion-col>
-              <ion-col>
-                <p>{{ selectedResult.actualOut }}</p>
-              </ion-col>
-            </ion-row>
-
-            <ion-row>
-              <ion-col>
-                <p><strong>Fixed OT:</strong></p>
-              </ion-col>
-              <ion-col>
-                <p>{{ selectedResult.fixedOtIn }}</p>
-              </ion-col>
-            </ion-row>
-
-            <ion-row>
-              <ion-col>
-                <p><strong>Fixed OT:</strong></p>
-              </ion-col>
-              <ion-col>
-                <p>{{ selectedResult.fixedOtOut }}</p>
+                <p>{{ selectedResult.timeOut }}</p>
               </ion-col>
             </ion-row>
 
@@ -236,16 +246,30 @@
             </ion-row>
           </ion-grid>
         </ion-card>
-      </ion-modal> -->
+      </ion-modal>
 
-      <ion-button
-        @click="handleSubmit"
-        class="flex-right comment-btn-container neomorphic-btn-2"
-        color="none"
-        :style="{ backgroundColor: theme.primaryColor }"
-      >
-        APPLY
-      </ion-button>
+      <!-- alert successfully submitted -->
+      <ion-modal :is-open="isSuccessful" id="modal">
+        <ion-card class="card-modal">
+          <ion-card-header>
+            <ion-card-title class="modal-header">Success</ion-card-title>
+          </ion-card-header>
+          <ion-icon
+            name="checkmark-circle"
+            :style="{ color: theme.successColor }"
+            class="close-btn"
+          ></ion-icon>
+
+          <ion-grid class="modal-content">
+            <p>Pre-approved OT Sent Successfully!</p>
+            <ion-row>
+              <ion-col>
+                <ion-button @click="confirmSuccess">Okay</ion-button>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </ion-card>
+      </ion-modal>
     </ion-content>
   </ion-page>
 </template>
@@ -271,11 +295,13 @@ import {
   IonTextarea,
   IonSelect,
   IonSelectOption,
+  IonCardTitle,
+  IonCardHeader,
 } from "@ionic/vue";
 import HeaderReturn from "@/components/header/HeaderReturn.vue";
 import { defineComponent } from "vue";
 import Refresher from "@/components/refresher/Refresher.vue";
-import OTCard from "@/views/services/ot/components/OTCard.vue";
+import PreApprovedOTCard from "@/views/services/ot/components/PreApprovedOTCard.vue";
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
 import axios from "axios";
@@ -293,7 +319,7 @@ export default defineComponent({
     IonLabel,
     Refresher,
     IonCard,
-    OTCard,
+    PreApprovedOTCard,
     IonButton,
     IonButtons,
     IonModal,
@@ -308,6 +334,8 @@ export default defineComponent({
     IonSelect,
     IonSelectOption,
     toastController,
+    IonCardTitle,
+    IonCardHeader,
   },
   setup() {
     return {
@@ -343,10 +371,11 @@ export default defineComponent({
       showCommentContainer: false,
       storedToken: null,
       selectedReason: null,
-      reasonOptions: [],
       selectedDate: formattedDate,
       timeIn: currentTime,
       timeOut: currentTime,
+      typeSelected: "",
+      isSuccessful: false,
       typeOptions: [
         {
           id: "ordinary",
@@ -381,6 +410,10 @@ export default defineComponent({
           label: "Double Holiday Rest Day",
         },
       ],
+      // reasonOption: [{ id: "others", label: "Others" }],
+      reasonSelected: "",
+      otherReason: "",
+      reasonOptions: null,
     };
   },
 
@@ -404,11 +437,42 @@ export default defineComponent({
         this.router.push("/login");
       }
     },
-    toggleCommentContainer() {
-      this.showCommentContainer = !this.showCommentContainer;
-    },
 
-    // https://hrp-okada.bapplware.com/web/index.php/api/ess/pre-approved-overtime
+    // api/ess/pre-approved-overtime?limit=50&offset=0
+
+    async fetchData() {
+      try {
+        this.store.commit("loader/updateLoader", true);
+
+        await this.checkTokenExpiration();
+
+        this.storedToken = localStorage.getItem("token");
+        const baseURL = localStorage.getItem("baseUrl");
+        const apiUrl = `${baseURL}api/ess/pre-approved-overtime?limit=15&offset=0`;
+
+        const response = await axios.get(apiUrl, {
+          headers: {
+            Authorization: `Bearer ${this.storedToken}`,
+          },
+        });
+
+        // Map the data response to this.results
+        this.results = response.data.data.map((val) => ({
+          id: val.id, // Mapping 'id' field
+          date: val.date,
+          type: val.type, // Mapping 'date' field
+          timeIn: val.timeIn, // Mapping 'timeIn' field
+          timeOut: val.timeOut, // Mapping 'timeOut' field
+          totalOvertime: val.totalOvertime, // Mapping 'totalOvertime'
+          reason: val.reason, // Mapping 'reason' field
+          status: val.status, // Mapping 'status' field
+        }));
+      } catch (error) {
+        console.error(error);
+      } finally {
+        this.store.commit("loader/updateLoader", false);
+      }
+    },
 
     async handleSubmit() {
       try {
@@ -420,12 +484,22 @@ export default defineComponent({
         const baseURL = localStorage.getItem("baseUrl");
         const apiUrl = baseURL + `api/ess/pre-approved-overtime`;
 
+        // Determine which reason to use based on the selection
+        const reasonToUse =
+          this.reasonSelected === "Other"
+            ? this.otherReason
+            : this.reasonSelected;
+            
+
         const payload = {
           date: this.selectedDate,
-          type: this.typeOptions,
+          type: this.reasonSelected,
           timeIn: this.timeIn,
           timeOut: this.timeOut,
+          reason: reasonToUse, // Use the determined reason here
         };
+
+        console.log(payload, reasonToUse);
 
         const response = await axios.post(apiUrl, payload, {
           headers: {
@@ -434,14 +508,15 @@ export default defineComponent({
         });
 
         if (response.status >= 200 && response.status < 300) {
-          await this.showToast("Successfully Sent!", "alert-circle-outline");
+          this.isSuccessful = true;
+          // await this.showToast("Successfully Sent!", "alert-circle-outline");
         }
       } catch (error) {
         console.error("Error submitting overtime request: ", error);
         this.store.commit("loader/updateLoader", false);
 
         if (error.response) {
-          if (error.response.status === 500) {
+          if (error.response.status === 500 || error.response.status === 400) {
             this.showErrorMessage(error.response.data.error.message);
           } else if (error.response.status === 403) {
             this.showErrorMessage("Unauthorized!");
@@ -453,6 +528,14 @@ export default defineComponent({
         this.store.commit("loader/updateLoader", false);
         this.showCommentContainer = !this.showCommentContainer;
       }
+    },
+
+    confirmSuccess() {
+      this.isSuccessful = false;
+
+      setTimeout(() => {
+        window.location.replace(`/applypreapprovedot`);
+      }, 1000);
     },
 
     async showToast(message, icon) {
@@ -487,124 +570,135 @@ export default defineComponent({
 
         const response = await axios.get(api, { headers });
 
+        // Assign the data from the response to reasonOptions
+        // this.reasonOptions = response.data.data;
+
         this.reasonOptions = response.data.data
-          .filter((item) => item.code == "overtime")
+          .filter((item) => item.code == "pre_approved_ot")
           .map((item) => ({
             id: item.id,
             type: item.type,
             content: item.content,
           }));
+
+        // Add the "Others" option to the reasonOptions array
+        this.reasonOptions.push({
+          id: "", // Use a unique ID for the "Others" option
+          type: "Other", // Set the type for "Others" appropriately
+          content: "Other", // Label for the "Others" option
+        });
+
+        console.log(this.reasonOptions);
       } catch (error) {
         console.error("Error fetching reason options:", error);
       }
     },
+    // async fetchRequest() {
+    //   try {
+    //     this.store.commit("loader/updateLoader", true);
+    //     await this.checkTokenExpiration();
 
-    async fetchRequest() {
-      try {
-        this.store.commit("loader/updateLoader", true);
-        await this.checkTokenExpiration();
+    //     this.storedToken = localStorage.getItem("token");
+    //     const baseURL = localStorage.getItem("baseUrl");
+    //     const headers = {
+    //       Authorization: `Bearer ${this.storedToken}`,
+    //     };
 
-        this.storedToken = localStorage.getItem("token");
-        const baseURL = localStorage.getItem("baseUrl");
-        const headers = {
-          Authorization: `Bearer ${this.storedToken}`,
-        };
+    //     const currentDate = new Date();
+    //     const formattedDate = currentDate.toISOString().split("T")[0];
+    //     const api =
+    //       baseURL +
+    //       `api/v2/ess/overtime?limit=50&offset=0&date=${formattedDate}&dateEnd=${formattedDate}`;
+    //     const dataResponse = await axios.get(api, { headers });
 
-        const currentDate = new Date();
-        const formattedDate = currentDate.toISOString().split("T")[0];
-        const api =
-          baseURL +
-          `api/v2/ess/overtime?limit=50&offset=0&date=${formattedDate}&dateEnd=${formattedDate}`;
-        const dataResponse = await axios.get(api, { headers });
+    //     this.results = dataResponse.data.data.map((val) => ({
+    //       date: val.date,
+    //       scheduleIn: val.scheduleIn,
+    //       scheduleOut: val.scheduleOut,
+    //       actualIn: val.actualIn,
+    //       actualOut: val.actualOut,
+    //       day: val.day,
+    //       fixedOtIn: val.fixedOtIn,
+    //       fixedOtOut: val.fixedOtOut,
+    //       otHours: val.otHours,
+    //       reason:
+    //         val.reasonOptions && val.reasonOptions.length > 0
+    //           ? val.reasonOptions[0].content
+    //           : "",
+    //     }));
 
-        this.results = dataResponse.data.data.map((val) => ({
-          date: val.date,
-          scheduleIn: val.scheduleIn,
-          scheduleOut: val.scheduleOut,
-          actualIn: val.actualIn,
-          actualOut: val.actualOut,
-          day: val.day,
-          fixedOtIn: val.fixedOtIn,
-          fixedOtOut: val.fixedOtOut,
-          otHours: val.otHours,
-          reason:
-            val.reasonOptions && val.reasonOptions.length > 0
-              ? val.reasonOptions[0].content
-              : "",
-        }));
+    //     this.requestDate = formattedDate;
 
-        this.requestDate = formattedDate;
+    //     this.requestDates = [this.requestDate];
 
-        this.requestDates = [this.requestDate];
+    //     function formatTime(dateTimeString) {
+    //       const time = new Date(dateTimeString);
+    //       return time.toLocaleTimeString([], {
+    //         hour: "2-digit",
+    //         minute: "2-digit",
+    //         hour12: true,
+    //       });
+    //     }
 
-        function formatTime(dateTimeString) {
-          const time = new Date(dateTimeString);
-          return time.toLocaleTimeString([], {
-            hour: "2-digit",
-            minute: "2-digit",
-            hour12: true,
-          });
-        }
+    //     this.store.commit("loader/updateLoader", false);
+    //   } catch (error) {
+    //     this.store.commit("loader/updateLoader", false);
 
-        this.store.commit("loader/updateLoader", false);
-      } catch (error) {
-        this.store.commit("loader/updateLoader", false);
+    //     this.showErrorMessage(error.response?.data?.error?.message);
+    //     const errorMessage = error.response.data.error.message;
+    //   }
+    // },
 
-        this.showErrorMessage(error.response?.data?.error?.message);
-        const errorMessage = error.response.data.error.message;
-      }
-    },
+    // async handleSearch() {
+    //   try {
+    //     this.store.commit("loader/updateLoader", true);
+    //     await this.checkTokenExpiration();
 
-    async handleSearch() {
-      try {
-        this.store.commit("loader/updateLoader", true);
-        await this.checkTokenExpiration();
+    //     this.storedToken = localStorage.getItem("token");
+    //     const baseURL = localStorage.getItem("baseUrl");
+    //     const headers = {
+    //       Authorization: `Bearer ${this.storedToken}`,
+    //     };
 
-        this.storedToken = localStorage.getItem("token");
-        const baseURL = localStorage.getItem("baseUrl");
-        const headers = {
-          Authorization: `Bearer ${this.storedToken}`,
-        };
+    //     const currentDate = new Date();
+    //     const formattedDate = currentDate.toISOString().split("T")[0];
+    //     const api =
+    //       baseURL +
+    //       `api/v2/ess/overtime?limit=50&offset=0&date=${this.selectedDateFrom}&dateEnd=${this.selectedDateTo}`;
+    //     const dataResponse = await axios.get(api, { headers });
 
-        const currentDate = new Date();
-        const formattedDate = currentDate.toISOString().split("T")[0];
-        const api =
-          baseURL +
-          `api/v2/ess/overtime?limit=50&offset=0&date=${this.selectedDateFrom}&dateEnd=${this.selectedDateTo}`;
-        const dataResponse = await axios.get(api, { headers });
+    //     this.results = dataResponse.data.data.map((val) => ({
+    //       date: val.date,
+    //       scheduleIn: val.scheduleIn,
+    //       scheduleOut: val.scheduleOut,
+    //       actualIn: val.actualIn,
+    //       actualOut: val.actualOut,
+    //       day: val.day,
+    //       fixedOtIn: val.fixedOtIn,
+    //       fixedOtOut: val.fixedOtOut,
+    //       otHours: val.otHours,
+    //       reason:
+    //         val.reasonOptions && val.reasonOptions.length > 0
+    //           ? val.reasonOptions[0].content
+    //           : "",
+    //     }));
 
-        this.results = dataResponse.data.data.map((val) => ({
-          date: val.date,
-          scheduleIn: val.scheduleIn,
-          scheduleOut: val.scheduleOut,
-          actualIn: val.actualIn,
-          actualOut: val.actualOut,
-          day: val.day,
-          fixedOtIn: val.fixedOtIn,
-          fixedOtOut: val.fixedOtOut,
-          otHours: val.otHours,
-          reason:
-            val.reasonOptions && val.reasonOptions.length > 0
-              ? val.reasonOptions[0].content
-              : "",
-        }));
+    //     function formatTime(dateTimeString) {
+    //       const time = new Date(dateTimeString);
+    //       return time.toLocaleTimeString([], {
+    //         hour: "2-digit",
+    //         minute: "2-digit",
+    //         hour12: true,
+    //       });
+    //     }
 
-        function formatTime(dateTimeString) {
-          const time = new Date(dateTimeString);
-          return time.toLocaleTimeString([], {
-            hour: "2-digit",
-            minute: "2-digit",
-            hour12: true,
-          });
-        }
+    //     this.store.commit("loader/updateLoader", false);
+    //   } catch (error) {
+    //     this.store.commit("loader/updateLoader", false);
 
-        this.store.commit("loader/updateLoader", false);
-      } catch (error) {
-        this.store.commit("loader/updateLoader", false);
-
-        this.showErrorMessage(error.response?.data?.error?.message);
-      }
-    },
+    //     this.showErrorMessage(error.response?.data?.error?.message);
+    //   }
+    // },
 
     async showErrorMessage(message) {
       try {
@@ -633,16 +727,15 @@ export default defineComponent({
 
     fetchTheme() {
       const storedThemeData = localStorage.getItem("themeData");
-
       const themeData = storedThemeData ? JSON.parse(storedThemeData) : {};
-
       this.theme = themeData;
     },
   },
-  created() {
+  async created() {
     this.fetchTheme();
-    this.fetchRequest();
+    // this.fetchRequest();
     this.fetchReasonOptions();
+    await this.fetchData();
     this.loading = false;
   },
 });
@@ -660,12 +753,12 @@ export default defineComponent({
   border-radius: 20px;
   width: fit-content;
 }
-
+/*
 .card-modal {
   border-radius: 20px;
   max-width: 400px;
   margin-top: 50%;
-}
+} */
 .card-inner {
   display: flex;
   flex-direction: row;
@@ -699,13 +792,13 @@ export default defineComponent({
   width: 90%;
 }
 
-.modal-header {
+/* .modal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   flex-direction: row;
   padding: 0 5px 0 20px;
-}
+} */
 
 .content-container {
   display: flex;
@@ -743,10 +836,13 @@ ion-textarea {
 }
 
 .comment-btn-container {
-  position: fixed;
-  bottom: 0;
+  /* position: fixed; */
+  /* bottom: 0;
   right: 0;
-  z-index: 999;
+  left: 0; */
+  margin: 20px auto 0 auto;
+  width: 100px;
+  /* z-index: 999; */
 }
 
 #modal {
@@ -775,6 +871,46 @@ ion-textarea {
   font-family: "Inter";
   font-size: 16px;
 }
+/* .close-btn {
+  position: absolute;
+  top: 5px;
+  right: 10px;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  margin: 0;
+  box-shadow: var(--neomorphism-convex-4);
+  border-radius: 50%;
+  background-color: rgb(246, 246, 246);
+  overflow: hidden;
+} */
+/* .modal-content {
+  margin-top: 20px;
+} */
+.date-input {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  width: 120px;
+}
+.modal-content {
+  margin: 0 0 10px 0;
+  text-align: left;
+  padding: 20px 10px;
+}
+#modal {
+  --background: rgba(255, 0, 0, 0);
+}
+.modal-header {
+  text-align: center;
+  font-size: 18px;
+}
+.card-modal {
+  border-radius: 20px;
+  max-width: 400px;
+  margin-top: 50%;
+}
 .close-btn {
   position: absolute;
   top: 5px;
@@ -787,15 +923,15 @@ ion-textarea {
   border-radius: 50%;
   background-color: rgb(246, 246, 246);
   overflow: hidden;
+  z-index: 1000;
 }
-.modal-content {
-  margin-top: 20px;
+.filed-ot-title {
+  font-size: large;
+  font-weight: bold;
+  padding: 5px 30px;
+  margin: 0 auto;
 }
-.date-input {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  width: 120px;
+.text-area-container {
+  margin: 0 auto;
 }
 </style>

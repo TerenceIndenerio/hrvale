@@ -334,6 +334,9 @@ export default defineComponent({
         case "other_loan":
           this.otherLoan(requestId, action, requestDataId);
           break;
+        case "pre_approved_ot":
+          this.PreApprovedOt(requestId, action, requestDataId);
+          break;
         default:
           break;
       }
@@ -524,6 +527,51 @@ export default defineComponent({
         this.showErrorMessage(error.response?.data?.error?.message);
       }
     },
+    // Pre Approved OT
+    // async PreApprovedOt(requestId, action, requestDataId) {
+    //   try {
+    //     this.store.commit("loader/updateLoader", true);
+
+    //     const storedToken = localStorage.getItem("token");
+    //     const baseURL = localStorage.getItem("baseUrl");
+    //     if (!storedToken) {
+    //       throw new Error("Authentication token is missing.");
+    //     }
+
+    //     const headers = {
+    //       Authorization: `Bearer ${storedToken}`,
+    //     };
+
+    //     const payloadVal = action === "approve" ? "approved" : "declined";
+    //     const payload =
+    //       action === "approve"
+    //         ? { status: "approved" }
+    //         : { status: "declined" };
+
+    //     const api =
+    //       baseURL +
+    //       "api/v2/admin/update-request/" +
+    //       requestId +
+    //       "?status=" +
+    //       payloadVal;
+    //     const dataResponse = await axios.put(api, payload, { headers });
+
+    //     const successMessage =
+    //       action === "approve"
+    //         ? "Overtime request successfully approved!"
+    //         : "Overtime request successfully declined";
+
+    //     if (dataResponse.status >= 200 && dataResponse.status < 300) {
+    //       this.showSuccessMessage(successMessage);
+    //     }
+
+    //     this.store.commit("loader/updateLoader", false);
+    //     this.fetchRequest();
+    //   } catch (error) {
+    //     console.error("Error updating overtime request: ", error);
+    //     this.showErrorMessage(error.response?.data?.error?.message);
+    //   }
+    // },
     // Attendance
     async attendanceCorrection(requestId, action) {
       try {
@@ -677,7 +725,7 @@ export default defineComponent({
 
         const status = action === "approve" ? "approved" : "declined";
 
-        const _status = {"status": status}
+        const _status = { status: status };
 
         const api = `${baseURL}api/v2/apply-vale/${requestDataId}`;
 
@@ -955,9 +1003,9 @@ export default defineComponent({
               "Employee Name": employeeName,
               "Request Type": requestType,
               "Leave Type": response.data.data[0].leaveType,
-             
+
               "Date Applied": date,
-              
+
               "Start Date": response.data.data[0].fromDate,
               "End Date": response.data.data[0].toDate,
               "Number Of Days": response.data.data[0].numberOfDays,

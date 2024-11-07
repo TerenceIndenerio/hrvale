@@ -64,7 +64,7 @@
           </div>
         </ion-card>
 
-        <ion-card v-if="showCommentContainer" class="card comment-container">
+        <!-- <ion-card v-if="showCommentContainer" class="card comment-container">
           <ion-label :style="{ color: theme.primaryColor }">
             <strong>Reason*</strong>
           </ion-label>
@@ -99,7 +99,7 @@
           >
             Submit
           </ion-button>
-        </ion-card>
+        </ion-card> -->
 
         <div class="result-container" v-if="results">
           <OTCard
@@ -117,9 +117,11 @@
             :otHours="result.otHours"
             :reason="result.reason"
             @view="handleView(result)"
+            @check="handleCheck"
           />
         </div>
       </div>
+
       <ion-modal :is-open="isOpen" id="modal">
         <ion-card class="card-modal">
           <ion-icon
@@ -214,37 +216,46 @@
         </ion-card>
       </ion-modal>
 
-      <ion-button
+      <!-- <ion-button
         @click="toggleCommentContainer"
         class="flex-right comment-btn-container neomorphic-btn-2"
         color="none"
         :style="{ backgroundColor: theme.primaryColor }"
       >
         Comment
+      </ion-button> -->
+
+      <ion-button
+        @click="handleSubmit"
+        class="apply-btn-container neomorphic-btn-2"
+        color="none"
+        :style="{ backgroundColor: theme.primaryColor }"
+      >
+        Apply Selected
       </ion-button>
 
-       <!-- alert successfully submitted -->
-       <ion-modal :is-open="isSuccessful" id="modal">
-          <ion-card class="card-modal">
-            <ion-card-header>
-              <ion-card-title class="modal-header">Success</ion-card-title>
-            </ion-card-header>
-            <ion-icon
-              name="checkmark-circle"
-              :style="{ color: theme.successColor }"
-              class="close-btn"
-            ></ion-icon>
+      <!-- alert successfully submitted -->
+      <ion-modal :is-open="isSuccessful" id="modal">
+        <ion-card class="card-modal">
+          <ion-card-header>
+            <ion-card-title class="modal-header">Success</ion-card-title>
+          </ion-card-header>
+          <ion-icon
+            name="checkmark-circle"
+            :style="{ color: theme.successColor }"
+            class="close-btn"
+          ></ion-icon>
 
-            <ion-grid class="modal-content">
-              <p>Apply OT Sent Successfully!</p>
-              <ion-row>
-                <ion-col>
-                  <ion-button @click="confirmSuccess">Okay</ion-button>
-                </ion-col>
-              </ion-row>
-            </ion-grid>
-          </ion-card>
-        </ion-modal>
+          <ion-grid class="modal-content">
+            <p>Apply OT Sent Successfully!</p>
+            <ion-row>
+              <ion-col>
+                <ion-button @click="confirmSuccess">Okay</ion-button>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </ion-card>
+      </ion-modal>
     </ion-content>
   </ion-page>
 </template>
@@ -272,7 +283,6 @@ import {
   IonSelectOption,
   IonCardTitle,
   IonCardHeader,
-  
 } from "@ionic/vue";
 import HeaderReturn from "@/components/header/HeaderReturn.vue";
 import { defineComponent } from "vue";
@@ -311,7 +321,6 @@ export default defineComponent({
     IonSelectOption,
     IonCardTitle,
     IonCardHeader,
-    
   },
   setup() {
     return {
@@ -343,6 +352,8 @@ export default defineComponent({
       selectedReason: null,
       reasonOptions: [],
       isSuccessful: false,
+      date: null,
+      dateEnd: null,
     };
   },
 
@@ -371,6 +382,33 @@ export default defineComponent({
       this.showCommentContainer = !this.showCommentContainer;
     },
 
+    handleCheck({ date, checked }) {
+      if (!this.checkedDates) {
+        this.checkedDates = [];
+      }
+
+      if (checked) {
+        this.checkedDates.push(date);
+      } else {
+        const index = this.checkedDates.indexOf(date);
+        if (index > -1) {
+          this.checkedDates.splice(index, 1);
+        }
+      }
+
+      if (this.checkedDates.length > 0) {
+        const sortedDates = this.checkedDates
+          .slice()
+          .sort((a, b) => new Date(a) - new Date(b));
+        this.date = sortedDates[0];
+        this.dateEnd = sortedDates[sortedDates.length - 1];
+      } else {
+        this.date = null;
+        this.dateEnd = null;
+      }
+      console.log(this.date, this.dateEnd);
+    },
+
     async handleSubmit() {
       try {
         this.store.commit("loader/updateLoader", true);
@@ -379,31 +417,10 @@ export default defineComponent({
 
         this.storedToken = localStorage.getItem("token");
         const baseURL = localStorage.getItem("baseUrl");
-        const apiUrl = baseURL + `api/v2/ess/overtime`;
 
-        if (!this.selectedReason || !this.comment) {
-          this.showErrorMessage("Please fill out all required fields.");
-          return;
-        }
+        const apiUrl = `${baseURL}api/ess/overtime?limit=50&offset=0&date=${this.date}&dateEnd=${this.dateEnd}`;
 
-        const reasonIDs = [];
-
-        for (const requestDate of this.requestDates) {
-          reasonIDs.push({
-            reasonId: this.selectedReason,
-            date: requestDate,
-          });
-        }
-
-        const payload = {
-          comment: this.comment,
-          fromDate: this.selectedDateFrom,
-          reasons: reasonIDs,
-          toDate: this.selectedDateTo,
-          requestDate: this.requestDateSelected,
-        };
-
-        const response = await axios.post(apiUrl, payload, {
+        const response = await axios.get(apiUrl, {
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${this.storedToken}`,
@@ -411,29 +428,16 @@ export default defineComponent({
         });
 
         if (response.status >= 200 && response.status < 300) {
-          this.isSuccessful = true
-          // const toast = await toastController.create({
-          //   message: "Successfully Sent!",
-          //   duration: 3000,
-          //   position: "top",
-          //   icon: "alert-circle-outline",
-          //   buttons: [
-          //     {
-          //       icon: "close-outline",
-          //       role: "cancel",
-          //     },
-          //   ],
-          // });
-          // await toast.present();
+          this.isSuccessful = true;
         }
       } catch (error) {
         this.store.commit("loader/updateLoader", false);
         console.error(
           "Error submitting overtime request: ",
-          error.response.data.error.message
+          error.response?.data?.error?.message || error.message
         );
 
-        if (error.response.status === 500) {
+        if (error.response && error.response.status === 500) {
           this.showErrorMessage(error.response.data.error.message);
         }
       } finally {
@@ -598,15 +602,12 @@ export default defineComponent({
     },
 
     confirmSuccess() {
-      this.isSuccessful = false
-      
-      setTimeout(() => {
-            window.location.replace(
-              `/applyot`
-            );
-          }, 1000);
-    },
+      this.isSuccessful = false;
 
+      setTimeout(() => {
+        window.location.replace(`/applyot`);
+      }, 1000);
+    },
 
     handleView(result) {
       this.selectedResult = result;
@@ -719,6 +720,15 @@ ion-textarea {
   z-index: 999;
 }
 
+.apply-btn-container {
+  position: fixed;
+  bottom: 10px;
+  right: 0;
+  left: 0;
+  margin: 0 auto;
+  z-index: 999;
+}
+
 #modal {
   --background: rgba(255, 0, 0, 0);
 }
@@ -775,7 +785,7 @@ ion-textarea {
 }
 .modal-header {
   text-align: center;
-  font-size: 18px
+  font-size: 18px;
 }
 .card-modal {
   border-radius: 20px;

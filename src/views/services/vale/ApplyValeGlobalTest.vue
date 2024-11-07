@@ -59,6 +59,22 @@
 
               <ion-row>
                 <ion-col size="6">
+                  <p>Months:</p>
+                </ion-col>
+                <ion-col size="6">
+                  <div class="amountApproval-input">
+                    <ion-input
+                      v-model="monthInput"
+                      type="number"
+                      placeholder="Enter amount"
+                      @ionChange="updateTotalLoan()"
+                    ></ion-input>
+                  </div>
+                </ion-col>
+              </ion-row>
+
+              <ion-row>
+                <ion-col size="6">
                   <p>Previous Balance:</p>
                 </ion-col>
                 <ion-col size="6">
@@ -103,6 +119,29 @@
                       :value="option.content"
                     >
                       {{ option.content }}
+                    </ion-select-option>
+                  </ion-select>
+                </ion-card>
+              </ion-col>
+
+              <!-- payment method -->
+              <ion-col class="reason-container">
+                <ion-label>
+                  <strong>Recepient Account*</strong>
+                </ion-label>
+                <ion-card class="reason-select-container neomorphic-input-2">
+                  <ion-select
+                    v-model="selectedPaymentMethod"
+                    label-placement="floating"
+                    placeholder="Payment Method"
+                  >
+                    <div slot="label">Select Recepient Account</div>
+                    <ion-select-option
+                      v-for="(option, index) in bankDetails"
+                      :key="index"
+                      :value="option.id"
+                    >
+                      {{ option.bankName }} - {{ option.accountNumber }}
                     </ion-select-option>
                   </ion-select>
                 </ion-card>
@@ -305,6 +344,7 @@ export default {
       finalReason: null,
       isSuccessful: false,
       valeID: null,
+      monthInput: 0,
       amortizationPercentage: 0,
       valeDataResult: {
         creditableService: "",
@@ -320,6 +360,9 @@ export default {
         balance: 0,
       },
       invalidAmount: false,
+      recepientAccount: ["GCash", "Maya", "Gotyme", "Bank"],
+      bankDetails: null,
+      selectedPaymentMethod: null,
     };
   },
   methods: {
@@ -348,6 +391,35 @@ export default {
           }));
       } catch (error) {
         console.error("Error fetching reason options:", error);
+      }
+    },
+
+    // https://hrp-uat-app.bapplware.com/web/index.php/api/v2/employee/profile/bank-details?limit=50&offset=0&empNumber=129&sortField=ebd.accountNumber&sortOrder=DESC
+    async fetchBankDetails(empNumber) {
+      try {
+        await this.checkTokenExpiration();
+
+        this.storedToken = localStorage.getItem("token");
+        const baseURL = localStorage.getItem("baseUrl");
+        const headers = {
+          Authorization: `Bearer ${this.storedToken}`,
+        };
+
+        const api =
+          baseURL +
+          `api/v2/employee/profile/bank-details?limit=50&offset=0&empNumber=${empNumber}&sortField=ebd.accountNumber&sortOrder=DESC`;
+
+        const response = await axios.get(api, { headers });
+
+        this.bankDetails = response.data.data.map((item) => ({
+          id: item.id,
+          accountNumber: item.accountNumber,
+          bankName: item.bankName,
+          branchName: item.branchName,
+          ifscCode: item.ifscCode,
+        }));
+      } catch (error) {
+        console.error("Error fetching bank details:", error);
       }
     },
 
@@ -386,19 +458,46 @@ export default {
       this.theme = themeData;
     },
 
+    // async applyVale() {
+    //   if (!this.reason || this.reason.trim() === "") {
+    //     this.showErrorMessage("Please fill in all required fields.");
+    //     return;
+    //   }
+
+    //   this.finalReason =
+    //     this.reason === "Others" ? this.reasonText.trim() : this.reason.trim();
+
+    //   if (!this.finalReason || !this.comment.trim()) {
+    //     this.showErrorMessage("Please fill in all required fields.");
+    //     return;
+    //   }
+
+    //   const approvalAmount = this.approvalAmount.replace(/,/g, "");
+    //   const loanBalance = this.valeDataResult.balance;
+
+    //   if (approvalAmount > loanBalance) {
+    //     this.isOpen = true;
+    //     this.showErrorMessage("Invalid Amount for Approval");
+    //     this.invalidAmount = true;
+    //   } else {
+    //     await this.proceedWithAPI(this.finalReason);
+    //   }
+
+    //   this.updateTotalLoan();
+    // },
+
     async applyVale() {
-      if (!this.reason || this.reason.trim() === "") {
+      if (
+        !this.reason?.trim() ||
+        !this.comment?.trim() ||
+        !this.selectedPaymentMethod
+      ) {
         this.showErrorMessage("Please fill in all required fields.");
         return;
       }
 
       this.finalReason =
         this.reason === "Others" ? this.reasonText.trim() : this.reason.trim();
-
-      if (!this.finalReason || !this.comment.trim()) {
-        this.showErrorMessage("Please fill in all required fields.");
-        return;
-      }
 
       const approvalAmount = this.approvalAmount.replace(/,/g, "");
       const loanBalance = this.valeDataResult.balance;
@@ -430,17 +529,12 @@ export default {
           loanAmount: loanAmount,
           reason: reason,
           comment: this.comment.trim(),
+          bankRecepient: this.selectedPaymentMethod,
         };
 
         const dataResponse = await axios.post(api, payload, { headers });
 
         if (dataResponse.status === 200) {
-          // this.showAlertMessage("Vale Applied Successfully!");
-          // setTimeout(() => {
-          //   window.location.replace(
-          //     `/viewvale?id=${dataResponse.data.data.id}`
-          //   );
-          // }, 1000);
           this.isSuccessful = true;
           this.valeID = dataResponse.data.data.id;
         }
@@ -572,12 +666,18 @@ export default {
     },
 
     formatApprovalAmount() {
-      let numberValue = parseFloat(this.approvalAmount.replace(/,/g, ""));
-      this.approvalAmount = numberValue.toLocaleString();
+      if (this.approvalAmount) {
+        let numberValue = parseFloat(this.approvalAmount.replace(/,/g, ""));
+        this.approvalAmount = numberValue.toLocaleString();
+      } else {
+        this.approvalAmount = null;
+      }
     },
 
     updateTotalLoan() {
       // console.log(this.valeDataResult.amortizationType);
+      const startOfPayment = this.valeDataResult.startOfPayment;
+      const loanInterest = this.valeDataResult.loanInterest;
       const amortizationType = this.valeDataResult.amortizationType;
       const approvalAmount = parseFloat(this.approvalAmount.replace(/,/g, ""));
       const previousBalance = parseFloat(
@@ -588,15 +688,20 @@ export default {
         this.valeDataResult.amortizationValue.replace(/,/g, "")
       );
 
-      if (amortizationType === "percentage") {
-        // Convert the whole number (amortizationValue) to decimal by dividing by 100
-        this.amortizationPercentage =
-          approvalAmount * (amortizationValue / 100);
-      } else if (amortizationType === "decimal") {
-        this.amortizationPercentage = approvalAmount / amortizationValue;
+      let NumofPayments = 0;
+      if (startOfPayment === "Every Payroll") {
+        NumofPayments = this.monthInput * 2;
+      } else {
+        NumofPayments = this.monthInput;
       }
 
-      this.totalLoan = approvalAmount + previousBalance;
+      let interestCalc =
+        approvalAmount * (loanInterest / 100) * this.monthInput;
+
+      if (approvalAmount && interestCalc) {
+        this.totalLoan = approvalAmount + previousBalance + interestCalc;
+        this.amortizationPercentage = this.totalLoan / NumofPayments;
+      }
       if (!isNaN(approvalAmount) && approvalAmount > 0) {
         if (approvalAmount <= availableAmount) {
           this.invalidAmount = false;
@@ -618,6 +723,7 @@ export default {
     this.fetchValeDetails();
     this.fetchLoanBudget();
     this.fetchReasonOptions();
+    this.fetchBankDetails(this.empNumber);
   },
 };
 </script>

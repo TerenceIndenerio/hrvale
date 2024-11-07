@@ -7,50 +7,55 @@
             {{ date }}
           </p>
         </div>
-        <ion-checkbox
-          v-model="isChecked"
-          @ionChange="handleCheck"
-          class="check-box"
-        ></ion-checkbox>
       </ion-col>
 
       <ion-row class="pad-w">
         <ion-col class="col-name">
-          <p>Day:</p>
+          <p>Time In:</p>
         </ion-col>
 
         <ion-col class="col-data">
-          <p>{{ day }}</p>
+          <p>{{ type }}</p>
         </ion-col>
       </ion-row>
 
       <ion-row class="pad-w">
         <ion-col class="col-name">
-          <p>Actual In:</p>
+          <p>Time In:</p>
         </ion-col>
 
         <ion-col class="col-data">
-          <p>{{ actualIn }}</p>
+          <p>{{ timeIn }}</p>
         </ion-col>
       </ion-row>
 
       <ion-row class="pad-w">
         <ion-col class="col-name">
-          <p>Actual Out:</p>
+          <p>Time Out:</p>
         </ion-col>
 
         <ion-col class="col-data">
-          <p>{{ actualOut }}</p>
+          <p>{{ timeOut }}</p>
         </ion-col>
       </ion-row>
 
       <ion-row class="pad-w">
         <ion-col class="col-name">
-          <p>Reason:</p>
+          <p>Total Overtime:</p>
         </ion-col>
 
         <ion-col class="col-data">
-          <p>{{ reason }}</p>
+          <p>{{ totalOvertime }} hours</p>
+        </ion-col>
+      </ion-row>
+
+      <ion-row class="pad-w">
+        <ion-col class="col-name">
+          <p>Status:</p>
+        </ion-col>
+
+        <ion-col class="col-data">
+          <p>{{ status }}</p>
         </ion-col>
       </ion-row>
 
@@ -69,14 +74,7 @@
 </template>
 
 <script>
-import {
-  IonCard,
-  IonCol,
-  IonGrid,
-  IonRow,
-  IonButton,
-  IonCheckbox,
-} from "@ionic/vue";
+import { IonCard, IonCol, IonGrid, IonRow, IonButton } from "@ionic/vue";
 import { getThemeData } from "@/theme/theme";
 
 export default {
@@ -86,46 +84,37 @@ export default {
     IonGrid,
     IonRow,
     IonButton,
-    IonCheckbox,
   },
   props: {
-    date: String,
-    day: String,
-    scheduleIn: String,
-    scheduleOut: String,
-    fixedOtIn: String,
-    fixedOtOut: String,
-    actualIn: String,
-    actualOut: String,
-    otHours: String,
-    reason: String,
-    result: Object,
+    type: String,
+    date: String, // Mapping 'date' field
+    timeIn: String, // Mapping 'timeIn' field
+    timeOut: String, // Mapping 'timeOut' field
+    totalOvertime: Number, // Mapping 'totalOvertime' field
+    reason: String, // Mapping 'reason' field
+    status: String, // Mapping 'status' field
+    result: Object, // Object containing full result details
   },
   data() {
     return {
       theme: {},
-      isChecked: false,
     };
   },
   methods: {
     handleView() {
-      this.$emit("view", this.result);
-      console.log("Clicked View");
+      this.$emit("view", this.result); // Emit event with full result object
     },
-    handleCheck() {
-      this.$emit("check", { date: this.date, checked: this.isChecked });
-    },
+
     getTheme() {
       const storedThemeData = getThemeData();
 
       if (storedThemeData) {
         this.theme = storedThemeData;
       }
-      this.theme = storedThemeData;
     },
   },
   created() {
-    this.getTheme();
+    this.getTheme(); // Fetch and apply theme when component is created
   },
 };
 </script>
@@ -262,10 +251,5 @@ p {
   height: fit-content;
   color: #000000;
   margin-top: 15px;
-}
-.check-box {
-  position: absolute;
-  top: 10px;
-  left: 0;
 }
 </style>

@@ -42,37 +42,19 @@
       </div>
 
       <div v-if="isElegible">
-        <div class="readonly-container">
-          <!-- Payment Terms -->
-          <!-- <ion-card class="neomorphic-card-1 read-num-card">
-            <p :style="{ color: theme.primaryColor }" class="label">
-              <strong>Payment Terms</strong>
-            </p>
-            <ion-card class="neomorphic-input-2 readonly-card">
-              <p>{{ this.termsPaymentPeriod }}</p>
-            </ion-card>
-          </ion-card> -->
-
-          <!-- Interest -->
-          <ion-card class="neomorphic-card-1 read-num-card">
-            <p :style="{ color: theme.primaryColor }" class="label">
-              <strong>Interest</strong>
-            </p>
-            <ion-card class="neomorphic-input-2 readonly-card">
-              <p>{{ this.loanInterest }}</p>
-            </ion-card>
-          </ion-card>
-
-          <!-- Amortization -->
-          <ion-card class="neomorphic-card-1 read-num-card">
-            <p :style="{ color: theme.primaryColor }" class="label">
-              <strong>Amortization</strong>
-            </p>
-            <ion-card class="neomorphic-input-2 readonly-card">
-              <p>{{ this.amortization }}</p>
-            </ion-card>
-          </ion-card>
-        </div>
+         <!-- Loan Date & Start of Payment -->
+         <ion-card class="neomorphic-card-1 selectdate-card">
+          <div class="selectdate-container">
+            <div class="selectdate-container-inner">
+              <p :style="{ color: theme.primaryColor }" class="label">
+                <strong>Loan Date</strong>
+              </p>
+              <div class="select-option neomorphic-input-2">
+                <ion-input type="date" v-model="loanDate" />
+              </div>
+            </div>
+          </div>
+        </ion-card>
 
         <!-- Loan Amount -->
         <ion-card class="neomorphic-card-1 input-num-card">
@@ -90,20 +72,42 @@
             ></ion-input>
           </ion-card>
         </ion-card>
+        
+        <div class="readonly-container">
+          <!-- Payment Terms -->
+          <!-- <ion-card class="neomorphic-card-1 read-num-card">
+            <p :style="{ color: theme.primaryColor }" class="label">
+              <strong>Payment Terms</strong>
+            </p>
+            <ion-card class="neomorphic-input-2 readonly-card">
+              <p>{{ this.termsPaymentPeriod }}</p>
+            </ion-card>
+          </ion-card> -->
 
-        <!-- Loan Date & Start of Payment -->
-        <ion-card class="neomorphic-card-1 selectdate-card">
-          <div class="selectdate-container">
-            <div class="selectdate-container-inner">
-              <p :style="{ color: theme.primaryColor }" class="label">
-                <strong>Loan Date</strong>
-              </p>
-              <div class="select-option neomorphic-input-2">
-                <ion-input type="date" v-model="loanDate" />
-              </div>
-            </div>
-          </div>
-        </ion-card>
+          <!-- Interest -->
+          <!-- <ion-card class="neomorphic-card-1 read-num-card">
+            <p :style="{ color: theme.primaryColor }" class="label">
+              <strong>Interest</strong>
+            </p>
+            <ion-card class="neomorphic-input-2 readonly-card">
+              <p>{{ this.loanInterest }}</p>
+            </ion-card>
+          </ion-card> -->
+
+          <!-- Amortization -->
+          <ion-card class="neomorphic-card-1 read-num-card">
+            <p :style="{ color: theme.primaryColor }" class="label">
+              <strong>Amortization</strong>
+            </p>
+            <ion-card class="neomorphic-input-2 readonly-card">
+              <p>{{ this.amortization }}</p>
+            </ion-card>
+          </ion-card>
+        </div>
+
+        
+
+       
 
         <!-- Reason -->
         <!-- <div class="flex-center">

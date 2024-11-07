@@ -61,6 +61,7 @@ import Document from "@/views/services/document/Document.vue";
 import MyTraining from "@/views/services/trainings/MyTraining.vue";
 import MyAssessment from "@/views/services/trainings/MyAssessment.vue";
 import ViewEmployeeSession from "@/views/services/trainings/ViewEmployeeSession.vue";
+import ApplyValeGlobalTest from "@/views/services/vale/ApplyValeGlobalTest.vue";
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -201,6 +202,10 @@ const routes: Array<RouteRecordRaw> = [
       {
         path: "/valesuysing",
         component: ValeSuysingVersion,
+      },
+      {
+        path: "/applyvaleglobaltest",
+        component: ApplyValeGlobalTest,
       },
 
       {

@@ -59,6 +59,29 @@
 
               <ion-row>
                 <ion-col size="6">
+                  <p>Months:</p>
+                </ion-col>
+                <ion-col size="6">
+                  <div class="amountApproval-input">
+                    <ion-select
+                      v-model="monthInput"
+                      placeholder="Select months"
+                      @ionChange="updateTotalLoan()"
+                    >
+                      <ion-select-option
+                        v-for="month in monthOptions"
+                        :key="month"
+                        :value="month"
+                      >
+                        {{ month }}
+                      </ion-select-option>
+                    </ion-select>
+                  </div>
+                </ion-col>
+              </ion-row>
+
+              <ion-row>
+                <ion-col size="6">
                   <p>Previous Balance:</p>
                 </ion-col>
                 <ion-col size="6">
@@ -207,6 +230,29 @@
             </ion-grid>
           </ion-card>
         </ion-modal>
+
+        <!-- alert successfully submitted -->
+        <ion-modal :is-open="isSuccessful" id="modal">
+          <ion-card class="card-modal">
+            <ion-card-header>
+              <ion-card-title class="modal-header">Success</ion-card-title>
+            </ion-card-header>
+            <ion-icon
+              name="checkmark-circle"
+              :style="{ color: theme.successColor }"
+              class="close-btn"
+            ></ion-icon>
+
+            <ion-grid class="modal-content">
+              <p>Vale Applied Successfully!</p>
+              <ion-row>
+                <ion-col>
+                  <ion-button @click="confirmSuccess">Okay</ion-button>
+                </ion-col>
+              </ion-row>
+            </ion-grid>
+          </ion-card>
+        </ion-modal>
       </div>
       <!-- </div> -->
     </ion-content>
@@ -303,7 +349,12 @@ export default {
       reasonText: null,
       isOpen: false,
       finalReason: null,
+      isSuccessful: false,
+      valeID: null,
+      monthInput: 0,
       amortizationPercentage: 0,
+      monthInput: 0,
+      monthOptions: [1, 3, 6, 12],
       valeDataResult: {
         creditableService: "",
         rulePerYearOfService: "",
@@ -318,9 +369,9 @@ export default {
         balance: 0,
       },
       invalidAmount: false,
-      selectedPaymentMethod: "",
       recepientAccount: ["GCash", "Maya", "Gotyme", "Bank"],
       bankDetails: null,
+      selectedPaymentMethod: null,
     };
   },
   methods: {
@@ -416,8 +467,40 @@ export default {
       this.theme = themeData;
     },
 
+    // async applyVale() {
+    //   if (!this.reason || this.reason.trim() === "") {
+    //     this.showErrorMessage("Please fill in all required fields.");
+    //     return;
+    //   }
+
+    //   this.finalReason =
+    //     this.reason === "Others" ? this.reasonText.trim() : this.reason.trim();
+
+    //   if (!this.finalReason || !this.comment.trim()) {
+    //     this.showErrorMessage("Please fill in all required fields.");
+    //     return;
+    //   }
+
+    //   const approvalAmount = this.approvalAmount.replace(/,/g, "");
+    //   const loanBalance = this.valeDataResult.balance;
+
+    //   if (approvalAmount > loanBalance) {
+    //     this.isOpen = true;
+    //     this.showErrorMessage("Invalid Amount for Approval");
+    //     this.invalidAmount = true;
+    //   } else {
+    //     await this.proceedWithAPI(this.finalReason);
+    //   }
+
+    //   this.updateTotalLoan();
+    // },
+
     async applyVale() {
-      if (!this.reason || this.reason.trim() === "") {
+      if (
+        !this.reason?.trim() ||
+        !this.comment?.trim() ||
+        !this.selectedPaymentMethod
+      ) {
         this.showErrorMessage("Please fill in all required fields.");
         return;
       }
@@ -425,22 +508,15 @@ export default {
       this.finalReason =
         this.reason === "Others" ? this.reasonText.trim() : this.reason.trim();
 
-      if (!this.finalReason || !this.comment.trim()) {
-        this.showErrorMessage("Please fill in all required fields.");
-        return;
-      }
-
-      const approvalAmount = parseInt(this.approvalAmount.replace(/,/g, ""));
-      const loanBalance = parseInt(this.valeDataResult.balance);
-      console.log(approvalAmount, loanBalance)
+      const approvalAmount = this.approvalAmount.replace(/,/g, "");
+      const loanBalance = this.valeDataResult.balance;
 
       if (approvalAmount > loanBalance) {
+        this.isOpen = true;
         this.showErrorMessage("Invalid Amount for Approval");
         this.invalidAmount = true;
-        this.isOpen = true;
       } else {
         await this.proceedWithAPI(this.finalReason);
-       
       }
 
       this.updateTotalLoan();
@@ -448,6 +524,7 @@ export default {
 
     async proceedWithAPI(reason) {
       try {
+        this.store.commit("loader/updateLoader", true);
         const headers = {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         };
@@ -461,18 +538,14 @@ export default {
           loanAmount: loanAmount,
           reason: reason,
           comment: this.comment.trim(),
-          bankRecipient: this.selectedPaymentMethod,
+          bankRecepient: this.selectedPaymentMethod,
         };
 
         const dataResponse = await axios.post(api, payload, { headers });
 
         if (dataResponse.status === 200) {
-          this.showAlertMessage("Vale Applied Successfully!");
-          setTimeout(() => {
-            window.location.replace(
-              `/viewvale?id=${dataResponse.data.data.id}`
-            );
-          }, 1000);
+          this.isSuccessful = true;
+          this.valeID = dataResponse.data.data.id;
         }
       } catch (error) {
         this.showErrorMessage(error.response?.data?.error?.message);
@@ -480,6 +553,14 @@ export default {
       } finally {
         this.store.commit("loader/updateLoader", false);
       }
+    },
+
+    confirmSuccess() {
+      this.isSuccessful = false;
+
+      setTimeout(() => {
+        window.location.replace(`/viewvale?id=${this.valeID}`);
+      }, 1000);
     },
 
     confirmProceed() {
@@ -547,6 +628,7 @@ export default {
           budget: dataResponse.data.data.budget,
           balance: dataResponse.data.data.loanableAmount || 0,
           availableAmount: dataResponse.data.data.availableAmount,
+          amortizationType: dataResponse.data.data.amortizationType,
         };
       } catch (error) {
         this.showErrorMessage(error.response.data.error.message);
@@ -593,11 +675,19 @@ export default {
     },
 
     formatApprovalAmount() {
-      let numberValue = parseFloat(this.approvalAmount.replace(/,/g, ""));
-      this.approvalAmount = numberValue.toLocaleString();
+      if (this.approvalAmount) {
+        let numberValue = parseFloat(this.approvalAmount.replace(/,/g, ""));
+        this.approvalAmount = numberValue.toLocaleString();
+      } else {
+        this.approvalAmount = null;
+      }
     },
 
     updateTotalLoan() {
+      // console.log(this.valeDataResult.amortizationType);
+      const startOfPayment = this.valeDataResult.startOfPayment;
+      const loanInterest = this.valeDataResult.loanInterest;
+      const amortizationType = this.valeDataResult.amortizationType;
       const approvalAmount = parseFloat(this.approvalAmount.replace(/,/g, ""));
       const previousBalance = parseFloat(
         this.valeDataResult.previousBalance.replace(/,/g, "")
@@ -606,14 +696,30 @@ export default {
       const amortizationValue = parseFloat(
         this.valeDataResult.amortizationValue.replace(/,/g, "")
       );
-      this.amortizationPercentage = approvalAmount / amortizationValue;
-      this.totalLoan = approvalAmount + previousBalance;
+
+      let NumofPayments = 0;
+      if (startOfPayment === "Every Payroll") {
+        NumofPayments = this.monthInput * 2;
+      } else {
+        NumofPayments = this.monthInput;
+      }
+
+      let interestCalc =
+        approvalAmount * (loanInterest / 100) * this.monthInput;
+
+      if (approvalAmount && interestCalc) {
+        this.totalLoan = approvalAmount + previousBalance + interestCalc;
+        this.amortizationPercentage =
+          Math.round(
+            ((this.totalLoan * (interestCalc / 100)) /
+              NumofPayments /
+              this.monthInput) *
+              100
+          ) / 100;
+      }
       if (!isNaN(approvalAmount) && approvalAmount > 0) {
         if (approvalAmount <= availableAmount) {
           this.invalidAmount = false;
-        } else {
-          this.showErrorMessage("Invalid Amount for Approval");
-          this.invalidAmount = true;
         }
       } else {
         this.totalLoan = previousBalance;
