@@ -165,6 +165,7 @@ export default defineComponent({
         "Attendance",
         "Schedule Adjustment",
         "Other Loan",
+        "Pre Approved Ot"
       ],
       results: [],
       filteredResults: [],
@@ -528,50 +529,50 @@ export default defineComponent({
       }
     },
     // Pre Approved OT
-    // async PreApprovedOt(requestId, action, requestDataId) {
-    //   try {
-    //     this.store.commit("loader/updateLoader", true);
+    async PreApprovedOt(requestId, action, requestDataId) {
+      try {
+        this.store.commit("loader/updateLoader", true);
 
-    //     const storedToken = localStorage.getItem("token");
-    //     const baseURL = localStorage.getItem("baseUrl");
-    //     if (!storedToken) {
-    //       throw new Error("Authentication token is missing.");
-    //     }
+        const storedToken = localStorage.getItem("token");
+        const baseURL = localStorage.getItem("baseUrl");
+        if (!storedToken) {
+          throw new Error("Authentication token is missing.");
+        }
 
-    //     const headers = {
-    //       Authorization: `Bearer ${storedToken}`,
-    //     };
+        const headers = {
+          Authorization: `Bearer ${storedToken}`,
+        };
 
-    //     const payloadVal = action === "approve" ? "approved" : "declined";
-    //     const payload =
-    //       action === "approve"
-    //         ? { status: "approved" }
-    //         : { status: "declined" };
+        const payloadVal = action === "approve" ? "approved" : "declined";
+        const payload =
+          action === "approve"
+            ? { status: "approved" }
+            : { status: "declined" };
 
-    //     const api =
-    //       baseURL +
-    //       "api/v2/admin/update-request/" +
-    //       requestId +
-    //       "?status=" +
-    //       payloadVal;
-    //     const dataResponse = await axios.put(api, payload, { headers });
+        const api =
+          baseURL +
+          "api/v2/admin/update-request/" +
+          requestId +
+          "?status=" +
+          payloadVal;
+        const dataResponse = await axios.put(api, payload, { headers });
 
-    //     const successMessage =
-    //       action === "approve"
-    //         ? "Overtime request successfully approved!"
-    //         : "Overtime request successfully declined";
+        const successMessage =
+          action === "approve"
+            ? "Pre-approve OT request successfully approved!"
+            : "Pre-approve OT request successfully declined";
 
-    //     if (dataResponse.status >= 200 && dataResponse.status < 300) {
-    //       this.showSuccessMessage(successMessage);
-    //     }
+        if (dataResponse.status >= 200 && dataResponse.status < 300) {
+          this.showSuccessMessage(successMessage);
+        }
 
-    //     this.store.commit("loader/updateLoader", false);
-    //     this.fetchRequest();
-    //   } catch (error) {
-    //     console.error("Error updating overtime request: ", error);
-    //     this.showErrorMessage(error.response?.data?.error?.message);
-    //   }
-    // },
+        this.store.commit("loader/updateLoader", false);
+        this.fetchRequest();
+      } catch (error) {
+        console.error("Error updating Pre-approve OT request: ", error);
+        this.showErrorMessage(error.response?.data?.error?.message);
+      }
+    },
     // Attendance
     async attendanceCorrection(requestId, action) {
       try {
@@ -1100,6 +1101,19 @@ export default defineComponent({
               "Applying Actual Out": response.data.data[0].applyingActualOut,
               "Applied Date": response.data.data[0].appliedDate,
               Day: response.data.data[0].day,
+              Reason: response.data.data[0].reason,
+            };
+            break;
+          case "pre_approved_ot":
+            console.log("Handling Pre-approved OT Request");
+            this.responseDetails = {
+              "Employee Id": employeeId,
+              "Employee Name": employeeName,
+              "Request Type": requestType,
+              Status: status,
+              "Date Applied": date,
+              Date: response.data.data[0].date,
+              "Total Hours": response.data.data[0].totalHours,
               Reason: response.data.data[0].reason,
             };
             break;
