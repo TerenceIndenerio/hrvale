@@ -12,8 +12,10 @@
             labelPlacement="floating"
             class="input-text"
             required
+            @ionChange="handleInputChange"
           ></ion-input>
         </div>
+
 
         <div class="box-container text-pad">
           <ion-input
@@ -90,7 +92,11 @@ export default {
   },
   emits: ["login"],
   methods: {
+    handleInputChange(event) {
+      this.form.client = event.target.value.toLowerCase();
+    },
     submitForm() {
+
       this.$emit("login", this.form);
     },
     togglePasswordVisibility() {

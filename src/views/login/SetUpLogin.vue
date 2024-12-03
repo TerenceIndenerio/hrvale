@@ -130,7 +130,8 @@ export default defineComponent({
 
         if (error.response && error.response.status === 401) {
           await this.alertError();
-        } else {
+        } 
+        else {
           await this.maintenanceAlertError();
         }
       }
@@ -193,7 +194,7 @@ export default defineComponent({
             await runBackgroundScript();
 
             localStorage.setItem("pincode", response.data.data.pincode);
-            this.router.push("/tabs/buzzfeed");
+            this.router.push("/WelcomeTermsAndCondition");
           } catch (innerError) {
             console.log(innerError.message);
             location.reload();

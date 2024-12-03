@@ -81,7 +81,8 @@ export default defineComponent({
     isChecked(newValue) {
       if (newValue) {
         console.log("Checkbox is checked!");
-        this.router.push("/setuplogin");
+        // this.router.push("/setuplogin");
+        this.router.push("/tabs/buzzfeed");
       }
     },
   },

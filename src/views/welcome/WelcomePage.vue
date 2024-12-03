@@ -165,7 +165,7 @@ export default defineComponent({
   setup() {
     const router = useRouter();
     const continueClicked = () => {
-      router.push("/WelcomeTermsAndCondition");
+      router.push("/setuplogin");
     };
 
     return {
