@@ -252,6 +252,11 @@ const routes: Array<RouteRecordRaw> = [
         path: "/viewemployeesession",
         component: ViewEmployeeSession,
       },
+      // Suysing
+      {
+        path: "suysing_services",
+        component: () => import("@/views/Suysing/services/Services.vue"),
+      },
     ],
   },
   {

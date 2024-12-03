@@ -472,14 +472,18 @@ export default defineComponent({
 
         if (
           !this.loanAmount ||
-          !this.selectedReason ||
-          !this.selectedReason.content || // added check for selectedReason
+          // !this.selectedReason ||
+          // !this.selectedReason.content || // added check for selectedReason
           !this.selectedLoanType ||
           !this.loanDate
         ) {
           await this.showErrorMessage("Please complete all required fields.");
+          console.log(this.loanAmount,
+          this.selectedLoanType,
+          this.loanDate)
           return;
         }
+        
 
         const empID = Number(localStorage.getItem("empNumber"));
 
@@ -492,7 +496,7 @@ export default defineComponent({
           loanDate: this.loanDate,
           loanType: this.selectedLoanType,
           paymentTerms: this.paymentTerms,
-          reason: this.selectedReason.content,
+          // reason: this.selectedReason.content,
         };
 
         this.storedToken = localStorage.getItem("token");
@@ -511,7 +515,7 @@ export default defineComponent({
           await this.showErrorMessage(dataResponse.message);
         }
       } catch (error) {
-        console.error(error);
+        // console.error(error);
         if (
           error.response &&
           error.response.data &&
