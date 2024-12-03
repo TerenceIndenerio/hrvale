@@ -1,0 +1,398 @@
+<template>
+  <ion-page>
+    <HeaderReturnNotification
+      v-if="!loading"
+      :headerTitle="headerTitle"
+      :headerColor="theme.primaryColor"
+      :headerTextColor="theme.primaryFontColor"
+    />
+    <ion-content :fullscreen="true" v-if="!loading">
+      <Refresher />
+
+      <div class="result-container">
+        <div
+          v-for="(result, index) in results"
+          :key="index"
+          class="neomorphic-card-1 result-item"
+          :class="{ expanded: result.expanded }"
+          @click="toggleExpand(result)"
+        >
+          <div class="notif-inner-item">
+            <h5 class="notif-title" :style="{ color: theme.primaryColor }">
+              {{ result.title }}
+            </h5>
+
+            <p
+              class="message"
+              :class="{ collapse: !result.expanded }"
+              :style="{ maxHeight: result.expanded ? 'none' : '35px' }"
+            >
+              {{ result.message }}
+            </p>
+
+            <button class="expand-button">
+              <ion-icon
+                :name="
+                  result.expanded ? 'caret-up-outline' : 'caret-down-outline'
+                "
+              ></ion-icon>
+            </button>
+          </div>
+          <p class="date">
+            {{ result.dateCreated.date.split(" ")[0] }}
+            {{ this.convertTo12Hour(result.dateCreated.date.split(" ")[1]) }}
+          </p>
+        </div>
+      </div>
+
+      <ion-infinite-scroll threshold="100px" @ionInfinite="loadMoreData">
+        <ion-infinite-scroll-content
+          loading-spinner="bubbles"
+          loading-text="Loading more notifications..."
+        ></ion-infinite-scroll-content>
+      </ion-infinite-scroll>
+    </ion-content>
+  </ion-page>
+</template>
+
+<script>
+import {
+  IonPage,
+  IonContent,
+  IonInput,
+  IonItem,
+  IonLabel,
+  IonCard,
+  IonButton,
+  IonButtons,
+  IonModal,
+  IonTitle,
+  IonToolbar,
+  IonHeader,
+  IonCol,
+  IonRow,
+  IonGrid,
+  IonIcon,
+  IonCardHeader,
+  IonCardContent,
+  IonInfiniteScroll,
+  IonInfiniteScrollContent,
+} from "@ionic/vue";
+import HeaderReturnNotification from "@/components/header/HeaderReturnNotification.vue";
+import { defineComponent } from "vue";
+import Refresher from "@/components/refresher/Refresher.vue";
+import { useStore } from "vuex";
+import { useRouter } from "vue-router";
+import axios from "axios";
+import { GlobalConstants } from "@/config/constants";
+import { toastController } from "@ionic/vue";
+
+export default defineComponent({
+  components: {
+    IonPage,
+    IonContent,
+    IonInput,
+    IonItem,
+    HeaderReturnNotification,
+    IonLabel,
+    Refresher,
+    IonCard,
+    IonButton,
+    IonButtons,
+    IonModal,
+    IonTitle,
+    IonToolbar,
+    IonHeader,
+    IonCol,
+    IonRow,
+    IonGrid,
+    IonIcon,
+    IonCard,
+    IonCardHeader,
+    IonCardContent,
+    IonInfiniteScroll,
+    IonInfiniteScrollContent,
+  },
+  setup() {
+    return {
+      router: useRouter(),
+      store: useStore(),
+    };
+  },
+  data() {
+    const currentDate = new Date();
+    const formattedDate = currentDate.toISOString().split("T")[0];
+
+    return {
+      results: [],
+      headerTitle: "Notification",
+      selectedDateFrom: formattedDate,
+      selectedDateTo: formattedDate,
+      isModalVisible: false,
+      selectedResult: null,
+      isOpen: false,
+      theme: {},
+      loading: true,
+      totalRec: 0,
+      paygradeId: 0,
+      empNumber: "",
+      result: [],
+      limit: 10,
+    };
+  },
+
+  mutations: {
+    updateResults(state, results) {
+      state.results = results;
+    },
+  },
+
+  methods: {
+    // Expiration of token
+    async checkTokenExpiration() {
+      const storedToken = localStorage.getItem("token");
+
+      if (!storedToken) {
+        console.error("Token not available.");
+        console.log("Token is missing. Redirecting to login...");
+        this.router.push("/login");
+        return;
+      }
+
+      const tokenData = JSON.parse(atob(storedToken.split(".")[1]));
+      const expirationTime = tokenData.exp * 1000;
+
+      if (Date.now() > expirationTime) {
+        console.log("Token expired. Redirecting to login...");
+        this.router.push("/login");
+      }
+    },
+
+    convertTo12Hour(timeString) {
+      let timePart = timeString.split(".")[0];
+
+      let date = new Date("1970-01-01T" + timePart + "Z");
+
+      let hours = date.getUTCHours();
+      let minutes = date.getUTCMinutes();
+      let seconds = date.getUTCSeconds();
+
+      let ampm = hours >= 12 ? "PM" : "AM";
+
+      hours = hours % 12;
+      hours = hours ? hours : 12;
+
+      minutes = minutes < 10 ? "0" + minutes : minutes;
+      seconds = seconds < 10 ? "0" + seconds : seconds;
+
+      let formattedTime = hours + ":" + minutes + ":" + seconds + " " + ampm;
+
+      return formattedTime;
+    },
+
+    async fetchNotif(loadMore = false) {
+      try {
+        this.store.commit("loader/updateLoader", true);
+        const baseURL = localStorage.getItem("baseUrl");
+        await this.checkTokenExpiration();
+
+        const storedToken = localStorage.getItem("token");
+
+        const headers = {
+          Authorization: `Bearer ${storedToken}`,
+        };
+
+        const offset = loadMore ? this.results.length : 0;
+        const apiUrl = `${baseURL}api/push-notification/messages?limit=${this.limit}&offset=${offset}`;
+
+        const response = await axios.get(apiUrl, { headers });
+
+        if (loadMore) {
+          this.results = this.results.concat(response.data.data);
+        } else {
+          this.results = response.data.data;
+        }
+
+        this.store.commit("loader/updateLoader", false);
+      } catch (error) {
+        this.store.commit("loader/updateLoader", false);
+        console.error("Error fetching messages: ", error);
+        this.showErrorMessage(error.response?.data?.error?.message);
+      }
+    },
+
+    async loadMoreData(event) {
+      await this.fetchNotif(true);
+      event.target.complete();
+    },
+
+    async showErrorMessage(message) {
+      try {
+        const toast = await toastController.create({
+          message: message,
+          duration: 3000,
+          position: "top",
+          color: "light",
+          buttons: [
+            {
+              icon: "close-outline",
+              role: "cancel",
+            },
+          ],
+        });
+        await toast.present();
+      } catch (error) {
+        console.error("Error displaying toast:", error);
+      }
+    },
+
+    toggleExpand(result) {
+      result.expanded = !result.expanded;
+    },
+
+    handleView(result) {
+      this.selectedResult = result;
+      this.isOpen = true;
+    },
+
+    setOpen(val) {
+      this.isOpen = val;
+    },
+    fetchTheme() {
+      const storedThemeData = localStorage.getItem("themeData");
+      const themeData = storedThemeData ? JSON.parse(storedThemeData) : {};
+
+      this.theme = themeData;
+    },
+  },
+  async created() {
+    await this.checkTokenExpiration();
+    this.empNumber = localStorage.getItem("empNumber");
+
+    this.fetchTheme();
+    await this.fetchNotif();
+    this.loading = false;
+  },
+});
+</script>
+
+<style scoped>
+.text-center {
+  text-align: center;
+  margin: auto;
+}
+.card {
+  border-radius: 20px;
+  width: fit-content;
+}
+
+.card-modal {
+  border-radius: 20px;
+  max-width: 400px;
+  margin-top: 0;
+}
+.result-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  gap: 5px;
+  margin: 10px;
+}
+.flex-right {
+  float: right;
+  margin: 10px 5%;
+  width: 120px;
+}
+
+.btn-container {
+  margin: 0 10px 10px 10px;
+  border-radius: 10px;
+  overflow: hidden;
+}
+.record-label {
+  color: #828282;
+  border-radius: 20px;
+  padding: 5px 10px;
+  width: 60%;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-direction: row;
+  padding: 0 5px 0 20px;
+}
+
+.container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+.date-container {
+  width: 300px;
+  margin: 10px auto;
+}
+.search-container {
+  min-width: 330px;
+}
+
+.notif-title {
+  padding: 0 10px;
+  margin: 5px 0;
+  font-family: Poppins;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 24px;
+  text-align: left;
+  text-underline-position: from-font;
+  text-decoration-skip-ink: none;
+}
+.date {
+  font-size: 10px;
+  margin: 0;
+  padding: 0 10px;
+}
+.message {
+  padding: 0px 10px;
+  margin: 0;
+  font-family: Poppins;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 18px;
+  text-align: left;
+  text-underline-position: from-font;
+  text-decoration-skip-ink: none;
+}
+.result-item {
+  width: 100%;
+  border-radius: 30px;
+  margin: 10px;
+  max-width: 500px;
+  transition: max-height 0.3s ease;
+  overflow: hidden;
+}
+
+.expand-button {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 5px;
+  float: right;
+  color: rgb(159, 159, 159);
+}
+.collapse {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ellipsis {
+  display: inline-block;
+  width: 1em;
+  overflow: hidden;
+  white-space: nowrap;
+}
+</style>

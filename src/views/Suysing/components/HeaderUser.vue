@@ -215,7 +215,7 @@ export default defineComponent({
       this.popoverOpen = false;
     },
     navigateNotification() {
-      this.$router.push("/notification");
+      this.$router.push("/suysing_notification");
     },
     async fetchProfileDirectory() {
       try {

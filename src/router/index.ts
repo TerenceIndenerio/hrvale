@@ -62,6 +62,7 @@ import MyTraining from "@/views/services/trainings/MyTraining.vue";
 import MyAssessment from "@/views/services/trainings/MyAssessment.vue";
 import ViewEmployeeSession from "@/views/services/trainings/ViewEmployeeSession.vue";
 import ApplyValeGlobalTest from "@/views/services/vale/ApplyValeGlobalTest.vue";
+import SuysingNotification from "@/views/Suysing/notification/Notification.vue";
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -256,6 +257,10 @@ const routes: Array<RouteRecordRaw> = [
       {
         path: "suysing_services",
         component: () => import("@/views/Suysing/services/Services.vue"),
+      },
+      {
+        path: "/suysing_notification",
+        component: SuysingNotification,
       },
     ],
   },
