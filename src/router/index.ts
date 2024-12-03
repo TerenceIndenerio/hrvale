@@ -259,6 +259,10 @@ const routes: Array<RouteRecordRaw> = [
         component: () => import("@/views/Suysing/services/Services.vue"),
       },
       {
+        path: "suysing_approval",
+        component: () => import("@/views/Suysing/approval/Approval.vue"),
+      },
+      {
         path: "/suysing_notification",
         component: SuysingNotification,
       },
