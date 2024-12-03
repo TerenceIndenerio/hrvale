@@ -255,6 +255,25 @@
         </ion-modal>
       </div>
       <!-- </div> -->
+
+      <ion-modal :is-open="applyClicked" id="modal">
+          <ion-card class="card-modal-signature">
+            <ion-card-header>
+
+              <ion-card-title class="modal-header">Signature</ion-card-title>
+            </ion-card-header>
+            <ion-icon
+              name="close-circle"
+              style="background-color: white; color: red;"
+              class="close-btn"
+              @click="this.applyClicked = false;"
+            ></ion-icon>
+
+            <div class="modal-content-signature">
+              <SignaturePad @signatureSaved="handleSignature"/>
+            </div>
+          </ion-card>
+        </ion-modal>
     </ion-content>
   </ion-page>
 </template>
@@ -294,6 +313,7 @@ import { useRouter } from "vue-router";
 import { GlobalConstants } from "@/config/constants";
 import { mapState } from "vuex";
 import Refresher from "@/components/refresher/Refresher.vue";
+import SignaturePad from "@/components/others/SignaturePad.vue" 
 
 export default {
   components: {
@@ -319,6 +339,7 @@ export default {
     IonIcon,
     IonCardTitle,
     IonCardHeader,
+    SignaturePad
   },
   setup() {
     return {
@@ -354,7 +375,7 @@ export default {
       monthInput: 0,
       amortizationPercentage: 0,
       monthInput: 0,
-      monthOptions: [1, 3, 6, 12],
+      monthOptions: [1, 2, 3],
       valeDataResult: {
         creditableService: "",
         rulePerYearOfService: "",
@@ -372,6 +393,8 @@ export default {
       recepientAccount: ["GCash", "Maya", "Gotyme", "Bank"],
       bankDetails: null,
       selectedPaymentMethod: null,
+      applyClicked: false,
+      signature: null
     };
   },
   methods: {
@@ -403,7 +426,7 @@ export default {
       }
     },
 
-    // https://hrp-uat-app.bapplware.com/web/index.php/api/v2/employee/profile/bank-details?limit=50&offset=0&empNumber=129&sortField=ebd.accountNumber&sortOrder=DESC
+    
     async fetchBankDetails(empNumber) {
       try {
         await this.checkTokenExpiration();
@@ -495,11 +518,15 @@ export default {
     //   this.updateTotalLoan();
     // },
 
-    async applyVale() {
+    async handleSignature(base64Signature) {
+      // Use the signature as payload for your API or other logic
+      this.signature=base64Signature
+
       if (
         !this.reason?.trim() ||
         !this.comment?.trim() ||
-        !this.selectedPaymentMethod
+        !this.selectedPaymentMethod ||
+        !this.signature
       ) {
         this.showErrorMessage("Please fill in all required fields.");
         return;
@@ -508,10 +535,11 @@ export default {
       this.finalReason =
         this.reason === "Others" ? this.reasonText.trim() : this.reason.trim();
 
-      const approvalAmount = this.approvalAmount.replace(/,/g, "");
-      const loanBalance = this.valeDataResult.balance;
+      const approvalAmount = parseFloat(this.approvalAmount.replace(/,/g, ""));
+      const loanBalance = parseFloat(this.valeDataResult.balance.replace(/,/g, ""));
 
       if (approvalAmount > loanBalance) {
+        console.log(approvalAmount, loanBalance)
         this.isOpen = true;
         this.showErrorMessage("Invalid Amount for Approval");
         this.invalidAmount = true;
@@ -520,6 +548,12 @@ export default {
       }
 
       this.updateTotalLoan();
+    },
+
+
+
+    async applyVale() {
+      this.applyClicked = true
     },
 
     async proceedWithAPI(reason) {
@@ -539,17 +573,21 @@ export default {
           reason: reason,
           comment: this.comment.trim(),
           bankRecepient: this.selectedPaymentMethod,
+          signature: this.signature
         };
+
+        console.log(payload)
 
         const dataResponse = await axios.post(api, payload, { headers });
 
         if (dataResponse.status === 200) {
           this.isSuccessful = true;
           this.valeID = dataResponse.data.data.id;
+          
         }
       } catch (error) {
         this.showErrorMessage(error.response?.data?.error?.message);
-        console.log("message", error.response?.data?.error?.message);
+        console.log("message", error);
       } finally {
         this.store.commit("loader/updateLoader", false);
       }
@@ -911,5 +949,18 @@ p {
   height: 100%;
   border-radius: 0;
   overflow-y: scroll;
+}
+.modal-content-signature {
+  height: 280px;
+  padding: 5px;
+}
+.card-modal-signature {
+  z-index: 100;
+  width: 100%;
+  margin: 0 auto;
+  position: fixed;
+  bottom: 10px;
+  left: 0;
+  right: 0;
 }
 </style>
