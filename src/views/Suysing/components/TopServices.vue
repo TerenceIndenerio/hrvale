@@ -59,7 +59,7 @@
       expand="full"
     >
       <a
-        @click="navigateclockin"
+        @click="navigateviewschedule"
         class="btn-container"
         style="background-color: #f9764c; color: white"
       >
@@ -130,7 +130,7 @@ export default defineComponent({
     },
     navigateclockin() {
       if (this.isClockInOutAllowed) {
-        this.$router.push("/clockin");
+        this.$router.push("/suysing_clockin");
       } else {
         this.navigateSoon();
       }
