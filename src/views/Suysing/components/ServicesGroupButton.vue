@@ -533,7 +533,7 @@ export default defineComponent({
     },
     navigateattendancecorrection() {
       if (this.isAttendanceAllowed) {
-        this.$router.push("/attendancecorrection");
+        this.$router.push("/suysing_attendancecorrection");
       } else {
         this.navigateSoon();
       }

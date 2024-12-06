@@ -63,6 +63,9 @@ import MyAssessment from "@/views/services/trainings/MyAssessment.vue";
 import ViewEmployeeSession from "@/views/services/trainings/ViewEmployeeSession.vue";
 import ApplyValeGlobalTest from "@/views/services/vale/ApplyValeGlobalTest.vue";
 import SuysingNotification from "@/views/Suysing/notification/Notification.vue";
+import SuysingClockIn from "@/views/Suysing/clock_in/ClockIn.vue";
+import SuysingAttendanceCorrection from "@/views/Suysing/attendance/AttendanceCorrection.vue";
+import ViewRecentAttendanceCorrection from "@/views/Suysing/attendance/ViewRecentAttendanceCorrection.vue";
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -265,6 +268,18 @@ const routes: Array<RouteRecordRaw> = [
       {
         path: "/suysing_notification",
         component: SuysingNotification,
+      },
+      {
+        path: "/suysing_clockin",
+        component: SuysingClockIn,
+      },
+      {
+        path: "/suysing_attendancecorrection",
+        component: SuysingAttendanceCorrection,
+      },
+      {
+        path: "/suysing_viewrecentattendancecorrection",
+        component: ViewRecentAttendanceCorrection,
       },
     ],
   },
