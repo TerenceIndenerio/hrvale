@@ -1,6 +1,6 @@
 <template>
   <ion-page>
-    <ion-content :fullscreen="true" v-if="loaded">
+    <ion-content :fullscreen="true">
       <Refresher />
       <PinCodeLogin @login="OnLogin" :theme="theme" :logo="logo" />
     </ion-content>
@@ -79,10 +79,12 @@ export default defineComponent({
 
   async mounted() {
     try {
-      await this.hasPincode();
-      localStorage.removeItem("clickedTab");
+      this.store.commit("loader/updateLoader", true);
       this.fetchStoredTheme();
       this.fetchLogo();
+      this.fetchLogo();
+      await this.hasPincode();
+      localStorage.removeItem("clickedTab");
 
       const storedThemeData = localStorage.getItem("configs");
       const storedCredentials = JSON.parse(
@@ -123,7 +125,7 @@ export default defineComponent({
     } catch (error) {
       console.error("Error checking setup status:", error);
     } finally {
-      this.loaded = true;
+      this.store.commit("loader/updateLoader", false);
     }
   },
 
