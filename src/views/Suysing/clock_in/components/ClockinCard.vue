@@ -21,9 +21,7 @@
         </h2>
       </div>
       <div class="time-text">
-        <p>
-          <strong>{{ period }}</strong>
-        </p>
+        <p>{{ period }}</p>
       </div>
     </div>
 
@@ -149,7 +147,7 @@ export default defineComponent({
   gap: 10px;
 }
 .box {
-  background-color: #b3c8e1;
+  background-color: #feeded;
   height: 50px;
   width: 50px;
   border-radius: 5px;
