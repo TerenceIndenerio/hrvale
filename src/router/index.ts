@@ -66,6 +66,12 @@ import SuysingNotification from "@/views/Suysing/notification/Notification.vue";
 import SuysingClockIn from "@/views/Suysing/clock_in/ClockIn.vue";
 import SuysingAttendanceCorrection from "@/views/Suysing/attendance/AttendanceCorrection.vue";
 import ViewRecentAttendanceCorrection from "@/views/Suysing/attendance/ViewRecentAttendanceCorrection.vue";
+import SuysingLeave from "@/views/Suysing/leave/LeaveDashboard.vue";
+import SuysingLeaveHistory from "@/views/Suysing/leave/LeaveHistory.vue";
+import SuysingApplyLeave from "@/views/Suysing/leave/ApplyLeave.vue";
+import SuysingRetractLeave from "@/views/Suysing/leave/RetractLeave.vue";
+import SuysingLeaveRequest from "@/views/Suysing/leave/LeaveRequest.vue";
+import SuysingleaveEntitlement from "@/views/Suysing/leave/LeaveEntitlement.vue";
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -280,6 +286,30 @@ const routes: Array<RouteRecordRaw> = [
       {
         path: "/suysing_viewrecentattendancecorrection",
         component: ViewRecentAttendanceCorrection,
+      },
+      {
+        path: "/suysing_leave",
+        component: SuysingLeave,
+      },
+      {
+        path: "/suysing_applyLeave",
+        component: SuysingApplyLeave,
+      },
+      {
+        path: "/suysing_retractleave",
+        component: SuysingRetractLeave,
+      },
+      {
+        path: "/suysing_leaveRequest",
+        component: SuysingLeaveRequest,
+      },
+      {
+        path: "/suysing_leaveEntitlement",
+        component: SuysingleaveEntitlement,
+      },
+      {
+        path: "/suysing_leavehistory",
+        component: SuysingLeaveHistory,
       },
     ],
   },

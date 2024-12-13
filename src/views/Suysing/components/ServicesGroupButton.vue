@@ -516,7 +516,7 @@ export default defineComponent({
     },
     navigateLeave() {
       if (this.isleaveAllowed) {
-        this.$router.push("/leave");
+        this.$router.push("/suysing_leave");
       } else {
         this.navigateSoon();
       }
