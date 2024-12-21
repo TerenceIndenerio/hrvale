@@ -124,12 +124,9 @@
         </svg>
       </a>
     </div>
-    <!-- Schedule -->
+    <!-- vale -->
     <div
-      :class="[
-        `card btn-text`,
-        { soon: !isScheduleAllowed, hidden: !isScheduleShown },
-      ]"
+      :class="[`card btn-text`, { soon: !isValeAllowed, hidden: !isValeShown }]"
       expand="full"
       color="none"
     >
@@ -430,6 +427,9 @@ export default defineComponent({
     theme: Object,
   },
   computed: {
+    isValeAllowed() {
+      return this.servicesConfig?.vale?.hidden ?? false;
+    },
     servicesConfig() {
       return JSON.parse(localStorage.getItem("servicesConfig"));
     },
@@ -475,6 +475,9 @@ export default defineComponent({
       return this.servicesConfig?.applyPreApprovedOT?.hidden ?? false;
     },
     // shown
+    isValeShown() {
+      return this.servicesConfig?.vale?.allowed ?? false;
+    },
     isScheduleShown() {
       return this.servicesConfig?.schedule?.allowed ?? false;
     },
@@ -567,14 +570,8 @@ export default defineComponent({
       }
     },
     navigateVale() {
-      if (this.isValeAllowed) {
-        const storedClient = JSON.parse(localStorage.getItem("client"));
-
-        if (storedClient === "suysing") {
-          this.$router.push(`/vale${storedClient}`);
-        } else {
-          this.$router.push(`/vale`);
-        }
+      if (this.isValeShown) {
+        this.$router.push("/suysing_vale");
       } else {
         this.navigateSoon();
       }

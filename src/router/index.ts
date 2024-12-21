@@ -72,6 +72,8 @@ import SuysingApplyLeave from "@/views/Suysing/leave/ApplyLeave.vue";
 import SuysingRetractLeave from "@/views/Suysing/leave/RetractLeave.vue";
 import SuysingLeaveRequest from "@/views/Suysing/leave/LeaveRequest.vue";
 import SuysingleaveEntitlement from "@/views/Suysing/leave/LeaveEntitlement.vue";
+import SuysingVale from "@/views/Suysing/vale/ValeSuysingVersion.vue";
+import SuysingApplyVale from "@/views/Suysing/vale/ApplyVale.vue";
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -310,6 +312,14 @@ const routes: Array<RouteRecordRaw> = [
       {
         path: "/suysing_leavehistory",
         component: SuysingLeaveHistory,
+      },
+      {
+        path: "/suysing_vale",
+        component: SuysingVale,
+      },
+      {
+        path: "/suysing_applyvale",
+        component: SuysingApplyVale,
       },
     ],
   },
