@@ -90,7 +90,6 @@ export default defineComponent({
   methods: {
     async OnLogin(value) {
       try {
-        // Check if all required values are present
         if (!value.username || !value.password || !value.client) {
           await this.alertError();
           return;
@@ -130,8 +129,7 @@ export default defineComponent({
 
         if (error.response && error.response.status === 401) {
           await this.alertError();
-        } 
-        else {
+        } else {
           await this.maintenanceAlertError();
         }
       }
@@ -153,26 +151,7 @@ export default defineComponent({
 
         localStorage.setItem("token", response.data.token);
       } catch (error) {
-        let errorMessage = "An unexpected error occurred.";
-        let errorStatus = "Unknown";
-
-        if (
-          error.response &&
-          error.response.data &&
-          error.response.data.error
-        ) {
-          errorStatus = error.response.data.error.status;
-          errorMessage = error.response.data.error.message;
-        } else if (error.message) {
-          errorMessage = error.message;
-        }
-
-        const alert = await alertController.create({
-          header: "Error!",
-          message: `Status: ${errorStatus} - ${errorMessage}`,
-          buttons: ["Okay"],
-        });
-        await alert.present();
+        console.log(error);
       }
     },
 
@@ -343,19 +322,10 @@ export default defineComponent({
         } else if (error.message) {
           errorMessage = error.message;
         }
-
-        // Display an alert with the error details
-        // const alert = await alertController.create({
-        //   header: "Error!",
-        //   message: `Status: ${errorStatus} - ${errorMessage}`,
-        //   buttons: ["Okay"],
-        // });
-        // await alert.present();
       }
     },
 
     checkInternetConnection() {
-      // Check the initial connection status
       if (navigator.onLine) {
         console.log("You are online");
       } else {
@@ -363,24 +333,20 @@ export default defineComponent({
         this.showOfflineAlert();
       }
 
-      // Add event listeners for connection changes
       window.addEventListener("online", this.handleOnline);
       window.addEventListener("offline", this.handleOffline);
     },
 
-    // Called when the device goes online
     handleOnline() {
       console.log("You are back online");
       this.showOnlineAlert();
     },
 
-    // Called when the device goes offline
     handleOffline() {
       console.log("You are offline");
       this.showOfflineAlert();
     },
 
-    // Show an alert when offline
     showOfflineAlert() {
       alertController
         .create({
@@ -392,7 +358,6 @@ export default defineComponent({
         .then((alert) => alert.present());
     },
 
-    // Show an alert when online
     showOnlineAlert() {
       alertController
         .create({

@@ -79,6 +79,11 @@ export default defineComponent({
 
   async mounted() {
     try {
+      const hasSetup = localStorage.getItem("hasSetup");
+      if (!hasSetup) {
+        this.router.replace("/welcomepage");
+      }
+
       this.store.commit("loader/updateLoader", true);
       this.fetchStoredTheme();
       this.fetchLogo();
@@ -112,7 +117,6 @@ export default defineComponent({
 
       localStorage.setItem("appVersion", this.appVersion);
 
-      const hasSetup = localStorage.getItem("hasSetup");
       if (hasSetup) {
         if (this.appVersion !== requiredAppVersion) {
           const message = `App Version Needs to be ${requiredAppVersion}. Please Update your App.`;
@@ -134,7 +138,7 @@ export default defineComponent({
       try {
         const hasSetup = localStorage.getItem("hasSetup");
         if (!hasSetup) {
-          this.router.push("/welcomepage");
+          this.router.replace("/welcomepage");
         }
 
         await this.fetchToken();
