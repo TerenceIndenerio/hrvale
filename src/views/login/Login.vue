@@ -116,8 +116,8 @@ export default defineComponent({
       const requiredAppVersion = brandingConfig.configuration.appVersion;
 
       localStorage.setItem("appVersion", this.appVersion);
-
-      if (hasSetup) {
+      
+      if (hasSetup && !this.$platform.is('ios')) {
         if (this.appVersion !== requiredAppVersion) {
           const message = `App Version Needs to be ${requiredAppVersion}. Please Update your App.`;
           await this.presentAlert(message, () => {
