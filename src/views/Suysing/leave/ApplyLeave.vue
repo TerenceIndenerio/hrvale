@@ -810,10 +810,11 @@ export default defineComponent({
 .dropdown-input {
   border-radius: 10px;
   width: 300px;
+  height: fit-content;
 }
 .date-input {
   width: 150px;
-  border-radius: 10px;
+  border-radius: 5px;
   outline: none;
   border: 1px solid gray;
 }

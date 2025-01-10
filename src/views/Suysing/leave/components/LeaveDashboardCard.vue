@@ -63,11 +63,11 @@
 
     <div class="action-btns">
       <ion-button
-        expand="full"
-        color="danger"
+        color="primary"
+        fill="outline"
         @click="redirectToRetractLeave"
         :disabled="status === 'Rejected'"
-        class="neomorphic-card-1 leave-action-btn retract-btn"
+        class="neomorphic-card-1 leave-action-btn"
       >
         Retract
       </ion-button>
@@ -206,6 +206,7 @@ ion-card {
   margin: 10px 5px;
   overflow: hidden;
   width: 80%;
+  border-radius: 0;
 }
 .view-btn {
   border-radius: 20px 0 0 20px;
