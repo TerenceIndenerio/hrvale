@@ -7,7 +7,78 @@
     />
     <ion-content :fullscreen="true">
       <Refresher />
+
       <div class="content-container">
+        <!-- Swiper Carousel -->
+
+        <div class="carousel">
+          <div class="carousel-inner">
+            <input
+              class="carousel-open"
+              type="radio"
+              id="carousel-1"
+              name="carousel"
+              aria-hidden="true"
+              hidden=""
+              checked="checked"
+            />
+            <div class="carousel-item">
+              <img :src="image1" />
+            </div>
+            <input
+              class="carousel-open"
+              type="radio"
+              id="carousel-2"
+              name="carousel"
+              aria-hidden="true"
+              hidden=""
+            />
+            <div class="carousel-item">
+              <img :src="image1" />
+            </div>
+            <input
+              class="carousel-open"
+              type="radio"
+              id="carousel-3"
+              name="carousel"
+              aria-hidden="true"
+              hidden=""
+            />
+            <div class="carousel-item">
+              <img :src="image1" />
+            </div>
+            <label for="carousel-3" class="carousel-control prev control-1"
+              >‹</label
+            >
+            <label for="carousel-2" class="carousel-control next control-1"
+              >›</label
+            >
+            <label for="carousel-1" class="carousel-control prev control-2"
+              >‹</label
+            >
+            <label for="carousel-3" class="carousel-control next control-2"
+              >›</label
+            >
+            <label for="carousel-2" class="carousel-control prev control-3"
+              >‹</label
+            >
+            <label for="carousel-1" class="carousel-control next control-3"
+              >›</label
+            >
+            <ol class="carousel-indicators">
+              <li>
+                <label for="carousel-1" class="carousel-bullet">•</label>
+              </li>
+              <li>
+                <label for="carousel-2" class="carousel-bullet">•</label>
+              </li>
+              <li>
+                <label for="carousel-3" class="carousel-bullet">•</label>
+              </li>
+            </ol>
+          </div>
+        </div>
+
         <ion-card
           class="card loan-budget-container"
           v-if="!loading"
@@ -66,10 +137,58 @@
               }"
               class="icon-container"
             >
-              <ion-icon
+              <svg
+                width="33"
+                height="40"
+                viewBox="0 0 33 40"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
                 class="icon-btn"
-                name="caret-forward-outline"
-              ></ion-icon>
+              >
+                <g filter="url(#filter0_d_3_2171)">
+                  <path
+                    d="M12.813 9.11111C12.813 8.63962 13.0024 8.18743 13.3397 7.85403C13.677 7.52063 14.1345 7.33333 14.6115 7.33333C15.0885 7.33333 15.546 7.52063 15.8833 7.85403C16.2206 8.18743 16.4101 8.63962 16.4101 9.11111V17.0578L18.5863 17.2889L27.4712 21.1822C28.4245 21.6089 29 22.5511 29 23.5822V31.3333C28.946 32.7911 27.777 33.9467 26.3022 34H14.6115C13.9281 34 13.2806 33.7333 12.813 33.2356L4 25.7689L5.33094 24.4C5.67266 24.0267 6.15827 23.8311 6.66187 23.8311H7.05755L12.813 26.8889V9.11111ZM14.6115 2C16.5195 2 18.3494 2.7492 19.6986 4.0828C21.0478 5.41639 21.8058 7.22513 21.8058 9.11111C21.8058 11.7778 20.3669 14.0356 18.2086 15.2622V13.0933C19.3058 12.1156 20.0072 10.6933 20.0072 9.11111C20.0072 7.69662 19.4387 6.34007 18.4268 5.33988C17.4149 4.33968 16.0425 3.77778 14.6115 3.77778C13.1805 3.77778 11.8081 4.33968 10.7962 5.33988C9.7843 6.34007 9.21583 7.69662 9.21583 9.11111C9.21583 10.6933 9.91727 12.1156 11.0144 13.0933V15.2622C8.85612 14.0356 7.41727 11.7778 7.41727 9.11111C7.41727 7.22513 8.17523 5.41639 9.52441 4.0828C10.8736 2.7492 12.7035 2 14.6115 2Z"
+                    fill="white"
+                  />
+                </g>
+                <defs>
+                  <filter
+                    id="filter0_d_3_2171"
+                    x="0"
+                    y="0"
+                    width="33"
+                    height="40"
+                    filterUnits="userSpaceOnUse"
+                    color-interpolation-filters="sRGB"
+                  >
+                    <feFlood flood-opacity="0" result="BackgroundImageFix" />
+                    <feColorMatrix
+                      in="SourceAlpha"
+                      type="matrix"
+                      values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
+                      result="hardAlpha"
+                    />
+                    <feOffset dy="2" />
+                    <feGaussianBlur stdDeviation="2" />
+                    <feComposite in2="hardAlpha" operator="out" />
+                    <feColorMatrix
+                      type="matrix"
+                      values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0"
+                    />
+                    <feBlend
+                      mode="normal"
+                      in2="BackgroundImageFix"
+                      result="effect1_dropShadow_3_2171"
+                    />
+                    <feBlend
+                      mode="normal"
+                      in="SourceGraphic"
+                      in2="effect1_dropShadow_3_2171"
+                      result="shape"
+                    />
+                  </filter>
+                </defs>
+              </svg>
             </div>
           </ion-card>
 
@@ -96,66 +215,62 @@
               }"
               class="icon-container"
             >
-              <ion-icon
+              <svg
+                width="33"
+                height="40"
+                viewBox="0 0 33 40"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
                 class="icon-btn"
-                name="caret-forward-outline"
-              ></ion-icon>
+              >
+                <g filter="url(#filter0_d_3_2171)">
+                  <path
+                    d="M12.813 9.11111C12.813 8.63962 13.0024 8.18743 13.3397 7.85403C13.677 7.52063 14.1345 7.33333 14.6115 7.33333C15.0885 7.33333 15.546 7.52063 15.8833 7.85403C16.2206 8.18743 16.4101 8.63962 16.4101 9.11111V17.0578L18.5863 17.2889L27.4712 21.1822C28.4245 21.6089 29 22.5511 29 23.5822V31.3333C28.946 32.7911 27.777 33.9467 26.3022 34H14.6115C13.9281 34 13.2806 33.7333 12.813 33.2356L4 25.7689L5.33094 24.4C5.67266 24.0267 6.15827 23.8311 6.66187 23.8311H7.05755L12.813 26.8889V9.11111ZM14.6115 2C16.5195 2 18.3494 2.7492 19.6986 4.0828C21.0478 5.41639 21.8058 7.22513 21.8058 9.11111C21.8058 11.7778 20.3669 14.0356 18.2086 15.2622V13.0933C19.3058 12.1156 20.0072 10.6933 20.0072 9.11111C20.0072 7.69662 19.4387 6.34007 18.4268 5.33988C17.4149 4.33968 16.0425 3.77778 14.6115 3.77778C13.1805 3.77778 11.8081 4.33968 10.7962 5.33988C9.7843 6.34007 9.21583 7.69662 9.21583 9.11111C9.21583 10.6933 9.91727 12.1156 11.0144 13.0933V15.2622C8.85612 14.0356 7.41727 11.7778 7.41727 9.11111C7.41727 7.22513 8.17523 5.41639 9.52441 4.0828C10.8736 2.7492 12.7035 2 14.6115 2Z"
+                    fill="white"
+                  />
+                </g>
+                <defs>
+                  <filter
+                    id="filter0_d_3_2171"
+                    x="0"
+                    y="0"
+                    width="33"
+                    height="40"
+                    filterUnits="userSpaceOnUse"
+                    color-interpolation-filters="sRGB"
+                  >
+                    <feFlood flood-opacity="0" result="BackgroundImageFix" />
+                    <feColorMatrix
+                      in="SourceAlpha"
+                      type="matrix"
+                      values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
+                      result="hardAlpha"
+                    />
+                    <feOffset dy="2" />
+                    <feGaussianBlur stdDeviation="2" />
+                    <feComposite in2="hardAlpha" operator="out" />
+                    <feColorMatrix
+                      type="matrix"
+                      values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0"
+                    />
+                    <feBlend
+                      mode="normal"
+                      in2="BackgroundImageFix"
+                      result="effect1_dropShadow_3_2171"
+                    />
+                    <feBlend
+                      mode="normal"
+                      in="SourceGraphic"
+                      in2="effect1_dropShadow_3_2171"
+                      result="shape"
+                    />
+                  </filter>
+                </defs>
+              </svg>
             </div>
           </ion-card>
-
-          <!-- <ion-card
-            class="card action-btn"
-            :style="{
-              background: `linear-gradient(to right, ${theme.primaryGradientStartColor}, ${theme.primaryGradientEndColor})`,
-            }"
-          >
-            <ion-button
-              class="vale-history-btn"
-              @click="navigateToValeHistory"
-              color="none"
-              :style="{
-                color: theme.primaryFontColor,
-              }"
-            >
-              <h4><strong>Recent Transactions</strong></h4>
-              <ion-icon
-                class="icon-btn"
-                name="caret-forward-outline"
-              ></ion-icon>
-            </ion-button>
-          </ion-card> -->
         </div>
       </div>
-      <!-- <div class="bottom">
-        <div class="vale-history-container">
-          <h5 class="recent-transation-label">
-            <strong>Recent Transactions:</strong>
-          </h5>
-          <ion-button
-            class="vale-history-btn"
-            @click="navigateToValeHistory"
-            color="none"
-            fill="outline"
-            :style="{
-              color: theme.primaryColor,
-            }"
-          >
-            <strong>View All</strong>
-          </ion-button>
-        </div>
-
-        <ion-button
-          class="applyvale-btn neomorphic-btn-1"
-          :style="{
-            backgroundColor: theme.secondaryColor,
-            color: theme.primaryFontColor,
-          }"
-          color="none"
-          @click="navigateToApplyVale"
-        >
-          Apply Vale
-        </ion-button>
-      </div> -->
     </ion-content>
   </ion-page>
 </template>
@@ -179,6 +294,7 @@ import { defineComponent } from "vue";
 import axios from "axios";
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
+import image1 from "@/assets/images/image1.svg";
 
 export default defineComponent({
   components: {
@@ -214,6 +330,7 @@ export default defineComponent({
         balance: 0,
       },
       showAllResults: false,
+      image1,
     };
   },
   computed: {
@@ -239,6 +356,7 @@ export default defineComponent({
     this.fetchLoanBudget();
     this.loading = false;
   },
+
   methods: {
     async checkTokenExpiration() {
       const storedToken = localStorage.getItem("token");
@@ -388,9 +506,6 @@ p {
 .card {
   padding: 0 10px 0 10px;
   border-radius: 20px;
-  box-shadow: 8px 8px 16px rgba(0, 0, 0, 0.1),
-    -8px -8px 16px rgba(255, 255, 255, 0.8), 0px -4px 8px rgba(0, 0, 0, 0.05),
-    -8px -8px 16px rgba(0, 0, 0, 0.1);
 }
 
 .card ion-card-header {
@@ -428,10 +543,9 @@ p {
   min-width: 270px;
   width: 95%;
   padding: 20px;
-  margin: 70px auto 0 auto;
+  margin: 30px auto 0 auto;
   border-radius: 10px;
-  height: 200px;
-  box-shadow: 6px 6px 12px #000000, -6px -6px 12px #b1b1b1;
+  height: 170px;
   max-width: 500px;
 }
 .loan-budget-val {
@@ -677,5 +791,134 @@ p {
 }
 .icon-container .icon-btn {
   font-size: 30px;
+}
+/* carousel */
+.carousel {
+  position: relative;
+  box-shadow: 0px 1px 6px rgba(0, 0, 0, 0.64);
+  margin-top: 26px;
+}
+
+.carousel-inner {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+}
+
+.carousel-open:checked + .carousel-item {
+  position: static;
+  opacity: 100;
+}
+
+.carousel-item {
+  position: absolute;
+  opacity: 0;
+  -webkit-transition: opacity 0.6s ease-out;
+  transition: opacity 0.6s ease-out;
+}
+
+.carousel-item img {
+  display: block;
+  height: auto;
+  max-width: 100%;
+}
+
+.carousel-control {
+  background: rgba(0, 0, 0, 0.28);
+  border-radius: 50%;
+  color: #fff;
+  cursor: pointer;
+  display: none;
+  font-size: 40px;
+  height: 40px;
+  line-height: 35px;
+  position: absolute;
+  top: 50%;
+  -webkit-transform: translate(0, -50%);
+  cursor: pointer;
+  -ms-transform: translate(0, -50%);
+  transform: translate(0, -50%);
+  text-align: center;
+  width: 40px;
+  z-index: 10;
+}
+
+.carousel-control.prev {
+  left: 2%;
+}
+
+.carousel-control.next {
+  right: 2%;
+}
+
+.carousel-control:hover {
+  background: rgba(0, 0, 0, 0.8);
+  color: #aaaaaa;
+}
+
+#carousel-1:checked ~ .control-1,
+#carousel-2:checked ~ .control-2,
+#carousel-3:checked ~ .control-3 {
+  display: block;
+}
+
+.carousel-indicators {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  position: absolute;
+  bottom: 2%;
+  left: 0;
+  right: 0;
+  text-align: center;
+  z-index: 10;
+}
+
+.carousel-indicators li {
+  display: inline-block;
+  margin: 0 5px;
+}
+
+.carousel-bullet {
+  color: #fff;
+  cursor: pointer;
+  display: block;
+  font-size: 35px;
+}
+
+.carousel-bullet:hover {
+  color: #aaaaaa;
+}
+
+#carousel-1:checked
+  ~ .control-1
+  ~ .carousel-indicators
+  li:nth-child(1)
+  .carousel-bullet,
+#carousel-2:checked
+  ~ .control-2
+  ~ .carousel-indicators
+  li:nth-child(2)
+  .carousel-bullet,
+#carousel-3:checked
+  ~ .control-3
+  ~ .carousel-indicators
+  li:nth-child(3)
+  .carousel-bullet {
+  color: #428bca;
+}
+
+#title {
+  width: 100%;
+  position: absolute;
+  padding: 0px;
+  margin: 0px auto;
+  text-align: center;
+  font-size: 27px;
+  color: rgba(255, 255, 255, 1);
+  font-family: "Open Sans", sans-serif;
+  z-index: 9999;
+  text-shadow: 0px 1px 2px rgba(0, 0, 0, 0.33),
+    -1px 0px 2px rgba(255, 255, 255, 0);
 }
 </style>

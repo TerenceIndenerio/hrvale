@@ -35,13 +35,8 @@
       ></div>
 
       <div v-if="!loading">
-        <ion-card
-          class="card card-details"
-          :style="{ backgroundColor: theme.primaryColor }"
-        >
-          <h4 class="card-title" :style="{ color: theme.primaryFontColor }">
-            Details
-          </h4>
+        <ion-card class="card card-details">
+          <h4 class="card-title">Details</h4>
           <div class="card-inner">
             <ion-col size="6">
               <ion-row>
@@ -153,10 +148,10 @@
             expand="full"
             color="none"
             class="apply-btn"
-            :style="{ backgroundColor: theme.secondaryColor }"
+            :style="{ backgroundColor: theme.primaryColor }"
             @click="applyVale"
           >
-            Apply Loan
+            Submit
           </ion-button>
         </ion-card>
 
@@ -712,10 +707,9 @@ p {
   min-width: 270px;
   width: fit-content;
   padding: 20px;
-  margin: 5px auto 0 auto;
-  /* border-radius: 10px 10px 50% 50%; */
-  /* box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
-   */
+  margin: 5px auto 20px auto;
+  border-radius: 10px 10px 50% 50%;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
 .loan-budget-val {
   display: flex;
