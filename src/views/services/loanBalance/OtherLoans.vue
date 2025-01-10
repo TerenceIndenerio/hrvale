@@ -42,8 +42,8 @@
       </div>
 
       <div v-if="isElegible">
-         <!-- Loan Date & Start of Payment -->
-         <ion-card class="neomorphic-card-1 selectdate-card">
+        <!-- Loan Date & Start of Payment -->
+        <ion-card class="neomorphic-card-1 selectdate-card">
           <div class="selectdate-container">
             <div class="selectdate-container-inner">
               <p :style="{ color: theme.primaryColor }" class="label">
@@ -72,28 +72,8 @@
             ></ion-input>
           </ion-card>
         </ion-card>
-        
+
         <div class="readonly-container">
-          <!-- Payment Terms -->
-          <!-- <ion-card class="neomorphic-card-1 read-num-card">
-            <p :style="{ color: theme.primaryColor }" class="label">
-              <strong>Payment Terms</strong>
-            </p>
-            <ion-card class="neomorphic-input-2 readonly-card">
-              <p>{{ this.termsPaymentPeriod }}</p>
-            </ion-card>
-          </ion-card> -->
-
-          <!-- Interest -->
-          <!-- <ion-card class="neomorphic-card-1 read-num-card">
-            <p :style="{ color: theme.primaryColor }" class="label">
-              <strong>Interest</strong>
-            </p>
-            <ion-card class="neomorphic-input-2 readonly-card">
-              <p>{{ this.loanInterest }}</p>
-            </ion-card>
-          </ion-card> -->
-
           <!-- Amortization -->
           <ion-card class="neomorphic-card-1 read-num-card">
             <p :style="{ color: theme.primaryColor }" class="label">
@@ -104,37 +84,6 @@
             </ion-card>
           </ion-card>
         </div>
-
-        
-
-       
-
-        <!-- Reason -->
-        <!-- <div class="flex-center">
-          <ion-card class="loantype-card neomorphic-card-1">
-            <p :style="{ color: theme.primaryColor }">
-              <strong>Reason</strong>
-            </p>
-
-            <ion-card class="neomorphic-input-2">
-              <ion-select
-                v-model="selectedReason"
-                class="reason-select"
-                aria-label="Reason"
-                label="Select Reason"
-                label-placement="floating"
-              >
-                <ion-select-option
-                  v-for="option in reasonOptions"
-                  :key="option.value"
-                  :value="option"
-                >
-                  {{ option.content }}
-                </ion-select-option>
-              </ion-select>
-            </ion-card>
-          </ion-card>
-        </div> -->
 
         <!-- Save Button -->
         <ion-button
@@ -147,140 +96,6 @@
           Submit
         </ion-button>
       </div>
-
-      <!-- <ion-card class="neomorphic-card-1 selectdate-card">
-        <div class="selectdate-container">
-          <div class="selectdate-container-inner">
-            <p :style="{ color: theme.primaryColor }" class="label">
-              <strong>Loan Date</strong>
-            </p>
-            <div class="select-option neomorphic-input-2">
-              <ion-input type="date" v-model="loanDate" />
-            </div>
-          </div>
-
-          <div class="selectdate-container-inner">
-            <p :style="{ color: theme.primaryColor }" class="label">
-              <strong>Start of Payment</strong>
-            </p>
-            <div class="select-option neomorphic-input-2">
-              <ion-input type="date" v-model="startOfPayment" />
-            </div>
-          </div>
-        </div>
-      </ion-card> -->
-
-      <!-- Frequency -->
-      <!-- <div class="flex-center">
-        <ion-card class="employee-card neomorphic-card-1">
-          <p :style="{ color: theme.primaryColor }">
-            <strong>Frequency</strong>
-          </p>
-
-          <ion-card class="neomorphic-input-2">
-            <ion-select
-              v-model="selectedFrequency"
-              class="reason-select"
-              aria-label="Frequency"
-              label="Select Frequency"
-              label-placement="floating"
-            >
-              <ion-select-option
-                v-for="option in frequencyOption"
-                :key="option.value"
-                :value="option.id"
-              >
-                {{ option.frequencyName }}
-              </ion-select-option>
-            </ion-select>
-          </ion-card>
-        </ion-card>
-      </div> -->
-
-      <!-- Beginning of Payment -->
-      <!-- <ion-card class="neomorphic-card-1 input-num-card">
-        <p :style="{ color: theme.primaryColor }" class="label">
-          <strong>Beginning of Payment</strong>
-        </p>
-        <ion-card class="neomorphic-input-2">
-          <ion-input
-            label="Enter Beginning of Payment"
-            type="number"
-            label-placement="floating"
-            placeholder="0"
-            v-model="beginningPayment"
-            @ion-change="calculateBalance()"
-          ></ion-input>
-        </ion-card>
-      </ion-card> -->
-
-      <!-- Balance -->
-      <!-- <ion-card class="neomorphic-card-1 input-num-card">
-        <p :style="{ color: theme.primaryColor }" class="label">
-          <strong>Balance</strong>
-        </p>
-        <ion-card class="neomorphic-input-2 computed-value">
-          <strong>
-            <ion-input
-              type="number"
-              :disabled="true"
-              style="color: black"
-              v-model="balance"
-            ></ion-input>
-          </strong>
-        </ion-card>
-      </ion-card> -->
-
-      <!-- Ammortization Amount -->
-      <!-- <ion-card class="neomorphic-card-1 input-num-card">
-        <p :style="{ color: theme.primaryColor }" class="label">
-          <strong>Ammortization Amount</strong>
-        </p>
-        <ion-card class="neomorphic-input-2">
-          <ion-input
-            label="Enter Ammortization Amount"
-            type="number"
-            label-placement="floating"
-            placeholder="0"
-            v-model="amortizationAmount"
-          ></ion-input>
-        </ion-card>
-      </ion-card> -->
-
-      <!-- Payment terms per months -->
-      <!-- <ion-card class="neomorphic-card-1 input-num-card">
-        <p :style="{ color: theme.primaryColor }" class="label">
-          <strong>Payment terms per months</strong>
-        </p>
-        <ion-card class="neomorphic-input-2">
-          <ion-input
-            label="Payment terms per months"
-            type="number"
-            label-placement="floating"
-            placeholder="0"
-            v-model="termsPaymentPeriod"
-          ></ion-input>
-        </ion-card>
-      </ion-card> -->
-
-      <!-- Interest -->
-      <!-- <ion-card class="neomorphic-card-1 input-num-card">
-        <p :style="{ color: theme.primaryColor }" class="label">
-          <strong>Interest</strong>
-        </p>
-        <ion-card class="neomorphic-input-2 computed-value">
-          <strong>
-            <ion-input
-              label="Loan Interest"
-              label-placement="floating"
-              type="number"
-              :disabled="true"
-              style="color: black"
-              v-model="loanInterest"
-            ></ion-input>
-          </strong>
-        </ion-card>
-      </ion-card> -->
     </ion-content>
   </ion-page>
 </template>
@@ -368,7 +183,6 @@ export default defineComponent({
       isElegible: false,
       reasonOptions: [],
       selectedEmployee: null,
-
       startOfPayment: new Date().toISOString().split("T")[0],
       loanDate: new Date().toISOString().split("T")[0],
       loanAmount: null,
@@ -470,20 +284,11 @@ export default defineComponent({
           }
         }
 
-        if (
-          !this.loanAmount ||
-          // !this.selectedReason ||
-          // !this.selectedReason.content || // added check for selectedReason
-          !this.selectedLoanType ||
-          !this.loanDate
-        ) {
+        if (!this.loanAmount || !this.selectedLoanType || !this.loanDate) {
           await this.showErrorMessage("Please complete all required fields.");
-          console.log(this.loanAmount,
-          this.selectedLoanType,
-          this.loanDate)
+          console.log(this.loanAmount, this.selectedLoanType, this.loanDate);
           return;
         }
-        
 
         const empID = Number(localStorage.getItem("empNumber"));
 
@@ -496,7 +301,6 @@ export default defineComponent({
           loanDate: this.loanDate,
           loanType: this.selectedLoanType,
           paymentTerms: this.paymentTerms,
-          // reason: this.selectedReason.content,
         };
 
         this.storedToken = localStorage.getItem("token");
@@ -562,10 +366,14 @@ export default defineComponent({
             dataResponse.data.data.maximumLoanableOption.label;
           this.paymentTerms = dataResponse.data.data.termsPaymentPeriod;
         } else {
-          await this.showErrorMessage("Employee is not eligible to apply this loan.");
+          await this.showErrorMessage(
+            "Employee is not eligible to apply this loan."
+          );
         }
       } catch (error) {
-        await this.showErrorMessage("An error occurred while validating the loan.");
+        await this.showErrorMessage(
+          "An error occurred while validating the loan."
+        );
       }
     },
 
