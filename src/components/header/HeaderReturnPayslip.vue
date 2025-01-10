@@ -47,7 +47,8 @@ export default defineComponent({
   },
   methods: {
     navigateBack() {
-      this.$router.push("/tabs/services");
+      // this.$router.push("/tabs/services");
+      this.$router.go(-2);
     },
     openPopover(e) {
       this.event = e;
