@@ -40,9 +40,9 @@
       </ion-card>
 
       <div class="container">
-        <ion-card class="card result-container">
+        <div class="result-container">
           <h4
-            class="text-center result-text neomorphic-input-2"
+            class="text-center"
             :style="{
               color: theme.primaryColor,
             }"
@@ -76,7 +76,7 @@
 
               <ion-row>
                 <ion-col class="col-name">
-                  <p><strong>Frequency:</strong></p>
+                  <p><strong>Payroll Period:</strong></p>
                 </ion-col>
                 <ion-col class="col-data">
                   <p>{{ result.frequency }}</p>
@@ -102,7 +102,7 @@
               <ion-icon name="download"></ion-icon> Download Payslip
             </ion-button>
           </ion-card>
-        </ion-card>
+        </div>
       </div>
     </ion-content>
   </ion-page>
@@ -288,36 +288,46 @@ export default defineComponent({
 
     async downloadPayslip(id) {
       try {
+        this.store.commit("loader/updateLoader", true);
         await this.checkTokenExpiration();
 
         const storedToken = localStorage.getItem("token");
         const authToken = `Bearer ${storedToken}`;
         const baseURL = localStorage.getItem("baseUrl");
-        const apiUrl = baseURL + `api/download/payslip/${id}`;
+
+        const checkPayslipUrl = `${baseURL}api/web/ess/view-payslip/${id}`;
+        const apiUrl = `${baseURL}api/download/payslip/${id}`;
+        let thirteenthMonthUrl = `${baseURL}api/upload-thirteenth-month-pay/${id}?type=download`;
+
         const headers = {
           Authorization: authToken,
         };
 
-        const response = await axios.get(apiUrl, {
-          headers,
-        });
+        const checkResponse = await axios.get(checkPayslipUrl, { headers });
+        const { thirteenthMonthPay } = checkResponse.data.data;
+
+        const downloadUrl = thirteenthMonthPay ? thirteenthMonthUrl : apiUrl;
+
+        const response = await axios.get(downloadUrl, { headers });
 
         const contentType = response.headers["content-type"];
-
         const { content, type } = response.data.data;
 
         const blob = new Blob([this.base64ToArrayBuffer(content)], { type });
 
         if (this.isWebPlatform()) {
-          this.downloadOnWeb(blob); // web
+          this.downloadOnWeb(blob); // Web
         } else {
-          await this.downloadOnMobile(blob); // app
+          await this.downloadOnMobile(blob); // Mobile
         }
       } catch (error) {
         console.error("Error:", error);
         this.showErrorMessage("An error occurred: " + error.message);
+      } finally {
+        this.store.commit("loader/updateLoader", false);
       }
     },
+
     downloadOnWeb(blob) {
       console.log(blob);
       const downloadLink = document.createElement("a");
