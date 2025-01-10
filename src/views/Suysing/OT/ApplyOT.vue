@@ -13,180 +13,182 @@
           class="neomorphic-card-1"
           :style="{ color: theme.primaryColor }"
         >
-          <div class="card-inner">
+          <div class="card-inner date-picker-container">
             <!-- from -->
-            <div class="card-inner-inner">
-              <p :style="{ color: theme.primaryColor }" class="label">From</p>
-              <div class="neomorphic-datepicker-1 date-picker">
-                <ion-input
-                  v-model="selectedDateFrom"
-                  type="date"
-                  class="date-input"
-                ></ion-input>
-              </div>
-            </div>
-
-            <!-- to -->
-            <div class="card-inner-inner">
-              <p :style="{ color: theme.primaryColor }" class="label">To</p>
-              <div class="neomorphic-datepicker-1 date-picker">
-                <ion-input
-                  v-model="selectedDateTo"
-                  type="date"
-                  class="date-input"
-                ></ion-input>
-              </div>
+            <p :style="{ color: theme.primaryColor }" class="label">
+              Select Date
+            </p>
+            <div class="neomorphic-datepicker-1 date-picker">
+              <ion-input
+                v-model="selectedDateFrom"
+                type="date"
+                class="date-input"
+              ></ion-input>
             </div>
           </div>
 
           <div class="card-inner">
-            <div class="card-inner-inner">
-              <p :style="{ color: theme.primaryColor }" class="label">
-                Request Date
-              </p>
-              <div class="neomorphic-datepicker-1 date-picker">
-                <ion-input
-                  v-model="requestDateSelected"
-                  type="date"
-                  class="date-input"
-                ></ion-input>
-              </div>
-            </div>
-            <div class="card-inner-inner">
-              <ion-button
-                @click="handleSearch"
-                class="neomorphic-btn-2 search-btn"
-                color="none"
-                :style="{ backgroundColor: theme.primaryColor }"
-                ><ion-icon name="search"></ion-icon>Search</ion-button
-              >
-            </div>
+            <ion-button
+              @click="handleSearch"
+              class="neomorphic-btn-2 search-btn"
+              color="none"
+              :style="{ backgroundColor: theme.primaryColor }"
+              ><ion-icon name="search"></ion-icon>Search</ion-button
+            >
           </div>
         </ion-card>
 
         <div class="result-container" v-if="results">
-          <OTCard
+          <ion-card
             v-for="result in results"
             :key="result.id"
-            :date="result.date"
-            :status="result.status"
-            :scheduleIn="result.scheduleIn"
-            :scheduleOut="result.scheduleOut"
-            :actualIn="result.actualIn"
-            :actualOut="result.actualOut"
-            :day="result.day"
-            :fixedOtIn="result.fixedOtIn"
-            :fixedOtOut="result.fixedOtOut"
-            :otHours="result.otHours"
-            :reason="result.reason"
-            @view="handleView(result)"
-            @check="handleCheck"
-          />
+            class="neomorphic-card-1 card-content-container"
+          >
+            <ion-card-content>
+              <ion-grid>
+                <h3 class="card-title" :style="{ color: theme.primaryColor }">
+                  <strong>Apply OT Details</strong>
+                </h3>
+
+                <ion-row>
+                  <ion-col size="6">
+                    <p><strong>Date:</strong></p>
+                  </ion-col>
+                  <ion-col size="6">
+                    <p :style="{ color: theme.primaryColor }">
+                      <strong>{{ result.date }}</strong>
+                    </p>
+                  </ion-col>
+                </ion-row>
+
+                <ion-row>
+                  <ion-col size="6">
+                    <p><strong>Schedule In:</strong></p>
+                  </ion-col>
+                  <ion-col size="6">
+                    <p :style="{ color: theme.primaryColor }">
+                      <strong>{{ result.scheduleIn }}</strong>
+                    </p>
+                  </ion-col>
+                </ion-row>
+
+                <ion-row>
+                  <ion-col size="6">
+                    <p><strong>Schedule Out:</strong></p>
+                  </ion-col>
+                  <ion-col size="6">
+                    <p :style="{ color: theme.primaryColor }">
+                      <strong>{{ result.scheduleOut }}</strong>
+                    </p>
+                  </ion-col>
+                </ion-row>
+
+                <ion-row>
+                  <ion-col size="6">
+                    <p><strong>Actual In:</strong></p>
+                  </ion-col>
+                  <ion-col size="6">
+                    <p :style="{ color: theme.primaryColor }">
+                      <strong>{{ result.actualIn }}</strong>
+                    </p>
+                  </ion-col>
+                </ion-row>
+
+                <ion-row>
+                  <ion-col size="6">
+                    <p><strong>Actual Out:</strong></p>
+                  </ion-col>
+                  <ion-col size="6">
+                    <p :style="{ color: theme.primaryColor }">
+                      <strong>{{ result.actualOut }}</strong>
+                    </p>
+                  </ion-col>
+                </ion-row>
+
+                <ion-row>
+                  <ion-col size="6">
+                    <p><strong>Fixed OT In:</strong></p>
+                  </ion-col>
+                  <ion-col size="6">
+                    <p :style="{ color: theme.primaryColor }">
+                      <strong>{{ result.fixedOtIn }}</strong>
+                    </p>
+                  </ion-col>
+                </ion-row>
+
+                <ion-row>
+                  <ion-col size="6">
+                    <p><strong>Fixed OT Out:</strong></p>
+                  </ion-col>
+                  <ion-col size="6">
+                    <p :style="{ color: theme.primaryColor }">
+                      <strong>{{ result.fixedOtOut }}</strong>
+                    </p>
+                  </ion-col>
+                </ion-row>
+
+                <ion-row>
+                  <ion-col size="6">
+                    <p><strong>OT Hours:</strong></p>
+                  </ion-col>
+                  <ion-col size="6">
+                    <p :style="{ color: theme.primaryColor }">
+                      <strong>{{ result.otHours }}</strong>
+                    </p>
+                  </ion-col>
+                </ion-row>
+
+                <ion-row>
+                  <ion-col size="6">
+                    <p><strong>Reason:</strong></p>
+                  </ion-col>
+                  <ion-col size="6">
+                    <p :style="{ color: theme.primaryColor }">
+                      <strong>{{ result.reason }}</strong>
+                    </p>
+                  </ion-col>
+                </ion-row>
+
+                <ion-row>
+                  <ion-col size="6">
+                    <p><strong>Status:</strong></p>
+                  </ion-col>
+                  <ion-col size="6">
+                    <p :style="{ color: theme.primaryColor }">
+                      <strong>{{ result.status }}</strong>
+                    </p>
+                  </ion-col>
+                </ion-row>
+                <ion-row>
+                  <ion-button
+                    @click="handleSubmit"
+                    class="neomorphic-btn-2 apply-btn-container"
+                    color="none"
+                    :style="{ backgroundColor: theme.primaryColor }"
+                  >
+                    Submit
+                  </ion-button>
+                </ion-row>
+              </ion-grid>
+            </ion-card-content>
+          </ion-card>
         </div>
       </div>
-
-      <ion-modal :is-open="isOpen" id="modal">
-        <ion-card class="card-modal">
-          <ion-icon
-            @click="isOpen = false"
-            name="close"
-            :style="{ color: theme.primaryColor }"
-            class="close-btn"
-          ></ion-icon>
-
-          <ion-grid class="modal-content">
-            <ion-row>
-              <ion-col>
-                <p><strong>Date:</strong></p>
-              </ion-col>
-              <ion-col>
-                <p>{{ selectedResult.date }}</p>
-              </ion-col>
-            </ion-row>
-
-            <ion-row>
-              <ion-col>
-                <p><strong>OT Hours:</strong></p>
-              </ion-col>
-              <ion-col>
-                <p>{{ selectedResult.otHours }}</p>
-              </ion-col>
-            </ion-row>
-
-            <ion-row>
-              <ion-col>
-                <p><strong>Schedule In:</strong></p>
-              </ion-col>
-              <ion-col>
-                <p>{{ selectedResult.scheduleIn }}</p>
-              </ion-col>
-            </ion-row>
-
-            <ion-row>
-              <ion-col>
-                <p><strong>Schedule Out:</strong></p>
-              </ion-col>
-              <ion-col>
-                <p>{{ selectedResult.scheduleOut }}</p>
-              </ion-col>
-            </ion-row>
-
-            <ion-row>
-              <ion-col>
-                <p><strong>Actual In:</strong></p>
-              </ion-col>
-              <ion-col>
-                <p>{{ selectedResult.actualIn }}</p>
-              </ion-col>
-            </ion-row>
-
-            <ion-row>
-              <ion-col>
-                <p><strong>Actual Out:</strong></p>
-              </ion-col>
-              <ion-col>
-                <p>{{ selectedResult.actualOut }}</p>
-              </ion-col>
-            </ion-row>
-
-            <ion-row>
-              <ion-col>
-                <p><strong>Fixed OT:</strong></p>
-              </ion-col>
-              <ion-col>
-                <p>{{ selectedResult.fixedOtIn }}</p>
-              </ion-col>
-            </ion-row>
-
-            <ion-row>
-              <ion-col>
-                <p><strong>Fixed OT:</strong></p>
-              </ion-col>
-              <ion-col>
-                <p>{{ selectedResult.fixedOtOut }}</p>
-              </ion-col>
-            </ion-row>
-
-            <ion-row>
-              <ion-col>
-                <p><strong>Reason:</strong></p>
-              </ion-col>
-              <ion-col>
-                <p>{{ selectedResult.reason }}</p>
-              </ion-col>
-            </ion-row>
-          </ion-grid>
-        </ion-card>
-      </ion-modal>
-
-      <ion-button
-        @click="handleSubmit"
-        class="apply-btn-container neomorphic-btn-2"
-        color="none"
-        :style="{ backgroundColor: theme.primaryColor }"
-      >
-        Apply Selected
-      </ion-button>
+      <div class="recent-container">
+        <h5 :style="{ color: theme.primaryColor }">Recent Transaction</h5>
+        <ion-button
+          expand="full"
+          color="None"
+          class="recent-btn neomorphic-btn-2"
+          @click="navigateToRecent()"
+          :style="{
+            outline: `2px solid ${theme.primaryColor}`,
+            color: theme.primaryColor,
+          }"
+        >
+          View All
+        </ion-button>
+      </div>
 
       <!-- alert successfully submitted -->
       <ion-modal :is-open="isSuccessful" id="modal">
@@ -237,6 +239,7 @@ import {
   IonSelectOption,
   IonCardTitle,
   IonCardHeader,
+  IonCardContent,
 } from "@ionic/vue";
 import HeaderReturn from "@/components/header/HeaderReturn.vue";
 import { defineComponent } from "vue";
@@ -275,6 +278,7 @@ export default defineComponent({
     IonSelectOption,
     IonCardTitle,
     IonCardHeader,
+    IonCardContent,
   },
   setup() {
     return {
@@ -368,6 +372,9 @@ export default defineComponent({
         this.store.commit("loader/updateLoader", true);
 
         await this.checkTokenExpiration();
+
+        this.date = this.selectedDateFrom;
+        this.dateEnd = this.selectedDateTo;
 
         this.storedToken = localStorage.getItem("token");
         const baseURL = localStorage.getItem("baseUrl");
@@ -543,6 +550,10 @@ export default defineComponent({
       }
     },
 
+    navigateToRecent() {
+      this.$router.push("/suysing_recentapplyot");
+    },
+
     async showErrorMessage(message) {
       try {
         const toast = await toastController.create({
@@ -567,7 +578,7 @@ export default defineComponent({
       this.isSuccessful = false;
 
       setTimeout(() => {
-        window.location.replace(`/applyot`);
+        window.location.replace(`/suysing_applyot`);
       }, 1000);
     },
 
@@ -595,9 +606,6 @@ export default defineComponent({
 </script>
 
 <style scoped>
-* {
-  font-size: 14px;
-}
 .text-center {
   text-align: center;
   margin: auto;
@@ -683,12 +691,9 @@ ion-textarea {
 }
 
 .apply-btn-container {
-  position: fixed;
-  bottom: 10px;
-  right: 0;
-  left: 0;
-  margin: 0 auto;
-  z-index: 999;
+  margin-left: auto;
+  border-radius: 10px;
+  height: fit-content;
 }
 
 #modal {
@@ -696,10 +701,9 @@ ion-textarea {
 }
 
 .search-btn {
-  width: 100%;
-  margin-top: 25px;
   width: 130px;
   height: 40px;
+  margin-left: auto;
 }
 .label {
   font-family: "Inter";
@@ -707,7 +711,7 @@ ion-textarea {
 }
 .date-picker {
   height: 40px;
-  width: 150px;
+  width: 230px;
   text-align: center;
 }
 .card-title {
@@ -766,5 +770,38 @@ ion-textarea {
   border-radius: 50%;
   background-color: rgb(246, 246, 246);
   overflow: hidden;
+  z-index: 10;
+}
+.date-picker-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+.card-content-container {
+  min-width: 300px;
+}
+.recent-container {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  flex-direction: row;
+  max-width: 500px;
+  margin-bottom: 50px;
+}
+.recent-container h5 {
+  font-family: Poppins;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 18px;
+  text-align: left;
+  text-underline-position: from-font;
+  text-decoration-skip-ink: none;
+}
+.recent-btn {
+  width: 100px;
+  border-radius: 10px;
+  padding: 0;
+  height: 30px;
 }
 </style>
