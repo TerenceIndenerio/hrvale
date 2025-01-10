@@ -259,7 +259,7 @@ export default defineComponent({
   },
   data() {
     return {
-      headerTitle: "Attendance Correction",
+      headerTitle: "Attendance",
       payrollPeriodOption: [],
       authToken: null,
       noResult: false,
@@ -277,8 +277,6 @@ export default defineComponent({
       actualOut: "",
       comment: "",
       selectedReason: null,
-      previousIn: "",
-      previousOut: "",
       requestNumber: "",
       isSuccessful: false,
     };
@@ -420,10 +418,9 @@ export default defineComponent({
             day: period.day,
             actualIn: period.actualIn,
             actualOut: period.actualOut,
+            previousIn: period.previousActualIn,
+            previousOut: period.previousActualOut,
           }));
-
-          this.previousIn = dataResponse.data.data[0].actualIn;
-          this.previousOut = dataResponse.data.data[0].actualOut;
         }
       } catch (error) {
         console.error("Error fetching payroll period options: ", error);
