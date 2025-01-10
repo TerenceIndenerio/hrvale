@@ -74,6 +74,16 @@ import SuysingLeaveRequest from "@/views/Suysing/leave/LeaveRequest.vue";
 import SuysingleaveEntitlement from "@/views/Suysing/leave/LeaveEntitlement.vue";
 import SuysingVale from "@/views/Suysing/vale/ValeSuysingVersion.vue";
 import SuysingApplyVale from "@/views/Suysing/vale/ApplyVale.vue";
+import SuysingScheduleAdjustment from "@/views/Suysing/schedule_adjustment/ScheduleAdjustment.vue";
+import SuysingScheduleAdjustmentEdit from "@/views/Suysing/schedule_adjustment/ScheduleAdjustmentEdit.vue";
+import SuysingRecentScheduleAdjustment from "@/views/Suysing/schedule_adjustment/RecentScheduleAdjustment.vue";
+import SuysingOtherLoans from "@/views/Suysing/loanBalance/OtherLoans.vue";
+import RecentOtherLoans from "@/views/Suysing/loanBalance/RecentOtherLoans.vue";
+import RecentOtherLoansView from "@/views/Suysing/loanBalance/RecentOtherLoansView.vue";
+import SuysingScheduleView from "@/views/Suysing/schedule/ViewSchedule.vue";
+import SuysingApplyOT from "@/views/Suysing/OT/ApplyOT.vue";
+import SuysingRecentApplyOT from "@/views/Suysing/OT/RecentApplyOT.vue";
+import SuysingLoanLedger from "@/views/Suysing/ledger/loanLedger.vue";
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -320,6 +330,46 @@ const routes: Array<RouteRecordRaw> = [
       {
         path: "/suysing_applyvale",
         component: SuysingApplyVale,
+      },
+      {
+        path: "/suysing_scheduleadjustment",
+        component: SuysingScheduleAdjustment,
+      },
+      {
+        path: "/suysing_scheduleadjustmentedit",
+        component: SuysingScheduleAdjustmentEdit,
+      },
+      {
+        path: "/suysing_recentscheduleadjustment",
+        component: SuysingRecentScheduleAdjustment,
+      },
+      {
+        path: "/suysing_otherloans",
+        component: SuysingOtherLoans,
+      },
+      {
+        path: "/suysing_recentotherloans",
+        component: RecentOtherLoans,
+      },
+      {
+        path: "/suysing_recentotherloansview",
+        component: RecentOtherLoansView,
+      },
+      {
+        path: "/suysing_scheduleview",
+        component: SuysingScheduleView,
+      },
+      {
+        path: "/suysing_applyot",
+        component: SuysingApplyOT,
+      },
+      {
+        path: "/suysing_recentapplyot",
+        component: SuysingRecentApplyOT,
+      },
+      {
+        path: "/suysing_loanLedger",
+        component: SuysingLoanLedger,
       },
     ],
   },
