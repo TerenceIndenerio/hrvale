@@ -136,7 +136,7 @@ export default defineComponent({
       }
     },
     navigateviewschedule() {
-      this.$router.push("/viewschedule");
+      this.$router.push("/suysing_scheduleview");
     },
     navigateattendancecorrection() {
       this.$router.push("/attendancecorrection");

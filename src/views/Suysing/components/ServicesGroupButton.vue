@@ -543,14 +543,14 @@ export default defineComponent({
     },
     navigateOTApply() {
       if (this.isOTAllowed) {
-        this.$router.push("/applyot");
+        this.$router.push("/suysing_applyot");
       } else {
         this.navigateSoon();
       }
     },
     navigateloanBal() {
       if (this.isOtherLoanAllowed) {
-        this.$router.push("/loanbalance");
+        this.$router.push("/suysing_otherloans");
       } else {
         this.navigateSoon();
       }
@@ -585,7 +585,7 @@ export default defineComponent({
     },
     navigateSchedAdjustment() {
       if (this.isSchedAdjustment) {
-        this.$router.push("/scheduleadjustment");
+        this.$router.push("/suysing_scheduleadjustment");
       } else {
         this.navigateSoon();
       }
