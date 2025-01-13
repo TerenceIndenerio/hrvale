@@ -254,6 +254,71 @@
       </a>
     </div>
 
+    <!-- Loan Ledger -->
+    <div
+      :class="[
+        `card btn-text`,
+        { soon: !isBenefitsAllowed, hidden: !isBenefitsShown },
+      ]"
+      expand="full"
+      color="none"
+    >
+      <a
+        @click="navigateLoanLedger"
+        :style="{
+          background: `#944547`,
+          color: theme.primaryFontColor,
+        }"
+        disabled
+      >
+        <h4 :style="{ color: btnTextColor }">Loan Ledger</h4>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="ionicon icon-btn"
+          viewBox="0 0 512 512"
+          :style="{ color: btnSecondaryColor }"
+        >
+          <rect
+            x="112"
+            y="48"
+            width="288"
+            height="416"
+            rx="32"
+            ry="32"
+            fill="none"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="32"
+          />
+          <path
+            fill="none"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="32"
+            d="M160.01 112H352v64H160.01z"
+          />
+          <circle cx="168" cy="248" r="24" fill="currentColor" />
+          <circle cx="256" cy="248" r="24" fill="currentColor" />
+          <circle cx="344" cy="248" r="24" fill="currentColor" />
+          <circle cx="168" cy="328" r="24" fill="currentColor" />
+          <circle cx="256" cy="328" r="24" fill="currentColor" />
+          <circle cx="168" cy="408" r="24" fill="currentColor" />
+          <circle cx="256" cy="408" r="24" fill="currentColor" />
+          <rect
+            x="320"
+            y="304"
+            width="48"
+            height="128"
+            rx="24"
+            ry="24"
+            fill="currentColor"
+          />
+        </svg>
+      </a>
+    </div>
+
     <!-- Approval -->
     <div
       :class="[`card btn-text`, { soon: !isApprovalAllowed }]"
@@ -610,6 +675,9 @@ export default defineComponent({
       } else {
         this.navigateSoon();
       }
+    },
+    navigateLoanLedger() {
+      this.$router.push("/suysing_loanLedger");
     },
   },
 });
