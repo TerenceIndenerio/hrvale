@@ -250,21 +250,34 @@ export default defineComponent({
   justify-content: center;
   align-items: center;
   box-shadow: none;
+  -webkit-box-shadow: none;
   text-align: center;
+  border-radius: 0 0 50px 50px;
+  -webkit-border-radius: 0 0 50px 50px;
 }
+
 .profile-img-container {
   width: 30px;
   height: 30px;
   overflow: hidden;
   border-radius: 50%;
+  -webkit-border-radius: 50%;
   position: absolute;
   top: 35px;
   right: 70px;
   font-size: 25px;
   background-color: white;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.8),
-    0 2px 4px -1px rgba(0, 0, 0, 0.6);
+  box-shadow: 0px 4px 6px -1px rgba(0, 0, 0, 0.8),
+    0px 2px 4px -1px rgba(0, 0, 0, 0.6);
+  -webkit-box-shadow: 0px 4px 6px -1px rgba(0, 0, 0, 0.8),
+    0px 2px 4px -1px rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
+
 .profile-img-container img {
   width: 30px;
   height: 30px;
