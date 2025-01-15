@@ -263,7 +263,7 @@ export default defineComponent({
 
     async fetchRequest() {
       try {
-        this.store.commit("loader/updateLoader", true); // Show loader
+        this.store.commit("loader/updateLoader", true);
         const baseURL = localStorage.getItem("baseUrl");
         await this.checkTokenExpiration();
 
@@ -281,14 +281,12 @@ export default defineComponent({
         const { id, payGradeName, jobCategoryName, name, packageItems } =
           dataResponse.data.data;
 
-        // Map and categorize benefits into Standard and Added categories
         const mappedPackageItems = packageItems.map((item) => ({
           benefitType: item.benefitType,
-          benefitName: item.benefitName.trim(), // Trim whitespace
+          benefitName: item.benefitName.trim(),
           benefitCode: item.benefitCode,
         }));
 
-        // Categorize benefits
         this.standardBenefits = mappedPackageItems.filter(
           (item) => item.benefitType === "Standards Benefits"
         );
@@ -299,16 +297,15 @@ export default defineComponent({
             item.benefitType === "Irregular Benefits"
         );
 
-        // Update other data properties
         this.id = id;
         this.payGradeName = payGradeName;
         this.jobCategoryName = jobCategoryName;
         this.name = name;
         this.totalRec = mappedPackageItems.length;
 
-        this.store.commit("loader/updateLoader", false); // Hide loader
+        this.store.commit("loader/updateLoader", false);
       } catch (error) {
-        this.store.commit("loader/updateLoader", false); // Hide loader
+        this.store.commit("loader/updateLoader", false);
         console.error("Error fetching benefit package: ", error);
 
         // Show error message if available
