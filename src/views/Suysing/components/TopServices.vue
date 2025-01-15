@@ -77,7 +77,8 @@
             />
           </svg>
           <div class="date-container">
-            <p>No Upcoming Schedule</p>
+            <p v-if="currentSchedule">{{ currentSchedule }}</p>
+            <p v-else>No Upcoming Schedule.</p>
           </div>
         </div>
       </a>
@@ -88,6 +89,9 @@
 <script>
 import { IonButton, IonCol, IonGrid, IonRow, IonIcon } from "@ionic/vue";
 import { defineComponent } from "vue";
+import axios from "axios";
+import { useStore } from "vuex";
+import { useRouter } from "vue-router";
 
 export default defineComponent({
   components: { IonButton, IonCol, IonGrid, IonRow, IonIcon },
@@ -98,7 +102,17 @@ export default defineComponent({
     theme: Object,
     clockData: Object,
   },
-
+  setup() {
+    return {
+      router: useRouter(),
+      store: useStore(),
+    };
+  },
+  data() {
+    return {
+      currentSchedule: null,
+    };
+  },
   computed: {
     servicesConfig() {
       return JSON.parse(localStorage.getItem("servicesConfig"));
@@ -113,8 +127,8 @@ export default defineComponent({
       return this.servicesConfig?.clockInOut?.allowed ?? false;
     },
   },
-  created() {
-    console.log(this.clockData);
+  async created() {
+    await this.fetchSchedule();
   },
   methods: {
     isCurrentDate(date) {
@@ -164,6 +178,55 @@ export default defineComponent({
         }
       } else {
         this.navigateSoon();
+      }
+    },
+
+    // Expiration of token
+    async checkTokenExpiration() {
+      const storedToken = localStorage.getItem("token");
+
+      if (!storedToken) {
+        console.error("Token not available.");
+        console.log("Token is missing. Redirecting to login...");
+        this.router.push("/login");
+        return;
+      }
+
+      const tokenData = JSON.parse(atob(storedToken.split(".")[1]));
+      const expirationTime = tokenData.exp * 1000;
+
+      if (Date.now() > expirationTime) {
+        console.log("Token expired. Redirecting to login...");
+        this.router.push("/login");
+      }
+    },
+
+    async fetchSchedule() {
+      try {
+        await this.checkTokenExpiration();
+
+        const baseURL = localStorage.getItem("baseUrl");
+        const storedToken = localStorage.getItem("token");
+
+        const headers = {
+          Authorization: `Bearer ${storedToken}`,
+        };
+
+        const currentDate = new Date().toISOString().split("T")[0];
+
+        const api = `${baseURL}api/v2/calendar/details?empNumber=129&dateFrom=${currentDate}&dateTo=${currentDate}`;
+
+        const dataResponse = await axios.get(api, { headers });
+
+        const matchedData = dataResponse.data.data.filter((item) => {
+          const startDate = item.start.split("T")[0];
+          return startDate === currentDate;
+        });
+
+        this.currentSchedule =
+          matchedData.length > 0 ? matchedData[0].title : null;
+      } catch (error) {
+        console.error("Error fetching schedule: ", error);
       }
     },
   },

@@ -643,7 +643,7 @@ export default defineComponent({
     },
     navigateApproval() {
       if (this.isApprovalAllowed) {
-        this.$router.push("/tabs/approval");
+        this.$router.push("/tabs/suysing_approval");
       } else {
         this.navigateSoon();
       }
