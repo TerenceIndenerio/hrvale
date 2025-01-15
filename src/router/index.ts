@@ -84,6 +84,7 @@ import SuysingScheduleView from "@/views/Suysing/schedule/ViewSchedule.vue";
 import SuysingApplyOT from "@/views/Suysing/OT/ApplyOT.vue";
 import SuysingRecentApplyOT from "@/views/Suysing/OT/RecentApplyOT.vue";
 import SuysingLoanLedger from "@/views/Suysing/ledger/loanLedger.vue";
+import SuysingRecentApproval from "@/views/Suysing/approval/RecentApproval.vue";
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -370,6 +371,10 @@ const routes: Array<RouteRecordRaw> = [
       {
         path: "/suysing_loanLedger",
         component: SuysingLoanLedger,
+      },
+      {
+        path: "/suysing_recentapproval",
+        component: SuysingRecentApproval,
       },
     ],
   },
