@@ -39,22 +39,22 @@
       <ion-row class="pad-w action-container" v-if="status === 'Pending'">
         <ion-button
           expand="block"
-          color="light"
-          class="btn"
-          @click="handleCheckButtonClick"
-          :disabled="status === 'Approved' || status === 'Rejected'"
-        >
-          <ion-icon name="checkmark-sharp" class="btn-icon"></ion-icon>APPROVE
-        </ion-button>
-
-        <ion-button
-          expand="block"
-          color="light"
-          class="btn"
+          color="none"
+          class="btn decline-btn"
           @click="handleCheckButtonClickReject"
           :disabled="status === 'Approved' || status === 'Rejected'"
         >
           <ion-icon name="close-sharp" class="btn-icon"></ion-icon>DECLINE
+        </ion-button>
+
+        <ion-button
+          expand="block"
+          color="none"
+          class="btn approved-btn"
+          @click="handleCheckButtonClick"
+          :disabled="status === 'Approved' || status === 'Rejected'"
+        >
+          <ion-icon name="checkmark-sharp" class="btn-icon"></ion-icon>APPROVE
         </ion-button>
       </ion-row>
     </ion-grid>
@@ -239,7 +239,7 @@ ion-grid {
 }
 .btn2 {
   background-color: rgba(254, 138, 138, 0.2);
-  color: rgb(255, 120, 120) 5;
+  color: rgb(255, 120, 120);
 }
 .btn3 {
   background-color: #fff;
@@ -338,21 +338,31 @@ ion-grid {
   font-size: 24px;
 }
 .action-container {
-  margin-top: 10px;
+  margin: 10px 0;
   z-index: 1000;
   display: flex;
   justify-content: center;
   align-items: center;
   flex-direction: row;
+  gap: 10px;
 }
 .card-content {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 200px;
+  height: fit-content;
+  flex-direction: column;
+  padding: 40px 0 0 0;
 }
 .approval-card {
   width: 300px;
-  height: 200px;
+  height: fit-content;
+}
+
+.decline-btn {
+  background-color: #9d2e0f;
+}
+.approved-btn {
+  background-color: #1b9d0f;
 }
 </style>

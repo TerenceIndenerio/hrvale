@@ -30,26 +30,9 @@
         </ion-select>
       </ion-card>
 
-      <!-- Recent -->
-      <div class="recent-container">
-        <h5 :style="{ color: theme.primaryColor }">Recent Transaction</h5>
-        <ion-button
-          expand="full"
-          color="None"
-          class="recent-btn neomorphic-btn-2"
-          @click="navigateToRecent()"
-          :style="{
-            outline: `2px solid ${theme.primaryColor}`,
-            color: theme.primaryColor,
-          }"
-        >
-          View All
-        </ion-button>
-      </div>
-
       <div
         v-for="(result, index) in filteredResults.filter(
-          (item) => item.status === 'Pending'
+          (item) => item.status !== 'Pending'
         )"
         :key="index"
         class="card-container"
@@ -1268,10 +1251,6 @@ export default defineComponent({
       this.isEditLoanOpen = false;
     },
 
-    navigateToRecent() {
-      this.$router.push("/suysing_recentapproval");
-    },
-
     async showSuccessMessage(message) {
       const successToast = await toastController.create({
         message: message,
@@ -1411,27 +1390,5 @@ export default defineComponent({
 }
 .button-group ion-button {
   width: 150px;
-}
-.recent-container {
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  flex-direction: row;
-  max-width: 500px;
-}
-.recent-container h5 {
-  font-family: Poppins;
-  font-size: 12px;
-  font-weight: 700;
-  line-height: 18px;
-  text-align: left;
-  text-underline-position: from-font;
-  text-decoration-skip-ink: none;
-}
-.recent-btn {
-  width: 100px;
-  border-radius: 10px;
-  padding: 0;
-  height: 30px;
 }
 </style>
