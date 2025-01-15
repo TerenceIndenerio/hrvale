@@ -10,56 +10,59 @@
       <Refresher />
 
       <div class="result-container">
-        <ion-card
-          class="card-content neomorphic-card-1"
-          v-for="(result, index) in filteredResults"
-          :key="index"
+        <div
+          v-for="(loan, index) in filteredResults"
+          :key="loan.loanId"
+          class="loan-card"
         >
-          <ion-grid>
-            <div class="loan-type-badge">
-              <p :style="{ color: theme.primaryFontColor }">
-                {{ result.loanType }}
-              </p>
+          <div
+            v-if="loan.details && loan.details.data"
+            v-for="(detail, detailIndex) in loan.details.data"
+            :key="detail.loanId"
+            class="neomorphic-card-1 card-container"
+          >
+            <div class="header-outline">
+              <p class="header-label">{{ detail.loanType }}</p>
             </div>
-            <ion-col size="6" class="card-content">
-              <ion-row>
-                <ion-col size="6">
-                  <p>Loan Date:</p>
+            <ion-grid class="content-details">
+              <ion-row class="pad-w">
+                <ion-col class="col-name">
+                  <p><strong>Loan Type:</strong></p>
                 </ion-col>
-                <ion-col size="6">
-                  <p>{{ result.employee }}</p>
-                </ion-col>
-              </ion-row>
-
-              <ion-row>
-                <ion-col size="6">
-                  <p>Loan Type:</p>
-                </ion-col>
-                <ion-col size="6">
-                  <p>{{ result.budget }}</p>
+                <ion-col class="col-data">
+                  <p>{{ detail.loanType }}</p>
                 </ion-col>
               </ion-row>
 
-              <ion-row>
-                <ion-col size="6">
-                  <p>Loan Amount:</p>
+              <ion-row class="pad-w">
+                <ion-col class="col-name">
+                  <p><strong>Loan Date:</strong></p>
                 </ion-col>
-                <ion-col size="6">
-                  <p>{{ result.balance }}</p>
+                <ion-col class="col-data">
+                  <p>{{ detail.loanDate }}</p>
                 </ion-col>
               </ion-row>
 
-              <ion-row>
-                <ion-col size="6">
-                  <p>Schedule of Deduction:</p>
+              <ion-row class="pad-w">
+                <ion-col class="col-name">
+                  <p><strong>Loan Amount:</strong></p>
                 </ion-col>
-                <ion-col size="6">
-                  <p>{{ result.year }}</p>
+                <ion-col class="col-data">
+                  <p>{{ detail.loanAmount }}</p>
                 </ion-col>
               </ion-row>
-            </ion-col>
-          </ion-grid>
-        </ion-card>
+
+              <ion-row class="pad-w">
+                <ion-col class="col-name">
+                  <p><strong>Status:</strong></p>
+                </ion-col>
+                <ion-col class="col-data">
+                  <p>{{ detail.status }}</p>
+                </ion-col>
+              </ion-row>
+            </ion-grid>
+          </div>
+        </div>
       </div>
 
       <LoanBalanceModal
@@ -155,7 +158,9 @@ export default defineComponent({
 
   created() {
     this.fetchTheme();
-    this.fetchledger();
+    this.fetchledger().then(() => {
+      this.fetchLoanDetailsForAll();
+    });
     this.loading = false;
   },
 
@@ -198,20 +203,17 @@ export default defineComponent({
         this.store.commit("loader/updateLoader", true);
         await this.checkTokenExpiration();
 
+        const myDetails = JSON.parse(localStorage.getItem("myDetails"));
+        const employeeId = myDetails?.employee?.employeeId;
+
         this.storedToken = localStorage.getItem("token");
         const baseURL = localStorage.getItem("baseUrl");
         const headers = {
           Authorization: `Bearer ${this.storedToken}`,
         };
 
-        const api = `${baseURL}api/v1/loanable-amounts`;
-
-        // Include loanBudgetId as a query parameter
-        const params = {
-          loanBudgetId: 4,
-        };
-
-        const dataResponse = await axios.get(api, { headers, params });
+        const api = `${baseURL}api/v1/loanable-amounts?limit=50&offset=0&sortOrder=DESC`;
+        const dataResponse = await axios.get(api, { headers });
 
         if (dataResponse.data && Array.isArray(dataResponse.data.data)) {
           this.results = dataResponse.data.data.map((data) => ({
@@ -220,16 +222,45 @@ export default defineComponent({
             budget: data.budget,
             balance: data.balance,
             year: data.year,
+            employeeId: data.employeeId,
           }));
         }
 
-        this.filteredResults = this.results;
+        this.filteredResults = this.results.filter(
+          (result) => result.employeeId === employeeId
+        );
       } catch (error) {
         this.showErrorMessage("An error occurred: " + error.message);
-        console.log(error);
+        console.error(error);
       } finally {
         this.store.commit("loader/updateLoader", false);
       }
+    },
+
+    async fetchLoanDetailsForAll() {
+      const baseURL = localStorage.getItem("baseUrl");
+      const token = localStorage.getItem("token");
+      const headers = {
+        Authorization: `Bearer ${token}`,
+      };
+
+      const fetchPromises = this.filteredResults.map(async (result) => {
+        try {
+          const api = `${baseURL}api/v2/payroll/Employee/Loans?limit=50&offset=0&loanBudgetId=${result.id}`;
+          const response = await axios.get(api, { headers });
+
+          if (response.data) {
+            result.details = response.data;
+          }
+        } catch (error) {
+          console.error(
+            `Error fetching loan details for ID ${result.id}:`,
+            error.message
+          );
+        }
+      });
+
+      await Promise.all(fetchPromises);
     },
 
     filterResults() {
@@ -443,5 +474,35 @@ export default defineComponent({
   align-items: center;
   text-align: center;
   width: 120px;
+}
+.header-outline {
+  border-radius: 20px 0 0 20px;
+  position: relative;
+  right: 0;
+  top: 0;
+  padding: 10px;
+  width: fit-content;
+  text-align: right;
+  margin-left: auto;
+  background-color: gray;
+}
+.loan-card {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+.card-container {
+  margin: 10px auto;
+  width: 100%;
+  max-width: 300px;
+  padding: 0;
+}
+.header-label {
+  color: #fff;
+  font-size: 12px;
+}
+.content-details {
+  padding: 10px 20px;
 }
 </style>
