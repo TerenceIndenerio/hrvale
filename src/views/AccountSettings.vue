@@ -144,7 +144,7 @@ import {
   toastController,
   IonIcon,
 } from "@ionic/vue";
-import HeaderUser from "@/components/header/HeaderUser.vue";
+import HeaderUser from "@/views/Suysing/components/HeaderUser.vue";
 import Refresher from "@/components/refresher/Refresher.vue";
 import { defineComponent } from "vue";
 import axios from "axios";

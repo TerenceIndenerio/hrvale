@@ -142,7 +142,7 @@ import {
   IonInfiniteScrollContent,
 } from "@ionic/vue";
 import GreetingsCard from "@/views/home/components/GreetingsCard.vue";
-import HeaderUser from "@/components/header/HeaderUser.vue";
+import HeaderUser from "@/views/Suysing/components/HeaderUser.vue";
 import CardWImgHome from "@/components/cards/CardWImgHome.vue";
 import ClockinCard from "@/components/cards/HomeClockInCard.vue";
 import HomeRandomCard from "@/components/cards/HomeRandomCard.vue";
