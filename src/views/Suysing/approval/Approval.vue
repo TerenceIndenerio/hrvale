@@ -232,7 +232,6 @@ export default defineComponent({
   },
   computed: {
     filteredResponseDetails() {
-      // Filter the responseDetails to only include the specified keys
       const keysToDisplay = [
         "Date Applied",
         "Request Type",
@@ -258,6 +257,9 @@ export default defineComponent({
         "Schedule Adjustment",
         "Other Loan",
         "Pre Approved Ot",
+        "Day Off Attendance",
+        "Disciplinary Case Opened",
+        "Disciplinary",
       ],
       results: [],
       filteredResults: [],
@@ -475,11 +477,11 @@ export default defineComponent({
             event.target.complete();
           })
           .catch(() => {
-            event.target.complete(); // Ensure the scroll is stopped in case of error
+            event.target.complete();
           });
       } else {
         console.error("Invalid offset value");
-        event.target.complete(); // Stop infinite scroll if offset is invalid
+        event.target.complete();
       }
     },
     // Approval Filter
@@ -774,8 +776,6 @@ export default defineComponent({
         this.store.commit("loader/updateLoader", false);
       }
     },
-
-    // https://hrp-uat-app.bapplware.com/web/index.php/
 
     async applyVale(requestDataId, action) {
       try {
