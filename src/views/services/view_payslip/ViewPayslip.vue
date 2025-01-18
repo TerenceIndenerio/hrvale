@@ -50,10 +50,12 @@
             {{ cardData.length }} Record Found
           </h4>
 
+          <!-- ON CLick fetchViewPayslip Trigger for Modal-->
           <ion-card
             class="card-container neomorphic-card-1"
             v-for="(result, index) in cardData"
             :key="index"
+            @click="fetchViewPayslip(result.id)"
           >
             <ion-grid>
               <ion-row>
@@ -104,6 +106,16 @@
           </ion-card>
         </div>
       </div>
+      <PayslipModal
+        :isOpen="isPayslipModalOpen"
+        :incomeDetails="payslipIncome"
+        :deductionDetails="payslipDeductions"
+        :netPay="this.netPay"
+        :viewPayslipData="this.viewPayslipData"
+        :grossPay="this.grossPay"
+        :theme="theme"
+        @update:isOpen="isPayslipModalOpen = $event"
+      />
     </ion-content>
   </ion-page>
 </template>
@@ -125,6 +137,7 @@ import {
 } from "@ionic/vue";
 import HeaderReturn from "@/components/header/HeaderReturnPayslip.vue";
 import Refresher from "@/components/refresher/Refresher.vue";
+import PayslipModal from "@/views/services/view_payslip/components/PayslipModal.vue";
 import { IonDatetime } from "@ionic/vue";
 import { defineComponent } from "vue";
 import axios from "axios";
@@ -159,6 +172,7 @@ export default defineComponent({
     Filesystem,
     IonIcon,
     IonInput,
+    PayslipModal,
   },
   setup() {
     return {
@@ -194,6 +208,14 @@ export default defineComponent({
         { label: "November", value: 11 },
         { label: "December", value: 12 },
       ],
+      isPayslipModalOpen: false,
+      payslipIncome: [{ name: "", amount: "" }],
+      payslipDeductions: [{ name: "", amount: "" }],
+      payslipGrossPay: null,
+      payslipNetPay: null,
+      viewPayslipData: null,
+      grossPay: null,
+      netPay: null,
     };
   },
   methods: {
@@ -466,6 +488,43 @@ export default defineComponent({
       }
     },
 
+    async fetchViewPayslip(id) {
+      try {
+        this.store.commit("loader/updateLoader", true);
+        await this.checkTokenExpiration();
+        const storedToken = localStorage.getItem("token");
+        const baseURL = localStorage.getItem("baseUrl");
+        const authToken = `Bearer ${storedToken}`;
+
+        const apiUrl = baseURL + `api/web/ess/view-payslip/${id}`;
+        const headers = {
+          Authorization: authToken,
+        };
+
+        const response = await axios.get(apiUrl, { headers });
+        this.viewPayslipData = response.data.data.summary;
+        this.grossPay = response.data.data.payroll.gross_taxable_compensation;
+        this.netPay = response.data.data.payroll.net_pay;
+      } catch (error) {
+        if (
+          error.response &&
+          error.response.data &&
+          error.response.data.error &&
+          error.response.data.error.message ===
+            "Employee does not have a pincode"
+        ) {
+          this.$router.push("/pincodesetup");
+        } else {
+          this.showErrorMessage(
+            "An error occurred: " + error.response?.data?.error?.message
+          );
+        }
+      } finally {
+        this.store.commit("loader/updateLoader", false);
+        this.isPayslipModalOpen = true;
+      }
+    },
+
     async showAlertMessage(message) {
       try {
         const toast = await toastController.create({
@@ -495,6 +554,7 @@ export default defineComponent({
     },
   },
   async created() {
+    await this.checkTokenExpiration();
     this.fetchTheme();
     await this.requestData();
 
@@ -527,8 +587,11 @@ p {
 
 .card-container {
   border-radius: 20px;
-  width: 90%;
+  width: 100%;
+  max-width: 350px;
+  height: fit-content;
   margin: 20px auto;
+  padding: 20px;
 }
 .container {
   max-width: 500px;
