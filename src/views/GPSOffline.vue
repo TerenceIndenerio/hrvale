@@ -1,10 +1,10 @@
 <template>
   <ion-page>
-    <HeaderReturnServices
+    <HeaderReturn
       :headerTitle="headerTitle"
       :headerColor="theme.primaryColor"
       :headerTextColor="theme.primaryFontColor"
-    ></HeaderReturnServices>
+    ></HeaderReturn>
     <ion-content :fullscreen="true">
       <Refresher />
 
@@ -19,7 +19,7 @@
 
 <script>
 import { IonPage, IonContent, IonCard, IonIcon } from "@ionic/vue";
-import HeaderReturnServices from "@/components/header/HeaderReturnServices.vue";
+import HeaderReturn from "@/components/header/HeaderReturnServices.vue";
 import Refresher from "@/components/refresher/Refresher.vue";
 import { defineComponent } from "vue";
 import { getThemeData } from "@/theme/theme";
@@ -28,13 +28,13 @@ export default defineComponent({
   components: {
     IonPage,
     IonContent,
-    HeaderReturnServices,
+    HeaderReturn,
     Refresher,
     IonCard,
     IonIcon,
   },
   data() {
-    return { headerTitle: "Suy Sing", theme: {} };
+    return { headerTitle: "GPS", theme: {} };
   },
   methods: {
     fetchTheme() {

@@ -1,48 +1,15 @@
 <template>
-  <div class="header" :style="{ backgroundColor: headerColor }">
+  <div class="header">
     <ion-icon
       name="arrow-back-outline"
       class="icon1"
+      :style="{ color: headerColor }"
       @click="navigateBack"
       router-direction="forward"
     ></ion-icon>
 
-    
     <img :src="this.logo" alt="Logo" class="logo" />
-
-    <ion-icon
-      name="notifications"
-      class="icon2"
-      color="light"
-      @click="rotateIcon"
-      :class="{ rotateIcon: rotationState === 'rotateIcon' }"
-      :key="rotationState"
-    ></ion-icon>
   </div>
-  <ion-popover
-    :is-open="popoverOpen"
-    :event="event"
-    @didDismiss="popoverOpen = false"
-    class="ion-popover-container"
-  >
-    <div class="popup-container">
-      <ion-button
-        class="btn"
-        fill="clear"
-        expand="full"
-        @click="navigateAcctSettings()"
-        ><ion-icon name="settings-outline"></ion-icon> Settings</ion-button
-      >
-      <ion-button
-        class="btn logout-btn"
-        expand="full"
-        color="none"
-        @click="logout()"
-        :style="{ backgroundColor: headerColor }"
-        ><ion-icon name="exit-outline"></ion-icon> Log Out</ion-button
-      >
-    </div>
-  </ion-popover>
 </template>
 
 <script>
@@ -74,32 +41,15 @@ export default defineComponent({
     this.fetchLogo();
   },
   methods: {
-    navigateBack() {
-      this.$router.push("/tabs/services");
+    async navigateBack() {
+      await this.$router.push("/tabs/suysing_services");
+      window.location.reload();
     },
-    openPopover(e) {
-      this.event = e;
-      this.popoverOpen = true;
-    },
-    logout() {
-      localStorage.removeItem("token");
-      this.$router.push("/login");
-      this.popoverOpen = false;
-    },
-    navigateAcctSettings() {
-      console.log("changed");
-      this.$router.push("/tabs/accsettings");
-      this.popoverOpen = false;
-    },
+
     fetchLogo() {
       const baseURL = localStorage.getItem("baseUrl");
 
       this.logo = baseURL + "admin/theme/image/clientBanner";
-    },
-    async rotateIcon() {
-      this.rotationState = "rotateIcon";
-      await new Promise((resolve) => setTimeout(resolve, 300));
-      this.rotationState = "initial";
     },
   },
 });
@@ -111,7 +61,6 @@ export default defineComponent({
 @import url("https://fonts.googleapis.com/css?family=Roboto");
 
 .header {
-  background-color: var(--ion-color-blue-theme);
   height: 100px;
   display: flex;
   flex-direction: row;
@@ -142,7 +91,6 @@ export default defineComponent({
   border-radius: 100%;
   padding: 3px;
   color: var(--ion-color-primary-contrast);
-
   transition: transform 0.7s ease;
 }
 
@@ -155,29 +103,11 @@ export default defineComponent({
   font-weight: 700;
   line-height: normal;
 }
-.settings-icon {
-  font-size: 25px;
-  transition: transform 0.7s ease;
-}
 
-.settings-icon:hover {
-  transform: rotate(360deg);
-}
-
-ion-popover {
-  --width: fit-content;
-}
 .btn {
   margin: 0;
   height: 50px;
   width: 150px;
-}
-.logout-btn {
-  background-color: #12a3da;
-}
-
-.rotateIcon {
-  animation: rotateKeyframes 0.3s ease-in-out;
 }
 
 .logo {
@@ -188,17 +118,5 @@ ion-popover {
   right: 0;
   margin: auto;
   padding: 0 5px;
-}
-
-@keyframes rotateKeyframes {
-  0% {
-    transform: rotate(0deg);
-  }
-  50% {
-    transform: rotate(-20deg);
-  }
-  100% {
-    transform: rotate(20deg);
-  }
 }
 </style>
