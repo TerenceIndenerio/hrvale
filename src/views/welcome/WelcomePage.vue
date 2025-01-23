@@ -26,8 +26,6 @@
                   src="@/assets/images/1.png"
                   alt="People working together"
                 />
-              </div>
-              <div class="wave-container">
                 <ion-button
                   class="start-button"
                   fill="clear"
@@ -35,6 +33,7 @@
                   >Let's Get Started!</ion-button
                 >
               </div>
+              <div class="wave-container"></div>
             </div>
             <div class="box slide2">
               <div class="wave-container2">
@@ -301,12 +300,12 @@ export default defineComponent({
 }
 .start-button {
   /* Rectangle 114 */
-  position: absolute;
-  width: 299px;
+  /* position: absolute; */
+  /* width: 299px; */
   height: 52px;
   left: 50%;
-  transform: translate(-50%, -50%);
-  bottom: 5%;
+  /* transform: translate(-50%, -50%); */
+  bottom: 0;
   border-radius: 55px;
   background: linear-gradient(
     -49.98deg,
@@ -324,6 +323,7 @@ export default defineComponent({
   text-align: center;
   text-transform: none;
   margin-bottom: 20px; /* Adjust as needed */
+  z-index: 100;
 }
 /* Slide 2 Style */
 .text-section,
@@ -337,8 +337,13 @@ export default defineComponent({
 .Img-section {
   display: flex;
   justify-content: center;
+  background-color: rgb(233, 233, 233);
+  width: fit-content;
+  padding: 20px;
+  margin: 10px auto;
+  border-radius: 30px;
+  flex-direction: column;
 }
-
 .svg2 {
   position: absolute;
   top: 0%;
@@ -358,7 +363,11 @@ export default defineComponent({
   justify-content: space-between;
   align-items: flex-end;
   padding: 2% 2% 0 2%;
-  background-color: white;
+  background-color: rgb(240, 240, 240);
+  width: fit-content;
+  margin: 0 auto;
+  padding: 0 10px 20px 10px;
+  border-radius: 20px;
 }
 .text-container {
   display: flex;
@@ -390,9 +399,8 @@ export default defineComponent({
   text-align: left;
 }
 .next-button {
-  margin: 15% 5vw;
-  width: 120px;
-  height: 48px;
+  width: 150px;
+  height: 50px;
   border-radius: 26px;
   background: rgb(0, 142, 156);
   color: rgb(255, 255, 255);
@@ -401,6 +409,9 @@ export default defineComponent({
   font-weight: 600;
   letter-spacing: 0%;
   text-align: center;
+  margin: 10px auto;
+  /* position: absolute; */
+  /* bottom: 30px; */
 }
 /*Slide 3 Style */
 .wave-container3 {
@@ -413,6 +424,8 @@ export default defineComponent({
   align-items: flex-end;
   padding: 2%;
   background-color: white;
+  max-width: 1000px;
+  margin: 0 auto;
 }
 .text-container2 {
   display: flex;
@@ -420,11 +433,13 @@ export default defineComponent({
   justify-content: center;
   align-items: center;
   padding: 5%;
-}
-
-.logo {
-  margin: 0% 0 2vh 0;
+  background-color: rgb(247, 247, 247);
+  border-radius: 10px;
   z-index: 1000;
+}
+.logo {
+  z-index: 1000;
+  margin: 0 auto;
 }
 .continue-button {
   margin: 0 auto;
