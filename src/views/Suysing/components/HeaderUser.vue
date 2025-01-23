@@ -28,7 +28,7 @@
       }"
       @click="openProfileModal"
     >
-      <img :src="profileImageUrl" alt="" />
+      <img :src="profileImageUrl" @error="useDefaultProfile" />
     </div>
     <ion-modal :is-open="isOpen" id="modal">
       <ion-card class="card-modal">
@@ -42,7 +42,11 @@
 
         <div class="modal-content">
           <div>
-            <img :src="profileImageUrl" alt="" class="profile-img" />
+            <img
+              :src="profileImageUrl"
+              @error="useDefaultProfile"
+              class="profile-img"
+            />
           </div>
 
           <h3>
@@ -122,6 +126,7 @@ export default defineComponent({
       newNotif: "",
     };
   },
+
   created() {
     const empNumber = localStorage.getItem("empNumber");
     this.fetchProfilePhoto(empNumber);
@@ -130,6 +135,9 @@ export default defineComponent({
     this.fetchNotification();
   },
   methods: {
+    useDefaultProfile(event) {
+      event.target.src = this.defaultProfile;
+    },
     openProfileModal() {
       this.isOpen = true;
     },

@@ -4,8 +4,6 @@
     color="none"
     :style="{ backgroundColor: headerColor }"
   >
-    <img :src="this.logo" alt="Logo" class="logo" />
-
     <div class="notif-bell-container">
       <div class="redDot" v-if="newNotif"></div>
       <ion-icon
@@ -22,7 +20,7 @@
     </div>
 
     <div class="profile-img-container" @click="openProfileModal">
-      <img :src="profileImageUrl" alt="" />
+      <img :src="profileImageUrl" @error="useDefaultProfile" />
     </div>
     <ion-modal :is-open="isOpen" id="modal">
       <ion-card class="card-modal">
@@ -35,7 +33,11 @@
 
         <div class="modal-content">
           <div>
-            <img :src="profileImageUrl" alt="" class="profile-img" />
+            <img
+              :src="profileImageUrl"
+              @error="useDefaultProfile"
+              class="profile-img"
+            />
           </div>
 
           <h3>
@@ -123,6 +125,9 @@ export default defineComponent({
     this.fetchNotification();
   },
   methods: {
+    useDefaultProfile(event) {
+      event.target.src = this.defaultProfile;
+    },
     openProfileModal() {
       this.isOpen = true;
     },
