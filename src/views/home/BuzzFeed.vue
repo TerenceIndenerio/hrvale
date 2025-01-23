@@ -94,6 +94,7 @@
                 'img-content': true,
                 'fit-content': cardData.photoLink,
               }"
+              v-if="cardData.photoLink"
             >
               <ion-spinner
                 name="dots"
@@ -761,6 +762,7 @@ export default defineComponent({
 .fit-content {
   width: fit-content;
   margin: 0 auto;
+  min-height: 100px;
 }
 
 .action-icon {
