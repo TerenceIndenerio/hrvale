@@ -104,9 +104,9 @@ export default defineComponent({
         const token = response.data.access_token;
 
         if (token) {
-          localStorage.setItem("hasSetup", true);
           await this.fetchStoredTheme();
           await this.hasPincode();
+          localStorage.setItem("hasSetup", true);
         }
 
         const userCredentials = {
@@ -122,6 +122,7 @@ export default defineComponent({
       } catch (error) {
         console.error(error.message);
         this.store.commit("loader/updateLoader", false);
+        localStorage.setItem("hasSetup", false);
 
         await this.errorLogs(
           `Error: ${error.message}\nusername: ${value.username}\npassword: ${value.password}\nclient: ${value.client}`
@@ -183,6 +184,7 @@ export default defineComponent({
         }
       } catch (error) {
         console.log(error.message);
+        localStorage.setItem("hasSetup", false);
       } finally {
         this.store.commit("loader/updateLoader", false);
       }
@@ -253,6 +255,7 @@ export default defineComponent({
         }
       } catch (error) {
         console.error("Error fetching or parsing theme data:", error);
+        localStorage.setItem("hasSetup", false);
       }
     },
 

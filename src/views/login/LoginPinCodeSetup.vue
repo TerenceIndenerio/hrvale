@@ -249,7 +249,7 @@ export default defineComponent({
 
         if (response.data.data.pincode) {
           localStorage.setItem("pincode", response.data.data.pincode);
-          this.router.push("/WelcomeTermsAndCondition");
+          // this.router.push("/WelcomeTermsAndCondition");
         }
       } catch (error) {
         console.log(error.response?.data?.error?.message);
