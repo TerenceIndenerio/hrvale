@@ -445,7 +445,7 @@ export default defineComponent({
             code: period.code,
             requestDataId: period.requestDataId,
             status: period.status,
-            date: period.dateApplied,
+            date: period.dateActedOn,
             employeeId: period.employeeId,
           }));
 
@@ -1381,6 +1381,7 @@ export default defineComponent({
   border-radius: 20px;
   max-width: 400px;
   overflow-y: scroll;
+  margin: auto;
 }
 .edit-loan-container {
   display: flex;
@@ -1418,6 +1419,7 @@ export default defineComponent({
   align-items: center;
   flex-direction: row;
   max-width: 500px;
+  margin: 0 auto;
 }
 .recent-container h5 {
   font-family: Poppins;
