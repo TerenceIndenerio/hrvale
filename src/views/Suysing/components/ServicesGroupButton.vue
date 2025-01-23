@@ -258,7 +258,7 @@
     <div
       :class="[
         `card btn-text`,
-        { soon: !isBenefitsAllowed, hidden: !isBenefitsShown },
+        { soon: !isLoanLedgerAllowed, hidden: !isLoanLedgerShown },
       ]"
       expand="full"
       color="none"
@@ -539,6 +539,9 @@ export default defineComponent({
     isApplyPreApprovedOTAllowed() {
       return this.servicesConfig?.applyPreApprovedOT?.hidden ?? false;
     },
+    isLoanLedgerAllowed() {
+      return this.servicesConfig?.loanLedger?.hidden ?? false;
+    },
     // shown
     isValeShown() {
       return this.servicesConfig?.vale?.allowed ?? false;
@@ -558,7 +561,6 @@ export default defineComponent({
     isAttendanceShown() {
       return this.servicesConfig?.attendance?.allowed ?? false;
     },
-
     isleaveShown() {
       return this.servicesConfig?.leave?.allowed ?? false;
     },
@@ -576,6 +578,9 @@ export default defineComponent({
     },
     isApplyPreApprovedOTShown() {
       return this.servicesConfig?.applyPreApprovedOT?.allowed ?? false;
+    },
+    isLoanLedgerShown() {
+      return this.servicesConfig?.loanLedger?.allowed ?? false;
     },
   },
   methods: {
@@ -677,7 +682,11 @@ export default defineComponent({
       }
     },
     navigateLoanLedger() {
-      this.$router.push("/suysing_loanLedger");
+      if (this.isLoanLedgerAllowed) {
+        this.$router.push("/suysing_loanLedger");
+      } else {
+        this.navigateSoon();
+      }
     },
   },
 });
@@ -781,7 +790,7 @@ a {
   padding: 20px 0;
 }
 .soon {
-  opacity: 0.5;
+  opacity: 0.3;
 }
 .hidden {
   display: none;
