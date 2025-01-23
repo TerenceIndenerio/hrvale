@@ -533,7 +533,7 @@ export default defineComponent({
   align-items: center;
   flex-direction: row;
   max-width: 500px;
-  margin: 30px 0 50px 0;
+  margin: 30px auto 50px auto;
 }
 .recent-container h5 {
   font-family: Poppins;

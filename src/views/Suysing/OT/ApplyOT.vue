@@ -787,7 +787,7 @@ ion-textarea {
   align-items: center;
   flex-direction: row;
   max-width: 500px;
-  margin-bottom: 50px;
+  margin: 0 auto 50px auto;
 }
 .recent-container h5 {
   font-family: Poppins;
