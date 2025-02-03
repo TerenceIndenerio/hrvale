@@ -8,7 +8,12 @@
       router-direction="forward"
     ></ion-icon>
 
-    <img :src="this.logo" alt="Logo" class="logo" />
+    <img
+      :src="this.logo"
+      alt="Logo"
+      class="logo"
+      :style="{ backgroundColor: headerColor }"
+    />
   </div>
 </template>
 
@@ -111,12 +116,16 @@ export default defineComponent({
 }
 
 .logo {
-  width: 250px;
+  width: 230px;
   position: absolute;
   top: 20px;
   left: 0;
   right: 0;
   margin: auto;
   padding: 0 5px;
+  border-radius: 10px;
+  box-shadow: 0px 4px 6px -1px rgba(0, 0, 0, 0.8),
+    0px 2px 4px -1px rgba(0, 0, 0, 0.6);
+  -webkit-box-shadow: 0px 4px 6px -1px rgba(0, 0, 0, 0.8);
 }
 </style>

@@ -1,9 +1,16 @@
 <template>
   <ion-header class="header-container" color="none">
-    <img
+    <!-- Suysing White Theme Logo -->
+    <!-- <img
       :src="'https://www.jdldavao.com/wp-content/uploads/2019/09/jobscloud.jpg'"
       alt="Logo"
       class="logo"
+    /> -->
+    <img
+      :src="this.logo"
+      alt="Logo"
+      class="logo"
+      :style="{ backgroundColor: headerColor }"
     />
 
     <div class="notif-bell-container">
@@ -260,8 +267,8 @@ export default defineComponent({
   box-shadow: none;
   -webkit-box-shadow: none;
   text-align: center;
-  border-radius: 0 0 50px 50px;
-  -webkit-border-radius: 0 0 50px 50px;
+  border-radius: 0 0 20px 20px;
+  -webkit-border-radius: 0 0 20px 20px;
 }
 
 .profile-img-container {
@@ -332,6 +339,10 @@ ion-popover {
   top: 20px;
   left: 5px;
   padding: 0 5px;
+  border-radius: 10px;
+  box-shadow: 0px 4px 6px -1px rgba(0, 0, 0, 0.8),
+    0px 2px 4px -1px rgba(0, 0, 0, 0.6);
+  -webkit-box-shadow: 0px 4px 6px -1px rgba(0, 0, 0, 0.8);
 }
 
 .rotateIcon {
