@@ -166,9 +166,33 @@ export default defineComponent({
         const apiUrl = `${baseURL}api/v2/attendance/records/latest`;
         const response = await axios.get(apiUrl, { headers });
 
-        this.clockData = response.data?.data || {};
+        const responseData = response.data?.data || {};
+        this.clockData = responseData;
 
-        const { punchIn, punchOut, state } = this.clockData;
+        // Extract the new data from the response
+        const {
+          id,
+          userName,
+          deleted,
+          status,
+          employee,
+          userRole,
+          isApprover,
+        } = responseData;
+
+        // Store the new data in your component's properties
+        this.userData = {
+          id,
+          userName,
+          deleted,
+          status,
+          employee,
+          userRole,
+          isApprover,
+        };
+
+        // Extract and handle punchIn/punchOut logic
+        const { punchIn, punchOut, state } = responseData;
         const currentDate = new Date().toISOString().split("T")[0];
 
         this.clockin =
@@ -180,13 +204,9 @@ export default defineComponent({
             ? punchOut?.userTime || "00:00"
             : "00:00";
 
-        if (state?.name === "Punched Out") {
-          this.btnText = "Clock In";
-        } else {
-          this.btnText = "Clock Out";
-        }
+        this.btnText = state?.name === "Punched Out" ? "Clock In" : "Clock Out";
 
-        console.log("Data: ", this.clockData);
+        console.log("Clock Data:", this.clockData);
       } catch (error) {
         if (error.response?.status === 401) {
           console.error(
