@@ -420,21 +420,26 @@ export default defineComponent({
         const payslipPath = `payslip_${Date.now()}.pdf`;
         const base64String = await this.blobToBase64(blob);
 
+        // Determine platform-specific directory
+        const platform = Capacitor.getPlatform();
+        const directory =
+          platform === "android" ? Directory.External : Directory.External;
+
         const writeResult = await Filesystem.writeFile({
           path: payslipPath,
           data: base64String,
-          directory: Directory.Documents,
+          directory: directory,
           encoding: FilesystemEncoding.Base64,
         });
 
         if (writeResult.uri) {
           const fileUri = await Filesystem.getUri({
             path: payslipPath,
-            directory: Directory.Documents,
+            directory: directory,
           });
 
           this.showAlertMessage(
-            "Payslip Successfully Downloaded! Check the Documents."
+            "Payslip Successfully Downloaded! Check the Downloads folder."
           );
         } else {
           console.error(
@@ -446,9 +451,7 @@ export default defineComponent({
         }
       } catch (error) {
         console.error("Error:", error);
-        this.showErrorMessage(
-          "An error:" + error.response?.data?.error?.message
-        );
+        this.showErrorMessage("An error occurred: " + error.message);
       }
     },
 

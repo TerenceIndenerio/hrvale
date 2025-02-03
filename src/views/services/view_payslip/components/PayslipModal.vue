@@ -9,7 +9,7 @@
         <ion-row class="details-container">
           <!-- Income Column -->
           <ion-col size="6" style="background-color: lightgray">
-            <ion-list>
+            <ion-list style="overflow-x: scroll">
               <ion-item-group>
                 <ion-item-divider>
                   <h3
@@ -19,7 +19,20 @@
                     <strong>Income</strong>
                   </h3>
                 </ion-item-divider>
+                <!-- Header Row -->
+                <ion-item>
+                  <ion-row style="width: 100%; font-weight: bold">
+                    <ion-col size="4" class="responsive-text">
+                      Description</ion-col
+                    >
+                    <ion-col size="2" class="responsive-text">Days</ion-col>
+                    <ion-col size="2" class="responsive-text">Hours</ion-col>
+                    <ion-col size="2" class="responsive-text">Minutes</ion-col>
+                    <ion-col size="2" class="responsive-text">Amount</ion-col>
+                  </ion-row>
+                </ion-item>
 
+                <!-- Data Rows -->
                 <ion-item
                   v-for="income in viewPayslipData.income"
                   :key="income.name"
@@ -28,21 +41,25 @@
                     <ion-col size="4">
                       <div>{{ income.name }}</div>
                     </ion-col>
-
                     <ion-col size="2">
-                      <p>{{ income.days || " - " }}</p>
-                      <!-- Day(s): -->
+                      <p class="responsive-text">
+                        {{ income.days || " - " }}
+                      </p>
                     </ion-col>
                     <ion-col size="2">
-                      <p>{{ income.hours || " - " }}</p>
-                      <!-- Hour(s): -->
+                      <p class="responsive-text">
+                        {{ income.hours || " - " }}
+                      </p>
                     </ion-col>
                     <ion-col size="2">
-                      <p>{{ income.minutes || " - " }}</p>
-                      <!-- Min(s): -->
+                      <p class="responsive-text">
+                        {{ income.minutes || " - " }}
+                      </p>
                     </ion-col>
                     <ion-col size="2">
-                      <p>{{ formatAmount(income.amount) }}</p>
+                      <p class="responsive-text-data">
+                        {{ formatAmount(income.amount) }}
+                      </p>
                     </ion-col>
                   </ion-row>
                 </ion-item>
@@ -266,6 +283,17 @@ export default {
 .columns span {
   margin-right: 10px;
 }
+.responsive-text {
+  font-size: clamp(12px, 2vw, 16px);
+  white-space: nowrap;
+  text-align: center;
+}
+.responsive-text-data {
+  font-size: clamp(10px, 1vw, 16px);
+  white-space: nowrap;
+  text-align: center;
+}
+
 @media (max-width: 768px) {
   .modal-container {
     border: 1px solid rgba(216, 216, 216, 0.331);
@@ -295,6 +323,10 @@ export default {
     display: flex;
     flex-direction: column;
     width: 200%;
+  }
+  .large-modal {
+    --width: 95%;
+    --height: 80%;
   }
 }
 </style>
