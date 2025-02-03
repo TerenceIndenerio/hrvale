@@ -373,7 +373,7 @@ export default defineComponent({
         const apiUrl = `${baseURL}api/v1/attendance/break-time-config`;
 
         const getStateResponse = await axios.get(apiUrl, { headers });
-        await this.checkStateBreaktime();
+
         if (getStateResponse.data?.data?.hasBreaktime) {
           await this.checkStateBreaktime();
           this.isPmBreakDone = getStateResponse.data?.data?.isPmBreakDone;
