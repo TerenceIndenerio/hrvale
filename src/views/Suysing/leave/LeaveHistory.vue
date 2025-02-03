@@ -145,7 +145,9 @@ export default defineComponent({
           return;
         }
 
-        const api = `${baseURL}api/v2/leave/leave-requests?limit=${this.limit}&offset=${this.offset}&includeEmployees=onlyCurrent`;
+        const isAllowRetracted = true;
+
+        const api = `${baseURL}api/v2/leave/leave-requests?limit=${this.limit}&offset=${this.offset}&includeEmployees=onlyCurrent&isAllowRetracted=${isAllowRetracted}`;
         const headers = {
           Authorization: `Bearer ${storedToken}`,
         };
