@@ -73,20 +73,26 @@ export default defineComponent({
       empNumber: "",
       pincodeData: "",
       empID: "",
-      appVersion: "0.1.49",
+      appVersion: "0.1.50",
     };
   },
 
   async mounted() {
     try {
       const hasSetup = localStorage.getItem("hasSetup");
-      if (!hasSetup) {
-        this.router.replace("/welcomepage");
+
+      console.log("hasSetup:", hasSetup);
+
+      if (!hasSetup || hasSetup === "false") {
+        console.log("Redirecting to /welcomepage...");
+        this.$nextTick(() => {
+          this.router.replace("/welcomepage");
+        });
+        return;
       }
 
       this.store.commit("loader/updateLoader", true);
       this.fetchStoredTheme();
-      this.fetchLogo();
       this.fetchLogo();
       await this.hasPincode();
       localStorage.removeItem("clickedTab");
@@ -114,10 +120,9 @@ export default defineComponent({
       localStorage.setItem("client", JSON.stringify(client));
 
       const requiredAppVersion = brandingConfig.configuration.appVersion;
-
       localStorage.setItem("appVersion", this.appVersion);
-      
-      if (hasSetup && !this.$platform.is('ios')) {
+
+      if (hasSetup && !this.$platform.is("ios")) {
         if (this.appVersion !== requiredAppVersion) {
           const message = `App Version Needs to be ${requiredAppVersion}. Please Update your App.`;
           await this.presentAlert(message, () => {

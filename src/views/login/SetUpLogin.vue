@@ -74,7 +74,7 @@ export default defineComponent({
       themeData: {},
       bgTheme: "",
       loaded: false,
-      token: "",
+      token: null,
       newaccess_token: "",
       configs: "",
       hasToken: false,
@@ -90,6 +90,7 @@ export default defineComponent({
   methods: {
     async OnLogin(value) {
       try {
+        console.log(localStorage.getItem("hasSetup"));
         if (!value.username || !value.password || !value.client) {
           await this.alertError();
           return;
@@ -107,6 +108,7 @@ export default defineComponent({
           await this.fetchStoredTheme();
           await this.hasPincode();
           localStorage.setItem("hasSetup", true);
+          console.log("inside if:", localStorage.getItem("hasSetup"));
         }
 
         const userCredentials = {
@@ -133,6 +135,8 @@ export default defineComponent({
         } else {
           await this.maintenanceAlertError();
         }
+
+        console.log("inside error:", localStorage.getItem("hasSetup"));
       }
     },
 
