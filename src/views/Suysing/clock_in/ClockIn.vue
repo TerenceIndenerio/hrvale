@@ -407,15 +407,14 @@ export default defineComponent({
 
         const currentDate = new Date().toISOString().split("T")[0];
 
-        // if (
-        //   breakData.punchInAmBreak.amDate === currentDate ||
-        //   breakData.punchOutAmBreak.amDate === currentDate ||
-        //   breakData.punchInLunchBreak.lunchDate === currentDate ||
-        //   breakData.punchOutLunchBreak.lunchDate === currentDate ||
-        //   breakData.punchInPmBreak.pmDate === currentDate ||
-        //   breakData.punchOutPmBreak.pmDate === currentDate
-        // )
-        if (true) {
+        if (
+          breakData.punchInAmBreak.amDate === currentDate ||
+          breakData.punchOutAmBreak.amDate === currentDate ||
+          breakData.punchInLunchBreak.lunchDate === currentDate ||
+          breakData.punchOutLunchBreak.lunchDate === currentDate ||
+          breakData.punchInPmBreak.pmDate === currentDate ||
+          breakData.punchOutPmBreak.pmDate === currentDate
+        ) {
           this.breakDetails = breakData;
         } else {
           this.breakDetails = null;
