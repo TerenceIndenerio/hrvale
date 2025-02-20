@@ -66,6 +66,7 @@ import SuysingNotification from "@/views/Suysing/notification/Notification.vue";
 import SuysingClockIn from "@/views/Suysing/clock_in/ClockIn.vue";
 import SuysingAttendanceCorrection from "@/views/Suysing/attendance/AttendanceCorrection.vue";
 import ViewRecentAttendanceCorrection from "@/views/Suysing/attendance/ViewRecentAttendanceCorrection.vue";
+import EditAttendanceCorrection from "@/views/Suysing/attendance/EditAttendanceCorrection.vue";
 import SuysingLeave from "@/views/Suysing/leave/LeaveDashboard.vue";
 import SuysingLeaveHistory from "@/views/Suysing/leave/LeaveHistory.vue";
 import SuysingApplyLeave from "@/views/Suysing/leave/ApplyLeave.vue";
@@ -295,6 +296,10 @@ const routes: Array<RouteRecordRaw> = [
       {
         path: "/suysing_attendancecorrection",
         component: SuysingAttendanceCorrection,
+      },
+      {
+        path: "/suysing_editattendancecorrection",
+        component: EditAttendanceCorrection,
       },
       {
         path: "/suysing_viewrecentattendancecorrection",
