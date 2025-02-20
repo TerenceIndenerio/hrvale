@@ -47,22 +47,13 @@
           :style="{ backgroundColor: theme.primaryColor }"
         >
           <ion-icon
-            name="arrow-back-outline"
+            name="close-circle"
             class="icon1"
             router-direction="forward"
             @click="setOpen(false)"
           ></ion-icon>
 
           <h2 class="title">{{ headerTitle }}</h2>
-
-          <ion-icon
-            name="notifications"
-            class="icon2"
-            color="light"
-            @click="rotateIcon"
-            :class="{ rotateIcon: rotationState === 'rotateIcon' }"
-            :key="rotationState"
-          ></ion-icon>
         </ion-header>
         <ion-content class="ion-padding">
           <div v-if="modalData.length">
@@ -325,7 +316,6 @@ export default defineComponent({
       this.isOpen = open;
     },
 
-    // Only one isDarkColor method needed here
     isDarkColor(color) {
       const rgb = this.hexToRgb(color);
       if (!rgb) return false;
@@ -380,7 +370,7 @@ export default defineComponent({
     async requestData() {
       try {
         await this.checkTokenExpiration();
-
+        this.store.commit("loader/updateLoader", true);
         const storedToken = localStorage.getItem("token");
         const baseURL = localStorage.getItem("baseUrl");
         const authToken = `Bearer ${storedToken}`;
@@ -414,6 +404,8 @@ export default defineComponent({
         });
       } catch (error) {
         console.error("Error:", error);
+      } finally {
+        this.store.commit("loader/updateLoader", false);
       }
     },
 
@@ -614,6 +606,11 @@ export default defineComponent({
 </script>
 
 <style scoped>
+/* Modal Header */
+@import url("https://fonts.googleapis.com/css?family=Inter");
+@import url("https://fonts.googleapis.com/css?family=Open+Sans");
+@import url("https://fonts.googleapis.com/css?family=Roboto");
+
 ion-card-content {
   padding: 0;
   margin: 10px;
@@ -786,10 +783,6 @@ ion-card-header {
   text-align: center;
   margin: 10px 0 20px 0;
 }
-/* Modal Header */
-@import url("https://fonts.googleapis.com/css?family=Inter");
-@import url("https://fonts.googleapis.com/css?family=Open+Sans");
-@import url("https://fonts.googleapis.com/css?family=Roboto");
 
 .header {
   background-color: var(--ion-color-blue-theme);
@@ -809,9 +802,12 @@ ion-card-header {
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 }
 .icon1 {
-  font-size: 30px;
+  font-size: 40px;
   color: var(--ion-color-primary-contrast);
   transition: transform 0.2s ease;
+  position: absolute;
+  right: 20px;
+  top: 20px;
 }
 .icon1:hover {
   transform: scale(0.5);
@@ -834,6 +830,7 @@ ion-card-header {
   font-style: normal;
   font-weight: 700;
   line-height: normal;
+  position: absolute;
 }
 .settings-icon {
   font-size: 25px;
