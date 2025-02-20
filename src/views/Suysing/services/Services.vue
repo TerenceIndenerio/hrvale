@@ -205,8 +205,6 @@ export default defineComponent({
             : "00:00";
 
         this.btnText = state?.name === "Punched Out" ? "Clock In" : "Clock Out";
-
-        console.log("Clock Data:", this.clockData);
       } catch (error) {
         if (error.response?.status === 401) {
           console.error(

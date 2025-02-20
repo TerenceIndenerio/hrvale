@@ -38,7 +38,11 @@
 
         <ion-tab-button
           tab="services"
-          href="/tabs/suysing_services"
+          :href="
+            this.client === 'suysing'
+              ? '/tabs/suysing_services'
+              : '/tabs/services'
+          "
           @click="handleTabButtonClick('services')"
         >
           <div
@@ -192,7 +196,10 @@ export default defineComponent({
       this.theme = themeData;
     },
   },
-  created() {
+  async created() {
+    const fixedClient = localStorage.getItem("client");
+    this.client = JSON.parse(fixedClient);
+
     this.clickedTab = localStorage.getItem("clickedTab") || "home";
     this.empNumber = localStorage.getItem("empNumber");
     this.fetchTheme();

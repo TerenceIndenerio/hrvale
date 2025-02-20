@@ -65,7 +65,7 @@ import {
 import CardWImg from "@/components/cards/CardWImg.vue";
 import ServicesGroupButton from "@/views/services/components/ServicesGroupButton.vue";
 import TopServices from "@/views/services/components/TopServices.vue";
-import HeaderUser from "@/components/header/HeaderUser.vue";
+import HeaderUser from "@/views/Suysing/components/HeaderUser.vue";
 import Refresher from "@/components/refresher/Refresher.vue";
 import { defineComponent } from "vue";
 import { useRouter } from "vue-router";
