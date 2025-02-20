@@ -38,7 +38,7 @@
           <p>Leave Start</p>
         </ion-col>
         <ion-col size="6" class="col-data">
-          <p :style="{ color: primaryColor }">{{ endDate }}</p>
+          <p :style="{ color: primaryColor }">{{ startDate }}</p>
         </ion-col>
       </ion-row>
 
@@ -47,7 +47,7 @@
           <p>Leave End</p>
         </ion-col>
         <ion-col size="6" class="col-data">
-          <p :style="{ color: primaryColor }">{{ startDate }}</p>
+          <p :style="{ color: primaryColor }">{{ endDate }}</p>
         </ion-col>
       </ion-row>
 
