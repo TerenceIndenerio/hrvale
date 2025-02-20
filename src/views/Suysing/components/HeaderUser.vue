@@ -1,11 +1,5 @@
 <template>
   <ion-header class="header-container" color="none">
-    <!-- Suysing White Theme Logo -->
-    <!-- <img
-      :src="'https://www.jdldavao.com/wp-content/uploads/2019/09/jobscloud.jpg'"
-      alt="Logo"
-      class="logo"
-    /> -->
     <img
       :src="this.logo"
       alt="Logo"
@@ -42,7 +36,7 @@
         <ion-icon
           @click="isOpen = false"
           name="close"
-          color="danger"
+          color="none"
           class="close-btn"
         >
         </ion-icon>
@@ -257,18 +251,19 @@ export default defineComponent({
 @import url("https://fonts.googleapis.com/css?family=Roboto");
 
 .header-container {
-  background-color: #ffffff;
   height: 100px;
   overflow: hidden;
   display: flex;
   flex-direction: row;
   justify-content: center;
   align-items: center;
-  box-shadow: none;
   -webkit-box-shadow: none;
   text-align: center;
   border-radius: 0 0 20px 20px;
-  -webkit-border-radius: 0 0 20px 20px;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
 }
 
 .profile-img-container {
@@ -299,7 +294,6 @@ export default defineComponent({
 }
 .icon1 {
   font-size: 30px;
-  border: 3px solid white;
   border-radius: 100%;
   color: var(--ion-color-primary-contrast);
   transition: transform 0.3s ease-out;
@@ -337,9 +331,9 @@ ion-popover {
   width: 200px;
   position: absolute;
   top: 20px;
-  left: 5px;
+  left: 0px;
   padding: 0 5px;
-  border-radius: 10px;
+  border-radius: 0 20px 20px 0;
   box-shadow: 0px 4px 6px -1px rgba(0, 0, 0, 0.8),
     0px 2px 4px -1px rgba(0, 0, 0, 0.6);
   -webkit-box-shadow: 0px 4px 6px -1px rgba(0, 0, 0, 0.8);
