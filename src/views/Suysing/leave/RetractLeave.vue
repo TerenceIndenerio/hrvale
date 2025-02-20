@@ -173,6 +173,29 @@
           </ion-button>
         </div>
       </div>
+
+      <!-- alert successfully submitted -->
+      <ion-modal :is-open="isSuccessful" id="modal">
+        <ion-card class="card-modal">
+          <ion-card-header>
+            <ion-card-title class="modal-header">Success</ion-card-title>
+          </ion-card-header>
+          <ion-icon
+            name="checkmark-circle"
+            :style="{ color: theme.successColor }"
+            class="close-btn"
+          ></ion-icon>
+
+          <ion-grid class="modal-content">
+            <p>Apply Leave Sent Successfully!</p>
+            <ion-row>
+              <ion-col>
+                <ion-button @click="confirmSuccess">Okay</ion-button>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </ion-card>
+      </ion-modal>
     </ion-content>
   </ion-page>
 </template>
@@ -193,6 +216,11 @@ import {
   IonLabel,
   IonInput,
   IonDatetime,
+  IonModal,
+  IonIcon,
+  IonCardTitle,
+  IonCardHeader,
+  IonGrid,
 } from "@ionic/vue";
 import Calendar from "@/views/services/leave/components/Calendar.vue";
 import HeaderReturn from "@/components/header/HeaderReturn.vue";
@@ -223,6 +251,11 @@ export default defineComponent({
     IonLabel,
     IonInput,
     IonDatetime,
+    IonModal,
+    IonIcon,
+    IonCardTitle,
+    IonCardHeader,
+    IonGrid,
   },
   setup() {
     return {
@@ -234,7 +267,7 @@ export default defineComponent({
     return {
       theme: {},
       loading: true,
-      headerTitle: "Apply Leave",
+      headerTitle: "Retract Leave",
       leaveOptionsWithIds: [],
       fromDate: null,
       toDate: null,
@@ -278,6 +311,7 @@ export default defineComponent({
       highlightedDates: [],
       combinedDates: [],
       valueDates: [],
+      isSuccessful: false,
     };
   },
   watch: {
@@ -447,33 +481,40 @@ export default defineComponent({
     },
 
     handleCalendarChange(event) {
-      const selectedDates = event.detail.value;
+      // Ensure event.detail.value is an array, default to empty array if undefined
+      let selectedDates = Array.isArray(event.detail?.value)
+        ? event.detail.value
+        : [];
 
-      const disabledCount = selectedDates.filter((date) =>
-        this.disabledDates_.some((disabledDate) => disabledDate.date === date)
+      // Count disabled dates in the selection
+      let disabledCount = selectedDates.filter((date) =>
+        this.disabledDates_?.some((disabledDate) => disabledDate.date === date)
       ).length;
 
+      // Filter out disabled dates from selection
       this.valueDates = selectedDates.filter((date) => {
-        return !this.disabledDates_.some(
+        return !this.disabledDates_?.some(
           (disabledDate) => disabledDate.date === date
         );
       });
 
-      if (disabledCount > 0) {
+      // If a disabled date is clicked, prevent further processing
+      if (disabledCount > 0 && selectedDates.length > 0) {
         let lastSelectedDate = new Date(
           selectedDates[selectedDates.length - 1]
         );
+
         while (disabledCount > 0) {
           lastSelectedDate.setDate(lastSelectedDate.getDate() + 1);
           const extraDateStr = lastSelectedDate.toISOString().split("T")[0];
-          if (!this.disabledDates_.some((d) => d.date === extraDateStr)) {
+
+          if (!this.disabledDates_?.some((d) => d.date === extraDateStr)) {
             this.valueDates.push(extraDateStr);
             disabledCount--;
           }
         }
       }
     },
-
     updateSelectedDates({ selectedDates, month, year }) {
       const generateDates = (startDate, days) => {
         const dates = [];
@@ -594,6 +635,7 @@ export default defineComponent({
 
     async sendLeaveRequest() {
       try {
+        this.store.commit("loader/updateLoader", true);
         if (
           !this.valueDates ||
           !this.valueDates.length ||
@@ -637,13 +679,13 @@ export default defineComponent({
         this.durationSelectedValue = null;
         this.selectedLeaveID = null;
         this.selectedDates_ = null;
-
-        this.router.push("/leave");
       } catch (error) {
         console.error("Error sending leave request:", error);
         this.showErrorMessage(
           error.response?.data?.error?.message || error.message
         );
+      } finally {
+        this.store.commit("loader/updateLoader", true);
       }
     },
 
@@ -672,23 +714,7 @@ export default defineComponent({
         const response = await axios.post(api, requestData, { headers });
 
         if (response.status === 200) {
-          const toast = await toastController.create({
-            message: "Leave retracted successfully!",
-            duration: 3000,
-            position: "top",
-            color: "light",
-            icon: "alert-circle-outline",
-            buttons: [
-              {
-                icon: "close-outline",
-                role: "cancel",
-              },
-            ],
-          });
-
-          await toast.present();
-
-          window.location.replace("/leave");
+          this.isSuccessful = true;
         } else {
           throw new Error(
             "Failed to retract leave request. Status: " + response.status
@@ -704,6 +730,13 @@ export default defineComponent({
       } finally {
         this.store.commit("loader/updateLoader", false);
       }
+    },
+
+    confirmSuccess() {
+      this.isSuccessful = false;
+      setTimeout(() => {
+        window.location.replace(`/suysing_leavehistory`);
+      }, 1000);
     },
 
     updateSelectedLeave(event) {
@@ -914,5 +947,33 @@ export default defineComponent({
 .effective-date-label {
   font-weight: bold;
   text-align: center;
+}
+.modal-content {
+  margin: 0 0 10px 0;
+  text-align: center;
+}
+#modal {
+  --background: rgba(255, 0, 0, 0);
+}
+.modal-header {
+  text-align: center;
+}
+.card-modal {
+  border-radius: 20px;
+  max-width: 400px;
+  margin-top: 50%;
+}
+.close-btn {
+  position: absolute;
+  top: 5px;
+  right: 10px;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  margin: 0;
+  box-shadow: var(--neomorphism-convex-4);
+  border-radius: 50%;
+  background-color: rgb(246, 246, 246);
+  overflow: hidden;
 }
 </style>

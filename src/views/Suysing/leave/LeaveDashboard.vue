@@ -315,55 +315,6 @@ export default defineComponent({
         this.router.push("/login");
       }
     },
-
-    async fetchData() {
-      try {
-        await this.checkTokenExpiration();
-        const baseURL = localStorage.getItem("baseUrl");
-        const storedToken = localStorage.getItem("token");
-
-        if (!storedToken) {
-          console.log("Token is missing. Redirecting to login...");
-          this.router.push("/login");
-          return;
-        }
-
-        const api = `${baseURL}api/v2/leave/leave-requests?limit=${this.limit}&offset=${this.offset}&includeEmployees=onlyCurrent`;
-        const headers = {
-          Authorization: `Bearer ${storedToken}`,
-        };
-
-        const dataResponse = await axios.get(api, { headers });
-        return dataResponse.data;
-      } catch (error) {
-        console.error(error);
-      }
-    },
-    getTimeOfDay() {
-      const currentTime = new Date().getHours();
-
-      if (currentTime >= 5 && currentTime < 12) {
-        return "Good Morning";
-      } else if (currentTime >= 12 && currentTime < 17) {
-        return "Good Afternoon";
-      } else {
-        return "Good Evening";
-      }
-    },
-    navigateToLeaveRequests(item) {
-      this.cardId = item.id;
-      this.$router.push({
-        path: "/leaveRequest",
-        query: { cardId: this.cardId },
-      });
-    },
-    navigateToRetractLeave(item) {
-      this.cardId = item.id;
-      this.$router.push({
-        path: "/retractleave",
-        query: { cardId: this.cardId },
-      });
-    },
     navigateToApplyLeave() {
       this.$router.push("/suysing_applyLeave");
     },
@@ -373,17 +324,7 @@ export default defineComponent({
     navigateToLeaveHistory() {
       this.$router.push("/suysing_leavehistory");
     },
-    getStatusColor(status) {
-      if (status === "Pending Approval") {
-        return "warning";
-      } else if (status === "Rejected") {
-        return "danger";
-      } else if (status === "Taken") {
-        return "primary";
-      } else {
-        return "default";
-      }
-    },
+
     getTheme() {
       const storedThemeData = getThemeData();
 
@@ -399,45 +340,10 @@ export default defineComponent({
 
       this.theme = themeData;
     },
-    async loadMoreData(event) {
-      this.offset += this.limit;
-
-      const newData = await this.fetchData();
-
-      if (newData && newData.data.length > 0) {
-        this.requests = [...this.requests, ...newData.data];
-      }
-
-      event.target.complete();
-    },
   },
 
   async created() {
     this.fetchTheme();
-
-    try {
-      this.store.commit("loader/updateLoader", true);
-      const data = await this.fetchData();
-
-      if (data && data.data.length > 0) {
-        this.requests = data.data;
-        this.showComponent = true;
-
-        const leaveData = this.requests[0];
-        this.cardData.employeeName = `${leaveData.employee.firstName} ${
-          leaveData.employee.middleName || ""
-        } ${leaveData.employee.lastName}`;
-        this.cardData.leaveBalance = leaveData.leaveBalances[0].balance.balance;
-      } else {
-        this.hasRecord = false;
-      }
-    } catch (error) {
-      this.loading = false;
-      console.error(error);
-    } finally {
-      this.store.commit("loader/updateLoader", false);
-      this.loading = false;
-    }
   },
 });
 </script>

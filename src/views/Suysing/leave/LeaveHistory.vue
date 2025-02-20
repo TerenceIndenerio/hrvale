@@ -179,7 +179,7 @@ export default defineComponent({
     navigateToRetractLeave(item) {
       this.cardId = item.id;
       this.$router.push({
-        path: "/retractleave",
+        path: "/suysing_retractleave",
         query: { cardId: this.cardId },
       });
     },

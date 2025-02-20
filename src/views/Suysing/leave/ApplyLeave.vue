@@ -599,8 +599,6 @@ export default defineComponent({
       }
     },
 
-    async effectiveDateApply() {},
-
     fetchTheme() {
       const storedThemeData = localStorage.getItem("themeData");
 
