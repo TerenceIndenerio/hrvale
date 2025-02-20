@@ -8,9 +8,12 @@
         }"
       >
         <div class="title-container">
-          <h1 class="title" :style="{ color: theme.primaryFontColor }">
+          <div
+            class="logo-container"
+            :style="{ color: theme.primaryFontColor }"
+          >
             <img :src="logo" alt="Logo" />
-          </h1>
+          </div>
           <h4 class="input-title">Enter your PIN</h4>
           <div class="pincode-circle-container">
             <input
@@ -310,6 +313,10 @@ export default {
 .container-bg {
   height: 60vh;
 }
+.logo {
+  max-width: 200px;
+  height: auto;
+}
 .logo-name h1 {
   text-align: right;
   color: #fff;
@@ -414,8 +421,9 @@ export default {
   flex-direction: column;
   justify-content: space-evenly;
   align-items: center;
-  height: 80%;
+  height: 70%;
   flex-direction: column;
+  padding-top: 50px;
 }
 .title {
   height: 50px;
