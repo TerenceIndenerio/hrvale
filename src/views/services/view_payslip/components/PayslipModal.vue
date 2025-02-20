@@ -206,7 +206,6 @@ export default {
     viewPayslipData: Object,
     theme: Object,
     grossDeduction: String,
-    grossPay: String,
   },
   methods: {
     closeModal() {

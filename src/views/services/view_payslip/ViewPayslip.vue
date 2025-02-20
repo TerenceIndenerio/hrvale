@@ -147,6 +147,7 @@
               </ion-row>
             </ion-grid>
             <ion-button
+              v-if="!isIOS"
               expand="full"
               class="download-btn neomorphic-btn-2"
               color="none"
@@ -165,6 +166,7 @@
         :netPay="this.netPay"
         :viewPayslipData="this.viewPayslipData"
         :grossPay="this.grossPay"
+        :grossDeduction="this.grossDeduction"
         :theme="theme"
         @update:isOpen="isPayslipModalOpen = $event"
       />
@@ -174,6 +176,7 @@
 
 <script>
 import {
+  isPlatform,
   IonPage,
   IonContent,
   IonButton,
@@ -202,10 +205,13 @@ import {
   Filesystem,
   Directory,
   FilesystemEncoding,
+  Encoding,
 } from "@capacitor/filesystem";
 
 export default defineComponent({
   components: {
+    isPlatform,
+    Encoding,
     IonPage,
     IonContent,
     IonDatetime,
@@ -268,6 +274,8 @@ export default defineComponent({
       viewPayslipData: null,
       grossPay: null,
       netPay: null,
+      grossDeduction: null,
+      isIOS: false,
     };
   },
   methods: {
@@ -389,11 +397,15 @@ export default defineComponent({
 
         const blob = new Blob([this.base64ToArrayBuffer(content)], { type });
 
-        if (this.isWebPlatform()) {
-          this.downloadOnWeb(blob); // Web
-        } else {
-          await this.downloadOnMobile(blob); // Mobile
-        }
+        const printThis = await this.blobToBase64(blob);
+
+        console.log(this.base64ToArrayBuffer(content));
+
+        // if (this.isWebPlatform()) {
+        //   this.downloadOnWeb(blob); // Web
+        // } else {
+        //   await this.downloadOnMobile(blob); // Mobile
+        // }
       } catch (error) {
         console.error("Error:", error);
         this.showErrorMessage("An error occurred: " + error.message);
@@ -420,26 +432,21 @@ export default defineComponent({
         const payslipPath = `payslip_${Date.now()}.pdf`;
         const base64String = await this.blobToBase64(blob);
 
-        // Determine platform-specific directory
-        const platform = Capacitor.getPlatform();
-        const directory =
-          platform === "android" ? Directory.External : Directory.External;
-
         const writeResult = await Filesystem.writeFile({
           path: payslipPath,
           data: base64String,
-          directory: directory,
+          directory: Directory.Documents,
           encoding: FilesystemEncoding.Base64,
         });
 
         if (writeResult.uri) {
           const fileUri = await Filesystem.getUri({
             path: payslipPath,
-            directory: directory,
+            directory: Directory.Documents,
           });
 
           this.showAlertMessage(
-            "Payslip Successfully Downloaded! Check the Downloads folder."
+            "Payslip Successfully Downloaded! Check the Documents."
           );
         } else {
           console.error(
@@ -451,10 +458,11 @@ export default defineComponent({
         }
       } catch (error) {
         console.error("Error:", error);
-        this.showErrorMessage("An error occurred: " + error.message);
+        this.showErrorMessage(
+          "An error:" + error.response?.data?.error?.message
+        );
       }
     },
-
     isWebPlatform() {
       return window.hasOwnProperty("cordova") ? false : true;
     },
@@ -560,6 +568,7 @@ export default defineComponent({
         this.viewPayslipData = response.data.data.summary;
         this.grossPay = response.data.data.payroll.gross_compensation;
         this.netPay = response.data.data.payroll.net_pay;
+        this.grossDeduction = response.data.data.payroll.total_deductions;
       } catch (error) {
         if (
           error.response &&
@@ -607,13 +616,38 @@ export default defineComponent({
 
       this.theme = themeData;
     },
+
+    async tryRequest() {
+      try {
+        this.store.commit("loader/updateLoader", true);
+        await this.checkTokenExpiration();
+
+        const storedToken = localStorage.getItem("token");
+        const baseURL = localStorage.getItem("baseUrl");
+        const authToken = `Bearer ${storedToken}`;
+
+        const response = await fetch(`${baseURL}api/ess/view-payslip/35604`, {
+          method: "GET",
+          headers: {
+            Authorization: authToken,
+            "Content-Type": "application/json",
+          },
+        });
+      } catch (error) {
+        console.log(error);
+      } finally {
+        this.store.commit("loader/updateLoader", false);
+      }
+    },
   },
   async created() {
+    this.isIOS = isPlatform("ios");
     await this.checkTokenExpiration();
     this.fetchTheme();
     await this.requestData();
 
     this.loading = false;
+    this.tryRequest();
   },
 });
 </script>
