@@ -138,13 +138,13 @@
                     for efficiency. With seamless mobile access, empower your
                     workforce with easy VALE and cash advance applications.
                   </p>
+                  <ion-button
+                    class="continue-button"
+                    fill="clear"
+                    @click="continueClicked"
+                    >Continue</ion-button
+                  >
                 </ion-text>
-                <ion-button
-                  class="continue-button"
-                  fill="clear"
-                  @click="continueClicked"
-                  >Continue</ion-button
-                >
               </div>
             </div>
           </div>
@@ -299,12 +299,8 @@ export default defineComponent({
   text-align: left;
 }
 .start-button {
-  /* Rectangle 114 */
-  /* position: absolute; */
-  /* width: 299px; */
   height: 52px;
   left: 50%;
-  /* transform: translate(-50%, -50%); */
   bottom: 0;
   border-radius: 55px;
   background: linear-gradient(
@@ -329,7 +325,6 @@ export default defineComponent({
 .text-section,
 .header1 {
   display: flex;
-  /* justify-content: center; */
   flex-direction: column;
   width: fit-content;
   margin: 0 auto;
@@ -343,6 +338,7 @@ export default defineComponent({
   margin: 10px auto;
   border-radius: 30px;
   flex-direction: column;
+  box-shadow: var(--neomorphism-concave-1);
 }
 .svg2 {
   position: absolute;
@@ -368,6 +364,7 @@ export default defineComponent({
   margin: 0 auto;
   padding: 0 10px 20px 10px;
   border-radius: 20px;
+  box-shadow: var(--neomorphism-concave-1);
 }
 .text-container {
   display: flex;
@@ -410,8 +407,6 @@ export default defineComponent({
   letter-spacing: 0%;
   text-align: center;
   margin: 10px auto;
-  /* position: absolute; */
-  /* bottom: 30px; */
 }
 /*Slide 3 Style */
 .wave-container3 {
@@ -420,11 +415,12 @@ export default defineComponent({
 .lower-section2 {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  align-items: flex-end;
   padding: 2%;
-  background-color: white;
   max-width: 1000px;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 10%;
   margin: 0 auto;
 }
 .text-container2 {
@@ -435,14 +431,15 @@ export default defineComponent({
   padding: 5%;
   background-color: rgb(247, 247, 247);
   border-radius: 10px;
+  gap: 10px;
   z-index: 1000;
+  box-shadow: var(--neomorphism-concave-1);
 }
 .logo {
   z-index: 1000;
   margin: 0 auto;
 }
 .continue-button {
-  margin: 0 auto;
   width: 150px;
   height: 50px;
   border-radius: 26px;
@@ -453,10 +450,5 @@ export default defineComponent({
   font-weight: 600;
   text-align: center;
   z-index: 1001;
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 20px;
-  padding: 0;
 }
 </style>
