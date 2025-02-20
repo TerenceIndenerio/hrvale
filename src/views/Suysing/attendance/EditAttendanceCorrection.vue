@@ -9,14 +9,142 @@
       <Refresher />
       <ion-card class="neomorphic-card-1 search-container">
         <ion-segment v-model="withAttendance" @ionChange="toggleAttendance">
-          <ion-segment-button :value="false">
+          <ion-segment-button :value="true">
             <p class="segment-label">With Attendance</p>
           </ion-segment-button>
-          <ion-segment-button :value="true">
+          <ion-segment-button :value="false">
             <p class="segment-label">Without Attendance</p>
           </ion-segment-button>
         </ion-segment>
       </ion-card>
+
+      <div class="result-container">
+        <div v-for="(result, index) in results">
+          <ion-card
+            class="neomorphic-card-1 card-container"
+            :key="index"
+            v-if="hasSearched"
+          >
+            <ion-grid>
+              <div>
+                <h5 class="form-title" :style="{ color: theme.primaryColor }">
+                  Fill-out the necessary details
+                </h5>
+              </div>
+              <div class="card-content">
+                <ion-row class="data-container">
+                  <ion-col size="6">
+                    <p><strong>Selected Date:</strong></p>
+                  </ion-col>
+                  <ion-col size="6">
+                    <p :style="{ color: theme.primaryColor }">
+                      <strong>{{ result.date }}</strong>
+                    </p>
+                  </ion-col>
+                </ion-row>
+
+                <ion-row class="data-container">
+                  <ion-col size="6">
+                    <p><strong>Previous Actual In:</strong></p>
+                  </ion-col>
+                  <ion-col size="6">
+                    <p :style="{ color: theme.primaryColor }">
+                      <strong>{{ result.actualIn }}</strong>
+                    </p>
+                  </ion-col>
+                </ion-row>
+
+                <ion-row class="data-container">
+                  <ion-col size="6">
+                    <p><strong>Actual In:</strong></p>
+                  </ion-col>
+                  <ion-col size="6">
+                    <input
+                      v-model="actualIn"
+                      type="time"
+                      class="neomorphic-card-1 input-date"
+                    />
+                  </ion-col>
+                </ion-row>
+
+                <ion-row class="data-container">
+                  <ion-col size="6">
+                    <p><strong>Previous Actual Out:</strong></p>
+                  </ion-col>
+                  <ion-col size="6">
+                    <p :style="{ color: theme.primaryColor }">
+                      <strong>{{ result.actualOut }}</strong>
+                    </p>
+                  </ion-col>
+                </ion-row>
+
+                <ion-row class="data-container">
+                  <ion-col size="6">
+                    <p><strong>Actual Out:</strong></p>
+                  </ion-col>
+                  <ion-col size="6">
+                    <input
+                      v-model="actualOut"
+                      type="time"
+                      class="neomorphic-card-1 input-date"
+                    />
+                  </ion-col>
+                </ion-row>
+
+                <ion-row class="data-container">
+                  <ion-col size="6">
+                    <p><strong>Reason:</strong></p>
+                  </ion-col>
+                  <ion-col size="6">
+                    <ion-select
+                      placeholder="Select Reason"
+                      v-model="selectedReason"
+                      class="reason-select neomorphic-input-2"
+                      aria-label="Reason"
+                    >
+                      <ion-select-option
+                        v-for="option in reasonOptions"
+                        :key="option.value"
+                        :value="option.content"
+                      >
+                        {{ option.content }}
+                      </ion-select-option>
+                    </ion-select>
+                  </ion-col>
+                </ion-row>
+
+                <ion-row class="data-container">
+                  <ion-col size="6">
+                    <p><strong>Comment:</strong></p>
+                  </ion-col>
+                  <ion-col size="6"> </ion-col>
+                </ion-row>
+
+                <ion-row class="data-container">
+                  <ion-col size="12">
+                    <textarea
+                      name="comment"
+                      v-model="comment"
+                      class="comment-container neomorphic-textarea-1"
+                      placeholder="Enter comment here..."
+                    ></textarea>
+                  </ion-col>
+                </ion-row>
+
+                <ion-button
+                  expand="full"
+                  class="pos-right submit-btn neomorphic-btn-2"
+                  color="none"
+                  :style="{ backgroundColor: theme.primaryColor }"
+                  @click="saveCorrection"
+                >
+                  Submit
+                </ion-button>
+              </div>
+            </ion-grid>
+          </ion-card>
+        </div>
+      </div>
       <div class="recent-container">
         <h5 :style="{ color: theme.primaryColor }">Recent Transaction</h5>
         <ion-button
@@ -32,146 +160,18 @@
           View All
         </ion-button>
       </div>
-
-      <div class="result-container">
-        <div v-for="(result, index) in results" :key="index">
-          <ion-card class="neomorphic-card-1 card-container" v-if="hasSearched">
-            <ion-grid class="grid-container">
-              <div class="card-header">
-                <h5 class="form-title" :style="{ color: theme.primaryColor }">
-                  {{ result.date }}
-                </h5>
-                <ion-button
-                  class="edit-btn"
-                  @click="openEditModal(result)"
-                  size="small"
-                  fill="outline"
-                >
-                  Edit
-                </ion-button>
-              </div>
-            </ion-grid>
-          </ion-card>
-        </div>
-      </div>
-
-      <!-- Edit Modal -->
-      <ion-modal :is-open="isEditing" id="modal">
+      <!-- alert successfully submitted -->
+      <ion-modal :is-open="isSuccessful" id="modal">
         <ion-card class="card-modal">
           <ion-card-header>
-            <ion-card-title class="modal-header">
-              Edit Attendance
-              <ion-icon
-                name="close"
-                class="close-btn"
-                @click="closeEditModal"
-              ></ion-icon>
-            </ion-card-title>
-          </ion-card-header>
-
-          <ion-grid class="modal-content">
-            <ion-row class="data-container">
-              <ion-col size="6">
-                <p><strong>Request No:</strong></p>
-              </ion-col>
-              <ion-col size="6">
-                {{ this.requestNumber }}
-              </ion-col>
-            </ion-row>
-
-            <ion-row class="data-container">
-              <ion-col size="6">
-                <p><strong>Actual In:</strong></p>
-              </ion-col>
-              <ion-col size="6">
-                <input
-                  v-model="selectedResult.actualIn"
-                  type="time"
-                  class="neomorphic-card-1 input-date"
-                />
-              </ion-col>
-            </ion-row>
-
-            <ion-row class="data-container">
-              <ion-col size="6">
-                <p><strong>Actual Out:</strong></p>
-              </ion-col>
-              <ion-col size="6">
-                <input
-                  v-model="selectedResult.actualOut"
-                  type="time"
-                  class="neomorphic-card-1 input-date"
-                />
-              </ion-col>
-            </ion-row>
-
-            <ion-row class="data-container">
-              <ion-col size="6">
-                <p><strong>Reason:</strong></p>
-              </ion-col>
-              <ion-col size="6">
-                <ion-select
-                  placeholder="Select Reason"
-                  v-model="selectedReason"
-                  class="reason-select neomorphic-input-2"
-                  aria-label="Reason"
-                >
-                  <ion-select-option
-                    v-for="option in reasonOptions"
-                    :key="option.value"
-                    :value="option.content"
-                  >
-                    {{ option.content }}
-                  </ion-select-option>
-                </ion-select>
-              </ion-col>
-            </ion-row>
-
-            <ion-row class="data-container">
-              <ion-col size="6">
-                <p><strong>Comment:</strong></p>
-              </ion-col>
-              <ion-col size="6"> </ion-col>
-            </ion-row>
-
-            <ion-row class="data-container">
-              <ion-col size="12">
-                <textarea
-                  name="comment"
-                  v-model="comment"
-                  class="comment-container neomorphic-textarea-1"
-                  placeholder="Enter comment here..."
-                ></textarea>
-              </ion-col>
-            </ion-row>
-
-            <ion-row class="data-container">
-              <ion-button
-                expand="full"
-                class="submit-btn neomorphic-btn-2"
-                color="none"
-                :style="{ backgroundColor: theme.primaryColor }"
-                @click="saveCorrection"
-              >
-                Submit
-              </ion-button>
-            </ion-row>
-          </ion-grid>
-        </ion-card>
-      </ion-modal>
-
-      <!-- Success Modal -->
-      <ion-modal :is-open="isSuccessful" id="success-modal">
-        <ion-card class="card-modal">
-          <ion-card-header>
-            <ion-card-title class="modal-header">
-              Success
+            <ion-card-title class="modal-header"
+              >Success
               <ion-icon
                 name="checkmark-circle"
                 :style="{ color: theme.successColor }"
                 class="close-btn"
-              ></ion-icon>
-            </ion-card-title>
+              ></ion-icon
+            ></ion-card-title>
           </ion-card-header>
 
           <ion-grid class="modal-content">
@@ -274,8 +274,6 @@ export default defineComponent({
       requestNumber: "",
       isSuccessful: false,
       withAttendance: false,
-      isEditing: false,
-      selectedResult: {},
     };
   },
   created() {
@@ -410,7 +408,7 @@ export default defineComponent({
 
         const api =
           baseURL +
-          `api/v2/daily-logs?limit=50&offset=0&noAttendance=${this.withAttendance}`;
+          `api/v2/daily-logs?limit=50&offset=0&date=${this.startDate}&dateEnd=${this.endDate}&noAttendance=${this.withAttendance}`;
         const dataResponse = await axios.get(api, { headers });
 
         if (dataResponse.data && Array.isArray(dataResponse.data.data)) {
@@ -422,7 +420,6 @@ export default defineComponent({
             actualOut: period.actualOut,
             previousIn: period.previousActualIn,
             previousOut: period.previousActualOut,
-            isEditing: false,
           }));
         }
       } catch (error) {
@@ -440,7 +437,6 @@ export default defineComponent({
       try {
         this.store.commit("loader/updateLoader", true);
         await this.checkTokenExpiration();
-
         const baseURL = localStorage.getItem("baseUrl");
         this.storedToken = localStorage.getItem("token");
 
@@ -452,10 +448,9 @@ export default defineComponent({
 
         const empNumber = parseInt(this.empNumber);
 
-        // Validate required fields
         if (
-          !this.selectedResult.actualIn ||
-          !this.selectedResult.actualOut ||
+          !this.actualIn ||
+          !this.actualOut ||
           !this.comment ||
           !this.selectedReason
         ) {
@@ -464,56 +459,65 @@ export default defineComponent({
             duration: 3000,
             position: "top",
             icon: "alert-circle-outline",
-            buttons: [{ icon: "close-outline", role: "cancel" }],
+            buttons: [
+              {
+                icon: "close-outline",
+                role: "cancel",
+              },
+            ],
           });
           await toast.present();
           return;
         }
 
-        // Format time
-        const applyActualIn = this.convertTo24Hour(
-          this.selectedResult.actualIn
-        );
-        const applyActualOut = this.convertTo24Hour(
-          this.selectedResult.actualOut
-        );
+        this.applyActualIn = this.formatTimeTo12Hour(this.actualIn);
+        this.applyActualOut = this.formatTimeTo12Hour(this.actualOut);
 
-        // Prepare payload
         const payload = {
           requestNo: this.requestNumber,
-          applyActualIn,
-          applyActualOut,
+          applyActualIn: this.applyActualIn,
+          applyActualOut: this.applyActualOut,
           comment: this.comment,
           reason: this.selectedReason,
           date: this.startDate,
           empNumber: empNumber,
-          previousIn: this.selectedResult.previousIn,
-          previousOut: this.selectedResult.previousOut,
+          previousIn: this.previousIn,
+          previousOut: this.previousOut,
         };
 
-        // Send request
         const dataResponse = await axios.post(api, payload, { headers });
 
         if (dataResponse.status >= 200 && dataResponse.status < 300) {
           this.isSuccessful = true;
-          this.isEditing = false;
         } else {
-          throw new Error(
-            "Error occurred while sending attendance correction."
-          );
+          console.log("Error occurred while sending attendance correction.");
+          const toast = await toastController.create({
+            message: "Error occurred while sending attendance correction.",
+            duration: 3000,
+            position: "top",
+            icon: "alert-circle-outline",
+            buttons: [
+              {
+                icon: "close-outline",
+                role: "cancel",
+              },
+            ],
+          });
+          await toast.present();
         }
       } catch (error) {
-        console.error(error);
-        const errorMessage =
-          error.response?.data?.error?.message ||
-          "An unexpected error occurred.";
-
+        console.log(error);
         const toast = await toastController.create({
-          message: errorMessage,
+          message: error.response.data.error.message,
           duration: 3000,
           position: "top",
           icon: "alert-circle-outline",
-          buttons: [{ icon: "close-outline", role: "cancel" }],
+          buttons: [
+            {
+              icon: "close-outline",
+              role: "cancel",
+            },
+          ],
         });
         await toast.present();
       } finally {
@@ -528,37 +532,19 @@ export default defineComponent({
 
     generateRandomString(length) {
       return [...Array(length)]
-        .map(() => Math.random().toString(36)[2].toUpperCase()) // Make it uppercase
+        .map(() => Math.random().toString(36)[2])
         .join("");
     },
 
     requestNumberGenerator() {
-      const randomString = `${this.generateRandomString(
-        2
-      )}-${this.generateRandomString(2)}-${this.generateRandomString(3)}`;
-
+      const randomString = this.generateRandomString(6);
       const currentDate = new Date();
       const month = (currentDate.getMonth() + 1).toString().padStart(2, "0");
       const day = currentDate.getDate().toString().padStart(2, "0");
       const year = currentDate.getFullYear().toString().substr(2, 2);
-      const formattedDate = `${year}${month}${day}`;
 
-      this.requestNumber = `${formattedDate}-${randomString}`;
-    },
-
-    convertTo24Hour(time) {
-      if (!time) return "";
-
-      const [timePart, modifier] = time.split(" ");
-      let [hours, minutes] = timePart.split(":");
-
-      if (modifier === "PM" && hours !== "12") {
-        hours = String(Number(hours) + 12);
-      } else if (modifier === "AM" && hours === "12") {
-        hours = "00";
-      }
-
-      return `${hours.padStart(2, "0")}:${minutes}`;
+      const formattedDate = `${month}${day}${year}`;
+      this.requestNumber = randomString.toUpperCase() + formattedDate;
     },
 
     formatTimeTo12Hour(time) {
@@ -586,30 +572,6 @@ export default defineComponent({
       const formattedMinutes = String(minutes).padStart(2, "0");
 
       return `${formattedHours}:${formattedMinutes} ${ampm}`;
-    },
-
-    toggleEdit(index) {
-      this.results[index].isEditing = !this.results[index].isEditing;
-    },
-
-    openEditModal(result) {
-      this.requestNumberGenerator();
-      if (result.actualIn) {
-        this.selectedResult = {
-          ...result,
-          actualIn: this.convertTo24Hour(result.actualIn),
-          actualOut: this.convertTo24Hour(result.actualOut),
-          previousIn: this.convertTo24Hour(result.actualIn),
-          previousOut: this.convertTo24Hour(result.actualOut),
-        };
-      } else {
-        this.selectedResult = { ...result };
-      }
-      this.isEditing = true;
-      console.log(result);
-    },
-    closeEditModal() {
-      this.isEditing = false;
     },
 
     async fetchReasonOptions() {
@@ -771,8 +733,9 @@ p {
   width: 100px;
 }
 .edit-btn {
-  width: 200px;
+  width: 100%;
   height: 30px;
+  margin: 0 auto 5px auto;
 }
 .result-text {
   margin: 15px;
@@ -798,12 +761,8 @@ p {
   padding-left: 20px;
 }
 .card-container {
-  width: 300px;
-  margin: 20px auto;
-}
-.grid-container {
-  display: flex;
-  justify-content: center;
+  width: 350px;
+  margin: 10px auto;
 }
 .header-outline {
   border-radius: 20px 0 0 20px;
@@ -818,7 +777,9 @@ p {
   font-size: 12px;
 }
 .data-container {
-  text-align: left;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 .date-input {
   display: flex;
@@ -856,7 +817,7 @@ p {
   align-items: center;
   flex-direction: row;
   max-width: 500px;
-  margin: 0 auto 0 auto;
+  margin: 0 auto 50px auto;
 }
 .recent-container h5 {
   font-family: Poppins;
@@ -866,10 +827,6 @@ p {
   text-align: left;
   text-underline-position: from-font;
   text-decoration-skip-ink: none;
-}
-.close-btn {
-  border: 2px solid black;
-  border-radius: 100%;
 }
 .recent-btn {
   width: 100px;
@@ -881,28 +838,24 @@ p {
   border-radius: 5px;
   padding: 0;
   height: 30px;
-  margin: 20px auto;
-  width: 150px;
 }
 .reason-select {
-  width: 100%;
+  width: 120px;
 }
 .modal-content {
   margin: 0 0 10px 0;
   text-align: center;
-  padding: 0 20px;
 }
 #modal {
   --background: rgba(255, 0, 0, 0);
 }
 .modal-header {
-  display: flex;
-  justify-content: space-between;
+  text-align: center;
 }
 .card-modal {
   border-radius: 20px;
   max-width: 400px;
-  margin: auto 10px;
+  margin-top: 50%;
 }
 .segment-label {
   font-size: 12px;
