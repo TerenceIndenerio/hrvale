@@ -407,15 +407,18 @@
       </a>
     </div>
     <!-- Documents -->
+
     <div
       :class="[
         `card btn-text`,
-        { soon: !isDocumentAllowed, hidden: !isDocumentShown },
+        {
+          soon: !isApplyPreApprovedOTAllowed,
+          hidden: !isApplyPreApprovedOTShown,
+        },
       ]"
       expand="full"
       color="none"
     >
-      <h4 :style="{ color: btnTextColor }">Documents</h4>
       <a
         @click="navigateDocument"
         :style="{
@@ -439,6 +442,8 @@
             d="M419.22 188.59L275.41 44.78a2 2 0 00-3.41 1.41V176a16 16 0 0016 16h129.81a2 2 0 001.41-3.41z"
           />
         </svg>
+
+        <h4 :style="{ color: btnTextColor }">Documents</h4>
       </a>
     </div>
     <!-- ApplyPreApprovedOT -->
@@ -500,7 +505,6 @@ export default defineComponent({
     },
     isUserRoleESS() {
       const myDetails = JSON.parse(localStorage.getItem("myDetails"));
-      console.log(myDetails);
       return myDetails.isApprover;
     },
     isleaveAllowed() {
