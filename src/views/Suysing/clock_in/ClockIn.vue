@@ -220,7 +220,7 @@ export default defineComponent({
 
   data() {
     return {
-      btnText: "Clock In",
+      btnText: "",
       headerTitle: "Clock In/Out",
       clockin: "00:00",
       clockout: "00:00",
@@ -237,6 +237,7 @@ export default defineComponent({
       breakTime: false,
       breakDetails: null,
       isModalOpen: false,
+      hasBreaktime: false,
     };
   },
   methods: {
@@ -289,7 +290,7 @@ export default defineComponent({
         this.store.commit("loader/updateLoader", true);
         const baseURL = localStorage.getItem("baseUrl");
         await this.checkTokenExpiration();
-
+        const empNumber = localStorage.getItem("empNumber");
         const token = localStorage.getItem("token");
         if (!token) {
           console.error("Token not available.");
@@ -300,7 +301,8 @@ export default defineComponent({
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         };
-        const apiUrl = baseURL + `api/v2/attendance/records/latest`;
+        const apiUrl =
+          baseURL + `api/v2/attendance/records/latest?empNumber=${empNumber}`;
 
         const getStateResponse = await axios.get(apiUrl, { headers });
 
@@ -325,18 +327,23 @@ export default defineComponent({
           this.clockout = "00:00";
         }
 
-        if (
-          getStateResponse.data?.data?.state?.name === "Punched Out" &&
-          getStateResponse.data?.data?.punchIn?.utcDate === currentDate
-        ) {
-          this.btnText = "Clock In";
-          this.toastMessage = "Clocked In";
-        } else if (
-          getStateResponse.data?.data?.state?.name === "Punched In" &&
-          getStateResponse.data?.data?.punchIn?.utcDate === currentDate
-        ) {
-          this.btnText = "Clock Out";
-          this.toastMessage = "Clocked Out";
+        if (!this.hasBreaktime) {
+          console.log("this.isPmBreakDone: ", !this.isPmBreakDone);
+
+          if (
+            getStateResponse.data?.data?.state?.name === "Punched Out"
+            // && getStateResponse.data?.data?.punchIn?.utcDate === currentDate
+          ) {
+            this.btnText = "Clock In";
+
+            this.toastMessage = "Clocked Out";
+          } else if (
+            getStateResponse.data?.data?.state?.name === "Punched In"
+            // && getStateResponse.data?.data?.punchIn?.utcDate === currentDate
+          ) {
+            this.btnText = "Clock Out";
+            this.toastMessage = "Clocked In";
+          }
         }
       } catch (error) {
         this.loading = false;
@@ -356,6 +363,7 @@ export default defineComponent({
       try {
         this.store.commit("loader/updateLoader", true);
 
+        const empNumber = localStorage.getItem("empNumber");
         const baseURL = localStorage.getItem("baseUrl");
         await this.checkTokenExpiration();
 
@@ -369,15 +377,13 @@ export default defineComponent({
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         };
-
-        const apiUrl = `${baseURL}api/v1/attendance/break-time-config`;
+        const apiUrl = `${baseURL}api/v1/attendance/break-time-config?empNumber=${empNumber}`;
 
         const getStateResponse = await axios.get(apiUrl, { headers });
+        this.isPmBreakDone = getStateResponse.data?.data?.isPmBreakDone;
+        this.hasBreaktime = getStateResponse.data?.data?.hasBreaktime;
 
-        if (getStateResponse.data?.data?.hasBreaktime) {
-          await this.checkStateBreaktime();
-          this.isPmBreakDone = getStateResponse.data?.data?.isPmBreakDone;
-        }
+        await this.checkStateBreaktime();
       } catch (error) {
         console.error("Error fetching break-time config:", error.message);
       } finally {
@@ -388,6 +394,7 @@ export default defineComponent({
     async checkStateBreaktime() {
       try {
         this.store.commit("loader/updateLoader", true);
+        const empNumber = localStorage.getItem("empNumber");
         const baseURL = localStorage.getItem("baseUrl");
         await this.checkTokenExpiration();
         const token = localStorage.getItem("token");
@@ -400,7 +407,9 @@ export default defineComponent({
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         };
-        const apiUrl = baseURL + `api/v1/attendance/break-time/latest`;
+        const apiUrl =
+          baseURL +
+          `api/v1/attendance/break-time/latest?empNumber=${empNumber}`;
         const getStateResponse = await axios.get(apiUrl, { headers });
 
         const breakData = getStateResponse.data.data;
@@ -420,12 +429,14 @@ export default defineComponent({
           this.breakDetails = null;
         }
 
-        if (breakData.state.name === "Punched In") {
-          this.btnText = "Punch Out";
-          this.toastMessage = "Punch Out Break";
-        } else {
-          this.btnText = "Punch In";
-          this.toastMessage = "Punch In Break";
+        if (this.hasBreaktime) {
+          if (breakData.state.name === "Punched In") {
+            this.btnText = "Punch Out Break";
+            this.toastMessage = "Punch Out Break";
+          } else {
+            this.btnText = "Punch In Break";
+            this.toastMessage = "Punch In Break";
+          }
         }
       } catch (error) {
         console.log(error);
@@ -482,24 +493,31 @@ export default defineComponent({
 
         const coordinates = await Geolocation.getCurrentPosition();
 
-        const payload = {
-          date: this.date,
-          time: this.time,
-          timezoneName: this.timezoneName,
-          timezoneOffset: this.timezoneOffset,
-          note: null,
-          latitude: coordinates.coords.latitude,
-          longitude: coordinates.coords.longitude,
-        };
-
-        if (!this.isPmBreakDone) {
-          const breakTimeApiUrl = `${baseURL}api/v1/break-time`;
+        if (this.hasBreaktime) {
           console.log("Using Break Time");
+          const payload = {
+            date: this.date,
+            time: this.time,
+            // timezoneName: this.timezoneName,
+            // timezoneOffset: this.timezoneOffset,
+            // note: null,
+            // latitude: coordinates.coords.latitude,
+            // longitude: coordinates.coords.longitude,
+          };
+          const breakTimeApiUrl = `${baseURL}api/v1/break-time`;
+
           await axios.post(breakTimeApiUrl, payload, { headers });
           await this.breaktimeConfig();
         } else {
-          const attendanceApiUrl = `${baseURL}api/v3/attendance/employees/records`;
           console.log("Using Attendance");
+          const payload = {
+            date: this.date,
+            time: this.time,
+            timezoneName: this.timezoneName,
+            timezoneOffset: this.timezoneOffset,
+          };
+          const attendanceApiUrl = `${baseURL}api/v3/attendance/employees/records`;
+
           if (this.employeeAlreadyPunchedIn) {
             await axios.put(attendanceApiUrl, payload, { headers });
           } else {
@@ -587,8 +605,9 @@ export default defineComponent({
     this.getCurrentTime();
     setInterval(this.getCurrentTime, 1000);
     this.checkTokenExpiration();
-    await this.checkState();
     await this.breaktimeConfig();
+    await this.checkState();
+
     this.fetchTheme();
     this.loading = false;
   },
