@@ -252,7 +252,7 @@ export default defineComponent({
       applyLoanAmount: 0,
       requestDataIdStored: null,
       currentOffset: 0,
-      limit: 10,
+      limit: 50,
       isEditLoanOpen: false,
     };
   },
@@ -406,18 +406,12 @@ export default defineComponent({
         const headers = {
           Authorization: `Bearer ${storedToken}`,
         };
-        // api/v2/admin/requests?limit=50&offset=0&sortField=e.dateApplied&sortOrder=DESC
-        const api =
-          baseURL +
-          `api/v2/admin/requests?limit=${this.limit}&offset=${offset}&sortField=e.dateApplied&sortOrder=DESC`;
+
+        let api = `${baseURL}api/v2/admin/requests?limit=${this.limit}&offset=${offset}&sortField=e.dateApplied&sortOrder=DESC`;
+
         const dataResponse = await axios.get(api, { headers });
 
         if (dataResponse.data && Array.isArray(dataResponse.data.data)) {
-          const uniqueRequestTypes = {};
-          dataResponse.data.data.forEach((period) => {
-            uniqueRequestTypes[period.requestType] = period.requestType;
-          });
-
           const newResults = dataResponse.data.data.map((period) => ({
             id: period.id,
             employee: period.employeeName,
@@ -431,12 +425,15 @@ export default defineComponent({
           }));
 
           if (append) {
-            this.results = [...this.results, ...newResults];
+            this.results = [...this.results, ...newResults]; // Append new data
           } else {
-            this.results = newResults;
+            this.results = newResults; // Replace existing data
           }
-          this.filteredResults = this.results;
+
+          // Apply local filter after fetching new data
+          this.applyFilter();
         }
+
         this.store.commit("loader/updateLoader", false);
         this.loading = false;
       } catch (error) {
@@ -446,13 +443,17 @@ export default defineComponent({
           console.log("Session expired. Redirecting to login...");
           this.$router.push("/login");
         } else {
-          this.showErrorMessage(error.response.error.message);
+          this.showErrorMessage(
+            error.response?.data?.message || "An error occurred"
+          );
         }
       }
     },
+
     loadMoreData(event) {
       if (!isNaN(this.currentOffset)) {
         this.currentOffset += this.limit;
+
         this.fetchRequest(this.currentOffset, true)
           .then(() => {
             event.target.complete();
@@ -465,25 +466,24 @@ export default defineComponent({
         event.target.complete(); // Stop infinite scroll if offset is invalid
       }
     },
-    // Approval Filter
-    async handleApprovalTypeChange(selectedRequestType) {
-      try {
-        this.store.commit("loader/updateLoader", true);
 
-        if (!this.results || !Array.isArray(this.results)) {
-          throw new Error("Results data is not available.");
-        }
-
+    // Apply Filter to Results
+    applyFilter() {
+      if (!this.selectedRequestType) {
+        this.filteredResults = this.results; // Show all if no filter selected
+      } else {
         this.filteredResults = this.results.filter(
-          (period) => period.requestType === selectedRequestType
+          (period) => period.requestType === this.selectedRequestType
         );
-
-        this.store.commit("loader/updateLoader", false);
-      } catch (error) {
-        console.error("Error filtering payroll period options: ", error);
-        this.showErrorMessage("An error occurred: " + error.message);
       }
     },
+
+    // Handle Filter Change
+    handleApprovalTypeChange(selectedRequestType) {
+      this.selectedRequestType = selectedRequestType; // Store selected type
+      this.applyFilter(); // Apply local filter without fetching new data
+    },
+
     // Leave Request
     async leaveRequest(requestId, action) {
       try {
