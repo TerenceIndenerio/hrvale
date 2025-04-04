@@ -1,7 +1,8 @@
 import { Module, MutationTree, ActionTree, GetterTree } from "vuex";
 import { generateToken } from "../../services/api";
 
-interface TokenState {
+// ✅ Export interface explicitly
+export interface TokenState {
   token: string | null;
 }
 
@@ -10,7 +11,7 @@ const state: TokenState = {
 };
 
 const mutations: MutationTree<TokenState> = {
-  updateToken(state, newData) {
+  updateToken(state, newData: string | null) {
     state.token = newData;
   },
 };
@@ -35,6 +36,7 @@ const getters: GetterTree<TokenState, any> = {
   },
 };
 
+// Vuex Module
 const token: Module<TokenState, any> = {
   namespaced: true,
   state,

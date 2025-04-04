@@ -1,37 +1,68 @@
-import axios, { AxiosResponse } from "axios";
-import { GlobalConstants } from "@/config/constants";
+import axios from "axios";
+import { ActionContext } from "vuex";
+import { RootState } from "@/store/store"; // Ensure this is a named import
 
-async function adminUserDetails(id: string): Promise<void> {
-  let empNumber: string | undefined;
-
-  try {
-    const storedToken = localStorage.getItem("token");
-    const headers = {
-      Authorization: `Bearer ${storedToken}`,
-    };
-    const baseURL = localStorage.getItem("baseUrl");
-    const api = baseURL + `api/v2/admin/users/${id}`;
-    const dataResponse = await axios.get(api, { headers });
-
-    const adminUserDetails = {
-      empNumber: dataResponse.data.data.employee.empNumber,
-      employeeId: dataResponse.data.data.employee.employeeId,
-      firstName: dataResponse.data.data.employee.firstName,
-      lastName: dataResponse.data.data.employee.lastName,
-      middleName: dataResponse.data.data.employee.middleName,
-      terminationId: dataResponse.data.data.employee.terminationId,
-    };
-
-    localStorage.setItem("empNumber", adminUserDetails.empNumber);
-    localStorage.setItem(
-      "adminUserDetails",
-      JSON.stringify(dataResponse.data.data)
-    );
-
-    empNumber = adminUserDetails.empNumber;
-  } catch (error) {
-    console.error("Error fetching admin user details: ", error);
-  }
+interface Employee {
+  empNumber: string | null;
 }
 
-export { adminUserDetails };
+interface AdminUserDetails {
+  employee?: Employee;
+}
+
+interface State {
+  adminUserDetails: AdminUserDetails | null;
+  empNumber: string | null;
+}
+
+const state: State = {
+  adminUserDetails: null,
+  empNumber: null,
+};
+
+const mutations = {
+  SET_ADMIN_USER_DETAILS(state: State, details: AdminUserDetails) {
+    state.adminUserDetails = details;
+    state.empNumber = details?.employee?.empNumber || null;
+  },
+};
+
+const actions = {
+  async fetchAdminUserDetails(
+    { commit }: ActionContext<State, RootState>, // Now correctly typed
+    id: string
+  ) {
+    try {
+      const storedToken = localStorage.getItem("token");
+      const baseURL = localStorage.getItem("baseUrl");
+      if (!storedToken || !baseURL) {
+        throw new Error("Missing authentication details");
+      }
+
+      const headers = { Authorization: `Bearer ${storedToken}` };
+      const api = `${baseURL}api/v2/admin/users/${id}`;
+      const response = await axios.get<{ data: AdminUserDetails }>(api, {
+        headers,
+      });
+      const details = response.data.data;
+
+      commit("SET_ADMIN_USER_DETAILS", details);
+    } catch (error) {
+      console.error("Error fetching admin user details: ", error);
+    }
+  },
+};
+
+const getters = {
+  adminUserDetails: (state: State): AdminUserDetails | null =>
+    state.adminUserDetails,
+  empNumber: (state: State): string | null => state.empNumber,
+};
+
+export default {
+  namespaced: true,
+  state,
+  mutations,
+  actions,
+  getters,
+};

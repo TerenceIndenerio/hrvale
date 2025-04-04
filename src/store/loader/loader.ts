@@ -1,15 +1,16 @@
-import { Module, GetterTree } from 'vuex';
+import { Module, GetterTree, MutationTree } from "vuex";
 
-interface LoaderState {
+// ✅ Export interface explicitly
+export interface LoaderState {
   isLoading: boolean;
 }
 
 const state: LoaderState = {
-    isLoading: false,
+  isLoading: false,
 };
 
-const mutations = {
-  updateLoader(state: any, newValue: boolean) {
+const mutations: MutationTree<LoaderState> = {
+  updateLoader(state, newValue: boolean) {
     state.isLoading = newValue;
   },
 };
@@ -22,6 +23,7 @@ const getters: GetterTree<LoaderState, any> = {
   },
 };
 
+// Vuex Module
 const loader: Module<LoaderState, any> = {
   namespaced: true,
   state,
