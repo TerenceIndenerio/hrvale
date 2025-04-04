@@ -448,7 +448,6 @@ export default defineComponent({
     },
     isUserRoleESS() {
       const myDetails = JSON.parse(localStorage.getItem("myDetails"));
-      console.log(myDetails)
       return myDetails.isApprover;
     },
     isleaveAllowed() {

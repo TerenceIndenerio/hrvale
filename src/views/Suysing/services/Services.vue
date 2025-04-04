@@ -147,7 +147,7 @@ export default defineComponent({
     async fetchClockData() {
       try {
         this.store.commit("loader/updateLoader", true);
-
+        const empNumber = localStorage.getItem("empNumber");
         const baseURL = localStorage.getItem("baseUrl");
         const token = localStorage.getItem("token");
 
@@ -163,7 +163,7 @@ export default defineComponent({
           "Content-Type": "application/json",
         };
 
-        const apiUrl = `${baseURL}api/v2/attendance/records/latest`;
+        const apiUrl = `${baseURL}api/v2/attendance/records/latest?empNumber=${empNumber}`;
         const response = await axios.get(apiUrl, { headers });
 
         const responseData = response.data?.data || {};
