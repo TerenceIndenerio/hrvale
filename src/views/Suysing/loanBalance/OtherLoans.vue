@@ -180,7 +180,6 @@ export default defineComponent({
       isElegible: false,
       reasonOptions: [],
       selectedEmployee: null,
-
       startOfPayment: new Date().toISOString().split("T")[0],
       loanDate: new Date().toISOString().split("T")[0],
       loanAmount: null,
@@ -268,6 +267,7 @@ export default defineComponent({
 
     async onSubmit() {
       try {
+        this.store.commit("loader/updateLoader", true);
         await this.checkTokenExpiration();
 
         const empNumber = localStorage.getItem("empNumber");
@@ -282,13 +282,7 @@ export default defineComponent({
           }
         }
 
-        if (
-          !this.loanAmount ||
-          // !this.selectedReason ||
-          // !this.selectedReason.content || // added check for selectedReason
-          !this.selectedLoanType ||
-          !this.loanDate
-        ) {
+        if (!this.loanAmount || !this.selectedLoanType || !this.loanDate) {
           await this.showErrorMessage("Please complete all required fields.");
           console.log(this.loanAmount, this.selectedLoanType, this.loanDate);
           return;
@@ -305,6 +299,7 @@ export default defineComponent({
           loanDate: this.loanDate,
           loanType: this.selectedLoanType,
           paymentTerms: this.paymentTerms,
+          reason: "",
           // reason: this.selectedReason.content,
         };
 
@@ -324,7 +319,7 @@ export default defineComponent({
           await this.showErrorMessage(dataResponse.message);
         }
       } catch (error) {
-        // console.error(error);
+        console.error(error);
         if (
           error.response &&
           error.response.data &&
@@ -335,6 +330,8 @@ export default defineComponent({
         } else {
           await this.showErrorMessage("An error occurred. Please try again.");
         }
+      } finally {
+        this.store.commit("loader/updateLoader", false);
       }
     },
 
