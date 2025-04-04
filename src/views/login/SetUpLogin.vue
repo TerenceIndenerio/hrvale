@@ -10,6 +10,13 @@
           }"
         >
           <div class="logo-banner">
+            <div class="internet-container">
+              <p v-if="isOnline">Status: Online</p>
+              <p v-else>Status: Offline</p>
+              <p v-if="downloadSpeed !== null">
+                Speed: {{ downloadSpeed.toFixed(2) }} Mbps
+              </p>
+            </div>
             <img src="@/assets/images/hrvaleofficiallogofinal.png" alt="logo" />
           </div>
         </div>
@@ -46,7 +53,6 @@ import { GlobalConstants } from "@/config/constants";
 import generateToken from "@/store/token/accessToken.ts";
 import axios from "axios";
 import { runBackgroundScript } from "@/notification/Notification.ts";
-import { adminUserDetails } from "@/store/login/onLoad";
 
 export default defineComponent({
   components: {
@@ -82,6 +88,9 @@ export default defineComponent({
       hasSetup: false,
       empNumber: "",
     };
+  },
+  computed: {
+    ...mapState("internet", ["isOnline", "downloadSpeed"]),
   },
   async mounted() {
     this.loaded = true;
@@ -332,6 +341,8 @@ export default defineComponent({
       }
     },
 
+    ...mapActions("internet", ["checkInternetConnection"]),
+
     checkInternetConnection() {
       if (navigator.onLine) {
         console.log("You are online");
@@ -399,5 +410,17 @@ export default defineComponent({
   display: flex;
   justify-content: center;
   height: 100vh;
+}
+.internet-container {
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding: 0 5px;
+}
+.internet-container p {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.259);
+  padding: 0;
+  margin: 0;
 }
 </style>

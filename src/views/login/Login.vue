@@ -2,6 +2,13 @@
   <ion-page>
     <ion-content :fullscreen="true">
       <Refresher />
+      <div class="internet-container">
+        <p v-if="isOnline">Status: Online</p>
+        <p v-else>Status: Offline</p>
+        <p v-if="downloadSpeed !== null">
+          Speed: {{ downloadSpeed.toFixed(2) }} Mbps
+        </p>
+      </div>
       <PinCodeLogin @login="OnLogin" :theme="theme" :logo="logo" />
     </ion-content>
   </ion-page>
@@ -22,18 +29,14 @@ import {
 import PinCodeLogin from "@/views/login/components/PinCodeLogin.vue";
 import SVGLoginImage from "@/views/login/components/Svg.vue";
 import Alert2 from "@/components/alert/Alert2.vue";
-import { defineComponent } from "vue";
+import { defineComponent, computed } from "vue";
 import { useRouter } from "vue-router";
-import { useStore } from "vuex";
-import { mapGetters, mapActions, mapState } from "vuex";
-import { GlobalConstants } from "@/config/constants";
+// import { useStore, mapGetters, mapActions } from "vuex";
 import axios from "axios";
-import { getThemeData, setThemeData } from "@/theme/theme";
 import { runBackgroundScript } from "@/notification/Notification.ts";
-import { newToken } from "@/store/token/newToken.ts";
-import { adminUserDetails } from "@/store/login/onLoad";
 import generateToken from "@/store/token/accessToken.ts";
 import Refresher from "@/components/refresher/Refresher.vue";
+import { mapState, mapGetters, mapActions, useStore } from "vuex";
 
 export default defineComponent({
   components: {
@@ -53,9 +56,19 @@ export default defineComponent({
   },
 
   setup() {
+    const store = useStore();
+    const router = useRouter();
+
+    const empNumber = computed(() => store.getters["adminUser/empNumber"]);
+    const adminUserDetails = computed(
+      () => store.getters["adminUser/adminUserDetails"]
+    );
+
     return {
-      router: useRouter(),
-      store: useStore(),
+      store,
+      router,
+      empNumber,
+      adminUserDetails,
     };
   },
 
@@ -70,21 +83,17 @@ export default defineComponent({
       configs: "",
       hasToken: false,
       hasSetup: false,
-      empNumber: "",
-      pincodeData: "",
       empID: "",
-      appVersion: "0.1.50",
+      appVersion: "0.1.52",
     };
   },
 
   async mounted() {
     try {
+      this.checkInternetConnection();
       const hasSetup = localStorage.getItem("hasSetup");
 
-      console.log("hasSetup:", hasSetup);
-
       if (!hasSetup || hasSetup === "false") {
-        console.log("Redirecting to /welcomepage...");
         this.$nextTick(() => {
           this.router.replace("/welcomepage");
         });
@@ -97,7 +106,6 @@ export default defineComponent({
       await this.hasPincode();
       localStorage.removeItem("clickedTab");
 
-      const storedThemeData = localStorage.getItem("configs");
       const storedCredentials = JSON.parse(
         localStorage.getItem("userCredentials")
       );
@@ -111,13 +119,6 @@ export default defineComponent({
       const brandingConfig = response.data.configs.find(
         (item) => item.name === "branding"
       );
-
-      const servicesConfig = brandingConfig.configuration.services;
-      const theme = brandingConfig.configuration.theme;
-      const client = brandingConfig.configuration.client;
-      localStorage.setItem("servicesConfig", JSON.stringify(servicesConfig));
-      localStorage.setItem("themeData", JSON.stringify(theme));
-      localStorage.setItem("client", JSON.stringify(client));
 
       const requiredAppVersion = brandingConfig.configuration.appVersion;
       localStorage.setItem("appVersion", this.appVersion);
@@ -138,7 +139,14 @@ export default defineComponent({
     }
   },
 
+  computed: {
+    ...mapGetters("adminUser", ["adminUserDetails", "empNumber"]),
+    ...mapState("internet", ["isOnline", "downloadSpeed"]),
+  },
+
   methods: {
+    ...mapActions("adminUser", ["fetchAdminUserDetails"]),
+    ...mapActions("internet", ["checkInternetConnection"]),
     async hasPincode() {
       try {
         const hasSetup = localStorage.getItem("hasSetup");
@@ -163,9 +171,23 @@ export default defineComponent({
       }
     },
 
+    async fetchToken() {
+      try {
+        const storedToken = localStorage.getItem("access_token");
+        const baseURL = localStorage.getItem("baseUrl");
+        const response = await axios.post(baseURL + "auth/token", {
+          secret: storedToken,
+        });
+
+        localStorage.setItem("token", response.data.token);
+        this.hasToken = true;
+      } catch (error) {
+        await this.checkToken();
+      }
+    },
+
     async checkToken() {
       const storedToken = localStorage.getItem("token");
-      const storedRefereshToken = localStorage.getItem("refreshtoken");
 
       if (storedToken) {
         try {
@@ -193,49 +215,6 @@ export default defineComponent({
       }
     },
 
-    async fetchToken() {
-      try {
-        const storedToken = localStorage.getItem("access_token");
-        const baseURL = localStorage.getItem("baseUrl");
-        const response = await axios.post(baseURL + "auth/token", {
-          secret: storedToken,
-        });
-
-        localStorage.setItem("token", response.data.token);
-        this.hasToken = true;
-      } catch (error) {
-        await this.checkToken();
-      }
-    },
-
-    async fetchUserDetails() {
-      try {
-        this.storedToken = localStorage.getItem("token");
-        const baseURL = localStorage.getItem("baseUrl");
-        const headers = {
-          Authorization: `Bearer ${this.storedToken}`,
-        };
-        const api = baseURL + `api/v2/user/me`;
-
-        const dataResponse = await axios.get(api, { headers });
-
-        localStorage.setItem(
-          "empNumber",
-          dataResponse.data.data.employee.empNumber
-        );
-
-        localStorage.setItem(
-          "myDetails",
-          JSON.stringify(dataResponse.data.data)
-        );
-
-        this.empNumber = dataResponse.data.data.employee.empNumber;
-        this.empID = dataResponse.data.data.id;
-      } catch (error) {
-        console.log(error.status);
-      }
-    },
-
     async validatePincode(pincode) {
       try {
         const storedToken = localStorage.getItem("token");
@@ -247,9 +226,7 @@ export default defineComponent({
           Authorization: authToken,
         };
 
-        const postData = {
-          pincode: pincode,
-        };
+        const postData = { pincode };
 
         const response = await axios.post(apiUrl, postData, { headers });
 
@@ -264,18 +241,62 @@ export default defineComponent({
       }
     },
 
+    async fetchUserDetails() {
+      try {
+        const storedToken = localStorage.getItem("token");
+        const baseURL = localStorage.getItem("baseUrl");
+        const headers = { Authorization: `Bearer ${storedToken}` };
+        const api = `${baseURL}api/v2/user/me`;
+
+        const dataResponse = await axios.get(api, { headers });
+
+        if (dataResponse.data && dataResponse.data.data) {
+          const userData = dataResponse.data.data;
+
+          if (userData.employee && userData.employee.empNumber) {
+            this.$store.commit("adminUser/SET_ADMIN_USER_DETAILS", userData);
+          } else {
+            console.warn(
+              "Warning: Employee data is missing from API response."
+            );
+          }
+
+          localStorage.setItem("myDetails", JSON.stringify(userData));
+        } else {
+          console.error("Error: Unexpected API response format.");
+        }
+      } catch (error) {
+        console.log("Error fetching user details:", error);
+      }
+    },
+
     async OnLogin(pincode) {
       try {
         this.store.commit("loader/updateLoader", true);
 
         await this.checkToken();
         await this.fetchToken();
+
         await this.fetchUserDetails();
+
+        this.empNumber = this.$store.getters["adminUser/empNumber"];
+
+        if (!this.empNumber) {
+          console.error(
+            "Error: Employee ID is null or undefined after fetching user details."
+          );
+          return;
+        }
+
+        await this.store.dispatch(
+          "adminUser/fetchAdminUserDetails",
+          this.empNumber
+        );
+
         await runBackgroundScript();
         await this.validatePincode(pincode);
       } catch (error) {
-        console.error(error);
-        console.log("error");
+        console.error("Error in OnLogin:", error);
       } finally {
         this.store.commit("loader/updateLoader", false);
       }
@@ -283,14 +304,12 @@ export default defineComponent({
 
     fetchLogo() {
       const baseURL = localStorage.getItem("baseUrl");
-
       this.logo = baseURL + "admin/theme/image/clientBanner";
     },
 
     async fetchStoredTheme() {
       try {
         const storedThemeData = localStorage.getItem("configs");
-
         const themeData = storedThemeData ? JSON.parse(storedThemeData) : [];
 
         let themeConfiguration = null;
@@ -305,47 +324,30 @@ export default defineComponent({
         if (themeConfiguration) {
           this.theme = themeConfiguration;
         } else {
-          console.error(
-            "No theme data found in local storage or theme configuration not available."
-          );
+          console.error("No theme data found.");
         }
       } catch (error) {
-        console.error("Error fetching or parsing theme data:", error);
+        console.error("Error fetching theme data:", error);
       }
     },
 
     async presentAlert(message, onOkay) {
       const alert = await alertController.create({
         header: "Update!",
-        message: message,
-        buttons: [
-          {
-            text: "Okay",
-            handler: onOkay,
-          },
-        ],
+        message,
+        buttons: [{ text: "Okay", handler: onOkay }],
       });
 
       await alert.present();
     },
 
     async alertError() {
-      const showAlert = async () => {
-        const alert = await alertController.create({
-          header: "Invalid Pincode",
-          message: "The pincode you entered is incorrect. Please try again.",
-          buttons: [
-            {
-              text: "Close",
-              htmlAttributes: {
-                "aria-label": "close",
-              },
-            },
-          ],
-        });
-        await alert.present();
-      };
-      return showAlert();
+      const alert = await alertController.create({
+        header: "Invalid Pincode",
+        message: "The pincode you entered is incorrect. Please try again.",
+        buttons: [{ text: "Close" }],
+      });
+      await alert.present();
     },
   },
 });
