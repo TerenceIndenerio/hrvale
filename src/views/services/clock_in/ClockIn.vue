@@ -11,16 +11,153 @@
     <ion-content :fullscreen="true" v-if="!loading">
       <Refresher />
       <div class="margin-top"></div>
+
       <ClockinCard
         @clockInClicked="handleClockInData"
         :btnText="btnText"
         :btnColor="theme.primaryColor"
         :btnTextColor="theme.primaryFontColor"
+        v-if="!loading"
       />
 
-      <ion-card class="flex-center box-container" v-if="coordinatesText">
-        <p>{{ coordinatesText }}</p>
-      </ion-card>
+      <div class="note">
+        <p>
+          Reminder: Punch out will not show unless you completed break punch in
+          and out
+        </p>
+      </div>
+
+      <!-- Button to open modal -->
+      <ion-button
+        class="break-details-btn"
+        color="medium"
+        @click="this.openModal"
+      >
+        <ion-icon name="reader-outline"></ion-icon> Break Details
+      </ion-button>
+
+      <!-- Modal -->
+      <ion-modal :is-open="isModalOpen" @didDismiss="closeModal">
+        <ion-header :style="{ backgroundColor: theme.primaryColor }">
+          <ion-toolbar>
+            <ion-title>
+              Break Details
+              <ion-icon name="reader-outline"></ion-icon>
+            </ion-title>
+            <ion-buttons slot="end">
+              <ion-button @click="closeModal">Close</ion-button>
+            </ion-buttons>
+          </ion-toolbar>
+        </ion-header>
+
+        <ion-content>
+          <ion-list v-if="breakDetails">
+            <ion-item>
+              <ion-icon
+                slot="start"
+                name="time-outline"
+                size="medium"
+                :style="{ color: theme.primaryColor }"
+              ></ion-icon>
+              <ion-label>
+                <strong :style="{ color: theme.primaryColor }"
+                  >AM Break In:</strong
+                >
+                <p>
+                  {{ breakDetails.punchInAmBreak.amTime || "" }}
+                </p>
+              </ion-label>
+            </ion-item>
+
+            <ion-item>
+              <ion-icon
+                slot="start"
+                name="time-outline"
+                size="medium"
+                :style="{ color: theme.primaryColor }"
+              ></ion-icon>
+              <ion-label>
+                <strong :style="{ color: theme.primaryColor }"
+                  >AM Break Out:</strong
+                >
+                <p>
+                  {{ breakDetails.punchOutAmBreak.amTime || "" }}
+                </p>
+              </ion-label>
+            </ion-item>
+
+            <ion-item>
+              <ion-icon
+                slot="start"
+                name="time-outline"
+                size="medium"
+                :style="{ color: theme.primaryColor }"
+              ></ion-icon>
+              <ion-label>
+                <strong :style="{ color: theme.primaryColor }"
+                  >Lunch In:</strong
+                >
+                <p>
+                  {{ breakDetails.punchInLunchBreak.lunchTime || "" }}
+                </p>
+              </ion-label>
+            </ion-item>
+
+            <ion-item>
+              <ion-icon
+                slot="start"
+                name="time-outline"
+                size="medium"
+                :style="{ color: theme.primaryColor }"
+              ></ion-icon>
+              <ion-label>
+                <strong :style="{ color: theme.primaryColor }"
+                  >Lunch Out:</strong
+                >
+                <p>
+                  {{ breakDetails.punchOutLunchBreak.lunchTime || "" }}
+                </p>
+              </ion-label>
+            </ion-item>
+
+            <ion-item>
+              <ion-icon
+                slot="start"
+                name="time-outline"
+                size="medium"
+                :style="{ color: theme.primaryColor }"
+              ></ion-icon>
+              <ion-label>
+                <strong :style="{ color: theme.primaryColor }"
+                  >PM Break In:</strong
+                >
+                <p>
+                  {{ breakDetails.punchInPmBreak.pmTime || "" }}
+                </p>
+              </ion-label>
+            </ion-item>
+
+            <ion-item>
+              <ion-icon
+                slot="start"
+                name="time-outline"
+                size="medium"
+                :style="{ color: theme.primaryColor }"
+              ></ion-icon>
+              <ion-label>
+                <strong :style="{ color: theme.primaryColor }"
+                  >PM Break Out:</strong
+                >
+                <p>
+                  {{ breakDetails.punchOutPmBreak.pmTime || "" }}
+                </p>
+              </ion-label>
+            </ion-item>
+          </ion-list>
+
+          <h4 v-else class="No-data-break-details"><strong>No Data</strong></h4>
+        </ion-content>
+      </ion-modal>
     </ion-content>
   </ion-page>
 </template>
@@ -35,10 +172,17 @@ import {
   IonToast,
   toastController,
   IonCard,
+  IonModal,
+  IonList,
+  IonItem,
+  IonButtons,
+  IonButton,
+  IonLabel,
+  IonIcon,
 } from "@ionic/vue";
 import Refresher from "@/components/refresher/Refresher.vue";
 import ClockinCard from "@/views/services/clock_in/components/ClockinCard.vue";
-import HeaderClockWCard from "@/components/header/HeaderClockWCard.vue";
+import HeaderClockWCard from "@/views/Suysing/clock_in/components/HeaderClockWCard.vue";
 import { defineComponent, ref } from "vue";
 import { GlobalConstants } from "@/config/constants";
 import { useRouter } from "vue-router";
@@ -59,6 +203,13 @@ export default defineComponent({
     IonToast,
     toastController,
     IonCard,
+    IonModal,
+    IonList,
+    IonItem,
+    IonButtons,
+    IonButton,
+    IonLabel,
+    IonIcon,
   },
   setup() {
     return {
@@ -69,7 +220,7 @@ export default defineComponent({
 
   data() {
     return {
-      btnText: "Clock In",
+      btnText: "",
       headerTitle: "Clock In/Out",
       clockin: "00:00",
       clockout: "00:00",
@@ -83,6 +234,10 @@ export default defineComponent({
       coordinatesText: "",
       toastMessage: "",
       hasClockedIn: false,
+      breakTime: false,
+      breakDetails: null,
+      isModalOpen: false,
+      hasBreaktime: false,
     };
   },
   methods: {
@@ -135,7 +290,7 @@ export default defineComponent({
         this.store.commit("loader/updateLoader", true);
         const baseURL = localStorage.getItem("baseUrl");
         await this.checkTokenExpiration();
-
+        const empNumber = localStorage.getItem("empNumber");
         const token = localStorage.getItem("token");
         if (!token) {
           console.error("Token not available.");
@@ -146,7 +301,8 @@ export default defineComponent({
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         };
-        const apiUrl = baseURL + `api/v2/attendance/records/latest`;
+        const apiUrl =
+          baseURL + `api/v2/attendance/records/latest?empNumber=${empNumber}`;
 
         const getStateResponse = await axios.get(apiUrl, { headers });
 
@@ -171,16 +327,23 @@ export default defineComponent({
           this.clockout = "00:00";
         }
 
-        console.log(
-          "current state: ",
-          getStateResponse.data?.data?.state?.name
-        );
-        if (getStateResponse.data?.data?.state?.name === "Punched Out") {
-          this.btnText = "Clock In";
-          this.toastMessage = "Clocked In";
-        } else {
-          this.btnText = "Clock Out";
-          this.toastMessage = "Clocked Out";
+        if (!this.hasBreaktime) {
+          console.log("this.isPmBreakDone: ", !this.isPmBreakDone);
+
+          if (
+            getStateResponse.data?.data?.state?.name === "Punched Out"
+            // && getStateResponse.data?.data?.punchIn?.utcDate === currentDate
+          ) {
+            this.btnText = "Clock In";
+
+            this.toastMessage = "Clocked Out";
+          } else if (
+            getStateResponse.data?.data?.state?.name === "Punched In"
+            // && getStateResponse.data?.data?.punchIn?.utcDate === currentDate
+          ) {
+            this.btnText = "Clock Out";
+            this.toastMessage = "Clocked In";
+          }
         }
       } catch (error) {
         this.loading = false;
@@ -193,7 +356,92 @@ export default defineComponent({
         }
       } finally {
         this.store.commit("loader/updateLoader", false);
-        this.loading = false;
+      }
+    },
+
+    async breaktimeConfig() {
+      try {
+        this.store.commit("loader/updateLoader", true);
+
+        const empNumber = localStorage.getItem("empNumber");
+        const baseURL = localStorage.getItem("baseUrl");
+        await this.checkTokenExpiration();
+
+        const token = localStorage.getItem("token");
+        if (!token) {
+          console.error("Token not available.");
+          return;
+        }
+
+        const headers = {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        };
+        const apiUrl = `${baseURL}api/v1/attendance/break-time-config?empNumber=${empNumber}`;
+
+        const getStateResponse = await axios.get(apiUrl, { headers });
+        this.isPmBreakDone = getStateResponse.data?.data?.isPmBreakDone;
+        this.hasBreaktime = getStateResponse.data?.data?.hasBreaktime;
+
+        await this.checkStateBreaktime();
+      } catch (error) {
+        console.error("Error fetching break-time config:", error.message);
+      } finally {
+        this.store.commit("loader/updateLoader", false);
+      }
+    },
+
+    async checkStateBreaktime() {
+      try {
+        this.store.commit("loader/updateLoader", true);
+        const empNumber = localStorage.getItem("empNumber");
+        const baseURL = localStorage.getItem("baseUrl");
+        await this.checkTokenExpiration();
+        const token = localStorage.getItem("token");
+        if (!token) {
+          console.error("Token not available.");
+          return;
+        }
+
+        const headers = {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        };
+        const apiUrl =
+          baseURL +
+          `api/v1/attendance/break-time/latest?empNumber=${empNumber}`;
+        const getStateResponse = await axios.get(apiUrl, { headers });
+
+        const breakData = getStateResponse.data.data;
+
+        const currentDate = new Date().toISOString().split("T")[0];
+
+        if (
+          breakData.punchInAmBreak.amDate === currentDate ||
+          breakData.punchOutAmBreak.amDate === currentDate ||
+          breakData.punchInLunchBreak.lunchDate === currentDate ||
+          breakData.punchOutLunchBreak.lunchDate === currentDate ||
+          breakData.punchInPmBreak.pmDate === currentDate ||
+          breakData.punchOutPmBreak.pmDate === currentDate
+        ) {
+          this.breakDetails = breakData;
+        } else {
+          this.breakDetails = null;
+        }
+
+        if (this.hasBreaktime) {
+          if (breakData.state.name === "Punched In") {
+            this.btnText = "Punch Out Break";
+            this.toastMessage = "Punch Out Break";
+          } else {
+            this.btnText = "Punch In Break";
+            this.toastMessage = "Punch In Break";
+          }
+        }
+      } catch (error) {
+        console.log(error);
+      } finally {
+        this.store.commit("loader/updateLoader", false);
       }
     },
 
@@ -242,26 +490,43 @@ export default defineComponent({
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         };
-        const apiUrl = baseURL + `api/v3/attendance/employees/records`;
+
         const coordinates = await Geolocation.getCurrentPosition();
 
-        const payload = {
-          date: this.date,
-          time: this.time,
-          timezoneName: this.timezoneName,
-          timezoneOffset: this.timezoneOffset,
-          note: null,
-          latitude: coordinates.coords.latitude,
-          longitude: coordinates.coords.longitude,
-        };
+        if (this.hasBreaktime) {
+          console.log("Using Break Time");
+          const payload = {
+            date: this.date,
+            time: this.time,
+            // commented, so that i can submit without using GPS
+            // timezoneName: this.timezoneName,
+            // timezoneOffset: this.timezoneOffset,
+            // note: null,
+            // latitude: coordinates.coords.latitude,
+            // longitude: coordinates.coords.longitude,
+          };
+          const breakTimeApiUrl = `${baseURL}api/v1/break-time`;
 
-        if (this.employeeAlreadyPunchedIn) {
-          await axios.put(apiUrl, payload, { headers });
+          await axios.post(breakTimeApiUrl, payload, { headers });
+          await this.breaktimeConfig();
         } else {
-          await axios.post(apiUrl, payload, { headers });
+          console.log("Using Attendance");
+          const payload = {
+            date: this.date,
+            time: this.time,
+            timezoneName: this.timezoneName,
+            timezoneOffset: this.timezoneOffset,
+          };
+          const attendanceApiUrl = `${baseURL}api/v3/attendance/employees/records`;
+
+          if (this.employeeAlreadyPunchedIn) {
+            await axios.put(attendanceApiUrl, payload, { headers });
+          } else {
+            await axios.post(attendanceApiUrl, payload, { headers });
+          }
+          await this.checkState();
         }
 
-        this.checkState();
         this.showAlert(this.toastMessage);
       } catch (error) {
         console.error(
@@ -272,7 +537,7 @@ export default defineComponent({
         this.showErrorMessage(error.response?.data?.error?.message);
       }
     },
-
+    // /api/v1/break-time
     async showAlert(message) {
       try {
         const toast = await toastController.create({
@@ -291,6 +556,13 @@ export default defineComponent({
       } catch (error) {
         console.log(error.message);
       }
+    },
+
+    openModal() {
+      this.isModalOpen = true;
+    },
+    closeModal() {
+      this.isModalOpen = false;
     },
 
     async showErrorMessage(message) {
@@ -332,13 +604,13 @@ export default defineComponent({
     }
 
     this.getCurrentTime();
-
     setInterval(this.getCurrentTime, 1000);
-
     this.checkTokenExpiration();
-
+    await this.breaktimeConfig();
     await this.checkState();
+
     this.fetchTheme();
+    this.loading = false;
   },
   beforeDestroy() {
     clearInterval(this.updateInterval);
@@ -358,5 +630,20 @@ export default defineComponent({
   width: fit-content;
   margin: 0 auto;
   padding: 0 20px;
+}
+.note {
+  text-align: center;
+}
+.break-details-btn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: fit-content;
+  margin: 0 auto;
+  border-radius: 10px;
+  overflow: hidden;
+}
+.No-data-break-details {
+  text-align: center;
 }
 </style>
