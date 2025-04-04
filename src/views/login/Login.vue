@@ -31,7 +31,6 @@ import SVGLoginImage from "@/views/login/components/Svg.vue";
 import Alert2 from "@/components/alert/Alert2.vue";
 import { defineComponent, computed } from "vue";
 import { useRouter } from "vue-router";
-// import { useStore, mapGetters, mapActions } from "vuex";
 import axios from "axios";
 import { runBackgroundScript } from "@/notification/Notification.ts";
 import generateToken from "@/store/token/accessToken.ts";
