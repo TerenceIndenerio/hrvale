@@ -1,22 +1,34 @@
 <template>
   <IonContent>
     <div class="signature-container">
+      <IonButton
+        expand="full"
+        @click="clearSignature"
+        class="neomorphic-btn-2 clear-btn"
+        color="none"
+      >
+        <ion-icon name="trash-outline"></ion-icon> Clear
+      </IonButton>
       <canvas ref="signatureCanvas" class="signature-canvas"></canvas>
       <div class="btn-action-container">
-        <IonButton expand="full" @click="clearSignature">Clear</IonButton>
-        <IonButton expand="full" @click="saveSignature">Save</IonButton>
+        <IonButton
+          expand="full"
+          @click="saveSignature"
+          class="neomorphic-btn-2"
+        >
+          <strong>Accept All & Continue</strong>
+        </IonButton>
       </div>
-      
     </div>
   </IonContent>
 </template>
 
 <script lang="ts">
-import { IonContent, IonButton } from "@ionic/vue";
+import { IonContent, IonButton, IonIcon } from "@ionic/vue";
 import SignaturePad from "signature_pad";
 
 export default {
-  components: { IonContent, IonButton },
+  components: { IonContent, IonButton, IonIcon },
   data() {
     return {
       signaturePad: null as SignaturePad | null,
@@ -35,7 +47,7 @@ export default {
       });
     },
     setFixedCanvasSize(canvas: HTMLCanvasElement) {
-      const fixedWidth = 300;  // Fixed width in pixels
+      const fixedWidth = 300; // Fixed width in pixels
       const fixedHeight = 200; // Fixed height in pixels
 
       // Set canvas dimensions
@@ -56,10 +68,7 @@ export default {
       } else {
         console.log("Signature pad is empty.");
       }
-    }
-
-
-
+    },
   },
   beforeUnmount() {
     if (this.signaturePad) {
@@ -80,12 +89,16 @@ export default {
 .signature-canvas {
   border: 1px solid #000;
   width: 300px; /* Fixed width */
-  height: 200px; /* Fixed height */
 }
 .btn-action-container {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-direction: column;
   width: 100%;
+}
+.clear-btn {
+  margin-left: auto;
+  background-color: red;
 }
 </style>
