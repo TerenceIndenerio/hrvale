@@ -165,6 +165,8 @@
         :deductionDetails="payslipDeductions"
         :netPay="this.netPay"
         :viewPayslipData="this.viewPayslipData"
+        :thirteenthMonthData="this.thirteenthMonthData"
+        :isThirteenthMonth="this.isThirteenthMonth"
         :grossPay="this.grossPay"
         :grossDeduction="this.grossDeduction"
         :theme="theme"
@@ -276,6 +278,8 @@ export default defineComponent({
       netPay: null,
       grossDeduction: null,
       isIOS: false,
+      isThirteenthMonth: false,
+      thirteenthMonthData: null,
     };
   },
   methods: {
@@ -376,7 +380,6 @@ export default defineComponent({
         const storedToken = localStorage.getItem("token");
         const authToken = `Bearer ${storedToken}`;
         const baseURL = localStorage.getItem("baseUrl");
-
         const checkPayslipUrl = `${baseURL}api/web/ess/view-payslip/${id}`;
         const apiUrl = `${baseURL}api/download/payslip/${id}`;
         let thirteenthMonthUrl = `${baseURL}api/upload-thirteenth-month-pay/${id}?type=download`;
@@ -397,15 +400,11 @@ export default defineComponent({
 
         const blob = new Blob([this.base64ToArrayBuffer(content)], { type });
 
-        const printThis = await this.blobToBase64(blob);
-
-        console.log(this.base64ToArrayBuffer(content));
-
-        // if (this.isWebPlatform()) {
-        //   this.downloadOnWeb(blob); // Web
-        // } else {
-        //   await this.downloadOnMobile(blob); // Mobile
-        // }
+        if (this.isWebPlatform()) {
+          this.downloadOnWeb(blob); // Web
+        } else {
+          await this.downloadOnMobile(blob); // Mobile
+        }
       } catch (error) {
         console.error("Error:", error);
         this.showErrorMessage("An error occurred: " + error.message);
@@ -555,20 +554,34 @@ export default defineComponent({
       try {
         this.store.commit("loader/updateLoader", true);
         await this.checkTokenExpiration();
+
         const storedToken = localStorage.getItem("token");
         const baseURL = localStorage.getItem("baseUrl");
         const authToken = `Bearer ${storedToken}`;
-
-        const apiUrl = baseURL + `api/web/ess/view-payslip/${id}`;
-        const headers = {
-          Authorization: authToken,
-        };
+        const apiUrl = `${baseURL}api/web/ess/view-payslip/${id}`;
+        const headers = { Authorization: authToken };
 
         const response = await axios.get(apiUrl, { headers });
-        this.viewPayslipData = response.data.data.summary;
-        this.grossPay = response.data.data.payroll.gross_compensation;
-        this.netPay = response.data.data.payroll.net_pay;
-        this.grossDeduction = response.data.data.payroll.total_deductions;
+
+        const responseData = response.data.data;
+
+        if (responseData.thirteenthMonthPay) {
+          this.isThirteenthMonth = true;
+          this.thirteenthMonthData = responseData.thirteenthMonthPay;
+          console.log(this.thirteenthMonthData);
+        } else {
+          this.isThirteenthMonth = false;
+
+          if (responseData.summary) {
+            this.viewPayslipData = responseData.summary;
+            this.grossPay = responseData.payroll?.gross_compensation || "0";
+            this.netPay = responseData.payroll?.net_pay || "0";
+            this.grossDeduction = responseData.payroll?.total_deductions || "0";
+            console.log(this.viewPayslipData.income);
+          } else {
+            this.viewPayslipData = null;
+          }
+        }
       } catch (error) {
         if (
           error.response &&
@@ -616,29 +629,6 @@ export default defineComponent({
 
       this.theme = themeData;
     },
-
-    async tryRequest() {
-      try {
-        this.store.commit("loader/updateLoader", true);
-        await this.checkTokenExpiration();
-
-        const storedToken = localStorage.getItem("token");
-        const baseURL = localStorage.getItem("baseUrl");
-        const authToken = `Bearer ${storedToken}`;
-
-        const response = await fetch(`${baseURL}api/ess/view-payslip/35604`, {
-          method: "GET",
-          headers: {
-            Authorization: authToken,
-            "Content-Type": "application/json",
-          },
-        });
-      } catch (error) {
-        console.log(error);
-      } finally {
-        this.store.commit("loader/updateLoader", false);
-      }
-    },
   },
   async created() {
     this.isIOS = isPlatform("ios");
@@ -647,7 +637,6 @@ export default defineComponent({
     await this.requestData();
 
     this.loading = false;
-    this.tryRequest();
   },
 });
 </script>

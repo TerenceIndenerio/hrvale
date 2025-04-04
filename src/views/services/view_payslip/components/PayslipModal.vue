@@ -6,121 +6,11 @@
   >
     <ion-content>
       <ion-grid>
-        <ion-row class="details-container">
-          <!-- Income Column -->
-          <ion-col size="6" style="background-color: lightgray">
-            <ion-list style="overflow-x: scroll">
-              <ion-item-group>
-                <ion-item-divider>
-                  <h3
-                    class="label-header"
-                    :style="{ color: theme.primaryColor }"
-                  >
-                    <strong>Income</strong>
-                  </h3>
-                </ion-item-divider>
-                <!-- Header Row -->
-                <ion-item>
-                  <ion-row style="width: 100%; font-weight: bold">
-                    <ion-col size="4" class="responsive-text">
-                      Description</ion-col
-                    >
-                    <ion-col size="2" class="responsive-text">Days</ion-col>
-                    <ion-col size="2" class="responsive-text">Hours</ion-col>
-                    <ion-col size="2" class="responsive-text">Minutes</ion-col>
-                    <ion-col size="2" class="responsive-text">Amount</ion-col>
-                  </ion-row>
-                </ion-item>
-
-                <!-- Data Rows -->
-                <ion-item
-                  v-for="income in viewPayslipData.income"
-                  :key="income.name"
-                >
-                  <ion-row style="width: 100%">
-                    <ion-col size="4">
-                      <div>{{ income.name }}</div>
-                    </ion-col>
-                    <ion-col size="2">
-                      <p class="responsive-text">
-                        {{ income.days || " - " }}
-                      </p>
-                    </ion-col>
-                    <ion-col size="2">
-                      <p class="responsive-text">
-                        {{ income.hours || " - " }}
-                      </p>
-                    </ion-col>
-                    <ion-col size="2">
-                      <p class="responsive-text">
-                        {{ income.minutes || " - " }}
-                      </p>
-                    </ion-col>
-                    <ion-col size="2">
-                      <p class="responsive-text-data">
-                        {{ formatAmount(income.amount) }}
-                      </p>
-                    </ion-col>
-                  </ion-row>
-                </ion-item>
-              </ion-item-group>
-            </ion-list>
-          </ion-col>
-
-          <!-- Deductions Column -->
-
-          <ion-col size="6" style="background-color: lightgray">
-            <ion-list>
-              <ion-item-group>
-                <ion-item-divider>
-                  <h3
-                    class="label-header"
-                    :style="{ color: theme.primaryColor }"
-                  >
-                    <strong>Deductions</strong>
-                  </h3>
-                </ion-item-divider>
-
-                <ion-item
-                  v-for="deduction in viewPayslipData.deductions"
-                  :key="deduction.name"
-                >
-                  <ion-label>{{ deduction.name }}</ion-label>
-                  <p slot="end" class="value">
-                    {{ formatAmount(deduction.amount) }}
-                  </p>
-                </ion-item>
-              </ion-item-group>
-            </ion-list>
-          </ion-col>
-        </ion-row>
-
-        <ion-row style="background-color: lightgray" class="details-container">
-          <ion-col size="6">
-            <ion-item lines="none" class="summary-item">
-              <ion-label>
-                <strong>(A) Gross Earnings:</strong>
-              </ion-label>
-              <p slot="end" class="label-bottom-data">
-                {{ formatAmount(grossPay) }}
-              </p>
-            </ion-item>
-          </ion-col>
-
-          <ion-col size="6">
-            <ion-item lines="none" class="summary-item">
-              <ion-label>
-                <strong>(B) Gross Deduction:</strong>
-              </ion-label>
-              <p slot="end" class="label-bottom-data">
-                {{ formatAmount(grossDeduction) }}
-              </p>
-            </ion-item>
-          </ion-col>
-        </ion-row>
-
-        <!-- Totals Section -->
-        <ion-row style="background-color: lightgray">
+        <!-- 13th Month Pay Section -->
+        <ion-row
+          v-if="isThirteenthMonth && thirteenthMonthData"
+          style="background-color: lightgray"
+        >
           <ion-col size="12">
             <ion-list>
               <ion-item-group>
@@ -129,31 +19,202 @@
                     class="label-header"
                     :style="{ color: theme.primaryColor }"
                   >
-                    <strong>Totals</strong>
+                    <strong>13th Month Pay</strong>
                   </h3>
                 </ion-item-divider>
 
                 <ion-item lines="none">
+                  <h5>
+                    <strong>{{
+                      formatPeriod(
+                        thirteenthMonthData.payrollPeriod?.payrollPeriodFrom
+                          ?.date,
+                        thirteenthMonthData.payrollPeriod?.payrollPeriodTo?.date
+                      )
+                    }}</strong>
+                  </h5>
+                </ion-item>
+
+                <ion-item lines="none">
                   <ion-label>
-                    <strong>Gross Pay:</strong>
+                    <strong>Total Earnings:</strong>
                   </ion-label>
                   <p slot="end" class="value">
-                    <strong>{{ formatAmount(grossPay) }}</strong>
+                    {{ formatAmount(thirteenthMonthData.thirteenthMonthPay) }}
                   </p>
                 </ion-item>
 
                 <ion-item lines="none">
                   <ion-label>
-                    <strong>Net Pay (A - B):</strong>
+                    <strong>13th Month Amount:</strong>
                   </ion-label>
                   <p slot="end" class="value">
-                    <strong>{{ formatAmount(netPay) }}</strong>
+                    <strong>{{
+                      formatAmount(thirteenthMonthData.netBonus)
+                    }}</strong>
                   </p>
                 </ion-item>
               </ion-item-group>
             </ion-list>
           </ion-col>
         </ion-row>
+
+        <!-- regular -->
+        <div v-else>
+          <ion-row class="details-container">
+            <!-- Income Column -->
+            <ion-col size="6" style="background-color: lightgray">
+              <ion-list style="overflow-x: scroll">
+                <ion-item-group>
+                  <ion-item-divider>
+                    <h3
+                      class="label-header"
+                      :style="{ color: theme.primaryColor }"
+                    >
+                      <strong>Income</strong>
+                    </h3>
+                  </ion-item-divider>
+                  <!-- Header Row -->
+                  <ion-item>
+                    <ion-row style="width: 100%; font-weight: bold">
+                      <ion-col size="4" class="responsive-text">
+                        Description</ion-col
+                      >
+                      <ion-col size="2" class="responsive-text">Days</ion-col>
+                      <ion-col size="2" class="responsive-text">Hours</ion-col>
+                      <ion-col size="2" class="responsive-text"
+                        >Minutes</ion-col
+                      >
+                      <ion-col size="2" class="responsive-text">Amount</ion-col>
+                    </ion-row>
+                  </ion-item>
+
+                  <!-- Data Rows -->
+                  <ion-item
+                    v-for="income in viewPayslipData.income"
+                    :key="income.name"
+                  >
+                    <ion-row style="width: 100%">
+                      <ion-col size="4">
+                        <div>{{ income.name }}</div>
+                      </ion-col>
+                      <ion-col size="2">
+                        <p class="responsive-text">
+                          {{ income.days || " - " }}
+                        </p>
+                      </ion-col>
+                      <ion-col size="2">
+                        <p class="responsive-text">
+                          {{ income.hours || " - " }}
+                        </p>
+                      </ion-col>
+                      <ion-col size="2">
+                        <p class="responsive-text">
+                          {{ income.minutes || " - " }}
+                        </p>
+                      </ion-col>
+                      <ion-col size="2">
+                        <p class="responsive-text-data">
+                          {{ formatAmount(income.amount) }}
+                        </p>
+                      </ion-col>
+                    </ion-row>
+                  </ion-item>
+                </ion-item-group>
+              </ion-list>
+            </ion-col>
+
+            <!-- Deductions Column -->
+
+            <ion-col size="6" style="background-color: lightgray">
+              <ion-list>
+                <ion-item-group>
+                  <ion-item-divider>
+                    <h3
+                      class="label-header"
+                      :style="{ color: theme.primaryColor }"
+                    >
+                      <strong>Deductions</strong>
+                    </h3>
+                  </ion-item-divider>
+
+                  <ion-item
+                    v-for="deduction in viewPayslipData.deductions"
+                    :key="deduction.name"
+                  >
+                    <ion-label>{{ deduction.name }}</ion-label>
+                    <p slot="end" class="value">
+                      {{ formatAmount(deduction.amount) }}
+                    </p>
+                  </ion-item>
+                </ion-item-group>
+              </ion-list>
+            </ion-col>
+          </ion-row>
+
+          <ion-row
+            style="background-color: lightgray"
+            class="details-container"
+          >
+            <ion-col size="6">
+              <ion-item lines="none" class="summary-item">
+                <ion-label>
+                  <strong>(A) Gross Earnings:</strong>
+                </ion-label>
+                <p slot="end" class="label-bottom-data">
+                  {{ formatAmount(grossPay) }}
+                </p>
+              </ion-item>
+            </ion-col>
+
+            <ion-col size="6">
+              <ion-item lines="none" class="summary-item">
+                <ion-label>
+                  <strong>(B) Gross Deduction:</strong>
+                </ion-label>
+                <p slot="end" class="label-bottom-data">
+                  {{ formatAmount(grossDeduction) }}
+                </p>
+              </ion-item>
+            </ion-col>
+          </ion-row>
+
+          <!-- Totals Section -->
+          <ion-row style="background-color: lightgray">
+            <ion-col size="12">
+              <ion-list>
+                <ion-item-group>
+                  <ion-item-divider>
+                    <h3
+                      class="label-header"
+                      :style="{ color: theme.primaryColor }"
+                    >
+                      <strong>Totals</strong>
+                    </h3>
+                  </ion-item-divider>
+
+                  <ion-item lines="none">
+                    <ion-label>
+                      <strong>Gross Pay:</strong>
+                    </ion-label>
+                    <p slot="end" class="value">
+                      <strong>{{ formatAmount(grossPay) }}</strong>
+                    </p>
+                  </ion-item>
+
+                  <ion-item lines="none">
+                    <ion-label>
+                      <strong>Net Pay (A - B):</strong>
+                    </ion-label>
+                    <p slot="end" class="value">
+                      <strong>{{ formatAmount(netPay) }}</strong>
+                    </p>
+                  </ion-item>
+                </ion-item-group>
+              </ion-list>
+            </ion-col>
+          </ion-row>
+        </div>
       </ion-grid>
     </ion-content>
   </ion-modal>
@@ -178,6 +239,7 @@ import {
   IonItemGroup,
   IonItemDivider,
 } from "@ionic/vue";
+import { onMounted } from "vue";
 export default {
   components: {
     IonModal,
@@ -206,16 +268,31 @@ export default {
     viewPayslipData: Object,
     theme: Object,
     grossDeduction: String,
+    isThirteenthMonth: Boolean,
+    thirteenthMonthData: {
+      type: Object,
+      default: () => ({}),
+    },
   },
   methods: {
     closeModal() {
       this.$emit("update:isOpen", false);
     },
-    formatAmount(amount) {
-      return new Intl.NumberFormat("en-US", {
+    formatAmount(value) {
+      if (!value) return "₱0.00";
+      const num =
+        typeof value === "string" ? parseFloat(value.replace(/,/g, "")) : value;
+      return `₱${num.toLocaleString("en-PH", {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
-      }).format(amount);
+      })}`;
+    },
+    formatPeriod(from, to) {
+      if (!from || !to) return "N/A";
+      const options = { year: "numeric", month: "long", day: "numeric" };
+      const startDate = new Date(from).toLocaleDateString("en-PH", options);
+      const endDate = new Date(to).toLocaleDateString("en-PH", options);
+      return `${startDate} - ${endDate}`;
     },
   },
 };
@@ -308,12 +385,12 @@ export default {
     margin-top: 30px;
   }
   .column-container {
-    margin: 5px 0; /* Reduce margins for better spacing */
+    margin: 5px 0;
     width: 100%;
   }
   .row-container {
     display: flex;
-    flex-direction: column; /* Stack the columns vertically */
+    flex-direction: column;
   }
   .column-data {
     padding-left: 10px;
