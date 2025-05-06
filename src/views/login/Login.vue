@@ -36,6 +36,7 @@ import { runBackgroundScript } from "@/notification/Notification.ts";
 import generateToken from "@/store/token/accessToken.ts";
 import Refresher from "@/components/refresher/Refresher.vue";
 import { mapState, mapGetters, mapActions, useStore } from "vuex";
+import { Capacitor } from "@capacitor/core";
 
 export default defineComponent({
   components: {
@@ -83,7 +84,7 @@ export default defineComponent({
       hasToken: false,
       hasSetup: false,
       empID: "",
-      appVersion: "0.1.52",
+      appVersion: "0.1.54",
     };
   },
 
@@ -121,10 +122,15 @@ export default defineComponent({
 
       const requiredAppVersion = brandingConfig.configuration.appVersion;
       localStorage.setItem("appVersion", this.appVersion);
+      const isAndroid = Capacitor.getPlatform() === "android";
 
-      if (hasSetup && !this.$platform.is("ios")) {
-        if (this.appVersion !== requiredAppVersion) {
-          const message = `App Version Needs to be ${requiredAppVersion}. Please Update your App.`;
+      if (hasSetup && isAndroid) {
+        if (
+          this.appVersion &&
+          requiredAppVersion &&
+          this.appVersion !== requiredAppVersion
+        ) {
+          const message = `App Version needs to be ${requiredAppVersion}. Please update your app.`;
           await this.presentAlert(message, () => {
             window.location.href =
               "https://play.google.com/store/apps/details?id=com.bapplware.hrvale&pcampaignid=web_share";

@@ -320,11 +320,14 @@
     </div>
 
     <!-- Approval -->
+    <!-- isApprovalAllowed -->
     <div
-      :class="[`card btn-text`, { soon: !isApprovalAllowed }]"
+      :class="[
+        `card btn-text`,
+        { soon: !isUserRoleESS, hidden: !isApprovalShown },
+      ]"
       expand="full"
       color="none"
-      v-if="isUserRoleESS"
     >
       <a
         @click="navigateApproval"
@@ -586,6 +589,9 @@ export default defineComponent({
     isLoanLedgerShown() {
       return this.servicesConfig?.loanLedger?.allowed ?? false;
     },
+    isApprovalShown() {
+      return this.servicesConfig?.approval?.allowed ?? false;
+    },
   },
   methods: {
     navigateSoon() {
@@ -651,7 +657,7 @@ export default defineComponent({
       }
     },
     navigateApproval() {
-      if (this.isApprovalAllowed) {
+      if (this.isUserRoleESS) {
         this.$router.push("/tabs/suysing_approval");
       } else {
         this.navigateSoon();

@@ -580,7 +580,6 @@ export default {
     },
 
     updateTotalLoan() {
-      // console.log(this.valeDataResult.amortizationType);
       const amortizationType = this.valeDataResult.amortizationType;
       const approvalAmount = parseFloat(this.approvalAmount.replace(/,/g, ""));
       const previousBalance = parseFloat(
@@ -592,7 +591,6 @@ export default {
       );
 
       if (amortizationType === "percentage") {
-        // Convert the whole number (amortizationValue) to decimal by dividing by 100
         this.amortizationPercentage =
           approvalAmount * (amortizationValue / 100);
       } else if (amortizationType === "decimal") {

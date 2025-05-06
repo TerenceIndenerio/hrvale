@@ -1,16 +1,15 @@
-import { Module } from "vuex";
-import { alertController } from "@ionic/vue"; // Ionic alert controller
-import type { RootState } from "../index"; // Import RootState
+import { Module, ActionContext } from "vuex";
+import { alertController } from "@ionic/vue";
+import type { RootState } from "../store";
 
-// Define state type
 export interface InternetState {
   isOnline: boolean;
-  downloadSpeed: number | null; // Speed in Mbps
+  downloadSpeed: number | null;
 }
 
 const state: InternetState = {
   isOnline: navigator.onLine,
-  downloadSpeed: null, // Initially unknown
+  downloadSpeed: null,
 };
 
 const mutations = {
@@ -27,41 +26,44 @@ const mutations = {
   },
 };
 
+type InternetContext = ActionContext<InternetState, RootState>;
+
 const actions = {
-  checkInternetConnection({ commit, dispatch }: any) {
+  checkInternetConnection({ commit, dispatch }: InternetContext) {
     if (navigator.onLine) {
       commit("SET_ONLINE");
-      dispatch("measureInternetSpeed"); // Measure speed on startup
+      dispatch("measureInternetSpeed");
     } else {
       commit("SET_OFFLINE");
       actions.showOfflineAlert();
     }
 
-    window.addEventListener("online", () =>
-      actions.handleOnline(commit, dispatch)
-    );
-    window.addEventListener("offline", () => actions.handleOffline(commit));
+    window.addEventListener("online", () => {
+      dispatch("handleOnline");
+    });
+    window.addEventListener("offline", () => {
+      dispatch("handleOffline");
+    });
   },
 
-  handleOnline({ commit, dispatch }: any) {
+  handleOnline({ commit, dispatch }: InternetContext) {
     commit("SET_ONLINE");
     console.log("You are back online");
     actions.showOnlineAlert();
-    dispatch("measureInternetSpeed"); // Recalculate speed
+    dispatch("measureInternetSpeed");
   },
 
-  handleOffline({ commit }: any) {
+  handleOffline({ commit }: InternetContext) {
     commit("SET_OFFLINE");
     console.log("You are offline");
     actions.showOfflineAlert();
   },
 
-  async measureInternetSpeed({ commit }: any) {
+  async measureInternetSpeed({ commit }: InternetContext) {
     const connection = (navigator as any).connection;
     if (connection && connection.downlink) {
-      commit("SET_SPEED", connection.downlink); // Use browser API if available
+      commit("SET_SPEED", connection.downlink);
     } else {
-      // Fallback: Download a small file to estimate speed
       const startTime = performance.now();
       try {
         await fetch(
@@ -72,7 +74,7 @@ const actions = {
           }
         );
         const duration = performance.now() - startTime;
-        const fileSize = 272 * 92 * 4; // Rough estimate in bytes
+        const fileSize = 272 * 92 * 4;
         const speedMbps = (fileSize * 8) / (duration / 1000) / 1_000_000;
         commit("SET_SPEED", speedMbps);
       } catch {
@@ -101,7 +103,6 @@ const actions = {
   },
 };
 
-// Define the Vuex module
 const internetModule: Module<InternetState, RootState> = {
   namespaced: true,
   state,

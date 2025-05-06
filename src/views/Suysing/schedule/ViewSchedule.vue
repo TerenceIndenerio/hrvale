@@ -57,32 +57,29 @@
         </ion-header>
         <ion-content class="ion-padding">
           <div v-if="modalData.length">
-            <h3
-              class="date-details-title"
-              :style="{ color: theme.primaryColor }"
-            >
-              <strong>Date Details</strong>
-            </h3>
             <ion-card
               v-for="date in modalData"
               :key="date.start"
               class="modal-card"
             >
               <div class="details-row">
-                <h4><strong>Schedule:</strong></h4>
+                <h5>
+                  <strong>Date: </strong> {{ this.formatDate(selectedDate) }}
+                </h5>
                 <div class="data-details">
                   <div v-if="formatDate(date.start) === formatDate(date.end)">
+                    <p><strong>Sched: </strong>{{ formatTitle(date.title) }}</p>
                     <p><strong>Date: </strong>{{ date.date }}</p>
+                    <p><strong>Type: </strong>{{ formatType(date.type) }}</p>
                   </div>
                   <div v-else>
                     <p>
-                      <strong>From: </strong>{{ date.date }}
-
-                      {{ date.time }}
-
+                      <strong>Sched: </strong>{{ formatTitle(date.title) }}
                       <br />
-                      <strong>To: </strong>{{ date.date }}
-                      {{ date.time }}
+                      <strong>From: </strong>{{ date.date }} {{ date.time
+                      }}<br />
+                      <strong>To: </strong>{{ date.date }} {{ date.time }}<br />
+                      <strong>Type: </strong>{{ formatType(date.type) }}
                     </p>
                   </div>
                 </div>
@@ -96,7 +93,9 @@
             </ion-card>
           </div>
           <div v-else>
-            <p color="medium">No matching dates found.</p>
+            <p color="medium" style="text-align: center">
+              No matching dates found.
+            </p>
           </div>
         </ion-content>
       </ion-modal>
@@ -185,7 +184,7 @@ export default defineComponent({
       year: "",
       empNumber: "",
       selectedOption: "Others",
-      dropdownOptions: ["Actual In & Out", "Schedule In & Out", "Others"],
+      dropdownOptions: ["Actual In & Out", "Schedule In & Out"],
       highlightedDates: [],
       isOpen: false,
       selectedDateData: [],
@@ -427,7 +426,6 @@ export default defineComponent({
 
       this.firstDate = this.formatDate(firstDayOfMonth);
       this.endDate = this.formatDate(lastDayOfMonth);
-      // this.requestAttendanceData();
       await this.requestData();
       this.selectedDateModal(selectedDate);
     },
@@ -469,6 +467,27 @@ export default defineComponent({
       this.firstDate = this.formatDate(firstDayOfMonth);
       this.endDate = this.formatDate(lastDayOfMonth);
       await this.requestData();
+    },
+
+    formatTitle(title) {
+      if (title && typeof title === "string") {
+        const parts = title.split(" ");
+        if (parts.length >= 3) {
+          const label = parts[0];
+          const fromTime = parts[1] + " " + parts[2];
+          const toTime = parts[3] && parts[4] ? parts[3] + " " + parts[4] : "";
+          return `${label} ${fromTime} – ${toTime}`;
+        }
+      }
+      return title || "Unknown";
+    },
+
+    formatType(type) {
+      if (!type) return "";
+      return type
+        .replace(/^\d+_?/, "")
+        .replace(/_/g, " ")
+        .replace(/\b\w/g, (char) => char.toUpperCase());
     },
 
     formatDate(date) {
@@ -761,6 +780,9 @@ ion-card-header {
 .details-row > div {
   grid-column: 2;
 }
+.details-row h5 {
+  margin-bottom: 0;
+}
 
 .select-option {
   width: fit-content;
@@ -855,6 +877,21 @@ ion-popover {
 
 .rotateIcon {
   animation: rotateKeyframes 0.3s ease-in-out;
+}
+ion-datetime::part(highlight) {
+  background-color: #9ad162;
+  color: white;
+  border-radius: 50%;
+}
+
+ion-datetime::part(active) {
+  box-shadow: 0 0 0 2px var(--ion-color-primary);
+  border-radius: 50%;
+}
+
+ion-datetime::part(active),
+ion-datetime::part(highlight) {
+  transition: all 0.7s ease;
 }
 
 @keyframes rotateKeyframes {

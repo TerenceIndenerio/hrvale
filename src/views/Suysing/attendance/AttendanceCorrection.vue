@@ -7,7 +7,16 @@
     />
     <ion-content :fullscreen="true" v-if="!loading">
       <Refresher />
+
       <ion-card class="neomorphic-card-1 search-container">
+        <ion-item>
+          <ion-input
+            type="date"
+            v-model="selectedDate"
+            display-format="YYYY-MM-DD"
+            class="neomorphic-input-2 date-input"
+          ></ion-input>
+        </ion-item>
         <ion-segment v-model="withAttendance" @ionChange="toggleAttendance">
           <ion-segment-button :value="false">
             <p class="segment-label">With Attendance</p>
@@ -210,6 +219,8 @@ import {
   IonModal,
   IonSegment,
   IonSegmentButton,
+  IonLabel,
+  IonItem,
 } from "@ionic/vue";
 import Refresher from "@/components/refresher/Refresher.vue";
 import HeaderReturn from "@/components/header/HeaderReturn.vue";
@@ -244,6 +255,9 @@ export default defineComponent({
     IonModal,
     IonSegment,
     IonSegmentButton,
+    IonInput,
+    IonLabel,
+    IonItem,
   },
   setup() {
     return {
@@ -276,6 +290,8 @@ export default defineComponent({
       withAttendance: false,
       isEditing: false,
       selectedResult: {},
+      withAttendance: false,
+      selectedDate: "",
     };
   },
   created() {
@@ -404,13 +420,14 @@ export default defineComponent({
           Authorization: `Bearer ${this.storedToken}`,
         };
 
-        const updatedEndDate = new Date(this.startDate);
-        updatedEndDate.setDate(updatedEndDate.getDate() + 1);
-        this.endDate = updatedEndDate.toISOString().split("T")[0];
-
-        const api =
+        let api =
           baseURL +
           `api/v2/daily-logs?limit=50&offset=0&noAttendance=${this.withAttendance}`;
+
+        if (this.selectedDate) {
+          api += `&date=${this.selectedDate}`;
+        }
+
         const dataResponse = await axios.get(api, { headers });
 
         if (dataResponse.data && Array.isArray(dataResponse.data.data)) {
@@ -826,6 +843,7 @@ p {
   align-items: center;
   text-align: center;
   width: 200px;
+  margin: 0 auto;
 }
 .form-title {
   font-family: Poppins;

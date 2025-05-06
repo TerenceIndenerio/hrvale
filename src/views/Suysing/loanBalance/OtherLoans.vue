@@ -45,13 +45,24 @@
                 <strong>Loan Date</strong>
               </p>
               <div class="select-option neomorphic-input-2">
-                <ion-input type="date" v-model="loanDate" />
+                <ion-input
+                  type="date"
+                  v-model="loanDate"
+                  @ion-blur="printDate"
+                />
               </div>
             </div>
           </div>
 
-          <!-- Loan Amount -->
+          <!-- Loanable Amount -->
+          <p :style="{ color: theme.primaryColor }" class="label">
+            <strong>Loanable Amount </strong>
+          </p>
+          <ion-card class="neomorphic-input-2">
+            <p>{{ maxLoanAmount.toLocaleString() }}</p>
+          </ion-card>
 
+          <!-- Loan Amount -->
           <p :style="{ color: theme.primaryColor }" class="label">
             <strong>Loan Amount </strong>
           </p>
@@ -181,7 +192,7 @@ export default defineComponent({
       reasonOptions: [],
       selectedEmployee: null,
       startOfPayment: new Date().toISOString().split("T")[0],
-      loanDate: new Date().toISOString().split("T")[0],
+      loanDate: new Date().toLocaleDateString("en-CA"),
       loanAmount: null,
       beginningPayment: null,
       amortization: null,
@@ -300,7 +311,6 @@ export default defineComponent({
           loanType: this.selectedLoanType,
           paymentTerms: this.paymentTerms,
           reason: "",
-          // reason: this.selectedReason.content,
         };
 
         this.storedToken = localStorage.getItem("token");
@@ -464,6 +474,10 @@ export default defineComponent({
       } catch (error) {
         console.error("Error displaying toast:", error);
       }
+    },
+
+    printDate() {
+      console.log(this.loanDate);
     },
   },
 });
