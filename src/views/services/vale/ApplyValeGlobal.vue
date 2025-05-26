@@ -35,6 +35,7 @@
             Details
           </h4>
           <div class="card-inner">
+            <!-- vale request -->
             <ion-col size="6">
               <ion-row>
                 <ion-col size="6">
@@ -59,29 +60,6 @@
 
               <ion-row>
                 <ion-col size="6">
-                  <p>Months:</p>
-                </ion-col>
-                <ion-col size="6">
-                  <div class="amountApproval-input">
-                    <ion-select
-                      v-model="monthInput"
-                      placeholder="Select months"
-                      @ionChange="updateTotalLoan()"
-                    >
-                      <ion-select-option
-                        v-for="month in monthOptions"
-                        :key="month"
-                        :value="month"
-                      >
-                        {{ month }}
-                      </ion-select-option>
-                    </ion-select>
-                  </div>
-                </ion-col>
-              </ion-row>
-
-              <ion-row>
-                <ion-col size="6">
                   <p>Previous Balance:</p>
                 </ion-col>
                 <ion-col size="6">
@@ -100,7 +78,7 @@
 
               <ion-row>
                 <ion-col size="6">
-                  <p>Amortization:</p>
+                  <p>Exceeded Loanable:</p>
                 </ion-col>
                 <ion-col size="6">
                   <p>{{ this.amortizationPercentage }}</p>
@@ -201,9 +179,9 @@
         <ion-modal :is-open="isOpen" id="modal">
           <ion-card class="card-modal">
             <ion-card-header>
-              <ion-card-title class="modal-header"
-                >Confirmation Required</ion-card-title
-              >
+              <ion-card-title class="modal-header">
+                Confirmation Required
+              </ion-card-title>
             </ion-card-header>
             <ion-icon
               @click="isOpen = false"
@@ -256,24 +234,100 @@
       </div>
       <!-- </div> -->
 
-      <ion-modal :is-open="applyClicked" id="modal">
-          <ion-card class="card-modal-signature">
-            <ion-card-header>
+      <ion-modal :is-open="isTerms" id="modal">
+        <ion-card class="card-modal-signature">
+          <ion-card-header>
+            <ion-card-title class="modal-header">
+              <h2 :style="{ color: theme.primaryColor }">
+                <strong>Terms of Service</strong>
+              </h2></ion-card-title
+            >
+          </ion-card-header>
 
-              <ion-card-title class="modal-header">Signature</ion-card-title>
-            </ion-card-header>
+          <div class="modal-content-signature">
+            <div class="terms-text-container">
+              <h3>I. Promisorry Note / Loan Agreement</h3>
+              <p>
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+                eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
+                enim ad minim veniam, quis nostrud exercitation ullamco laboris
+                nisi ut aliquip ex ea commodo consequat.
+              </p>
+              <h3>II. Authority To Deduct (ATD)</h3>
+              <p>
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+                eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
+                enim ad minim veniam, quis nostrud exercitation ullamco laboris
+                nisi ut aliquip ex ea commodo consequat.
+              </p>
+            </div>
+            <SignaturePad @signatureSaved="handleSignature" />
+          </div>
+        </ion-card>
+      </ion-modal>
+
+      <ion-modal :is-open="isloanTermsOpen" id="modal">
+        <ion-card class="card-modal-signature">
+          <ion-card-header>
+            <ion-card-title
+              class="modal-header"
+              :style="{ color: theme.primaryColor }"
+            >
+              <strong>Loan Terms</strong>
+            </ion-card-title>
             <ion-icon
               name="close-circle"
-              style="background-color: white; color: red;"
+              style="background-color: white; color: gray"
               class="close-btn"
-              @click="this.applyClicked = false;"
+              @click="this.isloanTermsOpen = false"
             ></ion-icon>
-
-            <div class="modal-content-signature">
-              <SignaturePad @signatureSaved="handleSignature"/>
+          </ion-card-header>
+          <div class="modal-content-loanTerms">
+            <div class="top-loanterms-content">
+              <h3 class="loan-amount-label">
+                <strong>You're applying for</strong>
+              </h3>
+              <h3 class="loan-amount-text">
+                <strong>Php {{ this.approvalAmount }}</strong>
+              </h3>
             </div>
-          </ion-card>
-        </ion-modal>
+            <div class="mid-loanterms-content">
+              <p><strong>Choose an installment period</strong></p>
+              <div class="period-container">
+                <ion-card
+                  v-for="month in [1, 2, 3]"
+                  :key="month"
+                  class="period-box neomorphic-card-1"
+                  :class="{ 'selected-period': selectedPeriod === month }"
+                  @click="selectPeriod(month)"
+                >
+                  <h3>
+                    <strong>{{ month }}</strong>
+                  </h3>
+                  <h4><strong>mos</strong></h4>
+                </ion-card>
+              </div>
+            </div>
+            <div class="bottom-loanterms-content">
+              <p :style="{ color: theme.primaryColor }">
+                <strong>Your monthly installments</strong>
+              </p>
+              <h3 class="loan-term-bal" :style="{ color: theme.primaryColor }">
+                <strong>PHP {{ this.monthlyInstallment }}</strong>
+              </h3>
+            </div>
+            <ion-button
+              @click="this.loanTermsconfirmation()"
+              expand="full"
+              color="none"
+              class="apply-loanterms-btn neomorphic-btn-1"
+              :style="{ backgroundColor: theme.secondaryColor }"
+            >
+              Proceed
+            </ion-button>
+          </div>
+        </ion-card>
+      </ion-modal>
     </ion-content>
   </ion-page>
 </template>
@@ -313,7 +367,7 @@ import { useRouter } from "vue-router";
 import { GlobalConstants } from "@/config/constants";
 import { mapState } from "vuex";
 import Refresher from "@/components/refresher/Refresher.vue";
-import SignaturePad from "@/components/others/SignaturePad.vue" 
+import SignaturePad from "@/components/others/SignaturePad.vue";
 
 export default {
   components: {
@@ -339,7 +393,7 @@ export default {
     IonIcon,
     IonCardTitle,
     IonCardHeader,
-    SignaturePad
+    SignaturePad,
   },
   setup() {
     return {
@@ -393,8 +447,11 @@ export default {
       recepientAccount: ["GCash", "Maya", "Gotyme", "Bank"],
       bankDetails: null,
       selectedPaymentMethod: null,
-      applyClicked: false,
-      signature: null
+      isTerms: false,
+      signature: null,
+      isloanTermsOpen: false,
+      selectedPeriod: null,
+      monthlyInstallment: 0,
     };
   },
   methods: {
@@ -426,7 +483,6 @@ export default {
       }
     },
 
-    
     async fetchBankDetails(empNumber) {
       try {
         await this.checkTokenExpiration();
@@ -490,6 +546,7 @@ export default {
       this.theme = themeData;
     },
 
+    // code is commented !!! still developing
     // async applyVale() {
     //   if (!this.reason || this.reason.trim() === "") {
     //     this.showErrorMessage("Please fill in all required fields.");
@@ -520,40 +577,48 @@ export default {
 
     async handleSignature(base64Signature) {
       // Use the signature as payload for your API or other logic
-      this.signature=base64Signature
+      this.signature = base64Signature;
 
-      if (
-        !this.reason?.trim() ||
-        !this.comment?.trim() ||
-        !this.selectedPaymentMethod ||
-        !this.signature
-      ) {
-        this.showErrorMessage("Please fill in all required fields.");
-        return;
-      }
+      console.log("base64Signature: ", base64Signature);
 
-      this.finalReason =
-        this.reason === "Others" ? this.reasonText.trim() : this.reason.trim();
+      // code is commented !!! still developing
 
-      const approvalAmount = parseFloat(this.approvalAmount.replace(/,/g, ""));
-      const loanBalance = parseFloat(this.valeDataResult.balance.replace(/,/g, ""));
+      // if (
+      //   !this.reason?.trim() ||
+      //   !this.comment?.trim() ||
+      //   !this.selectedPaymentMethod ||
+      //   !this.signature
+      // ) {
+      //   this.showErrorMessage("Please fill in all required fields.");
+      //   return;
+      // }
 
-      if (approvalAmount > loanBalance) {
-        console.log(approvalAmount, loanBalance)
-        this.isOpen = true;
-        this.showErrorMessage("Invalid Amount for Approval");
-        this.invalidAmount = true;
-      } else {
-        await this.proceedWithAPI(this.finalReason);
-      }
+      // this.finalReason =
+      //   this.reason === "Others" ? this.reasonText.trim() : this.reason.trim();
 
-      this.updateTotalLoan();
+      // const approvalAmount = parseFloat(this.approvalAmount.replace(/,/g, ""));
+      // const loanBalance = parseFloat(
+      //   this.valeDataResult.balance.replace(/,/g, "")
+      // );
+
+      // if (approvalAmount > loanBalance) {
+      //   console.log(approvalAmount, loanBalance);
+      //   this.isOpen = true;
+      //   this.showErrorMessage("Invalid Amount for Approval");
+      //   this.invalidAmount = true;
+      // } else {
+      //   await this.proceedWithAPI(this.finalReason);
+      // }
+
+      // this.updateTotalLoan();
     },
 
-
-
     async applyVale() {
-      this.applyClicked = true
+      this.isloanTermsOpen = true;
+    },
+    async loanTermsconfirmation() {
+      this.isloanTermsOpen = false;
+      this.isTerms = true;
     },
 
     async proceedWithAPI(reason) {
@@ -573,18 +638,20 @@ export default {
           reason: reason,
           comment: this.comment.trim(),
           bankRecepient: this.selectedPaymentMethod,
-          signature: this.signature
+          signature: this.signature,
         };
 
-        console.log(payload)
+        console.log(payload);
 
-        const dataResponse = await axios.post(api, payload, { headers });
+        // code is commented !!! still developing
 
-        if (dataResponse.status === 200) {
-          this.isSuccessful = true;
-          this.valeID = dataResponse.data.data.id;
-          
-        }
+        // const dataResponse = await axios.post(api, payload, { headers });
+
+        // if (dataResponse.status === 200) {
+        //   this.isSuccessful = true;
+        //   this.valeID = dataResponse.data.data.id;
+
+        // }
       } catch (error) {
         this.showErrorMessage(error.response?.data?.error?.message);
         console.log("message", error);
@@ -720,11 +787,55 @@ export default {
         this.approvalAmount = null;
       }
     },
+    // code is commented !!! still developing
 
+    // updateTotalLoan() {
+    //   // console.log(this.valeDataResult.amortizationType);
+    //   const startOfPayment = this.valeDataResult.startOfPayment;
+    //   const loanInterest = this.valeDataResult.loanInterest;
+    //   const amortizationType = this.valeDataResult.amortizationType;
+    //   const approvalAmount = parseFloat(this.approvalAmount.replace(/,/g, ""));
+    //   const previousBalance = parseFloat(
+    //     this.valeDataResult.previousBalance.replace(/,/g, "")
+    //   );
+    //   const availableAmount = parseFloat(this.valeDataResult.availableAmount);
+    //   const amortizationValue = parseFloat(
+    //     this.valeDataResult.amortizationValue.replace(/,/g, "")
+    //   );
+
+    //   let NumofPayments = 0;
+    //   if (startOfPayment === "Every Payroll") {
+    //     NumofPayments = this.monthInput * 2;
+    //   } else {
+    //     NumofPayments = this.monthInput;
+    //   }
+
+    //   let interestCalc =
+    //     approvalAmount * (loanInterest / 100) * this.monthInput;
+
+    //   if (approvalAmount && interestCalc) {
+    //     this.totalLoan = approvalAmount + previousBalance + interestCalc;
+    //     this.amortizationPercentage =
+    //       Math.round(
+    //         ((this.totalLoan * (interestCalc / 100)) /
+    //           NumofPayments /
+    //           this.monthInput) *
+    //           100
+    //       ) / 100;
+    //   }
+    //   if (!isNaN(approvalAmount) && approvalAmount > 0) {
+    //     if (approvalAmount <= availableAmount) {
+    //       this.invalidAmount = false;
+    //     }
+    //   } else {
+    //     this.totalLoan = previousBalance;
+    //     this.showErrorMessage("Invalid Amount for Approval");
+    //     this.invalidAmount = true;
+    //   }
+    // },
+
+    // from suysing formula and logic
     updateTotalLoan() {
-      // console.log(this.valeDataResult.amortizationType);
-      const startOfPayment = this.valeDataResult.startOfPayment;
-      const loanInterest = this.valeDataResult.loanInterest;
       const amortizationType = this.valeDataResult.amortizationType;
       const approvalAmount = parseFloat(this.approvalAmount.replace(/,/g, ""));
       const previousBalance = parseFloat(
@@ -735,26 +846,15 @@ export default {
         this.valeDataResult.amortizationValue.replace(/,/g, "")
       );
 
-      let NumofPayments = 0;
-      if (startOfPayment === "Every Payroll") {
-        NumofPayments = this.monthInput * 2;
-      } else {
-        NumofPayments = this.monthInput;
-      }
-
-      let interestCalc =
-        approvalAmount * (loanInterest / 100) * this.monthInput;
-
-      if (approvalAmount && interestCalc) {
-        this.totalLoan = approvalAmount + previousBalance + interestCalc;
+      if (amortizationType === "percentage") {
+        // Convert the whole number (amortizationValue) to decimal by dividing by 100
         this.amortizationPercentage =
-          Math.round(
-            ((this.totalLoan * (interestCalc / 100)) /
-              NumofPayments /
-              this.monthInput) *
-              100
-          ) / 100;
+          approvalAmount * (amortizationValue / 100);
+      } else if (amortizationType === "decimal") {
+        this.amortizationPercentage = approvalAmount / amortizationValue;
       }
+
+      this.totalLoan = approvalAmount + previousBalance;
       if (!isNaN(approvalAmount) && approvalAmount > 0) {
         if (approvalAmount <= availableAmount) {
           this.invalidAmount = false;
@@ -768,6 +868,12 @@ export default {
 
     navigateToValeMain() {
       this.$router.go(-1);
+    },
+
+    selectPeriod(months) {
+      const cleanAmount = Number(this.totalLoan.toString().replace(/,/g, ""));
+      this.selectedPeriod = months;
+      this.monthlyInstallment = (cleanAmount / months).toFixed(2);
     },
   },
   created() {
@@ -951,7 +1057,8 @@ p {
   overflow-y: scroll;
 }
 .modal-content-signature {
-  height: 280px;
+  height: 80vh;
+  overflow: scroll;
   padding: 5px;
 }
 .card-modal-signature {
@@ -962,5 +1069,68 @@ p {
   bottom: 10px;
   left: 0;
   right: 0;
+}
+.modal-content-loanTerms {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  padding: 0 20px 30px 20px;
+}
+.period-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: row;
+}
+.period-box {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  padding: 10px 30px;
+  height: 100px;
+  border: 2px solid gainsboro;
+  margin: 5px;
+}
+.period-box h3,
+.period-box h4 {
+  margin: 0;
+}
+
+.top-loanterms-content {
+  text-align: center;
+}
+.mid-loanterms-content {
+  text-align: center;
+}
+.bottom-loanterms-content {
+  text-align: center;
+  margin: 30px 0;
+}
+.loan-amount-label {
+  font-size: 16px;
+}
+.loan-amount-text {
+  font-size: 35px;
+}
+.loan-term-bal {
+  font-size: 24px;
+  margin: 0;
+}
+.apply-loanterms-btn {
+  width: 100%;
+  margin-top: 20px;
+}
+.terms-text-container {
+  padding: 5px 15px;
+}
+.terms-text-container p {
+  padding: 0 20px;
+  text-align: justify;
+}
+.selected-period {
+  border: 2px solid #007bff;
+  box-shadow: 0 0 10px #007bff;
 }
 </style>

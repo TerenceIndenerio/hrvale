@@ -15,6 +15,7 @@
           background: `#DDA24B`,
           color: theme.primaryFontColor,
         }"
+        :class="{ soon: !isAttendanceAllowed }"
         disabled
       >
         <h4 :style="{ color: btnTextColor }">Attendance Correction</h4>
@@ -46,6 +47,7 @@
           background: `#61B26C`,
           color: theme.primaryFontColor,
         }"
+        :class="{ soon: !isPayslipAllowed }"
         disabled
       >
         <h4 :style="{ color: btnTextColor }">Payslip</h4>
@@ -80,6 +82,7 @@
           background: `#CF88C7`,
           color: theme.primaryFontColor,
         }"
+        :class="{ soon: !isleaveAllowed }"
         disabled
       >
         <h4 :style="{ color: btnTextColor }">Leave</h4>
@@ -108,6 +111,7 @@
           background: `#5F8EA1`,
           color: theme.primaryFontColor,
         }"
+        :class="{ soon: !isOTAllowed }"
         disabled
       >
         <h4 :style="{ color: btnTextColor }">OT</h4>
@@ -136,6 +140,7 @@
           background: `#EDA67F`,
           color: theme.primaryFontColor,
         }"
+        :class="{ soon: !isValeAllowed }"
       >
         <h4 :style="{ color: btnTextColor }">Vale</h4>
 
@@ -162,6 +167,7 @@
           background: `#875982`,
           color: theme.primaryFontColor,
         }"
+        :class="{ soon: !isOtherLoanAllowed }"
         disabled
       >
         <h4 :style="{ color: btnTextColor }">Other Loan</h4>
@@ -202,6 +208,7 @@
           background: `#84DD90`,
           color: theme.primaryFontColor,
         }"
+        :class="{ soon: !isSchedAdjustment }"
         disabled
       >
         <h4 :style="{ color: btnTextColor }">Change DO</h4>
@@ -233,6 +240,7 @@
           background: `#66A9E9`,
           color: theme.primaryFontColor,
         }"
+        :class="{ soon: !isBenefitsAllowed }"
         disabled
       >
         <h4 :style="{ color: btnTextColor }">Benefits</h4>
@@ -269,6 +277,7 @@
           background: `#944547`,
           color: theme.primaryFontColor,
         }"
+        :class="{ soon: !isLoanLedgerAllowed }"
         disabled
       >
         <h4 :style="{ color: btnTextColor }">Loan Ledger</h4>
@@ -321,14 +330,7 @@
 
     <!-- Approval -->
     <!-- isApprovalAllowed -->
-    <div
-      :class="[
-        `card btn-text`,
-        { soon: !isUserRoleESS, hidden: !isApprovalShown },
-      ]"
-      expand="full"
-      color="none"
-    >
+    <div :class="[`card btn-text`]" expand="full" color="none">
       <a
         @click="navigateApproval"
         :style="{
@@ -366,6 +368,7 @@
           background: `#773188`,
           color: theme.primaryFontColor,
         }"
+        :class="{ soon: !isMyTrainingAllowed }"
         disabled
       >
         <svg
@@ -428,6 +431,7 @@
           background: `#EDA67F`,
           color: theme.primaryFontColor,
         }"
+        :class="{ soon: !isApplyPreApprovedOTAllowed }"
         disabled
       >
         <svg
@@ -467,6 +471,7 @@
           background: `linear-gradient(to right, ${theme.primaryGradientStartColor}, ${theme.primaryGradientEndColor})`,
           color: theme.primaryFontColor,
         }"
+        :class="{ soon: !isApplyPreApprovedOTAllowed }"
         disabled
       >
         <svg
@@ -801,6 +806,9 @@ a {
 }
 .soon {
   opacity: 0.3;
+  background-color: gray;
+  box-shadow: inset 0 4px 4px 0 rgba(0, 0, 0, 1),
+    inset 0 6px 10px 0 rgba(0, 0, 0, 1);
 }
 .hidden {
   display: none;

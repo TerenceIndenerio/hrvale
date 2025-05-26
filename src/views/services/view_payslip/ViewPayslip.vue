@@ -28,6 +28,25 @@
           </div>
         </div>
 
+        <div class="container-inner select-option-container-outer">
+          <p :style="{ color: theme.primaryColor }" class="label">Paycycle</p>
+          <div class="select-option neomorphic-input-2 select-option-container">
+            <ion-select
+              v-model="selectedPaycycleId"
+              interface="popover"
+              class="paycycle-select"
+            >
+              <ion-select-option
+                v-for="option in paycycles"
+                :key="option.value"
+                :value="option.value"
+              >
+                {{ option.label }}
+              </ion-select-option>
+            </ion-select>
+          </div>
+        </div>
+
         <ion-button
           expand="full"
           class="search-btn-container neomorphic-btn-2"
@@ -50,7 +69,6 @@
             {{ cardData.length }} Record Found
           </h4>
 
-          <!-- ON CLick fetchViewPayslip Trigger for Modal-->
           <ion-card
             class="card-container neomorphic-card-1"
             v-for="(result, index) in cardData"
@@ -191,6 +209,8 @@ import {
   toastController,
   IonIcon,
   IonInput,
+  IonSelect,
+  IonSelectOption,
 } from "@ionic/vue";
 import HeaderReturn from "@/components/header/HeaderReturnPayslip.vue";
 import Refresher from "@/components/refresher/Refresher.vue";
@@ -233,6 +253,8 @@ export default defineComponent({
     IonIcon,
     IonInput,
     PayslipModal,
+    IonSelect,
+    IonSelectOption,
   },
   setup() {
     return {
@@ -280,6 +302,13 @@ export default defineComponent({
       isIOS: false,
       isThirteenthMonth: false,
       thirteenthMonthData: null,
+      selectedPaycycleId: null,
+      paycycles: [
+        { label: "Bonus", value: 18 },
+        { label: "Final Pay", value: 33 },
+        { label: "Off Cycle", value: 13 },
+        { label: "Regular", value: 4 },
+      ],
     };
   },
   methods: {
@@ -330,13 +359,18 @@ export default defineComponent({
 
     async requestData() {
       try {
+        console.log(this.selectedPaycycleId);
         this.store.commit("loader/updateLoader", true);
         await this.checkTokenExpiration();
         const storedToken = localStorage.getItem("token");
         const baseURL = localStorage.getItem("baseUrl");
         const authToken = `Bearer ${storedToken}`;
 
-        const apiUrl = baseURL + `api/ess/view-payslip?limit=50&offset=0`;
+        let apiUrl = `${baseURL}api/ess/view-payslip?limit=50&offset=0`;
+        if (this.selectedPaycycleId) {
+          apiUrl += `&paycycleId=${this.selectedPaycycleId}`;
+        }
+
         const headers = {
           Authorization: authToken,
         };
@@ -512,9 +546,11 @@ export default defineComponent({
         const baseURL = localStorage.getItem("baseUrl");
         const authToken = `Bearer ${storedToken}`;
 
-        const apiUrl =
-          baseURL +
-          `api/web/ess/view-payslip?limit=50&offset=0&date=${fromDate}&dateEnd=${toDate}`;
+        let apiUrl = `${baseURL}api/web/ess/view-payslip?limit=50&offset=0&date=${fromDate}&dateEnd=${toDate}`;
+        if (this.selectedPaycycleId) {
+          apiUrl += `&paycycleId=${this.selectedPaycycleId}`;
+        }
+
         const headers = {
           Authorization: authToken,
         };
@@ -752,5 +788,14 @@ p {
   position: absolute;
   right: 10px;
   top: 10px;
+}
+.select-option-container-outer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.select-option-container {
+  width: 200px;
+  margin-left: auto;
 }
 </style>

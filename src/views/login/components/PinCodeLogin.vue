@@ -199,10 +199,7 @@
         </div>
 
         <div class="forgot-pin">
-          <a
-            href="https://hrp-uat-app.bapplware.com/web/index.php/reset/form/pincode"
-            @click="forgotPin"
-          >
+          <a :href="`${baseURL}reset/form/pincode`" @click="forgotPin">
             Forgot your PIN?
           </a>
         </div>
@@ -266,6 +263,7 @@ export default {
       inputs: "",
       actualDigits: "",
       appVersion: "",
+      baseURL: localStorage.getItem("baseUrl"),
     };
   },
   emits: ["login"],

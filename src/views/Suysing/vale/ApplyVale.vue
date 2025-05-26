@@ -25,14 +25,6 @@
           </div>
         </div>
       </ion-card>
-      <div
-        class="triangle"
-        :style="{
-          borderColor: `${theme.primaryColor} transparent transparent transparent`,
-          borderStyle: solid,
-          borderWidth: `70px 100px 0 100px`,
-        }"
-      ></div>
 
       <div v-if="!loading">
         <ion-card class="card card-details">
@@ -438,12 +430,6 @@ export default {
         const dataResponse = await axios.post(api, payload, { headers });
 
         if (dataResponse.status === 200) {
-          // this.showAlertMessage("Vale Applied Successfully!");
-          // setTimeout(() => {
-          //   window.location.replace(
-          //     `/viewvale?id=${dataResponse.data.data.id}`
-          //   );
-          // }, 1000);
           this.isSuccessful = true;
           this.valeID = dataResponse.data.data.id;
         }
@@ -791,15 +777,5 @@ p {
   height: 100%;
   border-radius: 0;
   overflow-y: scroll;
-}
-
-.triangle::after {
-  content: "";
-  display: block;
-  width: 0;
-  height: 0;
-
-  /* border-color: #339af0 transparent transparent transparent; */
-  margin: 0 auto;
 }
 </style>

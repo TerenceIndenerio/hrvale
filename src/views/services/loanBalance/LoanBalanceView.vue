@@ -7,103 +7,33 @@
     />
     <ion-content :fullscreen="true">
       <Refresher />
-      <div class="neomorphic-card-1 card-container">
-        <div v-if="results.length === 0">
-          <div class="no-data-text">
-            <h5 :style="{ color: theme.primaryColor }">
-              <strong>Fetching Data</strong>
-            </h5>
-          </div>
+      <div class="card-container">
+        <div v-if="results.length === 0" class="no-data-text">
+          <h5 :style="{ color: theme.primaryColor }">
+            <strong>Fetching Data</strong>
+          </h5>
         </div>
 
         <div v-else>
           <div
             v-for="(result, index) in results"
             :key="index"
-            class="card-inner content-container neomorphic-input-1"
+            class="loan-card neomorphic-card-1"
           >
-            <ion-col size="6">
-              <ion-row>
+            <ion-grid>
+              <ion-row
+                v-for="(value, label) in formatResult(result)"
+                :key="label"
+                class="row-container"
+              >
                 <ion-col size="6">
-                  <p>Name:</p>
+                  <p class="label-text">{{ label }}:</p>
                 </ion-col>
                 <ion-col size="6">
-                  <p>{{ result.name }}</p>
-                </ion-col>
-              </ion-row>
-
-              <ion-row>
-                <ion-col size="6">
-                  <p>Loan Date:</p>
-                </ion-col>
-                <ion-col size="6">
-                  <p>{{ result.loanDate }}</p>
+                  <p class="value-text">{{ value }}</p>
                 </ion-col>
               </ion-row>
-
-              <ion-row>
-                <ion-col size="6">
-                  <p>Start of Payment:</p>
-                </ion-col>
-                <ion-col size="6">
-                  <p>{{ result.startPaymentDate }}</p>
-                </ion-col>
-              </ion-row>
-
-              <ion-row>
-                <ion-col size="6">
-                  <p>Loan Type:</p>
-                </ion-col>
-                <ion-col size="6">
-                  <p>{{ result.loanType }}</p>
-                </ion-col>
-              </ion-row>
-
-              <ion-row>
-                <ion-col size="6">
-                  <p>Principal Amount:</p>
-                </ion-col>
-                <ion-col size="6">
-                  <p>{{ result.loanAmount }}</p>
-                </ion-col>
-              </ion-row>
-
-              <ion-row>
-                <ion-col size="6">
-                  <p>Schedule of Deduction:</p>
-                </ion-col>
-                <ion-col size="6">
-                  <p>{{ result.schedOfDeduction }}</p>
-                </ion-col>
-              </ion-row>
-
-              <ion-row>
-                <ion-col size="6">
-                  <p>Amortization:</p>
-                </ion-col>
-                <ion-col size="6">
-                  <p>{{ result.amortization }}</p>
-                </ion-col>
-              </ion-row>
-
-              <ion-row>
-                <ion-col size="6">
-                  <p>Reason:</p>
-                </ion-col>
-                <ion-col size="6">
-                  <p>{{ result.reason }}</p>
-                </ion-col>
-              </ion-row>
-
-              <ion-row>
-                <ion-col size="6">
-                  <p>Status:</p>
-                </ion-col>
-                <ion-col size="6">
-                  <p>{{ result.status }}</p>
-                </ion-col>
-              </ion-row>
-            </ion-col>
+            </ion-grid>
           </div>
         </div>
       </div>
@@ -208,6 +138,25 @@ export default defineComponent({
         this.router.push("/login");
       }
     },
+    formatResult(result) {
+      return {
+        "Employee Name": result.name,
+        "Loan Type": result.loanType,
+        "Loan Date": result.loanDate,
+        "Start of Payment": result.startPaymentDate,
+        "Payment Terms": result.paymentTerms,
+        Amortization: result.amortization,
+        "Principal Amount": result.loanAmount,
+        "Interest (%)": result.interestRate,
+        "Interest Amount": result.interestAmount,
+        "Total Loan Amount": result.totalLoanAmount,
+        "Beginning Payment": result.beginningPayment,
+        "Ending Balance": result.endingBalance,
+        Reason: result.reason,
+        "Total Amortization": result.totalAmortization,
+        Status: result.status,
+      };
+    },
 
     async showErrorMessage(message) {
       try {
@@ -253,19 +202,27 @@ export default defineComponent({
         );
 
         if (matchingEntries.length > 0) {
-          this.results = matchingEntries.map((foundEntry) => ({
-            id: foundEntry.id,
-            name: foundEntry.name,
-            loanDate: foundEntry.loanDate?.date?.split(" ")[0] ?? "",
-            startPaymentDate:
-              foundEntry.startPaymentDate?.date?.split(" ")[0] ?? "",
-            loanType: foundEntry.loanTypeName,
-            loanAmount: foundEntry.loanAmount,
-            schedOfDeduction: foundEntry.frequencyName,
-            principalAmount: foundEntry.loanDate,
-            amortization: foundEntry.amortization,
-            reason: foundEntry.reason,
-            status: foundEntry.status,
+          this.results = matchingEntries.map((entry) => ({
+            id: entry.id,
+            name: entry.name,
+            loanDate: entry.loanDate?.date?.split(" ")[0] ?? "",
+            startPaymentDate: entry.startPaymentDate?.date?.split(" ")[0] ?? "",
+            loanType: entry.loanTypeName,
+            loanAmount: entry.loanAmount,
+            schedOfDeduction: entry.frequencyName,
+            amortization: entry.amortization,
+            reason: entry.reason,
+            status: entry.status,
+
+            // Newly added fields
+            paymentTerms: entry.paymentTerms,
+            principalAmount: entry.principalAmount ?? entry.loanAmount,
+            interestRate: entry.interestRate,
+            interestAmount: entry.interestAmount,
+            totalLoanAmount: entry.totalLoanAmount,
+            beginningPayment: entry.beginningPayment,
+            endingBalance: entry.endingBalance,
+            totalAmortization: entry.totalAmortization,
           }));
 
           this.totalRec = this.results.length;
@@ -348,8 +305,35 @@ p {
   background-color: #fff;
 }
 .card-container {
-  margin: 10px auto;
-  padding: 10px 20px;
-  border-radius: 50px;
+  padding: 16px;
+}
+
+.loan-card {
+  margin-bottom: 20px;
+  padding: 16px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  background: #f9f9f9;
+  margin: 0 auto;
+  width: 100% !important;
+  max-width: 400px;
+}
+
+.label-text {
+  font-weight: bold;
+  color: #333;
+}
+
+.value-text {
+  color: #444;
+}
+
+.no-data-text {
+  text-align: center;
+  padding: 20px;
+}
+.row-container {
+  border-bottom: 1px solid rgba(128, 128, 128, 0.215);
+  padding: 10px 0;
 }
 </style>

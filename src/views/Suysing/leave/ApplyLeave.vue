@@ -34,18 +34,6 @@
         </div>
 
         <div class="leave-details-container">
-          <!-- checkbox -->
-          <p class="dropdown-label" :style="{ color: theme.primaryColor }">
-            Allocated Days
-          </p>
-          <div class="checkbox-container">
-            <ion-checkbox label-placement="end">
-              <p>Calendar</p>
-            </ion-checkbox>
-            <ion-checkbox label-placement="end">
-              <p>Working Days</p>
-            </ion-checkbox>
-          </div>
           <ion-grid>
             <!-- Leave Balance -->
             <ion-row class="leave-bal-detail">

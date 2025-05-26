@@ -36,7 +36,7 @@
           presentation="date"
           display-timezone="false"
           v-model="selectedDate"
-          @ionChange="handleMonthChange"
+          @ionChange="handleDateSelected"
           :highlighted-dates="filteredHighlightedDates"
         ></ion-datetime>
       </div>
@@ -69,7 +69,7 @@
                 <div class="data-details">
                   <div v-if="formatDate(date.start) === formatDate(date.end)">
                     <p><strong>Sched: </strong>{{ formatTitle(date.title) }}</p>
-                    <p><strong>Date: </strong>{{ date.date }}</p>
+                    <!-- <p><strong>Date: </strong>{{ date.date }}</p> -->
                     <p><strong>Type: </strong>{{ formatType(date.type) }}</p>
                   </div>
                   <div v-else>
@@ -85,7 +85,7 @@
                 </div>
               </div>
               <div
-                :style="{ backgroundColor: date.backgroundColor }"
+                :style="{ backgroundColor: date.badgeColor }"
                 class="workShift-color"
               >
                 {{ date.title }}
@@ -183,17 +183,30 @@ export default defineComponent({
       loading: true,
       year: "",
       empNumber: "",
-      selectedOption: "Others",
-      dropdownOptions: ["Actual In & Out", "Schedule In & Out"],
+      selectedOption: "All",
+      dropdownOptions: ["All", "Actual In & Out", "Schedule In & Out"],
       highlightedDates: [],
       isOpen: false,
       selectedDateData: [],
       modalData: [],
       rotationState: "initial",
+      formattedDate: new Date().toISOString().split("T")[0],
+      badgeColor: null,
     };
   },
   computed: {
     filteredHighlightedDates() {
+      let titleOrder = [
+        "Day Off",
+        "Rest Day",
+        "Holiday",
+        "Work From Home",
+        "Schedule IN and OUT",
+        "Actual IN",
+        "Actual OUT",
+        "Fixed OT",
+      ];
+
       const groupEntriesByDate = (entries) => {
         const grouped = {};
 
@@ -242,30 +255,52 @@ export default defineComponent({
 
       let filteredEntries = [];
       if (this.selectedOption === "Actual In & Out") {
-        const actualEntries = this.scheduleData.filter(
-          (entry) => entry.title === "Actual IN" || entry.title === "Actual OUT"
+        const allowedTypes = ["2_actual_in_out"];
+
+        filteredEntries = this.scheduleData.filter((entry) =>
+          allowedTypes.includes(entry.type)
         );
-        const groupedEntries = groupEntriesByDate(actualEntries);
-        const mergedEntries = mergeEntries(
-          groupedEntries,
-          "Actual IN",
-          "Actual OUT",
-          "Actual IN and OUT"
-        );
-        filteredEntries = mergedEntries;
       } else if (this.selectedOption === "Schedule In & Out") {
-        const scheduleEntries = this.scheduleData.filter(
-          (entry) =>
-            entry.title === "Schedule IN" || entry.title === "Schedule OUT"
+        const allowedTypes = [
+          "calendar_holiday",
+          "workshift_type",
+          "4_default_workshift",
+          "1_work_hour",
+        ];
+
+        const scheduleEntries = this.scheduleData.filter((entry) =>
+          allowedTypes.includes(entry.type)
         );
-        const groupedEntries = groupEntriesByDate(scheduleEntries);
-        const mergedEntries = mergeEntries(
-          groupedEntries,
-          "Schedule IN",
-          "Schedule OUT",
-          "Schedule IN and OUT"
-        );
-        filteredEntries = mergedEntries;
+
+        const dateColorMap = {};
+        scheduleEntries.forEach((entry) => {
+          const date = new Date(entry.start).toISOString().split("T")[0];
+
+          if (entry.type === "calendar_holiday") {
+            dateColorMap[date] = entry.backgroundColor;
+          } else if (entry.type === "workshift_type" && !dateColorMap[date]) {
+            dateColorMap[date] = entry.backgroundColor;
+          }
+        });
+
+        filteredEntries = scheduleEntries.map((entry) => {
+          const date = new Date(entry.start).toISOString().split("T")[0];
+          const prioritizedColor = dateColorMap[date];
+          return {
+            ...entry,
+            badgeColor: entry.badgeColor || entry.backgroundColor,
+            backgroundColor: prioritizedColor || entry.backgroundColor,
+          };
+        });
+
+        filteredEntries.sort((a, b) => {
+          const indexA = titleOrder.indexOf(a.title);
+          const indexB = titleOrder.indexOf(b.title);
+          return (
+            (indexA === -1 ? Infinity : indexA) -
+            (indexB === -1 ? Infinity : indexB)
+          );
+        });
       } else if (this.selectedOption === "Others") {
         filteredEntries = this.scheduleData.filter(
           (entry) =>
@@ -274,25 +309,70 @@ export default defineComponent({
             entry.title !== "Schedule IN" &&
             entry.title !== "Schedule OUT"
         );
+      } else if (this.selectedOption === "All") {
+        const allowedTypes = [
+          "calendar_holiday",
+          "workshift_type",
+          "3_fixed_ot",
+          "2_actual_in_out",
+          "4_default_workshift",
+          "1_work_hour",
+          null,
+        ];
+
+        filteredEntries = this.scheduleData
+          .filter((entry) => allowedTypes.includes(entry.type))
+          .map((entry) => {
+            let badgeColor = entry.badgeColor || entry.backgroundColor;
+            if (entry.type === "calendar_holiday") {
+              badgeColor = entry.badgeColor || "#FF4500";
+            }
+            return {
+              ...entry,
+              badgeColor,
+            };
+          });
       } else {
         filteredEntries = this.scheduleData;
       }
 
-      return filteredEntries
-        .map((entry) => this.mapEntry(entry))
-        .sort((a, b) => new Date(a.start) - new Date(b.end));
+      filteredEntries.sort((a, b) => {
+        const indexA = titleOrder.indexOf(a.title);
+        const indexB = titleOrder.indexOf(b.title);
+        return (
+          (indexB === -1 ? Infinity : indexB) -
+          (indexA === -1 ? Infinity : indexA)
+        );
+      });
+
+      return filteredEntries.map((entry) => ({
+        ...this.mapEntry(entry),
+        badgeColor: entry.badgeColor || entry.backgroundColor,
+        backgroundColor:
+          this.selectedOption === "All"
+            ? "#FFFFFF"
+            : entry.backgroundColor || "#FFFFFF",
+      }));
     },
   },
+
   methods: {
     mapEntry(entry) {
-      let backgroundColor = entry.backgroundColor;
-      let textColor = "#FFFFFF";
+      let backgroundColor = entry.backgroundColor || "#FFFFFF";
+      let textColor = "#161716";
 
-      if (this.isDarkColor(backgroundColor)) {
+      if (
+        this.selectedOption === "All" ||
+        backgroundColor.toUpperCase() === "#FFFFFF"
+      ) {
+        textColor = "#161716";
+      } else if (this.isDarkColor(backgroundColor)) {
         textColor = "#FFFFFF";
       } else {
         textColor = "#161716";
       }
+
+      const badgeColor = entry.badgeColor || backgroundColor;
 
       return {
         id: entry.id,
@@ -302,15 +382,17 @@ export default defineComponent({
         title: entry.title,
         start: entry.start,
         end: entry.end,
-        borderColor: entry.backgroundColor,
-        backgroundColor: entry.backgroundColor,
+        borderColor: badgeColor,
         tooltipTitle: entry.tooltipTitle,
         tooltipContent: entry.tooltipContent,
         scheduleColor: entry.tooltipContent,
-        textColor: textColor,
         type: entry.type,
+        backgroundColor,
+        badgeColor,
+        textColor,
       };
     },
+
     setOpen(open) {
       this.isOpen = open;
     },
@@ -318,8 +400,14 @@ export default defineComponent({
     isDarkColor(color) {
       const rgb = this.hexToRgb(color);
       if (!rgb) return false;
+
       const brightness = (rgb.r * 299 + rgb.g * 587 + rgb.b * 114) / 1000;
-      return brightness < 128;
+
+      return brightness < 150;
+    },
+
+    isActualInAndOut(type) {
+      if (type === "2_actual_in_out") return true;
     },
 
     hexToRgb(hex) {
@@ -337,6 +425,7 @@ export default defineComponent({
           }
         : null;
     },
+
     dateDetails(date) {
       return `
         Regular Work Hours: ${date.regularWorkHourStart} - ${date.regularWorkHourEnd}
@@ -370,15 +459,27 @@ export default defineComponent({
       try {
         await this.checkTokenExpiration();
         this.store.commit("loader/updateLoader", true);
+
         const storedToken = localStorage.getItem("token");
         const baseURL = localStorage.getItem("baseUrl");
         const authToken = `Bearer ${storedToken}`;
+
+        const currentYear = new Date().getFullYear();
+
+        const dateFrom = `${currentYear - 1}-01-01`;
+        const dateTo = `${currentYear + 1}-12-31`;
+
         const apiUrl = new URL(baseURL + "api/v2/calendar/details");
+
         const queryParams = new URLSearchParams({
           empNumber: this.empNumber,
-          dateFrom: this.firstDate,
-          dateTo: this.endDate,
+          dateFrom,
+          dateTo,
         });
+
+        queryParams.append("option[]", "schedulePlanner");
+        queryParams.append("option[]", "holiday");
+        queryParams.append("option[]", "leave");
 
         apiUrl.search = queryParams.toString();
 
@@ -427,6 +528,26 @@ export default defineComponent({
       this.firstDate = this.formatDate(firstDayOfMonth);
       this.endDate = this.formatDate(lastDayOfMonth);
       await this.requestData();
+      this.selectedDateModal(selectedDate);
+    },
+    handleDateSelected(event) {
+      const selectedDate = new Date(event.detail.value);
+      const firstDayOfMonth = new Date(
+        selectedDate.getFullYear(),
+        selectedDate.getMonth(),
+        1
+      );
+      const lastDayOfMonth = new Date(
+        selectedDate.getFullYear(),
+        selectedDate.getMonth() + 1,
+        0,
+        23,
+        59,
+        59
+      );
+
+      this.firstDate = this.formatDate(firstDayOfMonth);
+      this.endDate = this.formatDate(lastDayOfMonth);
       this.selectedDateModal(selectedDate);
     },
 
@@ -616,9 +737,8 @@ export default defineComponent({
     this.empNumber = localStorage.getItem("empNumber");
     this.fetchTheme();
 
-    const currentDate = new Date();
-    const formattedDate = currentDate.toISOString().split("T")[0];
-    await this.InitDisplayDate(formattedDate);
+    // const currentDate = new Date();
+    await this.InitDisplayDate(this.formattedDate);
     this.loading = false;
   },
 });
@@ -892,6 +1012,10 @@ ion-datetime::part(active) {
 ion-datetime::part(active),
 ion-datetime::part(highlight) {
   transition: all 0.7s ease;
+}
+
+.bg-default {
+  background-color: white;
 }
 
 @keyframes rotateKeyframes {
