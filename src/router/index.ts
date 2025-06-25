@@ -86,7 +86,7 @@ import SuysingApplyOT from "@/views/Suysing/OT/ApplyOT.vue";
 import SuysingRecentApplyOT from "@/views/Suysing/OT/RecentApplyOT.vue";
 import SuysingLoanLedger from "@/views/Suysing/ledger/loanLedger.vue";
 import SuysingRecentApproval from "@/views/Suysing/approval/RecentApproval.vue";
-
+import CantBeAccess from "@/views/CantBeAccess.vue";
 const routes: Array<RouteRecordRaw> = [
   {
     path: "/",
@@ -235,6 +235,11 @@ const routes: Array<RouteRecordRaw> = [
       {
         path: "/soon",
         component: SoonPage,
+      },
+
+      {
+        path: "/cantbeaccess",
+        component: CantBeAccess,
       },
       {
         path: "/gpsoff",

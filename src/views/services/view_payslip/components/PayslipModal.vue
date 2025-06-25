@@ -59,6 +59,96 @@
           </ion-col>
         </ion-row>
 
+        <ion-row
+          v-if="selectedPaycycleId === 13 && viewPayslipData?.allowance"
+          style="background-color: lightgray"
+        >
+          <ion-col size="12">
+            <ion-list>
+              <ion-item-group>
+                <!-- Allowance Header -->
+                <ion-item-divider>
+                  <h3
+                    class="label-header"
+                    :style="{ color: theme.primaryColor }"
+                  >
+                    <strong>Allowance</strong>
+                  </h3>
+                </ion-item-divider>
+
+                <!-- Allowance List -->
+                <ion-item
+                  v-for="(item, index) in viewPayslipData.allowance"
+                  :key="'allowance-' + index"
+                  lines="none"
+                >
+                  <ion-label>{{ item.name }}</ion-label>
+                  <p slot="end" class="value">
+                    {{ formatAmount(item.amount) }}
+                  </p>
+                </ion-item>
+
+                <!-- Deductions Header -->
+                <ion-item-divider>
+                  <h3
+                    class="label-header"
+                    :style="{ color: theme.primaryColor }"
+                  >
+                    <strong>Deductions</strong>
+                  </h3>
+                </ion-item-divider>
+
+                <!-- Deductions List -->
+                <template
+                  v-if="
+                    viewPayslipData.deductions &&
+                    viewPayslipData.deductions.length
+                  "
+                >
+                  <ion-item
+                    v-for="(deduction, index) in viewPayslipData.deductions"
+                    :key="'deduction-' + index"
+                    lines="none"
+                  >
+                    <ion-label>{{ deduction.name }}</ion-label>
+                    <p slot="end" class="value">
+                      {{ formatAmount(deduction.amount) }}
+                    </p>
+                  </ion-item>
+                </template>
+                <template v-else>
+                  <ion-item lines="none">
+                    <ion-label><strong>Deductions:</strong></ion-label>
+                    <p slot="end" class="value">No available data</p>
+                  </ion-item>
+                </template>
+
+                <br />
+                <ion-item-divider>
+                  <h3
+                    class="label-header"
+                    :style="{ color: theme.primaryColor }"
+                  >
+                    <strong>Totals</strong>
+                  </h3>
+                </ion-item-divider>
+
+                <!-- Gross Allowance -->
+                <ion-item lines="none">
+                  <ion-label><strong>Gross Allowance:</strong></ion-label>
+                  <p slot="end" class="value">{{ grossAllowance }}</p>
+                </ion-item>
+
+                <!-- Net Pay Allowance -->
+                <ion-item lines="none">
+                  <ion-label><strong>Net Pay Allowance:</strong></ion-label>
+                  <p slot="end" class="value">{{ netPayAllowance }}</p>
+                </ion-item>
+              </ion-item-group>
+            </ion-list>
+          </ion-col>
+        </ion-row>
+
         <!-- regular -->
         <div v-else>
           <ion-row class="details-container">
@@ -269,9 +359,31 @@ export default {
     theme: Object,
     grossDeduction: String,
     isThirteenthMonth: Boolean,
+    selectedPaycycleId: Number,
+    grossAllowance: String,
+    netPayAllowance: String,
     thirteenthMonthData: {
       type: Object,
       default: () => ({}),
+    },
+    computed: {
+      grossAllowance() {
+        const allowances = this.viewPayslipData?.allowance || [];
+        return allowances
+          .reduce((sum, item) => sum + parseFloat(item.amount || 0), 0)
+          .toFixed(2);
+      },
+      totalDeductions() {
+        const deductions = this.viewPayslipData?.deductions || [];
+        return deductions
+          .reduce((sum, item) => sum + parseFloat(item.amount || 0), 0)
+          .toFixed(2);
+      },
+      netPay() {
+        return (
+          parseFloat(this.grossAllowance) - parseFloat(this.totalDeductions)
+        ).toFixed(2);
+      },
     },
   },
   methods: {
@@ -293,6 +405,9 @@ export default {
       const startDate = new Date(from).toLocaleDateString("en-PH", options);
       const endDate = new Date(to).toLocaleDateString("en-PH", options);
       return `${startDate} - ${endDate}`;
+    },
+    onMounted() {
+      console.log(viewPayslipData);
     },
   },
 };

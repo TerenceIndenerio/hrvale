@@ -14,7 +14,7 @@
           Request Type
         </h5>
         <ion-select
-          label="Select"
+          label="Select Request Type"
           label-placement="floating"
           class="select-option neomorphic-input-2"
           @ionChange="handleApprovalTypeChange($event.detail.value)"
@@ -254,12 +254,9 @@ export default defineComponent({
         "Attendance Correction",
         "Vale Request",
         "Attendance",
-        "Schedule Adjustment",
+        "Change DO",
         "Other Loan",
-        "Pre Approved Ot",
         "Day Off Attendance",
-        "Disciplinary Case Opened",
-        "Disciplinary",
       ],
       results: [],
       filteredResults: [],
@@ -445,7 +442,7 @@ export default defineComponent({
             code: period.code,
             requestDataId: period.requestDataId,
             status: period.status,
-            date: period.dateActedOn,
+            date: period.dateApplied,
             employeeId: period.employeeId,
           }));
 

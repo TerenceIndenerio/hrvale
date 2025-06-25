@@ -187,7 +187,10 @@
         :isThirteenthMonth="this.isThirteenthMonth"
         :grossPay="this.grossPay"
         :grossDeduction="this.grossDeduction"
+        :grossAllowance="this.grossAllowance"
+        :netPayAllowance="this.netPayAllowance"
         :theme="theme"
+        :selectedPaycycleId="selectedPaycycleId"
         @update:isOpen="isPayslipModalOpen = $event"
       />
     </ion-content>
@@ -299,15 +302,17 @@ export default defineComponent({
       grossPay: null,
       netPay: null,
       grossDeduction: null,
+      grossAllowance: null,
+      netPayAllowance: null,
       isIOS: false,
       isThirteenthMonth: false,
       thirteenthMonthData: null,
       selectedPaycycleId: null,
       paycycles: [
+        { label: "Regular", value: 4 },
+        { label: "Off Cycle", value: 13 },
         { label: "Bonus", value: 18 },
         { label: "Final Pay", value: 33 },
-        { label: "Off Cycle", value: 13 },
-        { label: "Regular", value: 4 },
       ],
     };
   },
@@ -612,8 +617,11 @@ export default defineComponent({
             this.viewPayslipData = responseData.summary;
             this.grossPay = responseData.payroll?.gross_compensation || "0";
             this.netPay = responseData.payroll?.net_pay || "0";
-            this.grossDeduction = responseData.payroll?.total_deductions || "0";
-            console.log(this.viewPayslipData.income);
+            this.grossDeduction = responseData.payroll?.gross_allowance || "0";
+            this.grossAllowance =
+              responseData.payroll?.net_pay_allowance || "0";
+            this.netPayAllowance =
+              responseData.payroll?.net_pay_allowance || "0";
           } else {
             this.viewPayslipData = null;
           }

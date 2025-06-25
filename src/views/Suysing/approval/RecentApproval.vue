@@ -215,7 +215,6 @@ export default defineComponent({
   },
   computed: {
     filteredResponseDetails() {
-      // Filter the responseDetails to only include the specified keys
       const keysToDisplay = [
         "Date Applied",
         "Request Type",
@@ -238,9 +237,9 @@ export default defineComponent({
         "Attendance Correction",
         "Vale Request",
         "Attendance",
-        "Schedule Adjustment",
+        "Change DO",
         "Other Loan",
-        "Pre Approved Ot",
+        "Day Off Attendance",
       ],
       results: [],
       filteredResults: [],
@@ -425,12 +424,11 @@ export default defineComponent({
           }));
 
           if (append) {
-            this.results = [...this.results, ...newResults]; // Append new data
+            this.results = [...this.results, ...newResults];
           } else {
-            this.results = newResults; // Replace existing data
+            this.results = newResults;
           }
 
-          // Apply local filter after fetching new data
           this.applyFilter();
         }
 
@@ -459,18 +457,17 @@ export default defineComponent({
             event.target.complete();
           })
           .catch(() => {
-            event.target.complete(); // Ensure the scroll is stopped in case of error
+            event.target.complete();
           });
       } else {
         console.error("Invalid offset value");
-        event.target.complete(); // Stop infinite scroll if offset is invalid
+        event.target.complete();
       }
     },
 
-    // Apply Filter to Results
     applyFilter() {
       if (!this.selectedRequestType) {
-        this.filteredResults = this.results; // Show all if no filter selected
+        this.filteredResults = this.results;
       } else {
         this.filteredResults = this.results.filter(
           (period) => period.requestType === this.selectedRequestType
@@ -478,10 +475,9 @@ export default defineComponent({
       }
     },
 
-    // Handle Filter Change
     handleApprovalTypeChange(selectedRequestType) {
-      this.selectedRequestType = selectedRequestType; // Store selected type
-      this.applyFilter(); // Apply local filter without fetching new data
+      this.selectedRequestType = selectedRequestType;
+      this.applyFilter();
     },
 
     // Leave Request
@@ -757,8 +753,6 @@ export default defineComponent({
         this.store.commit("loader/updateLoader", false);
       }
     },
-
-    // https://hrp-uat-app.bapplware.com/web/index.php/
 
     async applyVale(requestDataId, action) {
       try {

@@ -54,10 +54,19 @@
 
               <ion-row class="pad-w">
                 <ion-col class="col-name">
-                  <p><strong>Status:</strong></p>
+                  <p><strong>last Payment:</strong></p>
                 </ion-col>
                 <ion-col class="col-data">
-                  <p>{{ detail.status }}</p>
+                  <p>{{ detail.lastPaymentDate }}</p>
+                </ion-col>
+              </ion-row>
+
+              <ion-row class="pad-w">
+                <ion-col class="col-name">
+                  <p><strong>Running Bal:</strong></p>
+                </ion-col>
+                <ion-col class="col-data">
+                  <p>{{ detail.endingBalance }}</p>
                 </ion-col>
               </ion-row>
             </ion-grid>

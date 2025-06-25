@@ -39,9 +39,8 @@
           </p>
         </div>
       </div>
-      <div class="option-container">
+      <!-- <div class="option-container">
         <div class="ion-margin-bottom actual-container">
-          <!-- Work Shift -->
           <ion-label :style="{ color: theme.primaryColor }">
             <strong>Change Schedule To: </strong>
           </ion-label>
@@ -57,7 +56,6 @@
                 )
               "
             >
-              <!-- Options for Work Shift -->
               <div slot="label">Select work-shift:</div>
               <ion-select-option
                 v-for="option in scheduleOptions"
@@ -67,6 +65,19 @@
                 {{ option.workShiftCode }} - {{ option.scheduleDate }}
               </ion-select-option>
             </ion-select>
+          </ion-card>
+        </div>
+      </div> -->
+
+      <!-- Date Input Line -->
+      <div class="option-container">
+        <div class="ion-margin-bottom actual-container">
+          <ion-label :style="{ color: theme.primaryColor }">
+            <strong>Change Schedule To: </strong>
+          </ion-label>
+          <ion-card class="workshift-select-container neomorphic-input-2">
+            <ion-input type="date" v-model="selectedDate" class="date-input" />
+            <p class="date-input">Date: {{ formattedSelectedDate }}</p>
           </ion-card>
         </div>
       </div>
@@ -153,6 +164,7 @@ import {
   IonIcon,
   IonCardTitle,
   IonCardHeader,
+  IonInput,
 } from "@ionic/vue";
 import { defineComponent } from "vue";
 import Refresher from "@/components/refresher/Refresher.vue";
@@ -186,6 +198,7 @@ export default defineComponent({
     IonCardTitle,
     IonCardHeader,
     IonGrid,
+    IonInput,
   },
 
   setup() {
@@ -220,8 +233,21 @@ export default defineComponent({
       regularWorkHourEnd: "",
       isSuccessful: false,
       dayOfTheWeek: null,
+      selectedDate: new Date().toISOString().split("T")[0],
     };
   },
+
+  computed: {
+    formattedSelectedDate() {
+      if (!this.selectedDate) return "";
+      const date = new Date(this.selectedDate);
+      const yyyy = date.getFullYear();
+      const mm = String(date.getMonth() + 1).padStart(2, "0");
+      const dd = String(date.getDate()).padStart(2, "0");
+      return `${yyyy}-${mm}-${dd}`;
+    },
+  },
+
   methods: {
     // Expiration of token
     async checkTokenExpiration() {
@@ -343,6 +369,23 @@ export default defineComponent({
           return;
         }
 
+        if (!this.selectedDate) {
+          const toast = await toastController.create({
+            message: "Please select a date for the change.",
+            duration: 3000,
+            position: "top",
+            icon: "alert-circle-outline",
+            buttons: [
+              {
+                icon: "close-outline",
+                role: "cancel",
+              },
+            ],
+          });
+          await toast.present();
+          return;
+        }
+
         this.store.commit("loader/updateLoader", true);
         await this.checkTokenExpiration();
         const baseURL = localStorage.getItem("baseUrl");
@@ -356,9 +399,8 @@ export default defineComponent({
 
         const payload = {
           changeDateFrom: this.changeDateFrom,
-          changeDateTo: this.changeDateTo,
+          changeDateTo: this.selectedDate,
           changeWorkShiftFrom: this.workShiftCode,
-          changeWorkShiftTo: this.selectedSchedule.workShiftCode,
           reason: this.selectedReason.content,
         };
 
@@ -366,20 +408,6 @@ export default defineComponent({
 
         if (dataResponse.status === 200 || dataResponse.status === 201) {
           this.isSuccessful = true;
-          // const toast = await toastController.create({
-          //   message: "Change DO Successfully Sent!",
-          //   duration: 3000,
-          //   position: "top",
-          //   icon: "alert-circle-outline",
-          //   buttons: [
-          //     {
-          //       icon: "close-outline",
-          //       role: "cancel",
-          //     },
-          //   ],
-          // });
-          // await toast.present();
-
           this.store.commit("loader/updateLoader", false);
         } else {
           const toast = await toastController.create({
@@ -398,7 +426,9 @@ export default defineComponent({
         }
       } catch (error) {
         const toast = await toastController.create({
-          message: error.message,
+          message: error.response
+            ? error.response.data.message || "An error occurred."
+            : "An error occurred while processing your request.",
           duration: 3000,
           position: "top",
           icon: "alert-circle-outline",

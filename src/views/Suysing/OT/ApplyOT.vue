@@ -13,14 +13,25 @@
           class="neomorphic-card-1"
           :style="{ color: theme.primaryColor }"
         >
+          <p :style="{ color: theme.primaryColor }" class="label">
+            Select Date
+          </p>
           <div class="card-inner date-picker-container">
             <!-- from -->
-            <p :style="{ color: theme.primaryColor }" class="label">
-              Select Date
-            </p>
+
             <div class="neomorphic-datepicker-1 date-picker">
               <ion-input
                 v-model="selectedDateFrom"
+                type="date"
+                class="date-input"
+              ></ion-input>
+            </div>
+
+            <!-- To -->
+
+            <div class="neomorphic-datepicker-1 date-picker">
+              <ion-input
+                v-model="selectedDateTo"
                 type="date"
                 class="date-input"
               ></ion-input>
@@ -37,6 +48,22 @@
             >
           </div>
         </ion-card>
+
+        <div class="recent-container">
+          <h5 :style="{ color: theme.primaryColor }">Recent Transaction</h5>
+          <ion-button
+            expand="full"
+            color="None"
+            class="recent-btn neomorphic-btn-2"
+            @click="navigateToRecent()"
+            :style="{
+              outline: `2px solid ${theme.primaryColor}`,
+              color: theme.primaryColor,
+            }"
+          >
+            View All
+          </ion-button>
+        </div>
 
         <div class="result-container" v-if="results">
           <ion-card
@@ -173,21 +200,6 @@
             </ion-card-content>
           </ion-card>
         </div>
-      </div>
-      <div class="recent-container">
-        <h5 :style="{ color: theme.primaryColor }">Recent Transaction</h5>
-        <ion-button
-          expand="full"
-          color="None"
-          class="recent-btn neomorphic-btn-2"
-          @click="navigateToRecent()"
-          :style="{
-            outline: `2px solid ${theme.primaryColor}`,
-            color: theme.primaryColor,
-          }"
-        >
-          View All
-        </ion-button>
       </div>
 
       <!-- alert successfully submitted -->
@@ -502,13 +514,13 @@ export default defineComponent({
           Authorization: `Bearer ${this.storedToken}`,
         };
 
-        this.selectedDateTo = new Date(
-          new Date(this.selectedDateFrom).setDate(
-            new Date(this.selectedDateFrom).getDate() + 1
-          )
-        )
-          .toISOString()
-          .split("T")[0];
+        // this.selectedDateTo = new Date(
+        //   new Date(this.selectedDateFrom).setDate(
+        //     new Date(this.selectedDateFrom).getDate() + 1
+        //   )
+        // )
+        //   .toISOString()
+        //   .split("T")[0];
 
         const currentDate = new Date();
         const formattedDate = currentDate.toISOString().split("T")[0];
@@ -708,10 +720,11 @@ ion-textarea {
 .label {
   font-family: "Inter";
   font-weight: 700;
+  text-align: center;
 }
 .date-picker {
   height: 40px;
-  width: 230px;
+  width: 130px;
   text-align: center;
 }
 .card-title {
@@ -734,7 +747,6 @@ ion-textarea {
   background-color: rgb(246, 246, 246);
   overflow: hidden;
 }
-
 .date-input {
   display: flex;
   justify-content: center;
@@ -776,7 +788,7 @@ ion-textarea {
   display: flex;
   justify-content: center;
   align-items: center;
-  flex-direction: column;
+  flex-direction: row;
 }
 .card-content-container {
   min-width: 300px;
@@ -787,7 +799,8 @@ ion-textarea {
   align-items: center;
   flex-direction: row;
   max-width: 500px;
-  margin: 0 auto 50px auto;
+  margin: 0 auto;
+  gap: 20px;
 }
 .recent-container h5 {
   font-family: Poppins;

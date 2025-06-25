@@ -90,24 +90,7 @@
             </ion-row>
           </ion-grid>
 
-          <!-- <ion-button
-            expand="full"
-            color="light"
-            class="edit-btn neomorphic-btn-2"
-            @click="
-              navigateToEditPage(
-                result.id,
-                this.startDate,
-                this.endDate,
-                result.date,
-                this.selectedWorkShift,
-                result.workShift
-              )
-            "
-            v-if="!isDefault"
-          >
-            <ion-icon name="create-outline"></ion-icon> Edit
-          </ion-button> -->
+       
         </div>
       </div>
 
@@ -443,6 +426,7 @@ export default defineComponent({
           date: date,
           id: id,
           dayOfTheWeek: dayOfTheWeek,
+          showAllSchedule: true,
         },
       });
     },

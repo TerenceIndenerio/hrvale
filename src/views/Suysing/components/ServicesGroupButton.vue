@@ -599,14 +599,14 @@ export default defineComponent({
     },
   },
   methods: {
-    navigateSoon() {
-      this.$router.push("/soon");
+    navigateUnauthorized() {
+      this.$router.push("/cantbeaccess");
     },
     navigateLeave() {
       if (this.isleaveAllowed) {
         this.$router.push("/suysing_leave");
       } else {
-        this.navigateSoon();
+        this.navigateUnauthorized();
       }
     },
     navigateclockin() {
@@ -616,91 +616,91 @@ export default defineComponent({
       if (this.isScheduleAllowed) {
         this.$router.push("/viewschedule");
       } else {
-        this.navigateSoon();
+        this.navigateUnauthorized();
       }
     },
     navigateattendancecorrection() {
       if (this.isAttendanceAllowed) {
         this.$router.push("/suysing_attendancecorrection");
       } else {
-        this.navigateSoon();
+        this.navigateUnauthorized();
       }
     },
     navigateOTApply() {
       if (this.isOTAllowed) {
         this.$router.push("/suysing_applyot");
       } else {
-        this.navigateSoon();
+        this.navigateUnauthorized();
       }
     },
     navigateloanBal() {
       if (this.isOtherLoanAllowed) {
         this.$router.push("/suysing_otherloans");
       } else {
-        this.navigateSoon();
+        this.navigateUnauthorized();
       }
     },
     navigateBenefits() {
       if (this.isBenefitsAllowed) {
         this.$router.push("/benefits");
       } else {
-        this.navigateSoon();
+        this.navigateUnauthorized();
       }
     },
     navigateViewPayslip() {
       if (this.isPayslipAllowed) {
         this.$router.push("/pincode");
       } else {
-        this.navigateSoon();
+        this.navigateUnauthorized();
       }
     },
     navigateVale() {
       if (this.isValeShown) {
         this.$router.push("/suysing_vale");
       } else {
-        this.navigateSoon();
+        this.navigateUnauthorized();
       }
     },
     navigateApproval() {
       if (this.isUserRoleESS) {
         this.$router.push("/tabs/suysing_approval");
       } else {
-        this.navigateSoon();
+        this.navigateUnauthorized();
       }
     },
     navigateSchedAdjustment() {
       if (this.isSchedAdjustment) {
         this.$router.push("/suysing_scheduleadjustment");
       } else {
-        this.navigateSoon();
+        this.navigateUnauthorized();
       }
     },
     navigateDocument() {
       if (this.isDocumentAllowed) {
         this.$router.push("/document");
       } else {
-        this.navigateSoon();
+        this.navigateUnauthorized();
       }
     },
     navigateMyTraining() {
       if (this.isMyTrainingAllowed) {
         this.$router.push("/mytraining");
       } else {
-        this.navigateSoon();
+        this.navigateUnauthorized();
       }
     },
     navigateApplyPreApprovedOT() {
       if (this.isApplyPreApprovedOTAllowed) {
         this.$router.push("/applypreapprovedot");
       } else {
-        this.navigateSoon();
+        this.navigateUnauthorized();
       }
     },
     navigateLoanLedger() {
       if (this.isLoanLedgerAllowed) {
         this.$router.push("/suysing_loanLedger");
       } else {
-        this.navigateSoon();
+        this.navigateUnauthorized();
       }
     },
   },

@@ -36,6 +36,23 @@
           </ion-card>
         </ion-card>
       </div>
+
+      <div class="recent-container">
+        <h5 :style="{ color: theme.primaryColor }">Recent Transaction</h5>
+        <ion-button
+          expand="full"
+          color="None"
+          class="recent-btn neomorphic-btn-2"
+          @click="navigateToRecent()"
+          :style="{
+            outline: `2px solid ${theme.primaryColor}`,
+            color: theme.primaryColor,
+          }"
+        >
+          View All
+        </ion-button>
+      </div>
+
       <div v-if="isElegible">
         <!-- Loan Date & Start of Payment -->
         <ion-card class="neomorphic-card-1 selectdate-card">
@@ -66,6 +83,7 @@
           <p :style="{ color: theme.primaryColor }" class="label">
             <strong>Loan Amount </strong>
           </p>
+
           <ion-card class="neomorphic-input-2">
             <ion-input
               label="Enter Loan Amount"
@@ -73,9 +91,11 @@
               label-placement="floating"
               placeholder="0"
               v-model="loanAmount"
+              :readonly="isFixedLoan"
               @ion-change="validateMaxLoan()"
             ></ion-input>
           </ion-card>
+
           <ion-button
             expand="full"
             color="none"
@@ -88,21 +108,6 @@
         </ion-card>
 
         <!-- Save Button -->
-      </div>
-      <div class="recent-container">
-        <h5 :style="{ color: theme.primaryColor }">Recent Transaction</h5>
-        <ion-button
-          expand="full"
-          color="None"
-          class="recent-btn neomorphic-btn-2"
-          @click="navigateToRecent()"
-          :style="{
-            outline: `2px solid ${theme.primaryColor}`,
-            color: theme.primaryColor,
-          }"
-        >
-          View All
-        </ion-button>
       </div>
     </ion-content>
   </ion-page>
@@ -205,6 +210,7 @@ export default defineComponent({
       selectedFrequency: null,
       maxLoanAmount: null,
       maximumLoanableOptionlabel: null,
+      isFixedLoan: true,
       frequencyOption: [
         {
           id: 52,
@@ -377,6 +383,7 @@ export default defineComponent({
           this.maximumLoanableOptionlabel =
             dataResponse.data.data.maximumLoanableOption.label;
           this.paymentTerms = dataResponse.data.data.termsPaymentPeriod;
+          this.loanAmount = this.maxLoanAmount;
         } else {
           await this.showErrorMessage(
             "Employee is not eligible to apply this loan."
@@ -544,7 +551,7 @@ export default defineComponent({
   align-items: center;
   flex-direction: row;
   max-width: 500px;
-  margin: 30px auto 50px auto;
+  margin: 30px auto;
 }
 .recent-container h5 {
   font-family: Poppins;
