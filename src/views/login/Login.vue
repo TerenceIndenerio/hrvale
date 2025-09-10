@@ -84,7 +84,7 @@ export default defineComponent({
       hasToken: false,
       hasSetup: false,
       empID: "",
-      appVersion: "0.1.58",
+      appVersion: "0.1.59",
     };
   },
 

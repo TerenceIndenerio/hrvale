@@ -82,6 +82,7 @@ export default defineComponent({
       leavePeriodOptions: [],
       theme: {},
       loading: true,
+      empNumber: localStorage.getItem("empNumber") || "",
     };
   },
   methods: {
@@ -166,7 +167,7 @@ export default defineComponent({
 
         const apiUrl =
           baseURL +
-          `api/v2/leave/leave-entitlements?limit=50&offset=0&fromDate=${fromDate}&toDate=${toDate}`;
+          `api/v2/leave/leave-entitlements?limit=50&offset=0&empNumber=${this.empNumber}&fromDate=${fromDate}&toDate=${toDate}`;
 
         const headers = {
           Authorization: `Bearer ${storedToken}`,

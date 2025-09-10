@@ -171,6 +171,7 @@ export default defineComponent({
       this.fetchLoanDetailsForAll();
     });
     this.loading = false;
+    console.log(this.results)
   },
 
   methods: {
@@ -247,15 +248,16 @@ export default defineComponent({
     },
 
     async fetchLoanDetailsForAll() {
+      const empNumber = localStorage.getItem("empNumber");
       const baseURL = localStorage.getItem("baseUrl");
       const token = localStorage.getItem("token");
       const headers = {
         Authorization: `Bearer ${token}`,
       };
-
+      console.log(empNumber)
       const fetchPromises = this.filteredResults.map(async (result) => {
         try {
-          const api = `${baseURL}api/v2/payroll/Employee/Loans?limit=50&offset=0&loanBudgetId=${result.id}`;
+          const api = `${baseURL}api/v2/payroll/Employee/Loans?limit=50&offset=0&loanBudgetId=${empNumber}`;
           const response = await axios.get(api, { headers });
 
           if (response.data) {

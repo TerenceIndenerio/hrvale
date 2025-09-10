@@ -22,7 +22,7 @@
                   <p>Loan Amount:</p>
                 </ion-col>
                 <ion-col size="6">
-                  <p>{{ result.loanAmount }}</p>
+                  <p>{{ result.loanAmount.toLocaleString() }}</p>
                 </ion-col>
               </ion-row>
 
@@ -40,7 +40,7 @@
                   <p>Exceed Amount:</p>
                 </ion-col>
                 <ion-col size="6">
-                  <p>{{ result.exceedAmount }}</p>
+                  <p>{{ result.exceedAmount.toLocaleString() }}</p>
                 </ion-col>
               </ion-row>
 
@@ -58,7 +58,7 @@
                   <p>Interest Rate:</p>
                 </ion-col>
                 <ion-col size="6">
-                  <p>{{ result.interestRate }}</p>
+                  <p>{{ result.interestRate.toLocaleString() }}</p>
                 </ion-col>
               </ion-row>
 
@@ -76,7 +76,7 @@
                   <p>Amortization:</p>
                 </ion-col>
                 <ion-col size="6">
-                  <p>{{ result.amortization }}</p>
+                  <p>{{ result.amortization.toLocaleString() }}</p>
                 </ion-col>
               </ion-row>
 
@@ -94,7 +94,7 @@
                   <p>Previous Balance:</p>
                 </ion-col>
                 <ion-col size="6">
-                  <p> {{result.previousBalance}}
+                  <p> {{result.previousBalance.toLocaleString() }}
                   </p>
                 </ion-col>
               </ion-row>
@@ -104,7 +104,7 @@
                   <p>Total Amount Paid:</p>
                 </ion-col>
                 <ion-col size="6">
-                  <p>{{ result.totalAmountPaid }}</p>
+                  <p>{{ result.totalAmountPaid.toLocaleString() }}</p>
                 </ion-col>
               </ion-row>
              
@@ -113,7 +113,7 @@
                   <p>Total Loan:</p>
                 </ion-col>
                 <ion-col size="6">
-                  <p>{{ result.totalLoan }}</p>
+                  <p>{{ result.totalLoan.toLocaleString() }}</p>
                 </ion-col>
 
               </ion-row>
@@ -173,7 +173,7 @@
                       <p>Balance:</p>
                     </ion-col>
                     <ion-col size="6">
-                      <p>{{ result.balance }}</p>
+                      <p>{{ result.balance.toLocaleString() }}</p>
                     </ion-col>
                   </ion-row>
                 </ion-col>
