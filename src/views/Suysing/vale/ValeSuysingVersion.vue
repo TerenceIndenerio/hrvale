@@ -20,7 +20,8 @@
               name="carousel"
               aria-hidden="true"
               hidden=""
-              checked="checked"
+              v-model="currentSlide"
+              value="1"
             />
             <div class="carousel-item">
               <img :src="image1" />
@@ -32,9 +33,11 @@
               name="carousel"
               aria-hidden="true"
               hidden=""
+              v-model="currentSlide"
+              value="2"
             />
             <div class="carousel-item">
-              <img :src="image1" />
+              <img :src="image2" />
             </div>
             <input
               class="carousel-open"
@@ -43,9 +46,50 @@
               name="carousel"
               aria-hidden="true"
               hidden=""
+              v-model="currentSlide"
+              value="3"
             />
             <div class="carousel-item">
-              <img :src="image1" />
+              <img :src="image3" />
+            </div>
+            <input
+              class="carousel-open"
+              type="radio"
+              id="carousel-4"
+              name="carousel"
+              aria-hidden="true"
+              hidden=""
+              v-model="currentSlide"
+              value="4"
+            />
+            <div class="carousel-item">
+              <img :src="image4" />
+            </div>
+            <input
+              class="carousel-open"
+              type="radio"
+              id="carousel-5"
+              name="carousel"
+              aria-hidden="true"
+              hidden=""
+              v-model="currentSlide"
+              value="5"
+            />
+            <div class="carousel-item">
+              <img :src="image5" />
+            </div>
+            <input
+              class="carousel-open"
+              type="radio"
+              id="carousel-6"
+              name="carousel"
+              aria-hidden="true"
+              hidden=""
+              v-model="currentSlide"
+              value="6"
+            />
+            <div class="carousel-item">
+              <img :src="image6" />
             </div>
             <label for="carousel-3" class="carousel-control prev control-1"
               >‹</label
@@ -65,6 +109,24 @@
             <label for="carousel-1" class="carousel-control next control-3"
               >›</label
             >
+            <label for="carousel-3" class="carousel-control prev control-4"
+              >‹</label
+            >
+            <label for="carousel-5" class="carousel-control next control-4"
+              >›</label
+            >
+            <label for="carousel-4" class="carousel-control prev control-5"
+              >‹</label
+            >
+            <label for="carousel-6" class="carousel-control next control-5"
+              >›</label
+            >
+            <label for="carousel-5" class="carousel-control prev control-6"
+              >‹</label
+            >
+            <label for="carousel-1" class="carousel-control next control-6"
+              >›</label
+            >
             <ol class="carousel-indicators">
               <li>
                 <label for="carousel-1" class="carousel-bullet">•</label>
@@ -74,6 +136,15 @@
               </li>
               <li>
                 <label for="carousel-3" class="carousel-bullet">•</label>
+              </li>
+              <li>
+                <label for="carousel-4" class="carousel-bullet">•</label>
+              </li>
+              <li>
+                <label for="carousel-5" class="carousel-bullet">•</label>
+              </li>
+              <li>
+                <label for="carousel-6" class="carousel-bullet">•</label>
               </li>
             </ol>
           </div>
@@ -294,7 +365,12 @@ import { defineComponent } from "vue";
 import axios from "axios";
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
-import image1 from "@/assets/images/image1.svg";
+import image1 from "@/assets/images/benefits-poster-1.png";
+import image2 from "@/assets/images/benefits-poster-2.png";
+import image3 from "@/assets/images/benefits-poster-3.png";
+import image4 from "@/assets/images/vale-poster-1.png";
+import image5 from "@/assets/images/vale-poster-2.png";
+import image6 from "@/assets/images/vale-poster-3.png";
 
 export default defineComponent({
   components: {
@@ -330,7 +406,13 @@ export default defineComponent({
         balance: 0,
       },
       showAllResults: false,
+      currentSlide: 1,
       image1,
+      image2,
+      image3,
+      image4,
+      image5,
+      image6,
     };
   },
   computed: {
@@ -355,6 +437,11 @@ export default defineComponent({
     this.fetchData();
     this.fetchLoanBudget();
     this.loading = false;
+  },
+  mounted() {
+    setInterval(() => {
+      this.currentSlide = this.currentSlide % 6 + 1;
+    }, 2000);
   },
 
   methods: {
@@ -858,7 +945,10 @@ p {
 
 #carousel-1:checked ~ .control-1,
 #carousel-2:checked ~ .control-2,
-#carousel-3:checked ~ .control-3 {
+#carousel-3:checked ~ .control-3,
+#carousel-4:checked ~ .control-4,
+#carousel-5:checked ~ .control-5,
+#carousel-6:checked ~ .control-6 {
   display: block;
 }
 
@@ -904,6 +994,21 @@ p {
   ~ .control-3
   ~ .carousel-indicators
   li:nth-child(3)
+  .carousel-bullet,
+#carousel-4:checked
+  ~ .control-4
+  ~ .carousel-indicators
+  li:nth-child(4)
+  .carousel-bullet,
+#carousel-5:checked
+  ~ .control-5
+  ~ .carousel-indicators
+  li:nth-child(5)
+  .carousel-bullet,
+#carousel-6:checked
+  ~ .control-6
+  ~ .carousel-indicators
+  li:nth-child(6)
   .carousel-bullet {
   color: #428bca;
 }
