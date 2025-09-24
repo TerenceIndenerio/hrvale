@@ -310,17 +310,17 @@ export default defineComponent({
       if (!storedToken) {
         console.error("Token not available.");
         console.log("Token is missing. Redirecting to login...");
-        this.router.push("/login");
+        // this.router.push("/login");
         return;
       }
 
-      const tokenData = JSON.parse(atob(storedToken.split(".")[1]));
-      const expirationTime = tokenData.exp * 1000;
+      // const tokenData = JSON.parse(atob(storedToken.split(".")[1]));
+      // const expirationTime = tokenData.exp * 1000;
 
-      if (Date.now() > expirationTime) {
-        console.log("Token expired. Redirecting to login...");
-        this.router.push("/login");
-      }
+      // if (Date.now() > expirationTime) {
+      //   console.log("Token expired. Redirecting to login...");
+      //   this.router.push("/login");
+      // }
     },
 
     getCurrentTime() {
@@ -435,6 +435,8 @@ export default defineComponent({
           return;
         }
 
+        console.log("Token in breaktimeConfig: ", token);
+
         const headers = {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
@@ -442,6 +444,11 @@ export default defineComponent({
         const apiUrl = `${baseURL}api/v1/attendance/break-time-config?empNumber=${empNumber}`;
 
         const getStateResponse = await axios.get(apiUrl, { headers });
+
+        console.log(
+          "Break-time config response: ",
+          getStateResponse.data?.data
+        );
         this.isPmBreakDone = getStateResponse.data?.data?.isPmBreakDone;
         this.hasBreaktime = getStateResponse.data?.data?.hasBreaktime;
 

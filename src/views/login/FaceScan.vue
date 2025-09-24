@@ -639,6 +639,7 @@ export default defineComponent({
             "Authentication successful:",
             authResult.data.access_token
           );
+          localStorage.setItem("token", authResult.data.access_token);
           localStorage.setItem("access_token", authResult.data.access_token);
           localStorage.setItem("refresh_token", authResult.data.refresh_token);
 
