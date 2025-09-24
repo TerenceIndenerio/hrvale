@@ -405,7 +405,6 @@ import ClockinCard from "@/views/services/clock_in/components/ClockinCard.vue";
 import { useStore } from "vuex";
 import axios from "axios";
 import { Geolocation } from "@capacitor/geolocation";
-import generateToken from "@/store/token/accessToken.ts";
 import { runBackgroundScript } from "@/notification/Notification.ts";
 
 export default defineComponent({
@@ -1168,48 +1167,43 @@ export default defineComponent({
     },
     async performLogin(face) {
       try {
-        // Use employee data if available, otherwise fall back to stored values
         const employee = face.employee;
-        const value = employee
-          ? {
-              username: employee.username || employee.email || employee.id, // pick what your backend expects
-              password: employee.id, // or whatever field is used as password on the backend
-              client: "suysing",
-            }
-          : null;
+        if (!employee) {
+          this.presentAlert("Employee data not found for the recognized face.");
+          return;
+        }
 
         this.store.commit("loader/updateLoader", true);
-        const response = await generateToken(
-          value.username,
-          value.password,
-          value.client
-        );
-        const token = response.data.access_token;
 
-        if (token) {
+        const authResult = await this.store.dispatch("auth/biometricLogin", employee);
+
+        if (authResult.success) {
+          // After successful biometric login, you might want to get a token
+          // for other API calls. Assuming the token is returned in authResult.data
+          const token = authResult.data.token;
+          localStorage.setItem("token", token);
+
           await this.fetchStoredTheme();
           await this.hasPincode();
           localStorage.setItem("hasSetup", true);
+
+          const userCredentials = {
+            username: employee.username || employee.id,
+            client: "suysing",
+          };
+          localStorage.setItem("userCredentials", JSON.stringify(userCredentials));
+
+          this.authenticated = true;
+          await this.initializeClock();
+        } else {
+          await this.alertError(authResult.error || "Authentication failed.");
         }
-
-        const userCredentials = {
-          username: value.username,
-          password: value.password,
-          client: value.client,
-        };
-
-        localStorage.setItem(
-          "userCredentials",
-          JSON.stringify(userCredentials)
-        );
-        // After login, set authenticated and initialize clock
-        this.authenticated = true;
-        await this.initializeClock();
       } catch (error) {
         console.error(error.message);
-        this.store.commit("loader/updateLoader", false);
         localStorage.setItem("hasSetup", false);
         await this.alertError();
+      } finally {
+        this.store.commit("loader/updateLoader", false);
       }
     },
     async fetchToken() {
