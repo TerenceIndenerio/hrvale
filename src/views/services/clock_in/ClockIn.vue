@@ -252,11 +252,17 @@ export default defineComponent({
         return;
       }
 
-      const tokenData = JSON.parse(atob(storedToken.split(".")[1]));
-      const expirationTime = tokenData.exp * 1000;
+      try {
+        const tokenData = JSON.parse(atob(storedToken.split(".")[1]));
+        const expirationTime = tokenData.exp * 1000;
 
-      if (Date.now() > expirationTime) {
-        console.log("Token expired. Redirecting to login...");
+        if (Date.now() > expirationTime) {
+          console.log("Token expired. Redirecting to login...");
+          this.router.push("/login");
+        }
+      } catch (error) {
+        console.error("Error decoding token:", error);
+        console.log("Invalid token. Redirecting to login...");
         this.router.push("/login");
       }
     },
@@ -491,7 +497,13 @@ export default defineComponent({
           "Content-Type": "application/json",
         };
 
-        const coordinates = await Geolocation.getCurrentPosition();
+        try {
+          const coordinates = await Geolocation.getCurrentPosition();
+        } catch (error) {
+          this.showErrorMessage("Geolocation is not enabled or permission denied.");
+          return;
+        }
+
 
         if (this.hasBreaktime) {
           console.log("Using Break Time");
@@ -595,22 +607,23 @@ export default defineComponent({
   },
   async created() {
     try {
+      this.loading = true;
+      await this.checkTokenExpiration();
       const coordinates = await Geolocation.getCurrentPosition();
       this.coordinatesText = `Latitude: ${coordinates.coords.latitude}, Longitude: ${coordinates.coords.longitude}`;
+      this.getCurrentTime();
+      setInterval(this.getCurrentTime, 1000);
+      await this.breaktimeConfig();
+      await this.checkState();
+      this.fetchTheme();
     } catch (error) {
-      console.error("Error getting coordinates:", error.message);
-      this.$router.push("/gpsoff");
-      return;
+      console.error("Error during component creation:", error.message);
+      if (error.message === "User denied Geolocation") {
+        this.$router.push("/gpsoff");
+      }
+    } finally {
+      this.loading = false;
     }
-
-    this.getCurrentTime();
-    setInterval(this.getCurrentTime, 1000);
-    this.checkTokenExpiration();
-    await this.breaktimeConfig();
-    await this.checkState();
-
-    this.fetchTheme();
-    this.loading = false;
   },
   beforeDestroy() {
     clearInterval(this.updateInterval);
