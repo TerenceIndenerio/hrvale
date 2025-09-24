@@ -45,7 +45,7 @@
           </div>
           <div class="scan-overlay" v-if="processing && cameraOn">
             <ion-spinner name="crescent" color="primary"></ion-spinner>
-            <p class="scan-text">Scanning...</p>
+            <p class="scan-text">{{ authStatus || "Scanning..." }}</p>
           </div>
         </div>
       </div>
@@ -62,68 +62,70 @@
       >
         <ion-icon name="person-add" slot="icon-only"></ion-icon>
       </ion-button>
-      <ion-card v-if="mode === 'enroll'" class="enrollment-card">
-        <ion-card-header class="enrollment-card-header">
-          <ion-card-title class="enrollment-card-title">
-            <ion-icon name="person-add-outline" class="card-icon"></ion-icon>
-            Enroll New Face
-          </ion-card-title>
-        </ion-card-header>
+      <ion-modal :is-open="mode === 'enroll'" @didDismiss="mode = 'auth'">
+        <ion-card class="enrollment-card">
+          <ion-card-header class="enrollment-card-header">
+            <ion-card-title class="enrollment-card-title">
+              <ion-icon name="person-add-outline" class="card-icon"></ion-icon>
+              Enroll New Face
+            </ion-card-title>
+          </ion-card-header>
 
-        <ion-card-content class="enrollment-card-content">
-          <!-- Search Box -->
-          <div class="search-container">
-            <input
-              type="text"
-              v-model="searchQuery"
-              placeholder="Search employees..."
-              class="search-input"
-              :disabled="processing"
-            />
-            <span class="search-icon">🔍</span>
-          </div>
+          <ion-card-content class="enrollment-card-content">
+            <!-- Search Box -->
+            <div class="search-container">
+              <input
+                type="text"
+                v-model="searchQuery"
+                placeholder="Search employees..."
+                class="search-input"
+                :disabled="processing"
+              />
+              <span class="search-icon">🔍</span>
+            </div>
 
-          <!-- Employee List -->
-          <div class="employee-list">
-            <div
-              v-for="employee in filteredEmployees"
-              :key="employee.id"
-              class="employee-item"
-              :class="{ selected: selectedEmployee === employee }"
-              @click="selectedEmployee = employee"
-              :style="{ pointerEvents: processing ? 'none' : 'auto' }"
-            >
-              <div class="employee-name">{{ employee.name }}</div>
-              <div class="employee-id">ID: {{ employee.id }}</div>
-              <div v-if="employee.face_signature" class="face-status">
-                Has enrolled face
+            <!-- Employee List -->
+            <div class="employee-list">
+              <div
+                v-for="employee in filteredEmployees"
+                :key="employee.id"
+                class="employee-item"
+                :class="{ selected: selectedEmployee === employee }"
+                @click="selectedEmployee = employee"
+                :style="{ pointerEvents: processing ? 'none' : 'auto' }"
+              >
+                <div class="employee-name">{{ employee.name }}</div>
+                <div class="employee-id">ID: {{ employee.id }}</div>
+                <div v-if="employee.face_signature" class="face-status">
+                  Has enrolled face
+                </div>
               </div>
             </div>
-          </div>
 
-          <ion-button
-            @click="enrollFace"
-            expand="block"
-            color="primary"
-            :disabled="processing || !cameraOn || !selectedEmployee"
-            class="enroll-submit-button"
-          >
-            <ion-icon name="checkmark-circle" slot="start"></ion-icon>
-            Enroll Face
-          </ion-button>
+            <ion-button
+              @click="enrollFace"
+              expand="block"
+              color="primary"
+              :disabled="processing || !cameraOn || !selectedEmployee"
+              class="enroll-submit-button"
+            >
+              <ion-icon name="checkmark-circle" slot="start"></ion-icon>
+              Enroll Face
+            </ion-button>
 
-          <ion-button
-            @click="goToRegisteredFaces"
-            expand="block"
-            color="primary"
-            fill="outline"
-            class="manage-faces-button"
-          >
-            <ion-icon name="list-outline" slot="start"></ion-icon>
-            Manage All Enrolled Faces
-          </ion-button>
-        </ion-card-content>
-      </ion-card>
+            <ion-button
+              @click="goToEnrolledFaces"
+              expand="block"
+              color="primary"
+              fill="outline"
+              class="manage-faces-button"
+            >
+              <ion-icon name="list-outline" slot="start"></ion-icon>
+              Manage All Enrolled Faces
+            </ion-button>
+          </ion-card-content>
+        </ion-card>
+      </ion-modal>
 
       <ion-spinner v-if="loading" name="crescent"></ion-spinner>
       <ClockInModal
@@ -149,6 +151,7 @@ import {
   IonGrid,
   IonCol,
   alertController,
+  IonModal,
 } from "@ionic/vue";
 import { camera } from "ionicons/icons";
 import * as faceapi from "face-api.js";
@@ -197,6 +200,7 @@ export default defineComponent({
       scannedName: "",
       employees: [],
       selectedEmployee: null,
+      authStatus: "",
     };
   },
   computed: {
@@ -223,7 +227,6 @@ export default defineComponent({
       );
       this.modelsLoaded = true;
       this.loadStoredFaces();
-      this.startCamera();
       // Fetch employees for registration
       await this.fetchEmployees();
     } catch (error) {
@@ -233,6 +236,9 @@ export default defineComponent({
       );
     } finally {
       this.loading = false;
+      this.$nextTick(() => {
+        this.startCamera();
+      });
     }
   },
   methods: {
@@ -397,9 +403,11 @@ export default defineComponent({
                 );
 
                 this.processing = true;
-                this.presentAlert("Face authenticated successfully!");
+                this.authStatus = "Authenticating...";
                 await this.performLogin(matchedFace);
                 return; // stop scanning after login
+              } else {
+                this.authStatus = "Invalid User or Not Registered";
               }
             }
           }
@@ -594,7 +602,7 @@ export default defineComponent({
       try {
         const employee = face.employee;
         if (!employee) {
-          this.presentAlert("Employee data not found for the recognized face.");
+          this.authStatus = "Employee data not found";
           return;
         }
 
@@ -606,6 +614,7 @@ export default defineComponent({
         );
 
         if (authResult.success) {
+          this.authStatus = "Authenticated";
           console.log(
             "Authentication successful:",
             authResult.data.access_token
@@ -629,12 +638,12 @@ export default defineComponent({
 
           this.authenticated = true;
         } else {
-          await this.alertError(authResult.error || "Authentication failed.");
+          this.authStatus = "Invalid User or Not Registered";
         }
       } catch (error) {
         console.error(error.message);
         localStorage.setItem("hasSetup", false);
-        await this.alertError();
+        this.authStatus = "An error occurred during login.";
       } finally {
         this.store.commit("loader/updateLoader", false);
       }
@@ -769,25 +778,6 @@ export default defineComponent({
         console.error("Error fetching or parsing theme data:", error);
         localStorage.setItem("hasSetup", false);
       }
-    },
-    async alertError() {
-      const showAlert = async () => {
-        const alert = await alertController.create({
-          header: "Invalid Credentials",
-          message:
-            "Invalid credentials. Please check your username and password and try again. If you're having trouble, refer to the email containing your login details.",
-          buttons: [
-            {
-              text: "Close",
-              htmlAttributes: {
-                "aria-label": "close",
-              },
-            },
-          ],
-        });
-        await alert.present();
-      };
-      return showAlert();
     },
   },
   created() {
