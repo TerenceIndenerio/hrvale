@@ -1,36 +1,36 @@
-import axios, { AxiosResponse } from "axios";
-
-const baseURL = localStorage.getItem("baseUrl") || "";
-const api = axios.create({
-  baseURL,
-});
-
-interface BiometricLoginResponse {
+export interface AuthResponse {
   success: boolean;
   data?: any;
   error?: string;
 }
 
-const authService = {
-  async biometricLogin(employeeName: string): Promise<BiometricLoginResponse> {
+class AuthService {
+  private readonly API_URL = "https://hrvale.bapplware.com/api";
+
+  async biometricLogin(employeeName: string): Promise<AuthResponse> {
     try {
-      const baseUrl = localStorage.getItem("baseUrl") || "";
-      // The baseUrl from localStorage might contain extra path segments like /web/index.php
-      // that cause a 404. We will construct a clean URL.
-      const url = new URL(baseUrl);
-      const correctedBaseUrl = `${url.protocol}//${url.host}`;
-
-      const response: AxiosResponse<BiometricLoginResponse> = await axios.post(`${correctedBaseUrl}/auth/biometric-login/`, {
-        employeeName,
+      const token = btoa(employeeName);
+      const response = await fetch(`${this.API_URL}/login/bio`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({ token }),
       });
-      return response.data;
-    } catch (error) {
-      if (axios.isAxiosError(error) && error.response) {
-        return error.response.data;
-      }
-      throw error;
-    }
-  },
-};
 
-export default authService;
+      const data = await response.json();
+      return {
+        success: response.ok,
+        data: data,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : "Authentication failed",
+      };
+    }
+  }
+}
+
+export default new AuthService();
