@@ -150,7 +150,7 @@
             >
               <div class="employee-name">{{ employee.name }}</div>
               <div class="employee-id">ID: {{ employee.id }}</div>
-              <div v-if="employee.face" class="face-status">
+              <div v-if="employee.face_signature" class="face-status">
                 Has registered face
               </div>
             </div>
@@ -452,11 +452,12 @@ export default defineComponent({
             emp.finger_print === "undefined"
               ? undefined
               : emp.finger_print || undefined,
-          face:
+          face_signature:
             emp.face_signature === "undefined"
               ? undefined
               : emp.face_signature || undefined,
         }));
+        localStorage.setItem("employeesData", JSON.stringify(this.employees));
       } catch (error) {
         console.error("Failed to fetch employees:", error);
       }
@@ -496,23 +497,23 @@ export default defineComponent({
             `Face registered successfully for ${this.selectedEmployee.name}!`
           );
           try {
-            const baseURL = localStorage.getItem("baseUrl");
-            const token = localStorage.getItem("token");
-            const headers = {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            };
-            const url = `${baseURL}/users/${this.selectedEmployee.username}`;
-            const payload = {
-              face_signature: JSON.stringify(Array.from(detection.descriptor)),
-            };
-            await axios.put(url, payload, { headers });
-            this.presentAlert(
-              `Face signature updated successfully for ${this.selectedEmployee.name}!`
-            );
+            let employeesData = JSON.parse(localStorage.getItem("employeesData") || "[]");
+            const employeeIndex = employeesData.findIndex(emp => emp.id === this.selectedEmployee.id);
+
+            if (employeeIndex !== -1) {
+              employeesData[employeeIndex].face_signature = JSON.stringify(Array.from(detection.descriptor));
+              localStorage.setItem("employeesData", JSON.stringify(employeesData));
+              this.presentAlert(
+                `Face signature updated locally for ${this.selectedEmployee.name}!`
+              );
+            } else {
+               this.presentAlert(
+                `Employee not found in local storage!`
+              );
+            }
           } catch (error) {
-            console.error("Error updating face signature:", error);
-            this.presentAlert("Error updating face signature. Please try again.");
+            console.error("Error updating face signature in local storage:", error);
+            this.presentAlert("Error updating face signature in local storage. Please try again.");
           }
           // Clear selection
           this.selectedEmployee = null;
@@ -606,6 +607,8 @@ export default defineComponent({
       await alert.present();
     },
     async performLogin(face) {
+      // This method handles the login process after a face is successfully authenticated.
+      // It dispatches a Vuex action to get a token, and then stores it in localStorage.
       try {
         const employee = face.employee;
         if (!employee) {
