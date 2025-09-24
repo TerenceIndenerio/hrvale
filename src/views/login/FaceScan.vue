@@ -649,19 +649,19 @@ export default defineComponent({
     async fetchToken() {
       try {
         const accessToken = localStorage.getItem("access_token");
-        const refreshToken = localStorage.getItem("refresh_token");
         const baseURL = localStorage.getItem("baseUrl");
 
-        if (!accessToken || !refreshToken || !baseURL) {
-          throw new Error("Missing access_token, refresh_token, or baseURL");
+        if (!accessToken || !baseURL) {
+          throw new Error("Missing access_token or baseURL");
         }
 
         const url = new URL(baseURL);
         const tokenUrl = `${url.origin}/web/index.php/auth/token`;
 
-        const response = await axios.post(tokenUrl, {
-          token: accessToken,
-          refresh_token: refreshToken,
+        const response = await axios.post(tokenUrl, null, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
         });
         console.log("token response ", response);
 
