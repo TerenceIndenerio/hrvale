@@ -142,14 +142,14 @@
           <div class="employee-list">
             <div
               v-for="employee in filteredEmployees"
-              :key="employee.id"
+              :key="employee.username"
               class="employee-item"
               :class="{ selected: selectedEmployee === employee }"
               @click="selectedEmployee = employee"
               :style="{ pointerEvents: processing ? 'none' : 'auto' }"
             >
               <div class="employee-name">{{ employee.name }}</div>
-              <div class="employee-id">ID: {{ employee.id }}</div>
+              <div class="employee-id">ID: {{ employee.username }}</div>
               <div v-if="employee.face" class="face-status">
                 Has registered face
               </div>
@@ -405,7 +405,6 @@ import ClockinCard from "@/views/services/clock_in/components/ClockinCard.vue";
 import { useStore } from "vuex";
 import axios from "axios";
 import { Geolocation } from "@capacitor/geolocation";
-import generateToken from "@/store/token/accessToken.ts";
 import { runBackgroundScript } from "@/notification/Notification.ts";
 
 export default defineComponent({
@@ -477,7 +476,7 @@ export default defineComponent({
       return this.employees.filter(
         (employee) =>
           employee.name.toLowerCase().includes(query) ||
-          employee.id.toLowerCase().includes(query)
+          employee.username.toLowerCase().includes(query)
       );
     },
   },
@@ -598,57 +597,9 @@ export default defineComponent({
               scaledBox.y - 5
             );
             if (this.mode === "auth") {
-              const stored = JSON.parse(
-                localStorage.getItem("faceIds") || "[]"
-              );
-              let minDistance = Infinity;
-              let matchedId = null;
-              for (const face of stored) {
-                const distance = faceapi.euclideanDistance(
-                  detection.descriptor,
-                  face.descriptor
-                );
-                if (distance < minDistance) {
-                  minDistance = distance;
-                  matchedId = face.id;
-                }
-              }
-              if (minDistance < 0.6) {
-                // threshold
-                const matchedFace = stored.find((f) => f.id === matchedId);
-                this.scannedUsername = matchedFace.username;
-                ctx.strokeStyle = "#008e9c";
-                ctx.lineWidth = 2;
-                ctx.strokeRect(
-                  scaledBox.x,
-                  scaledBox.y,
-                  scaledBox.width,
-                  scaledBox.height
-                );
-                ctx.fillStyle = "#008e9c";
-                ctx.font = "16px Arial";
-                const text = "processing";
-                const textWidth = ctx.measureText(text).width;
-                const textHeight = 16;
-                const padding = 4;
-                const bgX =
-                  scaledBox.x + scaledBox.width / 2 - textWidth / 2 - padding;
-                const bgY = scaledBox.y - textHeight - padding * 2;
-                const bgWidth = textWidth + padding * 2;
-                const bgHeight = textHeight + padding * 2;
-                ctx.fillStyle = "rgba(0,0,0,0.7)";
-                ctx.fillRect(bgX, bgY, bgWidth, bgHeight);
-                ctx.fillStyle = "#008e9c";
-                ctx.fillText(
-                  text,
-                  scaledBox.x + scaledBox.width / 2 - textWidth / 2,
-                  scaledBox.y - 5
-                );
-                this.processing = true;
-                this.showAlert("Face authenticated successfully!");
-                await this.performLogin(matchedFace);
-                return;
-              }
+              this.processing = true;
+              await this.authenticateFace(detection.descriptor);
+              return;
             }
           }
         } catch (error) {
@@ -657,6 +608,61 @@ export default defineComponent({
       }
       requestAnimationFrame(this.processFrames);
     },
+    async authenticateFace(scannedDescriptor) {
+      try {
+        // 1. Get users from the API
+        const usersResponse = await axios.get("https://hrvale.bapplware.com/users/data");
+        const users = usersResponse.data.data;
+
+        // 2. Find a match from localStorage to get the username
+        const storedFaces = JSON.parse(localStorage.getItem("faceIds") || "[]");
+        let matchedUsername = null;
+        let minDistance = Infinity;
+
+        for (const storedFace of storedFaces) {
+          const distance = faceapi.euclideanDistance(
+            scannedDescriptor,
+            storedFace.descriptor
+          );
+          if (distance < minDistance) {
+            minDistance = distance;
+            matchedUsername = storedFace.username;
+          }
+        }
+
+        if (minDistance < 0.6) { // threshold
+          // 3. Find the user from the API response
+          const matchedUser = users.find(user => user.username === matchedUsername);
+
+          if (matchedUser && matchedUser.face_signature) {
+            // 4. Compare the face signatures
+            const storedDescriptor = new Float32Array(Object.values(JSON.parse(matchedUser.face_signature)));
+            const distance = faceapi.euclideanDistance(
+              scannedDescriptor,
+              storedDescriptor
+            );
+
+            if (distance < 0.6) { // threshold
+              this.showAlert("Face authenticated successfully!");
+              this.store.dispatch("auth/login", matchedUser);
+              this.authenticated = true;
+              await this.initializeClock();
+            } else {
+              this.presentAlert("Authentication failed. Face does not match.");
+            }
+          } else {
+            this.presentAlert("Authentication failed. User or face signature not found.");
+          }
+        } else {
+          this.presentAlert("Authentication failed. Face not recognized.");
+        }
+      } catch (error) {
+        console.error("Error during authentication:", error);
+        this.presentAlert("An error occurred during authentication.");
+      } finally {
+        this.processing = false;
+      }
+    },
     async fetchEmployees() {
       try {
         const response = await axios.get(
@@ -664,6 +670,7 @@ export default defineComponent({
         );
         this.employees = response.data.data.map((emp) => ({
           id: emp.username,
+          username: emp.username,
           name: emp.username,
           fingerprint:
             emp.finger_print === "undefined"
@@ -687,7 +694,6 @@ export default defineComponent({
           return;
         }
 
-
         const video = this.$refs.video;
         const detection = await faceapi
           .detectSingleFace(video, new faceapi.TinyFaceDetectorOptions())
@@ -696,14 +702,14 @@ export default defineComponent({
         if (detection) {
           // Generate unique face ID
           const faceId = `${
-            this.selectedEmployee.id
+            this.selectedEmployee.username
           }_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
           const stored = JSON.parse(localStorage.getItem("faceIds") || "[]");
           stored.push({
             id: Date.now(),
             name: faceId,
             descriptor: Array.from(detection.descriptor),
-            username: this.selectedEmployee.id,
+            username: this.selectedEmployee.username,
             client: "default", // Default client
             employee: this.selectedEmployee,
           });
@@ -1174,45 +1180,6 @@ export default defineComponent({
         ],
       });
       await alert.present();
-    },
-    async performLogin(face) {
-      try {
-        const employee = face.employee;
-        if (!employee) {
-          this.presentAlert("Employee data not found for the recognized face.");
-          return;
-        }
-
-        this.store.commit("loader/updateLoader", true);
-
-        const authResult = await this.store.dispatch("auth/biometricLogin", employee);
-
-        if (authResult.success) {
-          const token = authResult.data.token;
-          localStorage.setItem("token", token);
-
-          await this.fetchStoredTheme();
-          await this.hasPincode();
-          localStorage.setItem("hasSetup", true);
-
-          const userCredentials = {
-            username: employee.username || employee.id,
-            client: "suysing",
-          };
-          localStorage.setItem("userCredentials", JSON.stringify(userCredentials));
-
-          this.authenticated = true;
-          await this.initializeClock();
-        } else {
-          await this.alertError(authResult.error || "Authentication failed.");
-        }
-      } catch (error) {
-        console.error(error.message);
-        localStorage.setItem("hasSetup", false);
-        await this.alertError();
-      } finally {
-        this.store.commit("loader/updateLoader", false);
-      }
     },
     async fetchToken() {
       try {
