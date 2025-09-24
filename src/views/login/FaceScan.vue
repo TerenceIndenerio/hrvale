@@ -41,6 +41,90 @@
                   {{ mode === "auth" ? "authentication" : "registration" }}.
                 </ion-card-subtitle>
               </ion-card-header>
+              <br />
+
+              <ion-card v-if="mode === 'register'" class="registration-card">
+                <ion-card-header class="registration-card-header">
+                  <ion-card-title class="registration-card-title">
+                    <ion-icon
+                      name="person-add-outline"
+                      class="card-icon"
+                    ></ion-icon>
+                    Register New Face
+                  </ion-card-title>
+                </ion-card-header>
+
+                <p v-if="!showEmployeeList" class="selected-emp">
+                  {{ this.selectedEmployee.name }}
+                </p>
+
+                <ion-card-content class="registration-card-content">
+                  <!-- Search Box -->
+                  <div class="search-container" v-if="showEmployeeList">
+                    <input
+                      type="text"
+                      v-model="searchQuery"
+                      placeholder="Search employees..."
+                      class="search-input"
+                      :disabled="processing"
+                    />
+                    <span class="search-icon">🔍</span>
+                  </div>
+
+                  <!-- Employee List -->
+                  <div class="employee-list" v-if="showEmployeeList">
+                    <div
+                      v-for="employee in filteredEmployees"
+                      :key="employee.id"
+                      class="employee-item"
+                      :class="{ selected: selectedEmployee === employee }"
+                      @click="handleEmployeeClick(employee)"
+                      :style="{ pointerEvents: processing ? 'none' : 'auto' }"
+                    >
+                      <div class="employee-name">{{ employee.name }}</div>
+                      <div class="employee-id">ID: {{ employee.id }}</div>
+                      <div v-if="employee.face_signature" class="face-status">
+                        Has registered face
+                      </div>
+                    </div>
+                  </div>
+
+                  <ion-button
+                    @click="goToRegisteredFaces"
+                    expand="block"
+                    color="primary"
+                    fill="outline"
+                    class="manage-faces-button"
+                    v-if="showEmployeeList"
+                  >
+                    <ion-icon name="list-outline" slot="start"></ion-icon>
+                    Manage All Registered Faces
+                  </ion-button>
+
+                  <!-- Toggle Button -->
+                  <ion-button
+                    @click="toggleEmployeeList"
+                    expand="block"
+                    color="secondary"
+                    fill="outline"
+                    class="toggle-list-button"
+                  >
+                    <ion-icon
+                      :name="
+                        showEmployeeList
+                          ? 'chevron-up-outline'
+                          : 'chevron-down-outline'
+                      "
+                      slot="start"
+                    ></ion-icon>
+                    {{
+                      showEmployeeList
+                        ? "Hide Employee List"
+                        : "Show Employee List"
+                    }}
+                  </ion-button>
+                </ion-card-content>
+              </ion-card>
 
               <ion-card-content class="face-scan-card-content">
                 <div class="camera-container">
@@ -80,24 +164,34 @@
                   </div>
                 </div>
 
-
                 <ion-button
                   @click="switchMode"
-                  expand="block"
                   fill="outline"
                   color="primary"
                   class="mode-switch-button"
                 >
-                  <ion-icon name="swap-horizontal" slot="start"></ion-icon>
-                  Switch to {{ mode === "auth" ? "Register" : "Auth" }}
+                  <ion-icon
+                    :name="mode === 'auth' ? 'cog' : 'scan'"
+                    slot="start"
+                  ></ion-icon>
+                  <!-- {{ mode === "auth" ? "Register" : "Auth" }} -->
+                </ion-button>
+
+                <!-- Refresh Button -->
+                <ion-button
+                  @click="refreshPage"
+                  fill="outline"
+                  color="primary"
+                  class="refresh-button"
+                >
+                  <ion-icon name="reload"></ion-icon>
                 </ion-button>
 
                 <ion-button
                   v-if="mode === 'register'"
                   @click="registerFace"
-                  expand="block"
                   color="primary"
-                  :disabled="processing || !cameraOn"
+                  :disabled="processing || !cameraOn || !selectedEmployee"
                   class="register-button"
                 >
                   <ion-icon name="person-add" slot="start"></ion-icon>
@@ -108,68 +202,6 @@
           </ion-col>
         </ion-row>
       </ion-grid>
-      <ion-card v-if="mode === 'register'" class="registration-card">
-        <ion-card-header class="registration-card-header">
-          <ion-card-title class="registration-card-title">
-            <ion-icon name="person-add-outline" class="card-icon"></ion-icon>
-            Register New Face
-          </ion-card-title>
-        </ion-card-header>
-
-        <ion-card-content class="registration-card-content">
-          <!-- Search Box -->
-          <div class="search-container">
-            <input
-              type="text"
-              v-model="searchQuery"
-              placeholder="Search employees..."
-              class="search-input"
-              :disabled="processing"
-            />
-            <span class="search-icon">🔍</span>
-          </div>
-
-          <!-- Employee List -->
-          <div class="employee-list">
-            <div
-              v-for="employee in filteredEmployees"
-              :key="employee.id"
-              class="employee-item"
-              :class="{ selected: selectedEmployee === employee }"
-              @click="selectedEmployee = employee"
-              :style="{ pointerEvents: processing ? 'none' : 'auto' }"
-            >
-              <div class="employee-name">{{ employee.name }}</div>
-              <div class="employee-id">ID: {{ employee.id }}</div>
-              <div v-if="employee.face_signature" class="face-status">
-                Has registered face
-              </div>
-            </div>
-          </div>
-
-          <ion-button
-            @click="registerFace"
-            expand="block"
-            color="primary"
-            :disabled="processing || !cameraOn || !selectedEmployee"
-            class="register-submit-button"
-          >
-            <ion-icon name="checkmark-circle" slot="start"></ion-icon>
-            Register Face
-          </ion-button>
-
-          <ion-button
-            @click="goToRegisteredFaces"
-            expand="block"
-            color="primary"
-            fill="outline"
-            class="manage-faces-button"
-          >
-            <ion-icon name="list-outline" slot="start"></ion-icon>
-            Manage All Registered Faces
-          </ion-button>
-        </ion-card-content>
-      </ion-card>
 
       <ion-spinner v-if="loading" name="crescent"></ion-spinner>
       <ClockInModal
@@ -195,6 +227,10 @@ import {
   IonGrid,
   IonCol,
   alertController,
+  IonCardTitle,
+  IonCardSubtitle,
+  IonCardHeader,
+  IonRow,
 } from "@ionic/vue";
 import { camera } from "ionicons/icons";
 import * as faceapi from "face-api.js";
@@ -205,6 +241,7 @@ import { useStore } from "vuex";
 import axios from "axios";
 import { runBackgroundScript } from "@/notification/Notification.ts";
 import ClockInModal from "./components/ClockInModal.vue";
+import { TextToSpeech } from "@capacitor-community/text-to-speech";
 
 export default defineComponent({
   components: {
@@ -220,6 +257,11 @@ export default defineComponent({
     IonCol,
     Refresher,
     ClockInModal,
+    IonCardTitle,
+    IonCardSubtitle,
+    IonCardHeader,
+    IonRow,
+    TextToSpeech,
   },
   setup() {
     const router = useRouter();
@@ -243,6 +285,7 @@ export default defineComponent({
       scannedName: "",
       employees: [],
       selectedEmployee: null,
+      showEmployeeList: true,
     };
   },
   computed: {
@@ -273,7 +316,9 @@ export default defineComponent({
       await this.fetchEmployees();
     } catch (error) {
       console.error("Error during component mount:", error);
-      await this.presentAlert("Initialization failed. Please refresh the page.");
+      await this.presentAlert(
+        "Initialization failed. Please refresh the page."
+      );
     } finally {
       this.loading = false;
       this.$nextTick(async () => {
@@ -307,6 +352,13 @@ export default defineComponent({
         this.cameraOn = false;
       }
     },
+    handleEmployeeClick(employee) {
+      this.selectedEmployee = employee;
+      this.showEmployeeList = false;
+    },
+    toggleEmployeeList() {
+      this.showEmployeeList = !this.showEmployeeList; // 👈 toggle button
+    },
     async switchMode() {
       if (this.mode === "auth") {
         // Switching to register mode - require password
@@ -321,6 +373,17 @@ export default defineComponent({
         this.mode = "auth";
       }
     },
+    refreshPage() {
+      // Option 1: reload everything
+      window.location.reload();
+
+      // Option 2 (if you only want to refresh some state):
+      // this.processing = false;
+      // this.selectedEmployee = null;
+      // this.searchQuery = '';
+      // this.showEmployeeList = true;
+      // (whatever state reset you need)
+    },
     async processFrames() {
       if (!this.processing && this.modelsLoaded) {
         const video = this.$refs.video;
@@ -333,79 +396,103 @@ export default defineComponent({
             .detectSingleFace(video, new faceapi.TinyFaceDetectorOptions())
             .withFaceLandmarks()
             .withFaceDescriptor();
-          // Draw detection box
+
+          // Setup canvas
           const canvas = this.$refs.canvas;
           const ctx = canvas.getContext("2d");
           canvas.width = video.clientWidth;
           canvas.height = video.clientHeight;
           ctx.clearRect(0, 0, canvas.width, canvas.height);
+
           if (detection) {
             const scaleX = video.clientWidth / video.videoWidth;
             const scaleY = video.clientHeight / video.videoHeight;
-            const box = detection.detection.box;
-            const scaledBox = {
-              x: box.x * scaleX,
-              y: box.y * scaleY,
-              width: box.width * scaleX,
-              height: box.height * scaleY,
-            };
 
-            const centerX = scaledBox.x + scaledBox.width / 2;
-            const centerY = scaledBox.y + scaledBox.height / 2;
-            const radius = Math.max(scaledBox.width, scaledBox.height) / 2;
+            // Get landmarks scaled to video size
+            const landmarks = detection.landmarks.positions.map((p) => ({
+              x: p.x * scaleX,
+              y: p.y * scaleY,
+            }));
 
-            // Clear previous frame
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            // 🔵 Main circular scan overlay
-            ctx.strokeStyle = "#00f9ff"; // neon blue
-            ctx.lineWidth = 3;
-            ctx.beginPath();
-            ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
-            ctx.stroke();
-
-            // 🔵 Animated radar arcs
-            const now = Date.now() / 500;
-            ctx.strokeStyle = "rgba(0,249,255,0.5)";
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            ctx.arc(
-              centerX,
-              centerY,
-              radius * 0.9,
-              now % (Math.PI * 2),
-              (now % (Math.PI * 2)) + Math.PI / 4
-            );
-            ctx.stroke();
-
-            ctx.beginPath();
-            ctx.arc(
-              centerX,
-              centerY,
-              radius * 0.7,
-              (now % (Math.PI * 2)) + Math.PI / 2,
-              (now % (Math.PI * 2)) + Math.PI / 2 + Math.PI / 4
-            );
-            ctx.stroke();
-
-            // 🔵 Crosshair lines
             ctx.strokeStyle = "#00f9ff";
-            ctx.lineWidth = 1;
+            ctx.lineWidth = 2;
+
+            // Draw jawline
             ctx.beginPath();
-            ctx.moveTo(centerX - radius, centerY);
-            ctx.lineTo(centerX + radius, centerY);
-            ctx.moveTo(centerX, centerY - radius);
-            ctx.lineTo(centerX, centerY + radius);
+            for (let i = 0; i <= 16; i++) {
+              const { x, y } = landmarks[i];
+              if (i === 0) ctx.moveTo(x, y);
+              else ctx.lineTo(x, y);
+            }
             ctx.stroke();
 
-            // Text
+            // Draw eyebrows
+            ctx.beginPath();
+            for (let i = 17; i <= 21; i++) {
+              const { x, y } = landmarks[i];
+              if (i === 17) ctx.moveTo(x, y);
+              else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+
+            ctx.beginPath();
+            for (let i = 22; i <= 26; i++) {
+              const { x, y } = landmarks[i];
+              if (i === 22) ctx.moveTo(x, y);
+              else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+
+            // Draw nose
+            ctx.beginPath();
+            for (let i = 27; i <= 35; i++) {
+              const { x, y } = landmarks[i];
+              if (i === 27) ctx.moveTo(x, y);
+              else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+
+            // Draw eyes
+            const leftEyeIndices = [36, 37, 38, 39, 40, 41, 36];
+            ctx.beginPath();
+            leftEyeIndices.forEach((i, idx) => {
+              const { x, y } = landmarks[i];
+              if (idx === 0) ctx.moveTo(x, y);
+              else ctx.lineTo(x, y);
+            });
+            ctx.stroke();
+
+            const rightEyeIndices = [42, 43, 44, 45, 46, 47, 42];
+            ctx.beginPath();
+            rightEyeIndices.forEach((i, idx) => {
+              const { x, y } = landmarks[i];
+              if (idx === 0) ctx.moveTo(x, y);
+              else ctx.lineTo(x, y);
+            });
+            ctx.stroke();
+
+            // Draw lips
+            const mouthIndices = [
+              48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 48,
+            ];
+            ctx.beginPath();
+            mouthIndices.forEach((i, idx) => {
+              const { x, y } = landmarks[i];
+              if (idx === 0) ctx.moveTo(x, y);
+              else ctx.lineTo(x, y);
+            });
+            ctx.stroke();
+
+            // Optional scanning text
             ctx.font = "14px Arial";
             ctx.fillStyle = "#00f9ff";
-            const text = "Scanning...";
-            const textWidth = ctx.measureText(text).width;
-            ctx.fillText(text, centerX - textWidth / 2, centerY + radius + 20);
+            ctx.fillText(
+              "Scanning face...",
+              landmarks[30].x - 40,
+              landmarks[30].y + 150
+            );
 
-            // ✅ Authentication logic stays here
+            // ✅ Authentication logic
             if (this.mode === "auth") {
               const stored = JSON.parse(
                 localStorage.getItem("faceIds") || "[]"
@@ -429,7 +516,11 @@ export default defineComponent({
                 const matchedFace = stored.find((f) => f.id === matchedId);
                 this.scannedUsername = matchedFace.username;
 
-                // Optionally draw a green circle to indicate success:
+                // ✅ Draw green circle to indicate success
+                const centerX = landmarks[30].x; // nose bridge X
+                const centerY = landmarks[30].y; // nose bridge Y
+                const radius = 80; // adjust circle radius
+
                 ctx.strokeStyle = "#00ff80";
                 ctx.lineWidth = 4;
                 ctx.beginPath();
@@ -441,11 +532,16 @@ export default defineComponent({
                 ctx.fillText(
                   "Authenticated!",
                   centerX - ctx.measureText("Authenticated!").width / 2,
-                  centerY + radius + 20
+                  centerY + -90
                 );
 
                 this.processing = true;
                 this.presentAlert("Face authenticated successfully!");
+                await TextToSpeech.speak({
+                  text: this.getGreeting() + " " + matchedFace.username,
+                  lang: "en-US",
+                  rate: 1.0,
+                });
                 await this.performLogin(matchedFace);
                 return; // stop scanning after login
               }
@@ -456,6 +552,18 @@ export default defineComponent({
         }
       }
       requestAnimationFrame(this.processFrames);
+    },
+    getGreeting() {
+      const now = new Date();
+      const hour = now.getHours(); // 0–23
+
+      if (hour >= 5 && hour < 12) {
+        return "Good Morning";
+      } else if (hour >= 12 && hour < 18) {
+        return "Good Afternoon";
+      } else {
+        return "Good Evening";
+      }
     },
     async fetchEmployees() {
       try {
@@ -587,13 +695,18 @@ export default defineComponent({
         this.router.push("/login");
       }
     },
-    closeAuthenticated() {
-      this.stopCamera();
+    async closeAuthenticated() {
+      this.startCamera();
       this.authenticated = false;
       this.processing = false;
       this.processFrames();
       this.router.push("/facescan");
       console.log("Close authenticated, restart scanning");
+      await TextToSpeech.speak({
+        text: "Bye and Thank you " + matchedFace.username,
+        lang: "en-US",
+        rate: 1.0,
+      });
     },
 
     fetchTheme() {
@@ -923,7 +1036,7 @@ export default defineComponent({
 
 .face-scan-card {
   width: 100%;
-  max-width: 700px;
+  /* max-width: 700px; */
   --background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(20px);
   border-radius: 20px;
@@ -960,7 +1073,8 @@ export default defineComponent({
 .video-wrapper {
   position: relative;
   width: 80vw;
-  height: 80vh;
+  height: auto;
+  min-height: 430px;
   margin: auto;
   border-radius: 16px;
   overflow: hidden;
@@ -1004,7 +1118,7 @@ export default defineComponent({
 }
 
 .camera-placeholder {
-  height: 200px;
+  height: 70vh;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1029,16 +1143,57 @@ export default defineComponent({
 }
 
 .mode-switch-button {
-  --border-radius: 12px;
+  --border-radius: 50%;
   margin-bottom: 12px;
   font-weight: 600;
-  height: 48px;
+  width: 70px;
+  height: 70px;
+  position: absolute;
+  top: 50%;
+  right: 25px;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transform: translateY(-50%);
+}
+
+.mode-switch-button ion-icon {
+  font-size: 50px;
+  margin: 0;
+  padding: 0;
+}
+
+.refresh-button {
+  --border-radius: 50%;
+  margin-bottom: 12px;
+  font-weight: 600;
+  width: 70px;
+  height: 70px;
+  position: absolute;
+  top: 35%;
+  right: 25px;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transform: translateY(-50%);
+}
+
+.refresh-button ion-icon {
+  font-size: 80px;
+  margin: 0;
+  padding: 0;
 }
 
 .register-button {
   --border-radius: 12px;
   font-weight: 600;
-  height: 48px;
+  height: 50px;
+  margin: 0 auto;
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);
 }
 
 .registration-card {
@@ -1050,7 +1205,11 @@ export default defineComponent({
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.2);
   margin: 0 auto;
-  position: relative;
+
+  /* position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);y */
   z-index: 1;
 }
 
@@ -1208,10 +1367,16 @@ export default defineComponent({
 }
 
 .clock-modal {
-  --background: transparent;
+  --background: transparent; /* Make modal background transparent */
   --border-radius: 20px;
-  --height: 90%;
-  --width: 95%;
+  --height: 700px;
+  --width: 650px;
+
+  /* Glassmorphism effect */
+  background: rgba(255, 255, 255, 0.1); /* transparent white overlay */
+  backdrop-filter: blur(15px); /* actual blur effect */
+  -webkit-backdrop-filter: blur(15px); /* for Safari */
+  border: 1px solid rgba(255, 255, 255, 0.2); /* subtle border */
 }
 
 .clock-modal-header {
@@ -1243,6 +1408,13 @@ export default defineComponent({
   display: flex;
   justify-content: center;
   align-items: center;
+
+  --background: transparent;
+  /* Glassmorphism effect */
+  background: rgba(255, 255, 255, 0.1); /* transparent white overlay */
+  backdrop-filter: blur(15px); /* actual blur effect */
+  -webkit-backdrop-filter: blur(15px); /* for Safari */
+  border: 1px solid rgba(255, 255, 255, 0.2); /* subtle border */
 }
 
 .clock-card {
@@ -1382,5 +1554,12 @@ ion-button {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+}
+.selected-emp {
+  background-color: #e3f2fd;
+  border-color: #008e9c;
+  text-align: center;
+  font-weight: 600;
+  font-size: 18px;
 }
 </style>

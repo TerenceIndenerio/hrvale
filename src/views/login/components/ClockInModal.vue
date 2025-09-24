@@ -595,4 +595,14 @@ export default defineComponent({
   height: 40px;
   margin: 20px auto;
 }
+.clock-modal-content {
+  --background: transparent;
+  background: rgba(255, 255, 255, 0.15); /* transparent white overlay */
+  backdrop-filter: blur(15px); /* actual blur effect */
+  -webkit-backdrop-filter: blur(15px); /* for Safari */
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+.clock-card {
+  width: 65%;
+}
 </style>
