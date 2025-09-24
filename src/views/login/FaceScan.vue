@@ -621,8 +621,8 @@ export default defineComponent({
         const authResult = await this.store.dispatch("auth/biometricLogin", employee);
 
         if (authResult.success) {
-          const token = authResult.data.token;
-          localStorage.setItem("token", token);
+          localStorage.setItem("access_token", authResult.data.access_token);
+          localStorage.setItem("refresh_token", authResult.data.refresh_token);
 
           await this.fetchStoredTheme();
           await this.hasPincode();
@@ -648,15 +648,20 @@ export default defineComponent({
     },
     async fetchToken() {
       try {
-        const storedToken = localStorage.getItem("access_token");
+        const accessToken = localStorage.getItem("access_token");
+        const refreshToken = localStorage.getItem("refresh_token");
         const baseURL = localStorage.getItem("baseUrl");
 
-        if (!storedToken || !baseURL) {
-          throw new Error("Missing storedToken or baseURL");
+        if (!accessToken || !refreshToken || !baseURL) {
+          throw new Error("Missing access_token, refresh_token, or baseURL");
         }
 
-        const response = await axios.post(`${baseURL}auth/token`, {
-          secret: storedToken,
+        const url = new URL(baseURL);
+        const tokenUrl = `${url.origin}/web/index.php/auth/token`;
+
+        const response = await axios.post(tokenUrl, {
+          token: accessToken,
+          refresh_token: refreshToken,
         });
         console.log("token response ", response);
 
