@@ -51,12 +51,16 @@
                       playsinline
                       muted
                       class="face-video"
-                      :style="{ display: cameraOn ? 'block' : 'none' }"
+                      :style="{
+                        display: cameraOn ? 'block' : 'none',
+                      }"
                     ></video>
                     <canvas
                       ref="canvas"
                       class="face-canvas"
-                      :style="{ display: cameraOn ? 'block' : 'none' }"
+                      :style="{
+                        display: cameraOn ? 'block' : 'none',
+                      }"
                     ></canvas>
                     <div class="camera-placeholder" v-if="!cameraOn">
                       <ion-icon
@@ -353,39 +357,70 @@ export default defineComponent({
               width: box.width * scaleX,
               height: box.height * scaleY,
             };
-            ctx.strokeStyle = "#008e9c";
+
+            const centerX = scaledBox.x + scaledBox.width / 2;
+            const centerY = scaledBox.y + scaledBox.height / 2;
+            const radius = Math.max(scaledBox.width, scaledBox.height) / 2;
+
+            // Clear previous frame
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // 🔵 Main circular scan overlay
+            ctx.strokeStyle = "#00f9ff"; // neon blue
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+            ctx.stroke();
+
+            // 🔵 Animated radar arcs
+            const now = Date.now() / 500;
+            ctx.strokeStyle = "rgba(0,249,255,0.5)";
             ctx.lineWidth = 2;
-            ctx.strokeRect(
-              scaledBox.x,
-              scaledBox.y,
-              scaledBox.width,
-              scaledBox.height
+            ctx.beginPath();
+            ctx.arc(
+              centerX,
+              centerY,
+              radius * 0.9,
+              now % (Math.PI * 2),
+              (now % (Math.PI * 2)) + Math.PI / 4
             );
-            ctx.fillStyle = "#008e9c";
-            ctx.font = "16px Arial";
-            const text = "processing";
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.arc(
+              centerX,
+              centerY,
+              radius * 0.7,
+              (now % (Math.PI * 2)) + Math.PI / 2,
+              (now % (Math.PI * 2)) + Math.PI / 2 + Math.PI / 4
+            );
+            ctx.stroke();
+
+            // 🔵 Crosshair lines
+            ctx.strokeStyle = "#00f9ff";
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(centerX - radius, centerY);
+            ctx.lineTo(centerX + radius, centerY);
+            ctx.moveTo(centerX, centerY - radius);
+            ctx.lineTo(centerX, centerY + radius);
+            ctx.stroke();
+
+            // Text
+            ctx.font = "14px Arial";
+            ctx.fillStyle = "#00f9ff";
+            const text = "Scanning...";
             const textWidth = ctx.measureText(text).width;
-            const textHeight = 16;
-            const padding = 4;
-            const bgX =
-              scaledBox.x + scaledBox.width / 2 - textWidth / 2 - padding;
-            const bgY = scaledBox.y - textHeight - padding * 2;
-            const bgWidth = textWidth + padding * 2;
-            const bgHeight = textHeight + padding * 2;
-            ctx.fillStyle = "rgba(0,0,0,0.7)";
-            ctx.fillRect(bgX, bgY, bgWidth, bgHeight);
-            ctx.fillStyle = "#008e9c";
-            ctx.fillText(
-              text,
-              scaledBox.x + scaledBox.width / 2 - textWidth / 2,
-              scaledBox.y - 5
-            );
+            ctx.fillText(text, centerX - textWidth / 2, centerY + radius + 20);
+
+            // ✅ Authentication logic stays here
             if (this.mode === "auth") {
               const stored = JSON.parse(
                 localStorage.getItem("faceIds") || "[]"
               );
               let minDistance = Infinity;
               let matchedId = null;
+
               for (const face of stored) {
                 const distance = faceapi.euclideanDistance(
                   detection.descriptor,
@@ -396,41 +431,31 @@ export default defineComponent({
                   matchedId = face.id;
                 }
               }
+
               if (minDistance < 0.6) {
                 // threshold
                 const matchedFace = stored.find((f) => f.id === matchedId);
                 this.scannedUsername = matchedFace.username;
-                ctx.strokeStyle = "#008e9c";
-                ctx.lineWidth = 2;
-                ctx.strokeRect(
-                  scaledBox.x,
-                  scaledBox.y,
-                  scaledBox.width,
-                  scaledBox.height
-                );
-                ctx.fillStyle = "#008e9c";
+
+                // Optionally draw a green circle to indicate success:
+                ctx.strokeStyle = "#00ff80";
+                ctx.lineWidth = 4;
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+                ctx.stroke();
+
                 ctx.font = "16px Arial";
-                const text = "processing";
-                const textWidth = ctx.measureText(text).width;
-                const textHeight = 16;
-                const padding = 4;
-                const bgX =
-                  scaledBox.x + scaledBox.width / 2 - textWidth / 2 - padding;
-                const bgY = scaledBox.y - textHeight - padding * 2;
-                const bgWidth = textWidth + padding * 2;
-                const bgHeight = textHeight + padding * 2;
-                ctx.fillStyle = "rgba(0,0,0,0.7)";
-                ctx.fillRect(bgX, bgY, bgWidth, bgHeight);
-                ctx.fillStyle = "#008e9c";
+                ctx.fillStyle = "#00ff80";
                 ctx.fillText(
-                  text,
-                  scaledBox.x + scaledBox.width / 2 - textWidth / 2,
-                  scaledBox.y - 5
+                  "Authenticated!",
+                  centerX - ctx.measureText("Authenticated!").width / 2,
+                  centerY + radius + 20
                 );
+
                 this.processing = true;
                 this.presentAlert("Face authenticated successfully!");
                 await this.performLogin(matchedFace);
-                return;
+                return; // stop scanning after login
               }
             }
           }
@@ -571,12 +596,14 @@ export default defineComponent({
       }
     },
     closeAuthenticated() {
+      this.stopCamera();
       this.authenticated = false;
       this.processing = false;
       this.processFrames();
       this.router.push("/facescan");
       console.log("Close authenticated, restart scanning");
     },
+
     fetchTheme() {
       const storedThemeData = localStorage.getItem("themeData");
 
@@ -605,17 +632,17 @@ export default defineComponent({
       }
     },
     async presentAlert(message, handler = null) {
-      const alert = await alertController.create({
-        header: "Face Scan",
-        message,
-        buttons: [
-          {
-            text: "OK",
-            handler,
-          },
-        ],
-      });
-      await alert.present();
+      // const alert = await alertController.create({
+      //   header: "Face Scan",
+      //   message,
+      //   buttons: [
+      //     {
+      //       text: "OK",
+      //       handler,
+      //     },
+      //   ],
+      // });
+      // await alert.present();
     },
     async performLogin(face) {
       // This method handles the login process after a face is successfully authenticated.

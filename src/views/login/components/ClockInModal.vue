@@ -1,5 +1,6 @@
 <template>
   <ion-modal
+    v-if="this.isFinishedLoading"
     :is-open="isOpen"
     @didDismiss="$emit('didDismiss')"
     class="clock-modal"
@@ -41,10 +42,9 @@
               color="warning"
               slot="start"
             ></ion-icon>
-            <p class="reminder-text">
-              Reminder: Punch out will not show unless you completed break punch
-              in and out
-            </p>
+
+            Reminder: Punch out will not show unless you completed break punch
+            in and out
           </ion-card-content>
         </ion-card>
 
@@ -273,20 +273,26 @@ export default defineComponent({
       breakDetails: null,
       isModalOpen: false,
       hasBreaktime: false,
+      isFinishedLoading: false,
     };
   },
   watch: {
     isOpen: {
       async handler(val) {
         if (val) {
+          // Modal opened
           this.loading = true;
           await this.initializeClock();
           this.loading = false;
+        } else {
+          // Modal closed
+          this.isFinishedLoading = false; // ✅ Reset
         }
       },
       immediate: true,
     },
   },
+
   methods: {
     async initializeClock() {
       try {
@@ -304,6 +310,7 @@ export default defineComponent({
       await this.checkTokenExpiration();
       await this.updateClockState();
       this.fetchTheme();
+      this.isFinishedLoading = true;
     },
 
     async updateClockState() {
@@ -325,14 +332,21 @@ export default defineComponent({
 
         // 1. Check for break time configuration
         const breakConfigUrl = `${baseURL}api/v1/attendance/break-time-config?empNumber=${empNumber}`;
-        const breakConfigResponse = await axios.get(breakConfigUrl, { headers });
+        const breakConfigResponse = await axios.get(breakConfigUrl, {
+          headers,
+        });
+
+        console.log("Break Config Response:", breakConfigResponse.data);
+
         this.hasBreaktime = breakConfigResponse.data?.data?.hasBreaktime;
 
         // 2. Based on config, check the appropriate state
         if (this.hasBreaktime) {
           // Logic for when user has a break schedule
           const breakStateUrl = `${baseURL}api/v1/attendance/break-time/latest?empNumber=${empNumber}`;
-          const breakStateResponse = await axios.get(breakStateUrl, { headers });
+          const breakStateResponse = await axios.get(breakStateUrl, {
+            headers,
+          });
           const breakData = breakStateResponse.data.data;
           const currentDate = new Date().toISOString().split("T")[0];
 
@@ -359,21 +373,26 @@ export default defineComponent({
         } else {
           // Logic for standard attendance
           const attendanceStateUrl = `${baseURL}api/v2/attendance/records/latest?empNumber=${empNumber}`;
-          const attendanceStateResponse = await axios.get(attendanceStateUrl, { headers });
+          const attendanceStateResponse = await axios.get(attendanceStateUrl, {
+            headers,
+          });
           const attendanceData = attendanceStateResponse.data?.data;
 
           this.clockin = attendanceData?.punchIn?.userTime || "00:00";
           this.clockout = attendanceData?.punchOut?.userTime || "00:00";
 
           const currentDate = new Date().toISOString().split("T")[0];
-          if (attendanceData?.punchIn?.userDate !== currentDate) this.clockin = "00:00";
-          if (attendanceData?.punchOut?.userDate !== currentDate) this.clockout = "00:00";
+          if (attendanceData?.punchIn?.userDate !== currentDate)
+            this.clockin = "00:00";
+          if (attendanceData?.punchOut?.userDate !== currentDate)
+            this.clockout = "00:00";
 
           if (attendanceData?.state?.name === "Punched Out") {
             this.btnText = "Clock In";
             this.toastMessage = "Clocked Out";
             this.employeeAlreadyPunchedIn = false;
-          } else { // Assumes "Punched In" or other states mean they can clock out
+          } else {
+            // Assumes "Punched In" or other states mean they can clock out
             this.btnText = "Clock Out";
             this.toastMessage = "Clocked In";
             this.employeeAlreadyPunchedIn = true;
@@ -381,7 +400,9 @@ export default defineComponent({
         }
       } catch (error) {
         console.error("Error updating clock state:", error);
-        const errorMessage = error.response?.data?.error?.message || "Could not update clock status.";
+        const errorMessage =
+          error.response?.data?.error?.message ||
+          "Could not update clock status.";
         this.showErrorMessage(errorMessage);
       } finally {
         this.store.commit("loader/updateLoader", false);
@@ -410,12 +431,12 @@ export default defineComponent({
       if (Date.now() > expirationTime) {
         console.log("Token expired.");
         const alert = await alertController.create({
-            header: 'Session Expired',
-            message: 'Your session has expired. Please log in again.',
-            buttons: ['OK'],
+          header: "Session Expired",
+          message: "Your session has expired. Please log in again.",
+          buttons: ["OK"],
         });
         await alert.present();
-        this.$emit('didDismiss');
+        this.$emit("didDismiss");
       }
     },
     getCurrentTime() {
@@ -481,7 +502,8 @@ export default defineComponent({
         this.showAlert(this.toastMessage);
         await this.updateClockState(); // Refresh the state after action
       } catch (error) {
-        const errorMessage = error.response?.data?.error?.message || "An unknown error occurred.";
+        const errorMessage =
+          error.response?.data?.error?.message || "An unknown error occurred.";
         console.error("Error making the API request: ", errorMessage);
         this.showErrorMessage(errorMessage);
       }
@@ -554,5 +576,23 @@ export default defineComponent({
 </script>
 
 <style scoped>
-/* Keeping original styles */
+.reminder-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  color: #333;
+}
+.reminder-card {
+  margin: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  width: fit-content;
+  margin: 0 auto;
+}
+.break-details-btn {
+  width: fit-content;
+  height: 40px;
+  margin: 20px auto;
+}
 </style>
