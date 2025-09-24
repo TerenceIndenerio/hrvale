@@ -80,19 +80,6 @@
                   </div>
                 </div>
 
-                <ion-button
-                  @click="cameraOn ? stopCamera() : startCamera()"
-                  expand="block"
-                  color="primary"
-                  class="camera-button"
-                  :disabled="loading"
-                >
-                  <ion-icon
-                    :name="cameraOn ? 'videocam-off' : 'videocam'"
-                    slot="start"
-                  ></ion-icon>
-                  {{ cameraOn ? "Stop Camera" : "Start Camera" }}
-                </ion-button>
 
                 <ion-button
                   @click="switchMode"
@@ -269,6 +256,7 @@ export default defineComponent({
     },
   },
   async mounted() {
+    this.loading = true;
     this.fetchTheme();
     try {
       await faceapi.nets.tinyFaceDetector.loadFromUri(
@@ -282,13 +270,13 @@ export default defineComponent({
       );
       this.modelsLoaded = true;
       this.loadStoredFaces();
-      // Fetch employees for registration
       await this.fetchEmployees();
+      await this.startCamera();
     } catch (error) {
-      console.error("Error loading face detection models:", error);
-      await this.presentAlert(
-        "Failed to load face detection models. Please try again later."
-      );
+      console.error("Error during component mount:", error);
+      await this.presentAlert("Initialization failed. Please refresh the page.");
+    } finally {
+      this.loading = false;
     }
   },
   methods: {
@@ -862,10 +850,7 @@ export default defineComponent({
 
 <style scoped>
 .face-scan-content {
-  --padding-start: 16px;
-  --padding-end: 16px;
-  --padding-top: 16px;
-  --padding-bottom: 16px;
+  --background: transparent;
 }
 
 .face-scan-header {
@@ -962,7 +947,12 @@ export default defineComponent({
 }
 
 .camera-container {
-  margin-bottom: 20px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
 }
 
 .video-wrapper {
@@ -975,9 +965,8 @@ export default defineComponent({
 
 .face-video {
   width: 100%;
-  height: auto;
-  display: block;
-  border-radius: 16px;
+  height: 100%;
+  object-fit: cover;
 }
 
 .face-canvas {
