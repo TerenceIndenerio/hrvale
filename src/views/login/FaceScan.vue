@@ -428,7 +428,7 @@ export default defineComponent({
                   scaledBox.y - 5
                 );
                 this.processing = true;
-                this.showAlert("Face authenticated successfully!");
+                this.presentAlert("Face authenticated successfully!");
                 await this.performLogin(matchedFace);
                 return;
               }
