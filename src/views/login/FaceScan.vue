@@ -271,12 +271,16 @@ export default defineComponent({
       this.modelsLoaded = true;
       this.loadStoredFaces();
       await this.fetchEmployees();
-      await this.startCamera();
     } catch (error) {
       console.error("Error during component mount:", error);
       await this.presentAlert("Initialization failed. Please refresh the page.");
     } finally {
       this.loading = false;
+      this.$nextTick(async () => {
+        if (this.modelsLoaded) {
+          await this.startCamera();
+        }
+      });
     }
   },
   methods: {
