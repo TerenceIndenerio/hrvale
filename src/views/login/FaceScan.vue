@@ -502,7 +502,7 @@ export default defineComponent({
               Authorization: `Bearer ${token}`,
               "Content-Type": "application/json",
             };
-            const url = `${baseURL}/users/${this.selectedEmployee.username}`;
+            const url = `${baseURL}/users/${this.selectedEmployee.id}`;
             const payload = {
               face_signature: JSON.stringify(Array.from(detection.descriptor)),
             };
