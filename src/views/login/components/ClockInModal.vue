@@ -60,7 +60,7 @@
         </ion-button>
       </div>
 
-      <!-- Modal -->
+      <!-- Modal for Break Details -->
       <ion-modal :is-open="isModalOpen" @didDismiss="closeModal">
         <ion-header :style="{ backgroundColor: theme.primaryColor }">
           <ion-toolbar>
@@ -202,6 +202,7 @@ import {
   IonItem,
   IonLabel,
   toastController,
+  alertController,
   IonCard,
   IonCardContent,
 } from "@ionic/vue";
@@ -247,13 +248,13 @@ export default defineComponent({
     },
   },
   setup() {
-    const store = useStore();
-    const router = useRouter();
-    return { store, router };
+    return {
+      router: useRouter(),
+      store: useStore(),
+    };
   },
   data() {
     return {
-      loading: false,
       btnText: "",
       headerTitle: "Clock In/Out",
       clockin: "00:00",
@@ -264,6 +265,7 @@ export default defineComponent({
       timezoneOffset: "",
       employeeAlreadyPunchedIn: false,
       theme: {},
+      loading: true,
       coordinatesText: "",
       toastMessage: "",
       hasClockedIn: false,
@@ -271,14 +273,15 @@ export default defineComponent({
       breakDetails: null,
       isModalOpen: false,
       hasBreaktime: false,
-      isPmBreakDone: false,
     };
   },
   watch: {
     isOpen: {
-      handler(val) {
+      async handler(val) {
         if (val) {
-          this.initializeClock();
+          this.loading = true;
+          await this.initializeClock();
+          this.loading = false;
         }
       },
       immediate: true,
@@ -291,38 +294,130 @@ export default defineComponent({
         this.coordinatesText = `Latitude: ${coordinates.coords.latitude}, Longitude: ${coordinates.coords.longitude}`;
       } catch (error) {
         console.error("Error getting coordinates:", error.message);
-        // GPS is off, do nothing and continue
+        await this.presentGpsErrorAlert();
+        this.$emit("didDismiss");
+        return;
       }
 
       this.getCurrentTime();
       setInterval(this.getCurrentTime, 1000);
-      this.checkTokenExpiration();
-      await this.breaktimeConfig();
-      await this.checkState();
-
+      await this.checkTokenExpiration();
+      await this.updateClockState();
       this.fetchTheme();
-      this.loading = false;
     },
-    // Expiration of token
+
+    async updateClockState() {
+      this.store.commit("loader/updateLoader", true);
+      try {
+        const empNumber = localStorage.getItem("empNumber");
+        const baseURL = localStorage.getItem("baseUrl");
+        const token = localStorage.getItem("token");
+
+        if (!token || !empNumber || !baseURL) {
+          console.error("Missing token, empNumber, or baseURL");
+          return;
+        }
+
+        const headers = {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        };
+
+        // 1. Check for break time configuration
+        const breakConfigUrl = `${baseURL}api/v1/attendance/break-time-config?empNumber=${empNumber}`;
+        const breakConfigResponse = await axios.get(breakConfigUrl, { headers });
+        this.hasBreaktime = breakConfigResponse.data?.data?.hasBreaktime;
+
+        // 2. Based on config, check the appropriate state
+        if (this.hasBreaktime) {
+          // Logic for when user has a break schedule
+          const breakStateUrl = `${baseURL}api/v1/attendance/break-time/latest?empNumber=${empNumber}`;
+          const breakStateResponse = await axios.get(breakStateUrl, { headers });
+          const breakData = breakStateResponse.data.data;
+          const currentDate = new Date().toISOString().split("T")[0];
+
+          if (
+            breakData.punchInAmBreak.amDate === currentDate ||
+            breakData.punchOutAmBreak.amDate === currentDate ||
+            breakData.punchInLunchBreak.lunchDate === currentDate ||
+            breakData.punchOutLunchBreak.lunchDate === currentDate ||
+            breakData.punchInPmBreak.pmDate === currentDate ||
+            breakData.punchOutPmBreak.pmDate === currentDate
+          ) {
+            this.breakDetails = breakData;
+          } else {
+            this.breakDetails = null;
+          }
+
+          if (breakData.state.name === "Punched In") {
+            this.btnText = "Punch Out Break";
+            this.toastMessage = "Punch Out Break";
+          } else {
+            this.btnText = "Punch In Break";
+            this.toastMessage = "Punch In Break";
+          }
+        } else {
+          // Logic for standard attendance
+          const attendanceStateUrl = `${baseURL}api/v2/attendance/records/latest?empNumber=${empNumber}`;
+          const attendanceStateResponse = await axios.get(attendanceStateUrl, { headers });
+          const attendanceData = attendanceStateResponse.data?.data;
+
+          this.clockin = attendanceData?.punchIn?.userTime || "00:00";
+          this.clockout = attendanceData?.punchOut?.userTime || "00:00";
+
+          const currentDate = new Date().toISOString().split("T")[0];
+          if (attendanceData?.punchIn?.userDate !== currentDate) this.clockin = "00:00";
+          if (attendanceData?.punchOut?.userDate !== currentDate) this.clockout = "00:00";
+
+          if (attendanceData?.state?.name === "Punched Out") {
+            this.btnText = "Clock In";
+            this.toastMessage = "Clocked Out";
+            this.employeeAlreadyPunchedIn = false;
+          } else { // Assumes "Punched In" or other states mean they can clock out
+            this.btnText = "Clock Out";
+            this.toastMessage = "Clocked In";
+            this.employeeAlreadyPunchedIn = true;
+          }
+        }
+      } catch (error) {
+        console.error("Error updating clock state:", error);
+        const errorMessage = error.response?.data?.error?.message || "Could not update clock status.";
+        this.showErrorMessage(errorMessage);
+      } finally {
+        this.store.commit("loader/updateLoader", false);
+      }
+    },
+
+    async presentGpsErrorAlert() {
+      const alert = await alertController.create({
+        header: "GPS Error",
+        message: "Could not retrieve location. Please ensure GPS is enabled.",
+        buttons: ["OK"],
+      });
+      await alert.present();
+    },
     async checkTokenExpiration() {
       const storedToken = localStorage.getItem("token");
 
       if (!storedToken) {
         console.error("Token not available.");
-        console.log("Token is missing. Redirecting to login...");
-        // this.router.push("/login");
         return;
       }
 
-      // const tokenData = JSON.parse(atob(storedToken.split(".")[1]));
-      // const expirationTime = tokenData.exp * 1000;
+      const tokenData = JSON.parse(atob(storedToken.split(".")[1]));
+      const expirationTime = tokenData.exp * 1000;
 
-      // if (Date.now() > expirationTime) {
-      //   console.log("Token expired. Redirecting to login...");
-      //   this.router.push("/login");
-      // }
+      if (Date.now() > expirationTime) {
+        console.log("Token expired.");
+        const alert = await alertController.create({
+            header: 'Session Expired',
+            message: 'Your session has expired. Please log in again.',
+            buttons: ['OK'],
+        });
+        await alert.present();
+        this.$emit('didDismiss');
+      }
     },
-
     getCurrentTime() {
       try {
         const currentTime = new Date();
@@ -346,210 +441,6 @@ export default defineComponent({
         console.error("Error fetching current time:", error.message);
       }
     },
-
-    async checkState() {
-      try {
-        this.store.commit("loader/updateLoader", true);
-        const baseURL = localStorage.getItem("baseUrl");
-        await this.checkTokenExpiration();
-        const empNumber = localStorage.getItem("empNumber");
-        const token = localStorage.getItem("token");
-        if (!token) {
-          console.error("Token not available.");
-          return;
-        }
-
-        const headers = {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        };
-        const apiUrl =
-          baseURL + `api/v2/attendance/records/latest?empNumber=${empNumber}`;
-
-        const getStateResponse = await axios.get(apiUrl, { headers });
-
-        this.clockin = getStateResponse.data?.data?.punchIn?.userTime;
-        this.clockout = getStateResponse.data?.data?.punchOut?.userTime;
-
-        const currentDate = new Date().toISOString().split("T")[0];
-
-        if (getStateResponse.data?.data?.punchIn?.userDate !== currentDate) {
-          this.clockin = "00:00";
-        }
-
-        if (getStateResponse.data?.data?.punchOut?.userDate !== currentDate) {
-          this.clockout = "00:00";
-        }
-
-        if (this.clockin === null) {
-          this.clockin = "00:00";
-        }
-
-        if (this.clockout === null) {
-          this.clockout = "00:00";
-        }
-
-        if (!this.hasBreaktime) {
-          console.log("this.isPmBreakDone: ", !this.isPmBreakDone);
-
-          if (
-            getStateResponse.data?.data?.state?.name === "Punched Out"
-            // && getStateResponse.data?.data?.punchIn?.utcDate === currentDate
-          ) {
-            this.btnText = "Clock In";
-
-            this.toastMessage = "Clocked Out";
-          } else if (
-            getStateResponse.data?.data?.state?.name === "Punched In"
-            // && getStateResponse.data?.data?.punchIn?.utcDate === currentDate
-          ) {
-            this.btnText = "Clock Out";
-            this.toastMessage = "Clocked In";
-          }
-        }
-      } catch (error) {
-        this.loading = false;
-        if (error.response && error.response.status === 401) {
-          console.error(
-            "Session Expired. Token needs to be refreshed or user needs to re-authenticate."
-          );
-        } else {
-          console.error("Error making the GET request:", error);
-        }
-      } finally {
-        this.store.commit("loader/updateLoader", false);
-      }
-    },
-
-    async breaktimeConfig() {
-      try {
-        this.store.commit("loader/updateLoader", true);
-
-        const empNumber = localStorage.getItem("empNumber");
-        const baseURL = localStorage.getItem("baseUrl");
-        await this.checkTokenExpiration();
-
-        const token = localStorage.getItem("token");
-        if (!token) {
-          console.error("Token not available.");
-          return;
-        }
-
-        console.log("Token in breaktimeConfig: ", token);
-
-        const headers = {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        };
-        const apiUrl = `${baseURL}api/v1/attendance/break-time-config?empNumber=${empNumber}`;
-
-        const getStateResponse = await axios.get(apiUrl, { headers });
-
-        console.log(
-          "Break-time config response: ",
-          getStateResponse.data?.data
-        );
-        this.isPmBreakDone = getStateResponse.data?.data?.isPmBreakDone;
-        this.hasBreaktime = getStateResponse.data?.data?.hasBreaktime;
-
-        await this.checkStateBreaktime();
-      } catch (error) {
-        console.error("Error fetching break-time config:", error.message);
-      } finally {
-        this.store.commit("loader/updateLoader", false);
-      }
-    },
-
-    async checkStateBreaktime() {
-      try {
-        this.store.commit("loader/updateLoader", true);
-        const empNumber = localStorage.getItem("empNumber");
-        const baseURL = localStorage.getItem("baseUrl");
-        await this.checkTokenExpiration();
-        const token = localStorage.getItem("token");
-        if (!token) {
-          console.error("Token not available.");
-          return;
-        }
-
-        const headers = {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        };
-        const apiUrl =
-          baseURL +
-          `api/v1/attendance/break-time/latest?empNumber=${empNumber}`;
-        const getStateResponse = await axios.get(apiUrl, { headers });
-
-        const breakData = getStateResponse.data.data;
-
-        const currentDate = new Date().toISOString().split("T")[0];
-
-        if (
-          breakData.punchInAmBreak.amDate === currentDate ||
-          breakData.punchOutAmBreak.amDate === currentDate ||
-          breakData.punchInLunchBreak.lunchDate === currentDate ||
-          breakData.punchOutLunchBreak.lunchDate === currentDate ||
-          breakData.punchInPmBreak.pmDate === currentDate ||
-          breakData.punchOutPmBreak.pmDate === currentDate
-        ) {
-          this.breakDetails = breakData;
-        } else {
-          this.breakDetails = null;
-        }
-
-        if (this.hasBreaktime) {
-          if (breakData.state.name === "Punched In") {
-            this.btnText = "Punch Out Break";
-            this.toastMessage = "Punch Out Break";
-          } else {
-            this.btnText = "Punch In Break";
-            this.toastMessage = "Punch In Break";
-          }
-        }
-      } catch (error) {
-        console.log(error);
-      } finally {
-        this.store.commit("loader/updateLoader", false);
-      }
-    },
-
-    async getState(dataData) {
-      try {
-        const token = localStorage.getItem("token");
-        const baseURL = localStorage.getItem("baseUrl");
-        if (!token) {
-          console.error("Token not available.");
-          return;
-        }
-
-        const headers = {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        };
-        const apiUrl = baseURL + `api/v3/attendance/employees/records`;
-        const payload = {
-          date: dataData,
-        };
-
-        const getStateResponse = await axios.get(apiUrl, { headers });
-
-        if (getStateResponse.data?.data?.state?.name === "Punched Out") {
-          this.employeeAlreadyPunchedIn = false;
-        } else {
-          this.employeeAlreadyPunchedIn = true;
-        }
-      } catch (error) {
-        if (error.response && error.response.status === 401) {
-          console.error(
-            "Session Expired. Token needs to be refreshed or user needs to re-authenticate."
-          );
-        } else {
-          console.error("Error making the GET request:", error);
-        }
-      }
-    },
-
     async handleClockInData() {
       try {
         await this.checkTokenExpiration();
@@ -560,62 +451,45 @@ export default defineComponent({
           "Content-Type": "application/json",
         };
 
-        let coordinates = null;
-        try {
-          coordinates = await Geolocation.getCurrentPosition();
-        } catch (gpsError) {
-          console.error("GPS not available:", gpsError.message);
-          // Continue without GPS coordinates
-        }
+        const coordinates = await Geolocation.getCurrentPosition(); // Re-check for GPS just in case.
 
         if (this.hasBreaktime) {
-          console.log("Using Break Time");
           const payload = {
             date: this.date,
             time: this.time,
-            // timezoneName: this.timezoneName,
-            // timezoneOffset: this.timezoneOffset,
-            // note: null,
-            // latitude: coordinates?.coords.latitude,
-            // longitude: coordinates?.coords.longitude,
+            latitude: coordinates.coords.latitude,
+            longitude: coordinates.coords.longitude,
           };
           const breakTimeApiUrl = `${baseURL}api/v1/break-time`;
-
           await axios.post(breakTimeApiUrl, payload, { headers });
-          await this.breaktimeConfig();
         } else {
-          console.log("Using Attendance");
           const payload = {
             date: this.date,
             time: this.time,
             timezoneName: this.timezoneName,
             timezoneOffset: this.timezoneOffset,
+            latitude: coordinates.coords.latitude,
+            longitude: coordinates.coords.longitude,
           };
           const attendanceApiUrl = `${baseURL}api/v3/attendance/employees/records`;
-
           if (this.employeeAlreadyPunchedIn) {
             await axios.put(attendanceApiUrl, payload, { headers });
           } else {
             await axios.post(attendanceApiUrl, payload, { headers });
           }
-          await this.checkState();
         }
-
         this.showAlert(this.toastMessage);
+        await this.updateClockState(); // Refresh the state after action
       } catch (error) {
-        console.error(
-          "Error making the API request: ",
-          error.response?.data?.error?.message
-        );
-
-        this.showErrorMessage(error.response?.data?.error?.message);
+        const errorMessage = error.response?.data?.error?.message || "An unknown error occurred.";
+        console.error("Error making the API request: ", errorMessage);
+        this.showErrorMessage(errorMessage);
       }
     },
-
     async showAlert(message) {
       try {
         const toast = await toastController.create({
-          message: `${message}!`,
+          message: `Successfully ${message}!`,
           duration: 3000,
           position: "top",
           icon: "alert-circle-outline",
@@ -631,14 +505,12 @@ export default defineComponent({
         console.log(error.message);
       }
     },
-
     openModal() {
       this.isModalOpen = true;
     },
     closeModal() {
       this.isModalOpen = false;
     },
-
     async showErrorMessage(message) {
       try {
         const toast = await toastController.create({
@@ -658,7 +530,6 @@ export default defineComponent({
         console.error("Error displaying toast:", error);
       }
     },
-
     fetchTheme() {
       const storedThemeData = localStorage.getItem("themeData");
       const themeData = storedThemeData ? JSON.parse(storedThemeData) : {};
@@ -675,8 +546,6 @@ export default defineComponent({
   },
   created() {
     this.fetchTheme();
-    const token = localStorage.getItem("token");
-    console.log("Token on ClockInModal: ", token);
   },
   beforeDestroy() {
     clearInterval(this.updateInterval);
@@ -684,4 +553,6 @@ export default defineComponent({
 });
 </script>
 
-<style scoped></style>
+<style scoped>
+/* Keeping original styles */
+</style>
