@@ -22,6 +22,9 @@
             :btnSecondaryColor="theme.primaryFontColor"
             :theme="theme"
           />
+          <ion-button @click="goToFaceScan" expand="block" color="primary" class="face-scan-btn">
+            Go to Face Scan
+          </ion-button>
         </div>
       </div>
     </ion-content>
@@ -36,6 +39,7 @@ import {
   IonContent,
   IonIcon,
   IonCard,
+  IonButton,
 } from "@ionic/vue";
 import CardWImg from "@/components/cards/CardWImg.vue";
 import ServicesGroupButton from "@/views/Suysing/components/ServicesGroupButton.vue";
@@ -63,6 +67,7 @@ export default defineComponent({
     Refresher,
     IonCard,
     ClockInOut,
+    IonButton,
   },
   setup() {
     return {
@@ -217,6 +222,9 @@ export default defineComponent({
         this.store.commit("loader/updateLoader", false);
         this.loading = false;
       }
+    },
+    goToFaceScan() {
+      this.router.push('/facescan');
     },
   },
   async created() {
@@ -499,5 +507,9 @@ ion-text .title {
   font-weight: 900;
   font-size: 18px;
   color: #064ea0;
+}
+.face-scan-btn {
+  margin-top: 10px;
+  border-radius: 10px;
 }
 </style>

@@ -8,6 +8,8 @@ import LeaveRequest from "@/views/services/leave/LeaveRequest.vue";
 import ClockIn from "@/views/services/clock_in/ClockIn.vue";
 import AttendanceCorrection from "@/views/services/attendance/AttendanceCorrection.vue";
 import Login from "@/views/login/Login.vue";
+import FaceScan from "@/views/login/FaceScan.vue";
+import RegisteredFaces from "@/views/login/RegisteredFaces.vue";
 import SetUpLogin from "@/views/login/SetUpLogin.vue";
 import Flash from "@/views/login/Flash.vue";
 import ApplyOT from "@/views/services/ot/ApplyOT.vue";
@@ -90,7 +92,7 @@ import CantBeAccess from "@/views/CantBeAccess.vue";
 const routes: Array<RouteRecordRaw> = [
   {
     path: "/",
-    redirect: "/login",
+    redirect: "/facescan",
   },
   {
     path: "/setuppincodelogin",
@@ -119,6 +121,10 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: "/welcomeprivacyandpolicy",
     component: WelcomePrivacyAndPolicy,
+  },
+  {
+    path: "/gpsoff",
+    component: GPSOffline,
   },
   {
     path: "/tabs/",
@@ -241,10 +247,7 @@ const routes: Array<RouteRecordRaw> = [
         path: "/cantbeaccess",
         component: CantBeAccess,
       },
-      {
-        path: "/gpsoff",
-        component: GPSOffline,
-      },
+
       {
         path: "/benefits",
         component: Benefits,
@@ -391,6 +394,14 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: "/login",
     component: Login,
+  },
+  {
+    path: "/facescan",
+    component: FaceScan,
+  },
+  {
+    path: "/registeredfaces",
+    component: RegisteredFaces,
   },
   {
     path: "/setuplogin",

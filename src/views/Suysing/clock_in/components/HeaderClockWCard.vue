@@ -114,7 +114,8 @@ export default defineComponent({
   },
   methods: {
     navigateBack() {
-      this.$router.go(-1);
+      this.$emit('back');
+      // this.$router.go(-1);
     },
     navigateNotification() {
       this.$router.push("/notification");
