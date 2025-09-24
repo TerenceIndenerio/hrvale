@@ -9,17 +9,6 @@
       }"
     >
       <Refresher />
-      <ion-header class="face-scan-header">
-        <div class="face-scan-title">
-          <img
-            src="/assets/images/hrvaleofficiallogofinal.png"
-            alt="HRVale Logo"
-            class="header-logo"
-          />
-          <h4>Face Scan</h4>
-        </div>
-      </ion-header>
-
       <div v-if="loading" class="loading-overlay">
         <div class="loading-content">
           <ion-spinner name="crescent" color="primary"></ion-spinner>
@@ -27,109 +16,61 @@
           <p>Please wait while we initialize the camera and models</p>
         </div>
       </div>
+      <div class="camera-container" v-else>
+        <div class="video-wrapper">
+          <video
+            ref="video"
+            autoplay
+            playsinline
+            muted
+            class="face-video"
+            :style="{
+              display: cameraOn ? 'block' : 'none',
+            }"
+          ></video>
+          <canvas
+            ref="canvas"
+            class="face-canvas"
+            :style="{
+              display: cameraOn ? 'block' : 'none',
+            }"
+          ></canvas>
+          <div class="camera-placeholder" v-if="!cameraOn">
+            <ion-icon
+              name="camera-outline"
+              size="large"
+              color="medium"
+            ></ion-icon>
+            <p>Camera is off</p>
+          </div>
+          <div class="scan-overlay" v-if="processing && cameraOn">
+            <ion-spinner name="crescent" color="primary"></ion-spinner>
+            <p class="scan-text">Scanning...</p>
+          </div>
+        </div>
+      </div>
 
-      <ion-grid v-else class="face-scan-grid">
-        <ion-row>
-          <ion-col size="12" class="face-scan-col">
-            <ion-card class="face-scan-card">
-              <ion-card-header class="face-scan-card-header">
-                <ion-card-title class="face-scan-card-title">
-                  {{ mode === "auth" ? "Authentication" : "Registration" }}
-                </ion-card-title>
-                <ion-card-subtitle class="face-scan-card-subtitle">
-                  Position your face in the camera for
-                  {{ mode === "auth" ? "authentication" : "registration" }}.
-                </ion-card-subtitle>
-              </ion-card-header>
+      <ion-button @click="switchMode" class="mode-switch-button">
+        <ion-icon name="swap-horizontal" slot="icon-only"></ion-icon>
+      </ion-button>
 
-              <ion-card-content class="face-scan-card-content">
-                <div class="camera-container">
-                  <div class="video-wrapper">
-                    <video
-                      ref="video"
-                      autoplay
-                      playsinline
-                      muted
-                      class="face-video"
-                      :style="{
-                        display: cameraOn ? 'block' : 'none',
-                      }"
-                    ></video>
-                    <canvas
-                      ref="canvas"
-                      class="face-canvas"
-                      :style="{
-                        display: cameraOn ? 'block' : 'none',
-                      }"
-                    ></canvas>
-                    <div class="camera-placeholder" v-if="!cameraOn">
-                      <ion-icon
-                        name="camera-outline"
-                        size="large"
-                        color="medium"
-                      ></ion-icon>
-                      <p>Camera is off</p>
-                    </div>
-                    <div class="scan-overlay" v-if="processing && cameraOn">
-                      <ion-spinner
-                        name="crescent"
-                        color="primary"
-                      ></ion-spinner>
-                      <p class="scan-text">Scanning...</p>
-                    </div>
-                  </div>
-                </div>
-
-                <ion-button
-                  @click="cameraOn ? stopCamera() : startCamera()"
-                  expand="block"
-                  color="primary"
-                  class="camera-button"
-                  :disabled="loading"
-                >
-                  <ion-icon
-                    :name="cameraOn ? 'videocam-off' : 'videocam'"
-                    slot="start"
-                  ></ion-icon>
-                  {{ cameraOn ? "Stop Camera" : "Start Camera" }}
-                </ion-button>
-
-                <ion-button
-                  @click="switchMode"
-                  expand="block"
-                  fill="outline"
-                  color="primary"
-                  class="mode-switch-button"
-                >
-                  <ion-icon name="swap-horizontal" slot="start"></ion-icon>
-                  Switch to {{ mode === "auth" ? "Register" : "Auth" }}
-                </ion-button>
-
-                <ion-button
-                  v-if="mode === 'register'"
-                  @click="registerFace"
-                  expand="block"
-                  color="primary"
-                  :disabled="processing || !cameraOn"
-                  class="register-button"
-                >
-                  <ion-icon name="person-add" slot="start"></ion-icon>
-                  Register Face
-                </ion-button>
-              </ion-card-content>
-            </ion-card>
-          </ion-col>
-        </ion-row>
-      </ion-grid>
-      <ion-card v-if="mode === 'register'" class="registration-card">
-        <ion-card-header class="registration-card-header">
-          <ion-card-title class="registration-card-title">
+      <ion-button
+        v-if="mode === 'enroll'"
+        @click="enrollFace"
+        :disabled="processing || !cameraOn"
+        class="enroll-button"
+      >
+        <ion-icon name="person-add" slot="icon-only"></ion-icon>
+      </ion-button>
+      <ion-card v-if="mode === 'enroll'" class="enrollment-card">
+        <ion-card-header class="enrollment-card-header">
+          <ion-card-title class="enrollment-card-title">
             <ion-icon name="person-add-outline" class="card-icon"></ion-icon>
-            Register New Face
+            Enroll New Face
           </ion-card-title>
         </ion-card-header>
 
-        <ion-card-content class="registration-card-content">
+        <ion-card-content class="enrollment-card-content">
           <!-- Search Box -->
           <div class="search-container">
             <input
@@ -155,20 +96,20 @@
               <div class="employee-name">{{ employee.name }}</div>
               <div class="employee-id">ID: {{ employee.id }}</div>
               <div v-if="employee.face_signature" class="face-status">
-                Has registered face
+                Has enrolled face
               </div>
             </div>
           </div>
 
           <ion-button
-            @click="registerFace"
+            @click="enrollFace"
             expand="block"
             color="primary"
             :disabled="processing || !cameraOn || !selectedEmployee"
-            class="register-submit-button"
+            class="enroll-submit-button"
           >
             <ion-icon name="checkmark-circle" slot="start"></ion-icon>
-            Register Face
+            Enroll Face
           </ion-button>
 
           <ion-button
@@ -179,7 +120,7 @@
             class="manage-faces-button"
           >
             <ion-icon name="list-outline" slot="start"></ion-icon>
-            Manage All Registered Faces
+            Manage All Enrolled Faces
           </ion-button>
         </ion-card-content>
       </ion-card>
@@ -242,7 +183,7 @@ export default defineComponent({
   data() {
     return {
       camera,
-      loading: false,
+      loading: true,
       modelsLoaded: false,
       stream: null,
       processing: false,
@@ -282,6 +223,7 @@ export default defineComponent({
       );
       this.modelsLoaded = true;
       this.loadStoredFaces();
+      this.startCamera();
       // Fetch employees for registration
       await this.fetchEmployees();
     } catch (error) {
@@ -289,6 +231,8 @@ export default defineComponent({
       await this.presentAlert(
         "Failed to load face detection models. Please try again later."
       );
+    } finally {
+      this.loading = false;
     }
   },
   methods: {
@@ -317,10 +261,10 @@ export default defineComponent({
     },
     async switchMode() {
       if (this.mode === "auth") {
-        // Switching to register mode - require password
-        const password = prompt("Enter admin password to access registration:");
+        // Switching to enroll mode - require password
+        const password = prompt("Enter admin password to access enrollment:");
         if (password === "admin123") {
-          this.mode = "register";
+          this.mode = "enroll";
         } else {
           alert("Incorrect password");
         }
@@ -487,7 +431,7 @@ export default defineComponent({
         console.error("Failed to fetch employees:", error);
       }
     },
-    async registerFace() {
+    async enrollFace() {
       this.processing = true;
       try {
         if (!this.selectedEmployee) {
@@ -518,7 +462,7 @@ export default defineComponent({
           localStorage.setItem("faceIds", JSON.stringify(stored));
           this.loadStoredFaces();
           this.presentAlert(
-            `Face registered successfully for ${this.selectedEmployee.name}!`
+            `Face enrolled successfully for ${this.selectedEmployee.name}!`
           );
           try {
             let employeesData = JSON.parse(
@@ -558,8 +502,8 @@ export default defineComponent({
           this.presentAlert("No face detected. Please try again.");
         }
       } catch (error) {
-        console.error("Error registering face:", error);
-        this.presentAlert("Error registering face. Please try again.");
+        console.error("Error enrolling face:", error);
+        this.presentAlert("Error enrolling face. Please try again.");
       }
       this.processing = false;
     },
@@ -621,12 +565,12 @@ export default defineComponent({
         "#ffffff"
       );
     },
-    goToRegisteredFaces() {
+    goToEnrolledFaces() {
       const password = prompt(
-        "Enter admin password to manage registered faces:"
+        "Enter admin password to manage enrolled faces:"
       );
       if (password === "admin123") {
-        this.router.push("/registeredfaces");
+        this.router.push("/enrolledfaces");
       } else {
         alert("Incorrect password");
       }
@@ -862,10 +806,10 @@ export default defineComponent({
 
 <style scoped>
 .face-scan-content {
-  --padding-start: 16px;
-  --padding-end: 16px;
-  --padding-top: 16px;
-  --padding-bottom: 16px;
+  --padding-start: 0;
+  --padding-end: 0;
+  --padding-top: 0;
+  --padding-bottom: 0;
 }
 
 .face-scan-header {
@@ -966,18 +910,18 @@ export default defineComponent({
 }
 
 .video-wrapper {
-  position: relative;
-  border-radius: 16px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   overflow: hidden;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  background: #000;
 }
 
 .face-video {
   width: 100%;
-  height: auto;
-  display: block;
-  border-radius: 16px;
+  height: 100%;
+  object-fit: cover;
 }
 
 .face-canvas {
@@ -1034,19 +978,25 @@ export default defineComponent({
 }
 
 .mode-switch-button {
-  --border-radius: 12px;
-  margin-bottom: 12px;
-  font-weight: 600;
-  height: 48px;
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  --border-radius: 50%;
+  width: 60px;
+  height: 60px;
 }
 
-.register-button {
-  --border-radius: 12px;
-  font-weight: 600;
-  height: 48px;
+.enroll-button {
+  position: absolute;
+  top: 50%;
+  right: 16px;
+  transform: translateY(-50%);
+  --border-radius: 50%;
+  width: 60px;
+  height: 60px;
 }
 
-.registration-card {
+.enrollment-card {
   width: 100%;
   max-width: 400px;
   --background: rgba(255, 255, 255, 0.95);
@@ -1059,12 +1009,12 @@ export default defineComponent({
   z-index: 1;
 }
 
-.registration-card-header {
+.enrollment-card-header {
   text-align: center;
   padding: 20px 20px 0 20px;
 }
 
-.registration-card-title {
+.enrollment-card-title {
   --color: #2c3e50;
   font-size: 20px;
   font-weight: 700;
@@ -1078,7 +1028,7 @@ export default defineComponent({
   font-size: 20px;
 }
 
-.registration-card-content {
+.enrollment-card-content {
   padding: 20px;
 }
 
@@ -1145,7 +1095,7 @@ export default defineComponent({
   font-style: italic;
 }
 
-.registration-item {
+.enrollment-item {
   --border-radius: 12px;
   --padding-start: 16px;
   --inner-padding-end: 16px;
@@ -1153,7 +1103,7 @@ export default defineComponent({
   --background: rgba(255, 255, 255, 0.8);
 }
 
-.register-submit-button {
+.enroll-submit-button {
   --border-radius: 12px;
   font-weight: 600;
   height: 48px;
