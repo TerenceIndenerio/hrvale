@@ -181,12 +181,12 @@
       </ion-card>
 
       <ion-spinner v-if="loading" name="crescent"></ion-spinner>
-    <ClockInModal
-      :is-open="authenticated"
-      :scanned-username="scannedUsername"
-      :scanned-name="scannedName"
-      @didDismiss="closeAuthenticated"
-    />
+      <ClockInModal
+        :is-open="authenticated"
+        :scanned-username="scannedUsername"
+        :scanned-name="scannedName"
+        @didDismiss="closeAuthenticated"
+      />
     </ion-content>
   </ion-page>
 </template>
@@ -471,7 +471,6 @@ export default defineComponent({
           return;
         }
 
-
         const video = this.$refs.video;
         const detection = await faceapi
           .detectSingleFace(video, new faceapi.TinyFaceDetectorOptions())
@@ -497,23 +496,35 @@ export default defineComponent({
             `Face registered successfully for ${this.selectedEmployee.name}!`
           );
           try {
-            let employeesData = JSON.parse(localStorage.getItem("employeesData") || "[]");
-            const employeeIndex = employeesData.findIndex(emp => emp.id === this.selectedEmployee.id);
+            let employeesData = JSON.parse(
+              localStorage.getItem("employeesData") || "[]"
+            );
+            const employeeIndex = employeesData.findIndex(
+              (emp) => emp.id === this.selectedEmployee.id
+            );
 
             if (employeeIndex !== -1) {
-              employeesData[employeeIndex].face_signature = JSON.stringify(Array.from(detection.descriptor));
-              localStorage.setItem("employeesData", JSON.stringify(employeesData));
+              employeesData[employeeIndex].face_signature = JSON.stringify(
+                Array.from(detection.descriptor)
+              );
+              localStorage.setItem(
+                "employeesData",
+                JSON.stringify(employeesData)
+              );
               this.presentAlert(
                 `Face signature updated locally for ${this.selectedEmployee.name}!`
               );
             } else {
-               this.presentAlert(
-                `Employee not found in local storage!`
-              );
+              this.presentAlert(`Employee not found in local storage!`);
             }
           } catch (error) {
-            console.error("Error updating face signature in local storage:", error);
-            this.presentAlert("Error updating face signature in local storage. Please try again.");
+            console.error(
+              "Error updating face signature in local storage:",
+              error
+            );
+            this.presentAlert(
+              "Error updating face signature in local storage. Please try again."
+            );
           }
           // Clear selection
           this.selectedEmployee = null;
@@ -618,21 +629,31 @@ export default defineComponent({
 
         this.store.commit("loader/updateLoader", true);
 
-        const authResult = await this.store.dispatch("auth/biometricLogin", employee);
+        const authResult = await this.store.dispatch(
+          "auth/biometricLogin",
+          employee
+        );
 
         if (authResult.success) {
+          console.log(
+            "Authentication successful:",
+            authResult.data.access_token
+          );
           localStorage.setItem("access_token", authResult.data.access_token);
           localStorage.setItem("refresh_token", authResult.data.refresh_token);
 
           await this.fetchStoredTheme();
-          await this.hasPincode();
+          // await this.hasPincode();
           localStorage.setItem("hasSetup", true);
 
           const userCredentials = {
             username: employee.username || employee.id,
             client: "suysing",
           };
-          localStorage.setItem("userCredentials", JSON.stringify(userCredentials));
+          localStorage.setItem(
+            "userCredentials",
+            JSON.stringify(userCredentials)
+          );
 
           this.authenticated = true;
         } else {
@@ -646,63 +667,63 @@ export default defineComponent({
         this.store.commit("loader/updateLoader", false);
       }
     },
-    async fetchToken() {
-      try {
-        const accessToken = localStorage.getItem("access_token");
-        const refreshToken = localStorage.getItem("refresh_token");
-        const baseURL = localStorage.getItem("baseUrl");
+    // async fetchToken() {
+    //   try {
+    //     const accessToken = localStorage.getItem("access_token");
+    //     const refreshToken = localStorage.getItem("refresh_token");
+    //     const baseURL = localStorage.getItem("baseUrl");
 
-        if (!accessToken || !refreshToken || !baseURL) {
-          throw new Error("Missing access_token, refresh_token, or baseURL");
-        }
+    //     if (!accessToken || !refreshToken || !baseURL) {
+    //       throw new Error("Missing access_token, refresh_token, or baseURL");
+    //     }
 
-        const url = new URL(baseURL);
-        const tokenUrl = `${url.origin}/web/index.php/auth/token`;
+    //     const url = new URL(baseURL);
+    //     const tokenUrl = `${url.origin}/web/index.php/auth/token`;
 
-        const response = await axios.post(tokenUrl, {
-          token: accessToken,
-          refresh_token: refreshToken,
-        });
-        console.log("token response ", response);
+    //     const response = await axios.post(tokenUrl, {
+    //       token: accessToken,
+    //       // refresh_token: refreshToken,
+    //     });
+    //     console.log("token response ", response);
 
-        localStorage.setItem("token", response.data.token);
-      } catch (error) {
-        console.log(error);
-      }
-    },
-    async hasPincode() {
-      try {
-        await this.fetchToken();
+    //     localStorage.setItem("token", response.data.token);
+    //   } catch (error) {
+    //     console.log(error);
+    //   }
+    // },
+    // async hasPincode() {
+    //   try {
+    //     await this.fetchToken();
 
-        const storedToken = localStorage.getItem("token");
-        const baseURL = localStorage.getItem("baseUrl");
-        const authToken = `Bearer ${storedToken}`;
-        const apiUrl = baseURL + `api/ess/pincode`;
-        const headers = { Authorization: authToken };
-        const response = await axios.get(apiUrl, { headers });
+    //     const storedToken = localStorage.getItem("token");
+    //     const baseURL = localStorage.getItem("baseUrl");
+    //     const authToken = `Bearer ${storedToken}`;
+    //     const apiUrl = baseURL + `api/ess/pincode`;
+    //     const headers = { Authorization: authToken };
+    //     const response = await axios.get(apiUrl, { headers });
 
-        await this.fetchUserDetails();
+    //     await this.fetchUserDetails();
 
-        if (response.data.data.pincode) {
-          try {
-            await runBackgroundScript();
+    //     if (response.data.data.pincode) {
+    //       try {
+    //         await runBackgroundScript();
 
-            localStorage.setItem("pincode", response.data.data.pincode);
-            // this.router.push("/WelcomeTermsAndCondition");
-          } catch (innerError) {
-            console.log(innerError.message);
-            location.reload();
-          }
-        } else {
-          this.router.push("/setuppincodelogin");
-        }
-      } catch (error) {
-        console.log(error.message);
-        localStorage.setItem("hasSetup", false);
-      } finally {
-        this.store.commit("loader/updateLoader", false);
-      }
-    },
+    //         localStorage.setItem("pincode", response.data.data.pincode);
+    //         // this.router.push("/WelcomeTermsAndCondition");
+    //       } catch (innerError) {
+    //         console.log(innerError.message);
+    //         location.reload();
+    //       }
+    //     } else {
+    //       this.router.push("/setuppincodelogin");
+    //     }
+    //   } catch (error) {
+    //     console.log(error.message);
+    //     localStorage.setItem("hasSetup", false);
+    //   } finally {
+    //     this.store.commit("loader/updateLoader", false);
+    //   }
+    // },
     async fetchUserDetails() {
       try {
         const storedToken = localStorage.getItem("token");

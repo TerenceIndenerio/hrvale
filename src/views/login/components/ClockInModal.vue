@@ -174,7 +174,7 @@
                 >
                 <p>
                   {{ breakDetails.punchOutPmBreak.pmTime || "" }}
-                  </p>
+                </p>
               </ion-label>
             </ion-item>
           </ion-list>
@@ -668,6 +668,8 @@ export default defineComponent({
   },
   created() {
     this.fetchTheme();
+    const token = localStorage.getItem("token");
+    console.log("Token on ClockInModal: ", token);
   },
   beforeDestroy() {
     clearInterval(this.updateInterval);
@@ -675,5 +677,4 @@ export default defineComponent({
 });
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>
