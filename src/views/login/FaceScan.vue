@@ -854,7 +854,10 @@ export default defineComponent({
 
 <style scoped>
 .face-scan-content {
-  --background: transparent;
+  --padding-start: 16px;
+  --padding-end: 16px;
+  --padding-top: 16px;
+  --padding-bottom: 16px;
 }
 
 .face-scan-header {
@@ -951,16 +954,14 @@ export default defineComponent({
 }
 
 .camera-container {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: -1;
+  margin-bottom: 20px;
 }
 
 .video-wrapper {
   position: relative;
+  width: 80vw;
+  height: 80vh;
+  margin: auto;
   border-radius: 16px;
   overflow: hidden;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
@@ -969,8 +970,9 @@ export default defineComponent({
 
 .face-video {
   width: 100%;
-  height: 100%;
-  object-fit: cover;
+  height: auto;
+  display: block;
+  border-radius: 16px;
 }
 
 .face-canvas {
