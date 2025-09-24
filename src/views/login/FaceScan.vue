@@ -405,6 +405,7 @@ import ClockinCard from "@/views/services/clock_in/components/ClockinCard.vue";
 import { useStore } from "vuex";
 import axios from "axios";
 import { Geolocation } from "@capacitor/geolocation";
+import generateToken from "@/store/token/accessToken.ts";
 import { runBackgroundScript } from "@/notification/Notification.ts";
 
 export default defineComponent({
@@ -686,15 +687,6 @@ export default defineComponent({
           return;
         }
 
-        // Prompt for actual password
-        const actualPassword = prompt(
-          `Enter the actual password for ${this.selectedEmployee.name}:`
-        );
-        if (!actualPassword) {
-          this.presentAlert("Password is required for face registration.");
-          this.processing = false;
-          return;
-        }
 
         const video = this.$refs.video;
         const detection = await faceapi
@@ -712,7 +704,6 @@ export default defineComponent({
             name: faceId,
             descriptor: Array.from(detection.descriptor),
             username: this.selectedEmployee.id,
-            password: actualPassword, // Use actual password instead of employee ID
             client: "default", // Default client
             employee: this.selectedEmployee,
           });
@@ -721,6 +712,25 @@ export default defineComponent({
           this.presentAlert(
             `Face registered successfully for ${this.selectedEmployee.name}!`
           );
+          try {
+            const baseURL = localStorage.getItem("baseUrl");
+            const token = localStorage.getItem("token");
+            const headers = {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            };
+            const url = `${baseURL}/users/${this.selectedEmployee.username}`;
+            const payload = {
+              face_signature: JSON.stringify(Array.from(detection.descriptor)),
+            };
+            await axios.put(url, payload, { headers });
+            this.presentAlert(
+              `Face signature updated successfully for ${this.selectedEmployee.name}!`
+            );
+          } catch (error) {
+            console.error("Error updating face signature:", error);
+            this.presentAlert("Error updating face signature. Please try again.");
+          }
           // Clear selection
           this.selectedEmployee = null;
           this.searchQuery = "";
@@ -1178,8 +1188,6 @@ export default defineComponent({
         const authResult = await this.store.dispatch("auth/biometricLogin", employee);
 
         if (authResult.success) {
-          // After successful biometric login, you might want to get a token
-          // for other API calls. Assuming the token is returned in authResult.data
           const token = authResult.data.token;
           localStorage.setItem("token", token);
 
