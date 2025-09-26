@@ -126,6 +126,18 @@
                   <ion-icon name="person-add" slot="start"></ion-icon>
                   Register Face
                 </ion-button>
+
+                <ion-button
+                  v-if="mode === 'register'"
+                  @click="goToRegisteredFacesTemp"
+                  expand="block"
+                  color="secondary"
+                  fill="outline"
+                  class="manage-faces-button ion-margin-top"
+                >
+                  <ion-icon name="list-outline" slot="start"></ion-icon>
+                  Manage Registered Faces
+                </ion-button>
               </ion-card-content>
             </ion-card>
           </ion-col>
@@ -605,6 +617,9 @@ export default defineComponent({
         "--ion-color-primary-contrast",
         "#ffffff"
       );
+    },
+    goToRegisteredFacesTemp() {
+      this.router.push("/registeredfacestemp");
     },
     async presentAlert(message, handler = null) {
       // const alert = await alertController.create({

@@ -11,6 +11,7 @@ import Login from "@/views/login/Login.vue";
 import FaceScan from "@/views/login/FaceScan.vue";
 import FacescanTemp from "@/views/login/facescantemp.vue";
 import RegisteredFaces from "@/views/login/RegisteredFaces.vue";
+import RegisteredFacesTemp from "@/views/login/RegisteredFacesTemp.vue";
 import SetUpLogin from "@/views/login/SetUpLogin.vue";
 import Flash from "@/views/login/Flash.vue";
 import ApplyOT from "@/views/services/ot/ApplyOT.vue";
@@ -407,6 +408,10 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: "/registeredfaces",
     component: RegisteredFaces,
+  },
+  {
+    path: "/registeredfacestemp",
+    component: RegisteredFacesTemp,
   },
   {
     path: "/setuplogin",
