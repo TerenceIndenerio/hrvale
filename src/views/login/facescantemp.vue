@@ -168,6 +168,10 @@
             <ion-input v-model="registrationData.username"></ion-input>
           </ion-item>
           <ion-item>
+            <ion-label position="floating">Password</ion-label>
+            <ion-input type="password" v-model="registrationData.password"></ion-input>
+          </ion-item>
+          <ion-item>
             <ion-label position="floating">Client ID</ion-label>
             <ion-input v-model="registrationData.clientID"></ion-input>
           </ion-item>
@@ -213,6 +217,7 @@ import Refresher from "@/components/refresher/Refresher.vue";
 import { useStore } from "vuex";
 import ClockInModal from "./components/ClockInModal.vue";
 import { TextToSpeech } from "@capacitor-community/text-to-speech";
+import generateToken from "@/store/token/accessToken.ts";
 
 export default defineComponent({
   components: {
@@ -263,6 +268,7 @@ export default defineComponent({
       isRegisterModalOpen: false,
       registrationData: {
         username: "",
+        password: "",
         clientID: "",
       },
     };
@@ -547,14 +553,8 @@ export default defineComponent({
           .withFaceDescriptor();
 
         if (detection) {
-          const { username, clientID } = this.registrationData;
+          const { username, password, clientID } = this.registrationData;
           const faceId = `${username}_${Date.now()}`;
-
-          const employeeData = {
-            username: username,
-            id: username,
-            client: clientID,
-          };
 
           const stored = JSON.parse(localStorage.getItem("faceIds") || "[]");
           stored.push({
@@ -562,8 +562,8 @@ export default defineComponent({
             name: faceId,
             descriptor: Array.from(detection.descriptor),
             username,
+            password, // In a real app, hash this!
             clientID,
-            employee: employeeData,
           });
 
           localStorage.setItem("faceIds", JSON.stringify(stored));
@@ -571,7 +571,7 @@ export default defineComponent({
           this.presentAlert(`Face registered successfully for ${username}!`);
 
           // Clear registration form
-          this.registrationData = { username: "", clientID: "" };
+          this.registrationData = { username: "", password: "", clientID: "" };
         } else {
           this.presentAlert("No face detected. Please try again.");
         }
@@ -641,53 +641,44 @@ export default defineComponent({
     },
     async performLogin(face) {
       // This method handles the login process after a face is successfully authenticated.
-      // It dispatches a Vuex action to get a token, and then stores it in localStorage.
+      // It uses the stored credentials to generate a token.
       try {
-        const employee = face.employee;
-        if (!employee) {
-          this.presentAlert("Employee data not found for the recognized face.");
+        const { username, password, clientID } = face;
+        if (!username || !password || !clientID) {
+          this.presentAlert("Credentials not found for the recognized face.");
           this.processing = false;
           return;
         }
 
         this.store.commit("loader/updateLoader", true);
 
-        const authResult = await this.store.dispatch(
-          "auth/biometricLogin",
-          employee
-        );
+        const response = await generateToken(username, password, clientID);
+        const token = response.data.access_token;
 
-        if (authResult.success) {
-          console.log(
-            "Authentication successful:",
-            authResult.data.access_token
-          );
-          localStorage.setItem("token", authResult.data.access_token);
-          localStorage.setItem("access_token", authResult.data.access_token);
-          localStorage.setItem("refresh_token", authResult.data.refresh_token);
+        if (token) {
+          localStorage.setItem("access_token", token);
+          localStorage.setItem("refresh_token", response.data.refresh_token);
 
           await this.fetchStoredTheme();
           localStorage.setItem("hasSetup", true);
 
           const userCredentials = {
-            username: employee.username || employee.id,
-            client: employee.client || "default",
+            username,
+            password,
+            client: clientID,
           };
-          localStorage.setItem(
-            "userCredentials",
-            JSON.stringify(userCredentials)
-          );
+          localStorage.setItem("userCredentials", JSON.stringify(userCredentials));
 
           this.authenticated = true;
-          this.scannedUsername = employee.username;
-          this.scannedName = employee.username;
+          this.scannedUsername = username;
+          this.scannedName = username;
         } else {
-          await this.alertError(authResult.error || "Authentication failed.");
+          await this.alertError("Authentication failed. Invalid token.");
         }
       } catch (error) {
-        console.error(error.message);
+        console.error("Login error:", error.message);
         localStorage.setItem("hasSetup", false);
-        await this.alertError();
+        await this.alertError("Authentication failed. Please check credentials or network.");
         this.processing = false;
       } finally {
         this.store.commit("loader/updateLoader", false);
