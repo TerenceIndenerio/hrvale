@@ -289,18 +289,19 @@ export default defineComponent({
       );
       this.modelsLoaded = true;
       this.loadStoredFaces();
+
+      this.$nextTick(async () => {
+        if (this.modelsLoaded) {
+          await this.startCamera();
+        }
+        this.loading = false;
+      });
     } catch (error) {
       console.error("Error during component mount:", error);
       await this.presentAlert(
         "Initialization failed. Please refresh the page."
       );
-    } finally {
       this.loading = false;
-      this.$nextTick(async () => {
-        if (this.modelsLoaded) {
-          await this.startCamera();
-        }
-      });
     }
   },
   methods: {
