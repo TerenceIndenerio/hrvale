@@ -168,10 +168,6 @@
             <ion-input v-model="registrationData.username"></ion-input>
           </ion-item>
           <ion-item>
-            <ion-label position="floating">Password</ion-label>
-            <ion-input type="password" v-model="registrationData.password"></ion-input>
-          </ion-item>
-          <ion-item>
             <ion-label position="floating">Client ID</ion-label>
             <ion-input v-model="registrationData.clientID"></ion-input>
           </ion-item>
@@ -215,10 +211,8 @@ import { useRouter } from "vue-router";
 import { defineComponent } from "vue";
 import Refresher from "@/components/refresher/Refresher.vue";
 import { useStore } from "vuex";
-import axios from "axios";
 import ClockInModal from "./components/ClockInModal.vue";
 import { TextToSpeech } from "@capacitor-community/text-to-speech";
-import generateToken from "@/store/token/accessToken.ts";
 
 export default defineComponent({
   components: {
@@ -269,7 +263,6 @@ export default defineComponent({
       isRegisterModalOpen: false,
       registrationData: {
         username: "",
-        password: "",
         clientID: "",
       },
     };
@@ -289,12 +282,12 @@ export default defineComponent({
       );
       this.modelsLoaded = true;
       this.loadStoredFaces();
+      this.loading = false;
 
       this.$nextTick(async () => {
         if (this.modelsLoaded) {
           await this.startCamera();
         }
-        this.loading = false;
       });
     } catch (error) {
       console.error("Error during component mount:", error);
@@ -342,16 +335,21 @@ export default defineComponent({
         this.mode = "auth";
       }
     },
-    refreshPage() {
-      // Option 1: reload everything
-      window.location.reload();
+    async refreshPage() {
+      this.processing = false;
+      this.authenticated = false;
+      this.scannedUsername = "";
+      this.scannedName = "";
+      this.isRegisterModalOpen = false;
+      this.registrationData = {
+        username: "",
+        clientID: "",
+      };
 
-      // Option 2 (if you only want to refresh some state):
-      // this.processing = false;
-      // this.selectedEmployee = null;
-      // this.searchQuery = '';
-      // this.showEmployeeList = true;
-      // (whatever state reset you need)
+      // Stop and restart the camera to ensure a clean state
+      this.stopCamera();
+      await this.$nextTick(); // Allow the DOM to update
+      await this.startCamera();
     },
     async processFrames() {
       if (!this.processing && this.modelsLoaded) {
@@ -549,8 +547,14 @@ export default defineComponent({
           .withFaceDescriptor();
 
         if (detection) {
-          const { username, password, clientID } = this.registrationData;
+          const { username, clientID } = this.registrationData;
           const faceId = `${username}_${Date.now()}`;
+
+          const employeeData = {
+            username: username,
+            id: username,
+            client: clientID,
+          };
 
           const stored = JSON.parse(localStorage.getItem("faceIds") || "[]");
           stored.push({
@@ -558,8 +562,8 @@ export default defineComponent({
             name: faceId,
             descriptor: Array.from(detection.descriptor),
             username,
-            password, // In a real app, hash this!
             clientID,
+            employee: employeeData,
           });
 
           localStorage.setItem("faceIds", JSON.stringify(stored));
@@ -567,7 +571,7 @@ export default defineComponent({
           this.presentAlert(`Face registered successfully for ${username}!`);
 
           // Clear registration form
-          this.registrationData = { username: "", password: "", clientID: "" };
+          this.registrationData = { username: "", clientID: "" };
         } else {
           this.presentAlert("No face detected. Please try again.");
         }
@@ -623,125 +627,72 @@ export default defineComponent({
       this.router.push("/registeredfacestemp");
     },
     async presentAlert(message, handler = null) {
-      // const alert = await alertController.create({
-      //   header: "Face Scan",
-      //   message,
-      //   buttons: [
-      //     {
-      //       text: "OK",
-      //       handler,
-      //     },
-      //   ],
-      // });
-      // await alert.present();
+      const alert = await alertController.create({
+        header: "Face Scan",
+        message,
+        buttons: [
+          {
+            text: "OK",
+            handler,
+          },
+        ],
+      });
+      await alert.present();
     },
     async performLogin(face) {
       // This method handles the login process after a face is successfully authenticated.
-      // It uses the stored credentials to generate a token.
+      // It dispatches a Vuex action to get a token, and then stores it in localStorage.
       try {
-        const { username, password, clientID } = face;
-        if (!username || !password || !clientID) {
-          this.presentAlert("Credentials not found for the recognized face.");
+        const employee = face.employee;
+        if (!employee) {
+          this.presentAlert("Employee data not found for the recognized face.");
           this.processing = false;
           return;
         }
 
         this.store.commit("loader/updateLoader", true);
 
-        const response = await generateToken(username, password, clientID);
-        const token = response.data.access_token;
+        const authResult = await this.store.dispatch(
+          "auth/biometricLogin",
+          employee
+        );
 
-        if (token) {
-          localStorage.setItem("access_token", token);
-          localStorage.setItem("refresh_token", response.data.refresh_token);
+        if (authResult.success) {
+          console.log(
+            "Authentication successful:",
+            authResult.data.access_token
+          );
+          localStorage.setItem("token", authResult.data.access_token);
+          localStorage.setItem("access_token", authResult.data.access_token);
+          localStorage.setItem("refresh_token", authResult.data.refresh_token);
 
           await this.fetchStoredTheme();
-          // In a real app, you would likely navigate to a protected route
-          // or fetch user-specific data here.
-          // For this example, we'll just show the success state.
-
           localStorage.setItem("hasSetup", true);
 
           const userCredentials = {
-            username,
-            password,
-            client: clientID,
+            username: employee.username || employee.id,
+            client: employee.client || "default",
           };
-          localStorage.setItem("userCredentials", JSON.stringify(userCredentials));
+          localStorage.setItem(
+            "userCredentials",
+            JSON.stringify(userCredentials)
+          );
 
           this.authenticated = true;
-          this.scannedUsername = username;
-          // You might want to fetch the user's full name here if needed
-          this.scannedName = username;
+          this.scannedUsername = employee.username;
+          this.scannedName = employee.username;
         } else {
-          await this.alertError("Authentication failed. Invalid token.");
+          await this.alertError(authResult.error || "Authentication failed.");
         }
       } catch (error) {
-        console.error("Login error:", error.message);
+        console.error(error.message);
         localStorage.setItem("hasSetup", false);
-        await this.alertError("Authentication failed. Please check credentials or network.");
-        this.processing = false; // Reset processing state on error
+        await this.alertError();
+        this.processing = false;
       } finally {
         this.store.commit("loader/updateLoader", false);
       }
     },
-    // async fetchToken() {
-    //   try {
-    //     const accessToken = localStorage.getItem("access_token");
-    //     const refreshToken = localStorage.getItem("refresh_token");
-    //     const baseURL = localStorage.getItem("baseUrl");
-
-    //     if (!accessToken || !refreshToken || !baseURL) {
-    //       throw new Error("Missing access_token, refresh_token, or baseURL");
-    //     }
-
-    //     const url = new URL(baseURL);
-    //     const tokenUrl = `${url.origin}/web/index.php/auth/token`;
-
-    //     const response = await axios.post(tokenUrl, {
-    //       token: accessToken,
-    //       // refresh_token: refreshToken,
-    //     });
-    //     console.log("token response ", response);
-
-    //     localStorage.setItem("token", response.data.token);
-    //   } catch (error) {
-    //     console.log(error);
-    //   }
-    // },
-    // async hasPincode() {
-    //   try {
-    //     await this.fetchToken();
-
-    //     const storedToken = localStorage.getItem("token");
-    //     const baseURL = localStorage.getItem("baseUrl");
-    //     const authToken = `Bearer ${storedToken}`;
-    //     const apiUrl = baseURL + `api/ess/pincode`;
-    //     const headers = { Authorization: authToken };
-    //     const response = await axios.get(apiUrl, { headers });
-
-    //     await this.fetchUserDetails();
-
-    //     if (response.data.data.pincode) {
-    //       try {
-    //         await runBackgroundScript();
-
-    //         localStorage.setItem("pincode", response.data.data.pincode);
-    //         // this.router.push("/WelcomeTermsAndCondition");
-    //       } catch (innerError) {
-    //         console.log(innerError.message);
-    //         location.reload();
-    //       }
-    //     } else {
-    //       this.router.push("/setuppincodelogin");
-    //     }
-    //   } catch (error) {
-    //     console.log(error.message);
-    //     localStorage.setItem("hasSetup", false);
-    //   } finally {
-    //     this.store.commit("loader/updateLoader", false);
-    //   }
-    // },
     async fetchStoredTheme() {
       try {
         const storedThemeData = localStorage.getItem("configs");
@@ -1085,69 +1036,6 @@ export default defineComponent({
 
 .registration-card-content {
   padding: 20px;
-}
-
-.search-container {
-  position: relative;
-  margin-bottom: 1.5rem;
-}
-
-.search-input {
-  width: 100%;
-  padding: 0.8rem 1rem 0.8rem 2.5rem;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  font-size: 1rem;
-}
-
-.search-icon {
-  position: absolute;
-  left: 1rem;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #999;
-}
-
-.employee-list {
-  max-height: 200px;
-  overflow-y: auto;
-  margin-bottom: 2rem;
-}
-
-.employee-item {
-  padding: 1rem;
-  border: 1px solid #eee;
-  border-radius: 8px;
-  margin-bottom: 0.5rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.employee-item:hover {
-  background-color: #f5f5f5;
-}
-
-.employee-item.selected {
-  background-color: #e3f2fd;
-  border-color: #008e9c;
-}
-
-.employee-name {
-  font-weight: 500;
-  color: #333;
-}
-
-.employee-id {
-  font-size: 0.9rem;
-  color: #666;
-  margin-top: 0.25rem;
-}
-
-.face-status {
-  font-size: 0.8rem;
-  color: #ffc107;
-  margin-top: 0.25rem;
-  font-style: italic;
 }
 
 .registration-item {
