@@ -23,9 +23,11 @@
     <ion-content class="clock-modal-content" v-if="!loading">
       <Refresher />
       <div>
-        <div v-if="scannedUsername && scannedName" class="user-info-card">
+        <div v-if="scannedUsername" class="user-info-card">
           <p><strong>Username:</strong> {{ scannedUsername }}</p>
-          <p><strong>Name:</strong> {{ scannedName }}</p>
+          <p>
+            <strong>Name:</strong> {{ scannedFirstName }} {{ scannedLastName }}
+          </p>
         </div>
         <ClockinCard
           @clockInClicked="handleClockInData"
@@ -210,9 +212,9 @@ import { defineComponent } from "vue";
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
 import axios from "axios";
-import { Geolocation } from "@capacitor/geolocation";
 import Refresher from "@/components/refresher/Refresher.vue";
 import ClockinCard from "@/views/services/clock_in/components/ClockinCard.vue";
+import { TextToSpeech } from "@capacitor-community/text-to-speech";
 
 export default defineComponent({
   name: "ClockInModal",
@@ -232,6 +234,7 @@ export default defineComponent({
     IonLabel,
     IonCard,
     IonCardContent,
+    TextToSpeech,
   },
   props: {
     isOpen: {
@@ -242,9 +245,15 @@ export default defineComponent({
       type: String,
       required: true,
     },
-    scannedName: {
+    scannedFirstName: {
       type: String,
-      required: true,
+      required: false,
+      default: "",
+    },
+    scannedLastName: {
+      type: String,
+      required: false,
+      default: "",
     },
   },
   setup() {
@@ -280,13 +289,11 @@ export default defineComponent({
     isOpen: {
       async handler(val) {
         if (val) {
-          // Modal opened
           this.loading = true;
-          await this.initializeClock();
+          await this.initializeClock(); // inside it we call updateClockState()
           this.loading = false;
         } else {
-          // Modal closed
-          this.isFinishedLoading = false; // ✅ Reset
+          this.isFinishedLoading = false;
         }
       },
       immediate: true,
@@ -296,29 +303,37 @@ export default defineComponent({
   methods: {
     async initializeClock() {
       try {
-        const coordinates = await Geolocation.getCurrentPosition();
-        this.coordinatesText = `Latitude: ${coordinates.coords.latitude}, Longitude: ${coordinates.coords.longitude}`;
+        console.log("GPS disabled, using dummy coordinates.");
       } catch (error) {
-        console.error("Error getting coordinates:", error.message);
-        await this.presentGpsErrorAlert();
-        this.$emit("didDismiss");
-        return;
+        console.error(
+          "Error getting coordinates (GPS disabled):",
+          error.message
+        );
       }
 
       this.getCurrentTime();
-      setInterval(this.getCurrentTime, 1000);
-      await this.checkTokenExpiration();
+      this.updateInterval = setInterval(this.getCurrentTime, 1000);
+
+      // await this.checkTokenExpiration();
+
+      // 🔑 Check state immediately
       await this.updateClockState();
+
       this.fetchTheme();
       this.isFinishedLoading = true;
     },
 
     async updateClockState() {
       this.store.commit("loader/updateLoader", true);
+
       try {
         const empNumber = localStorage.getItem("empNumber");
         const baseURL = localStorage.getItem("baseUrl");
         const token = localStorage.getItem("token");
+
+        console.log("EmpNumber:", empNumber);
+        console.log("BaseURL:", baseURL);
+        console.log("Token:", token ? "Available" : "Not Available");
 
         if (!token || !empNumber || !baseURL) {
           console.error("Missing token, empNumber, or baseURL");
@@ -330,19 +345,14 @@ export default defineComponent({
           "Content-Type": "application/json",
         };
 
-        // 1. Check for break time configuration
         const breakConfigUrl = `${baseURL}api/v1/attendance/break-time-config?empNumber=${empNumber}`;
         const breakConfigResponse = await axios.get(breakConfigUrl, {
           headers,
         });
 
-        console.log("Break Config Response:", breakConfigResponse.data);
-
         this.hasBreaktime = breakConfigResponse.data?.data?.hasBreaktime;
 
-        // 2. Based on config, check the appropriate state
         if (this.hasBreaktime) {
-          // Logic for when user has a break schedule
           const breakStateUrl = `${baseURL}api/v1/attendance/break-time/latest?empNumber=${empNumber}`;
           const breakStateResponse = await axios.get(breakStateUrl, {
             headers,
@@ -363,15 +373,15 @@ export default defineComponent({
             this.breakDetails = null;
           }
 
+          // 🔑 decide button text + toast message
           if (breakData.state.name === "Punched In") {
             this.btnText = "Punch Out Break";
-            this.toastMessage = "Punch Out Break";
+            this.toastMessage = "Break Out"; // what will be spoken after punching out break
           } else {
             this.btnText = "Punch In Break";
-            this.toastMessage = "Punch In Break";
+            this.toastMessage = "Break In"; // what will be spoken after punching in break
           }
         } else {
-          // Logic for standard attendance
           const attendanceStateUrl = `${baseURL}api/v2/attendance/records/latest?empNumber=${empNumber}`;
           const attendanceStateResponse = await axios.get(attendanceStateUrl, {
             headers,
@@ -387,14 +397,14 @@ export default defineComponent({
           if (attendanceData?.punchOut?.userDate !== currentDate)
             this.clockout = "00:00";
 
+          // 🔑 decide button text + toast message
           if (attendanceData?.state?.name === "Punched Out") {
             this.btnText = "Clock In";
-            this.toastMessage = "Clocked Out";
+            this.toastMessage = "Clocked In"; // text after punching in
             this.employeeAlreadyPunchedIn = false;
           } else {
-            // Assumes "Punched In" or other states mean they can clock out
             this.btnText = "Clock Out";
-            this.toastMessage = "Clocked In";
+            this.toastMessage = "Clocked Out"; // text after punching out
             this.employeeAlreadyPunchedIn = true;
           }
         }
@@ -409,36 +419,29 @@ export default defineComponent({
       }
     },
 
-    async presentGpsErrorAlert() {
-      const alert = await alertController.create({
-        header: "GPS Error",
-        message: "Could not retrieve location. Please ensure GPS is enabled.",
-        buttons: ["OK"],
-      });
-      await alert.present();
-    },
-    async checkTokenExpiration() {
-      const storedToken = localStorage.getItem("token");
+    // async checkTokenExpiration() {
+    //   const storedToken = localStorage.getItem("token");
 
-      if (!storedToken) {
-        console.error("Token not available.");
-        return;
-      }
+    //   if (!storedToken) {
+    //     console.error("Token not available.");
+    //     return;
+    //   }
 
-      const tokenData = JSON.parse(atob(storedToken.split(".")[1]));
-      const expirationTime = tokenData.exp * 1000;
+    //   const tokenData = JSON.parse(atob(storedToken.split(".")[1]));
+    //   const expirationTime = tokenData.exp * 1000;
 
-      if (Date.now() > expirationTime) {
-        console.log("Token expired.");
-        const alert = await alertController.create({
-          header: "Session Expired",
-          message: "Your session has expired. Please log in again.",
-          buttons: ["OK"],
-        });
-        await alert.present();
-        this.$emit("didDismiss");
-      }
-    },
+    //   if (Date.now() > expirationTime) {
+    //     console.log("Token expired.");
+    //     const alert = await alertController.create({
+    //       header: "Session Expired",
+    //       message: "Your session has expired. Please log in again.",
+    //       buttons: ["OK"],
+    //     });
+    //     await alert.present();
+    //     this.$emit("didDismiss");
+    //   }
+    // },
+
     getCurrentTime() {
       try {
         const currentTime = new Date();
@@ -462,9 +465,10 @@ export default defineComponent({
         console.error("Error fetching current time:", error.message);
       }
     },
+
     async handleClockInData() {
       try {
-        await this.checkTokenExpiration();
+        // await this.checkTokenExpiration();
         const baseURL = localStorage.getItem("baseUrl");
         const token = localStorage.getItem("token");
         const headers = {
@@ -472,7 +476,9 @@ export default defineComponent({
           "Content-Type": "application/json",
         };
 
-        const coordinates = await Geolocation.getCurrentPosition(); // Re-check for GPS just in case.
+        const coordinates = {
+          coords: { latitude: 0, longitude: 0 },
+        };
 
         if (this.hasBreaktime) {
           const payload = {
@@ -482,7 +488,7 @@ export default defineComponent({
             longitude: coordinates.coords.longitude,
           };
           const breakTimeApiUrl = `${baseURL}api/v1/break-time`;
-          await axios.post(breakTimeApiUrl, payload, { headers });
+          // await axios.post(breakTimeApiUrl, payload, { headers });
         } else {
           const payload = {
             date: this.date,
@@ -499,15 +505,34 @@ export default defineComponent({
             await axios.post(attendanceApiUrl, payload, { headers });
           }
         }
-        this.showAlert(this.toastMessage);
-        await this.updateClockState(); // Refresh the state after action
+
+        // 🔑 update state first so button + toast sync
+        await this.updateClockState();
+
+        await this.showAlert(this.toastMessage);
+        await TextToSpeech.speak({
+          text: "Successfully " + this.toastMessage,
+          lang: "en-US",
+          rate: 1.0,
+        });
       } catch (error) {
+        await TextToSpeech.speak({
+          text:
+            "Error " +
+            (error.response?.data?.error?.message ||
+              "An unknown error occurred."),
+          lang: "en-US",
+          rate: 1.0,
+        });
         const errorMessage =
           error.response?.data?.error?.message || "An unknown error occurred.";
         console.error("Error making the API request: ", errorMessage);
         this.showErrorMessage(errorMessage);
+      } finally {
+        this.$emit("didDismiss");
       }
     },
+
     async showAlert(message) {
       try {
         const toast = await toastController.create({
@@ -527,12 +552,14 @@ export default defineComponent({
         console.log(error.message);
       }
     },
+
     openModal() {
       this.isModalOpen = true;
     },
     closeModal() {
       this.isModalOpen = false;
     },
+
     async showErrorMessage(message) {
       try {
         const toast = await toastController.create({
@@ -597,12 +624,28 @@ export default defineComponent({
 }
 .clock-modal-content {
   --background: transparent;
-  background: rgba(255, 255, 255, 0.15); /* transparent white overlay */
-  backdrop-filter: blur(15px); /* actual blur effect */
-  -webkit-backdrop-filter: blur(15px); /* for Safari */
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
 .clock-card {
   width: 65%;
+}
+.user-info-card {
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  padding: 15px;
+  margin: 20px auto;
+  width: fit-content;
+  text-align: center;
+  color: #fff;
+}
+.user-info-card p {
+  margin: 5px 0;
+  color: #ffffff;
 }
 </style>

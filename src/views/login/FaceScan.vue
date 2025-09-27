@@ -22,9 +22,14 @@
 
       <div v-if="loading" class="loading-overlay">
         <div class="loading-content">
+          <img
+            src="/assets/images/hrvaleofficiallogofinal.png"
+            alt="HRVale Logo"
+            class="header-logo"
+          />
+          <h3>Initializing Face Recognition</h3>
+          <p>Please wait while we initialize the camera and models.</p>
           <ion-spinner name="crescent" color="primary"></ion-spinner>
-          <h3>Loading Face Recognition...</h3>
-          <p>Please wait while we initialize the camera and models</p>
         </div>
       </div>
 
@@ -210,6 +215,22 @@
         :scanned-name="scannedName"
         @didDismiss="closeAuthenticated"
       />
+
+      <ClientCredentialsModal
+        :is-open="showCredentialsModal"
+        v-model:clientId="this.clientId"
+        v-model:username="this.username"
+        v-model:password="this.password"
+        @didDismiss="showCredentialsModal = false"
+      />
+
+      <ion-alert
+        :is-open="isAlertOpen"
+        :header="this.alertHeader"
+        :message="this.alertMessage"
+        :buttons="alertButtons"
+        @didDismiss="setOpen(false)"
+      ></ion-alert>
     </ion-content>
   </ion-page>
 </template>
@@ -231,6 +252,7 @@ import {
   IonCardSubtitle,
   IonCardHeader,
   IonRow,
+  IonAlert,
 } from "@ionic/vue";
 import { camera } from "ionicons/icons";
 import * as faceapi from "face-api.js";
@@ -242,6 +264,8 @@ import axios from "axios";
 import { runBackgroundScript } from "@/notification/Notification.ts";
 import ClockInModal from "./components/ClockInModal.vue";
 import { TextToSpeech } from "@capacitor-community/text-to-speech";
+import ClientCredentialsModal from "./components/ClientCredentialsModal.vue";
+import generateToken from "@/store/token/accessToken.ts";
 
 export default defineComponent({
   components: {
@@ -262,6 +286,8 @@ export default defineComponent({
     IonCardHeader,
     IonRow,
     TextToSpeech,
+    IonAlert,
+    ClientCredentialsModal,
   },
   setup() {
     const router = useRouter();
@@ -286,6 +312,12 @@ export default defineComponent({
       employees: [],
       selectedEmployee: null,
       showEmployeeList: true,
+      alertHeader: "",
+      alertMessage: "",
+      showCredentialsModal: this.showEmployeeList,
+      clientId: "",
+      username: "",
+      password: "",
     };
   },
   computed: {
@@ -360,7 +392,10 @@ export default defineComponent({
       this.showEmployeeList = !this.showEmployeeList; // 👈 toggle button
     },
     async switchMode() {
+      this.stopCamera();
+      this.closeAuthenticated();
       if (this.mode === "auth") {
+        this.startCamera();
         // Switching to register mode - require password
         const password = prompt("Enter admin password to access registration:");
         if (password === "admin123") {
@@ -373,6 +408,7 @@ export default defineComponent({
         this.mode = "auth";
       }
     },
+
     refreshPage() {
       // Option 1: reload everything
       window.location.reload();
@@ -384,6 +420,128 @@ export default defineComponent({
       // this.showEmployeeList = true;
       // (whatever state reset you need)
     },
+    async registerFace() {
+      this.processing = true;
+
+      try {
+        // Ensure employee is selected
+        if (!this.selectedEmployee) {
+          await TextToSpeech.speak({
+            text: "Please select an employee.",
+            lang: "en-US",
+            rate: 0.7,
+          });
+          this.processing = false;
+          return;
+        }
+
+        const video = this.$refs.video;
+        const detection = await faceapi
+          .detectSingleFace(video, new faceapi.TinyFaceDetectorOptions())
+          .withFaceLandmarks()
+          .withFaceDescriptor();
+
+        if (detection) {
+          // Generate unique face ID
+          const faceId = `${
+            this.selectedEmployee.id
+          }_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
+          // ✅ Grab credentials from data() or v-model (coming from your modal)
+          const clientId = this.clientId; // bound from <ClientCredentialsModal>
+          const username = this.username;
+          const password = this.password;
+
+          // ✅ Build object to store
+          const faceData = {
+            id: Date.now(), // a unique key
+            faceId, // our generated faceId
+            descriptor: Array.from(detection.descriptor), // convert Float32Array to normal array
+            clientId,
+            username,
+            password,
+            employee: this.selectedEmployee,
+          };
+
+          // ✅ Save to localStorage
+          const stored = JSON.parse(localStorage.getItem("faceIds") || "[]");
+          stored.push(faceData);
+          localStorage.setItem("faceIds", JSON.stringify(stored));
+
+          // Optional: reload for UI
+          this.loadStoredFaces?.();
+
+          // ✅ Alert user
+          this.alertHeader = "Registration Successful";
+          this.alertMessage = `Face registered locally for ${this.selectedEmployee.name}!`;
+          this.alertButtons = ["OK"];
+          this.isAlertOpen = true;
+
+          this.presentAlert(
+            `Face registered locally for ${this.selectedEmployee.name}!`
+          );
+
+          await TextToSpeech.speak({
+            text: "Face registered locally",
+            lang: "en-US",
+            rate: 1,
+          });
+
+          // ✅ Optional: update employeesData store too
+          try {
+            let employeesData = JSON.parse(
+              localStorage.getItem("employeesData") || "[]"
+            );
+            const employeeIndex = employeesData.findIndex(
+              (emp) => emp.id === this.selectedEmployee.id
+            );
+
+            if (employeeIndex !== -1) {
+              employeesData[employeeIndex].face_signature = JSON.stringify(
+                Array.from(detection.descriptor)
+              );
+              localStorage.setItem(
+                "employeesData",
+                JSON.stringify(employeesData)
+              );
+              this.presentAlert(
+                `Face signature updated locally for ${this.selectedEmployee.name}!`
+              );
+            }
+          } catch (error) {
+            console.error(
+              "Error updating face signature in local storage:",
+              error
+            );
+            this.presentAlert(
+              "Error updating face signature in local storage. Please try again."
+            );
+          }
+
+          // ✅ Reset selection
+          this.selectedEmployee = null;
+          this.searchQuery = "";
+        } else {
+          this.presentAlert("No face detected. Please try again.");
+          await TextToSpeech.speak({
+            text: "No face detected. Please try again!",
+            lang: "en-US",
+            rate: 1,
+          });
+        }
+      } catch (error) {
+        console.error("Error registering face:", error);
+        await TextToSpeech.speak({
+          text: "Error registering face",
+          lang: "en-US",
+          rate: 0.7,
+        });
+        this.presentAlert("Error registering face. Please try again.");
+      }
+
+      this.processing = false;
+    },
+
     async processFrames() {
       if (!this.processing && this.modelsLoaded) {
         const video = this.$refs.video;
@@ -414,10 +572,11 @@ export default defineComponent({
               y: p.y * scaleY,
             }));
 
+            // 🎨 Draw facial features (kept as in your code)
             ctx.strokeStyle = "#00f9ff";
             ctx.lineWidth = 2;
 
-            // Draw jawline
+            // jawline
             ctx.beginPath();
             for (let i = 0; i <= 16; i++) {
               const { x, y } = landmarks[i];
@@ -426,7 +585,7 @@ export default defineComponent({
             }
             ctx.stroke();
 
-            // Draw eyebrows
+            // eyebrows
             ctx.beginPath();
             for (let i = 17; i <= 21; i++) {
               const { x, y } = landmarks[i];
@@ -443,7 +602,7 @@ export default defineComponent({
             }
             ctx.stroke();
 
-            // Draw nose
+            // nose
             ctx.beginPath();
             for (let i = 27; i <= 35; i++) {
               const { x, y } = landmarks[i];
@@ -452,7 +611,7 @@ export default defineComponent({
             }
             ctx.stroke();
 
-            // Draw eyes
+            // eyes
             const leftEyeIndices = [36, 37, 38, 39, 40, 41, 36];
             ctx.beginPath();
             leftEyeIndices.forEach((i, idx) => {
@@ -471,7 +630,7 @@ export default defineComponent({
             });
             ctx.stroke();
 
-            // Draw lips
+            // lips
             const mouthIndices = [
               48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 48,
             ];
@@ -483,7 +642,7 @@ export default defineComponent({
             });
             ctx.stroke();
 
-            // Optional scanning text
+            // scanning text
             ctx.font = "14px Arial";
             ctx.fillStyle = "#00f9ff";
             ctx.fillText(
@@ -498,7 +657,7 @@ export default defineComponent({
                 localStorage.getItem("faceIds") || "[]"
               );
               let minDistance = Infinity;
-              let matchedId = null;
+              let matchedFace = null;
 
               for (const face of stored) {
                 const distance = faceapi.euclideanDistance(
@@ -507,19 +666,17 @@ export default defineComponent({
                 );
                 if (distance < minDistance) {
                   minDistance = distance;
-                  matchedId = face.id;
+                  matchedFace = face;
                 }
               }
 
-              if (minDistance < 0.6) {
-                // threshold
-                const matchedFace = stored.find((f) => f.id === matchedId);
+              if (minDistance < 0.6 && matchedFace) {
                 this.scannedUsername = matchedFace.username;
 
-                // ✅ Draw green circle to indicate success
+                // 🎨 Draw green circle
                 const centerX = landmarks[30].x; // nose bridge X
                 const centerY = landmarks[30].y; // nose bridge Y
-                const radius = 80; // adjust circle radius
+                const radius = 80;
 
                 ctx.strokeStyle = "#00ff80";
                 ctx.lineWidth = 4;
@@ -536,13 +693,31 @@ export default defineComponent({
                 );
 
                 this.processing = true;
-                this.presentAlert("Face authenticated successfully!");
+
+                // ✅ NEW: Use credentials with generateToken
+                try {
+                  const response = await generateToken(
+                    matchedFace.username,
+                    matchedFace.password,
+                    matchedFace.clientId // or matchedFace.client
+                  );
+                  console.log("Token generated:", response);
+
+                  // you can store token or use it immediately
+                  localStorage.setItem("accessToken", response.token);
+                  this.presentAlert("Token generated successfully!");
+                } catch (err) {
+                  console.error("Error generating token:", err);
+                  this.presentAlert("Error generating token");
+                }
+
                 await TextToSpeech.speak({
                   text: this.getGreeting() + " " + matchedFace.username,
                   lang: "en-US",
                   rate: 1.0,
                 });
-                await this.performLogin(matchedFace);
+
+                await this.performLogin(matchedFace); // your login after token
                 return; // stop scanning after login
               }
             }
@@ -553,6 +728,7 @@ export default defineComponent({
       }
       requestAnimationFrame(this.processFrames);
     },
+
     getGreeting() {
       const now = new Date();
       const hour = now.getHours(); // 0–23
@@ -587,82 +763,7 @@ export default defineComponent({
         console.error("Failed to fetch employees:", error);
       }
     },
-    async registerFace() {
-      this.processing = true;
-      try {
-        if (!this.selectedEmployee) {
-          this.presentAlert("Please select an employee.");
-          this.processing = false;
-          return;
-        }
 
-        const video = this.$refs.video;
-        const detection = await faceapi
-          .detectSingleFace(video, new faceapi.TinyFaceDetectorOptions())
-          .withFaceLandmarks()
-          .withFaceDescriptor();
-        if (detection) {
-          // Generate unique face ID
-          const faceId = `${
-            this.selectedEmployee.id
-          }_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-          const stored = JSON.parse(localStorage.getItem("faceIds") || "[]");
-          stored.push({
-            id: Date.now(),
-            name: faceId,
-            descriptor: Array.from(detection.descriptor),
-            username: this.selectedEmployee.id,
-            client: "default", // Default client
-            employee: this.selectedEmployee,
-          });
-          localStorage.setItem("faceIds", JSON.stringify(stored));
-          this.loadStoredFaces();
-          this.presentAlert(
-            `Face registered successfully for ${this.selectedEmployee.name}!`
-          );
-          try {
-            let employeesData = JSON.parse(
-              localStorage.getItem("employeesData") || "[]"
-            );
-            const employeeIndex = employeesData.findIndex(
-              (emp) => emp.id === this.selectedEmployee.id
-            );
-
-            if (employeeIndex !== -1) {
-              employeesData[employeeIndex].face_signature = JSON.stringify(
-                Array.from(detection.descriptor)
-              );
-              localStorage.setItem(
-                "employeesData",
-                JSON.stringify(employeesData)
-              );
-              this.presentAlert(
-                `Face signature updated locally for ${this.selectedEmployee.name}!`
-              );
-            } else {
-              this.presentAlert(`Employee not found in local storage!`);
-            }
-          } catch (error) {
-            console.error(
-              "Error updating face signature in local storage:",
-              error
-            );
-            this.presentAlert(
-              "Error updating face signature in local storage. Please try again."
-            );
-          }
-          // Clear selection
-          this.selectedEmployee = null;
-          this.searchQuery = "";
-        } else {
-          this.presentAlert("No face detected. Please try again.");
-        }
-      } catch (error) {
-        console.error("Error registering face:", error);
-        this.presentAlert("Error registering face. Please try again.");
-      }
-      this.processing = false;
-    },
     loadStoredFaces() {
       this.storedFaces = JSON.parse(localStorage.getItem("faceIds") || "[]");
       // Ensure all faces have a name
@@ -702,11 +803,6 @@ export default defineComponent({
       this.processFrames();
       this.router.push("/facescan");
       console.log("Close authenticated, restart scanning");
-      await TextToSpeech.speak({
-        text: "Bye and Thank you " + matchedFace.username,
-        lang: "en-US",
-        rate: 1.0,
-      });
     },
 
     fetchTheme() {
@@ -800,63 +896,7 @@ export default defineComponent({
         this.store.commit("loader/updateLoader", false);
       }
     },
-    // async fetchToken() {
-    //   try {
-    //     const accessToken = localStorage.getItem("access_token");
-    //     const refreshToken = localStorage.getItem("refresh_token");
-    //     const baseURL = localStorage.getItem("baseUrl");
 
-    //     if (!accessToken || !refreshToken || !baseURL) {
-    //       throw new Error("Missing access_token, refresh_token, or baseURL");
-    //     }
-
-    //     const url = new URL(baseURL);
-    //     const tokenUrl = `${url.origin}/web/index.php/auth/token`;
-
-    //     const response = await axios.post(tokenUrl, {
-    //       token: accessToken,
-    //       // refresh_token: refreshToken,
-    //     });
-    //     console.log("token response ", response);
-
-    //     localStorage.setItem("token", response.data.token);
-    //   } catch (error) {
-    //     console.log(error);
-    //   }
-    // },
-    // async hasPincode() {
-    //   try {
-    //     await this.fetchToken();
-
-    //     const storedToken = localStorage.getItem("token");
-    //     const baseURL = localStorage.getItem("baseUrl");
-    //     const authToken = `Bearer ${storedToken}`;
-    //     const apiUrl = baseURL + `api/ess/pincode`;
-    //     const headers = { Authorization: authToken };
-    //     const response = await axios.get(apiUrl, { headers });
-
-    //     await this.fetchUserDetails();
-
-    //     if (response.data.data.pincode) {
-    //       try {
-    //         await runBackgroundScript();
-
-    //         localStorage.setItem("pincode", response.data.data.pincode);
-    //         // this.router.push("/WelcomeTermsAndCondition");
-    //       } catch (innerError) {
-    //         console.log(innerError.message);
-    //         location.reload();
-    //       }
-    //     } else {
-    //       this.router.push("/setuppincodelogin");
-    //     }
-    //   } catch (error) {
-    //     console.log(error.message);
-    //     localStorage.setItem("hasSetup", false);
-    //   } finally {
-    //     this.store.commit("loader/updateLoader", false);
-    //   }
-    // },
     async fetchUserDetails() {
       try {
         const storedToken = localStorage.getItem("token");
@@ -1513,6 +1553,7 @@ export default defineComponent({
   margin: 0;
   font-size: 14px;
   opacity: 0.9;
+  color: white;
 }
 
 ion-spinner {

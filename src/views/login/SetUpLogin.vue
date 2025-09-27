@@ -211,6 +211,8 @@ export default defineComponent({
         const api = baseURL + `api/v2/user/me`;
         const dataResponse = await axios.get(api, { headers });
 
+        console.log(baseURL);
+
         this.empNumber = dataResponse.data.data.employee.empNumber;
         localStorage.setItem(
           "empNumber",

@@ -22,9 +22,14 @@
 
       <div v-if="loading" class="loading-overlay">
         <div class="loading-content">
+          <img
+            src="/assets/images/hrvaleofficiallogofinal.png"
+            alt="HRVale Logo"
+            class="header-logo"
+          />
+          <h3>Initializing Face Recognition</h3>
+          <p>Please wait while we initialize the camera and models.</p>
           <ion-spinner name="crescent" color="primary"></ion-spinner>
-          <h3>Loading Face Recognition...</h3>
-          <p>Please wait while we initialize the camera and models</p>
         </div>
       </div>
 
@@ -53,6 +58,77 @@
                     Register New Face
                   </ion-card-title>
                 </ion-card-header>
+
+                <p v-if="!showEmployeeList" class="selected-emp">
+                  {{ this.selectedEmployee.name }}
+                </p>
+
+                <ion-card-content class="registration-card-content">
+                  <!-- Search Box -->
+                  <div class="search-container" v-if="showEmployeeList">
+                    <input
+                      type="text"
+                      v-model="searchQuery"
+                      placeholder="Search employees..."
+                      class="search-input"
+                      :disabled="processing"
+                    />
+                    <span class="search-icon">🔍</span>
+                  </div>
+
+                  <!-- Employee List -->
+                  <div class="employee-list" v-if="showEmployeeList">
+                    <div
+                      v-for="employee in filteredEmployees"
+                      :key="employee.id"
+                      class="employee-item"
+                      :class="{ selected: selectedEmployee === employee }"
+                      @click="handleEmployeeClick(employee)"
+                      :style="{ pointerEvents: processing ? 'none' : 'auto' }"
+                    >
+                      <div class="employee-name">{{ employee.name }}</div>
+                      <div class="employee-id">ID: {{ employee.id }}</div>
+                      <div v-if="employee.face_signature" class="face-status">
+                        Has registered face
+                      </div>
+                    </div>
+                  </div>
+
+                  <ion-button
+                    @click="goToRegisteredFaces"
+                    expand="block"
+                    color="primary"
+                    fill="outline"
+                    class="manage-faces-button"
+                    v-if="showEmployeeList"
+                  >
+                    <ion-icon name="list-outline" slot="start"></ion-icon>
+                    Manage All Registered Faces
+                  </ion-button>
+
+                  <!-- Toggle Button -->
+                  <ion-button
+                    @click="toggleEmployeeList"
+                    expand="block"
+                    color="secondary"
+                    fill="outline"
+                    class="toggle-list-button"
+                  >
+                    <ion-icon
+                      :name="
+                        showEmployeeList
+                          ? 'chevron-up-outline'
+                          : 'chevron-down-outline'
+                      "
+                      slot="start"
+                    ></ion-icon>
+                    {{
+                      showEmployeeList
+                        ? "Hide Employee List"
+                        : "Show Employee List"
+                    }}
+                  </ion-button>
+                </ion-card-content>
               </ion-card>
 
               <ion-card-content class="face-scan-card-content">
@@ -120,23 +196,11 @@
                   v-if="mode === 'register'"
                   @click="registerFace"
                   color="primary"
-                  :disabled="processing || !cameraOn"
+                  :disabled="processing || !cameraOn || !selectedEmployee"
                   class="register-button"
                 >
                   <ion-icon name="person-add" slot="start"></ion-icon>
                   Register Face
-                </ion-button>
-
-                <ion-button
-                  v-if="mode === 'register'"
-                  @click="goToRegisteredFacesTemp"
-                  expand="block"
-                  color="secondary"
-                  fill="outline"
-                  class="manage-faces-button ion-margin-top"
-                >
-                  <ion-icon name="list-outline" slot="start"></ion-icon>
-                  Manage Registered Faces
                 </ion-button>
               </ion-card-content>
             </ion-card>
@@ -148,51 +212,17 @@
       <ClockInModal
         :is-open="authenticated"
         :scanned-username="scannedUsername"
-        :scanned-first-name="scannedFirstName"
-        :scanned-last-name="scannedLastName"
+        :scanned-name="scannedName"
         @didDismiss="closeAuthenticated"
       />
 
-      <!-- Registration Modal -->
-      <ion-modal
-        :is-open="isRegisterModalOpen"
-        @didDismiss="isRegisterModalOpen = false"
-      >
-        <ion-header>
-          <ion-toolbar>
-            <ion-title>Register Credentials</ion-title>
-            <ion-buttons slot="end">
-              <ion-button @click="isRegisterModalOpen = false"
-                >Close</ion-button
-              >
-            </ion-buttons>
-          </ion-toolbar>
-        </ion-header>
-        <ion-content class="ion-padding">
-          <ion-item>
-            <ion-label position="floating">Username</ion-label>
-            <ion-input v-model="registrationData.username"></ion-input>
-          </ion-item>
-          <ion-item>
-            <ion-label position="floating">Password</ion-label>
-            <ion-input
-              type="password"
-              v-model="registrationData.password"
-            ></ion-input>
-          </ion-item>
-          <ion-item>
-            <ion-label position="floating">Client ID</ion-label>
-            <ion-input v-model="registrationData.clientID"></ion-input>
-          </ion-item>
-          <ion-button
-            expand="block"
-            @click="submitRegistration"
-            class="ion-margin-top"
-          >
-            Submit
-          </ion-button>
-        </ion-content>
-      </ion-modal>
+      <ion-alert
+        :is-open="isAlertOpen"
+        :header="this.alertHeader"
+        :message="this.alertMessage"
+        :buttons="alertButtons"
+        @didDismiss="setOpen(false)"
+      ></ion-alert>
     </ion-content>
   </ion-page>
 </template>
@@ -214,24 +244,18 @@ import {
   IonCardSubtitle,
   IonCardHeader,
   IonRow,
-  IonModal,
-  IonToolbar,
-  IonTitle,
-  IonButtons,
-  IonItem,
-  IonLabel,
-  IonInput,
+  IonAlert,
 } from "@ionic/vue";
-import { camera, scan } from "ionicons/icons";
+import { camera } from "ionicons/icons";
 import * as faceapi from "face-api.js";
 import { useRouter } from "vue-router";
 import { defineComponent } from "vue";
 import Refresher from "@/components/refresher/Refresher.vue";
 import { useStore } from "vuex";
+import axios from "axios";
+import { runBackgroundScript } from "@/notification/Notification.ts";
 import ClockInModal from "./components/ClockInModal.vue";
 import { TextToSpeech } from "@capacitor-community/text-to-speech";
-import generateToken from "@/store/token/accessToken.ts";
-import axios from "axios";
 
 export default defineComponent({
   components: {
@@ -252,13 +276,7 @@ export default defineComponent({
     IonCardHeader,
     IonRow,
     TextToSpeech,
-    IonModal,
-    IonToolbar,
-    IonTitle,
-    IonButtons,
-    IonItem,
-    IonLabel,
-    IonInput,
+    IonAlert,
   },
   setup() {
     const router = useRouter();
@@ -277,16 +295,25 @@ export default defineComponent({
       authenticated: false,
       cameraOn: false,
       theme: {},
+      searchQuery: "",
       scannedUsername: "",
-      scannedFirstName: "",
-      scannedLastName: "",
-      isRegisterModalOpen: false,
-      registrationData: {
-        username: "",
-        password: "",
-        clientID: "",
-      },
+      scannedName: "",
+      employees: [],
+      selectedEmployee: null,
+      showEmployeeList: true,
+      alertHeader: "",
+      alertMessage: "",
     };
+  },
+  computed: {
+    filteredEmployees() {
+      const query = this.searchQuery.toLowerCase();
+      return this.employees.filter(
+        (employee) =>
+          employee.name.toLowerCase().includes(query) ||
+          employee.id.toLowerCase().includes(query)
+      );
+    },
   },
   async mounted() {
     this.loading = true;
@@ -303,19 +330,19 @@ export default defineComponent({
       );
       this.modelsLoaded = true;
       this.loadStoredFaces();
-      this.loading = false;
-
-      this.$nextTick(async () => {
-        if (this.modelsLoaded) {
-          await this.startCamera();
-        }
-      });
+      await this.fetchEmployees();
     } catch (error) {
       console.error("Error during component mount:", error);
       await this.presentAlert(
         "Initialization failed. Please refresh the page."
       );
+    } finally {
       this.loading = false;
+      this.$nextTick(async () => {
+        if (this.modelsLoaded) {
+          await this.startCamera();
+        }
+      });
     }
   },
   methods: {
@@ -342,8 +369,18 @@ export default defineComponent({
         this.cameraOn = false;
       }
     },
+    handleEmployeeClick(employee) {
+      this.selectedEmployee = employee;
+      this.showEmployeeList = false;
+    },
+    toggleEmployeeList() {
+      this.showEmployeeList = !this.showEmployeeList; // 👈 toggle button
+    },
     async switchMode() {
+      this.stopCamera();
+      this.closeAuthenticated();
       if (this.mode === "auth") {
+        this.startCamera();
         // Switching to register mode - require password
         const password = prompt("Enter admin password to access registration:");
         if (password === "admin123") {
@@ -356,22 +393,17 @@ export default defineComponent({
         this.mode = "auth";
       }
     },
-    async refreshPage() {
-      this.processing = false;
-      this.authenticated = false;
-      this.scannedUsername = "";
-      this.scannedFirstName = "";
-      this.scannedLastName = "";
-      this.isRegisterModalOpen = false;
-      this.registrationData = {
-        username: "",
-        clientID: "",
-      };
 
-      // Stop and restart the camera to ensure a clean state
-      this.stopCamera();
-      await this.$nextTick(); // Allow the DOM to update
-      await this.startCamera();
+    refreshPage() {
+      // Option 1: reload everything
+      window.location.reload();
+
+      // Option 2 (if you only want to refresh some state):
+      // this.processing = false;
+      // this.selectedEmployee = null;
+      // this.searchQuery = '';
+      // this.showEmployeeList = true;
+      // (whatever state reset you need)
     },
     async processFrames() {
       if (!this.processing && this.modelsLoaded) {
@@ -526,19 +558,12 @@ export default defineComponent({
 
                 this.processing = true;
                 // this.presentAlert("Face authenticated successfully!");
-
-                await this.performLogin(matchedFace);
-
                 await TextToSpeech.speak({
-                  text:
-                    this.getGreeting() +
-                    " " +
-                    this.scannedFirstName +
-                    " " +
-                    this.scannedLastName,
+                  text: this.getGreeting() + " " + matchedFace.username,
                   lang: "en-US",
                   rate: 1.0,
                 });
+                await this.performLogin(matchedFace);
                 return; // stop scanning after login
               }
             }
@@ -561,14 +586,43 @@ export default defineComponent({
         return "Good Evening";
       }
     },
-    async registerFace() {
-      this.isRegisterModalOpen = true;
+    async fetchEmployees() {
+      try {
+        const response = await axios.get(
+          "https://hrvale.bapplware.com/users/data"
+        );
+        this.employees = response.data.data.map((emp) => ({
+          id: emp.username,
+          name: emp.username,
+          fingerprint:
+            emp.finger_print === "undefined"
+              ? undefined
+              : emp.finger_print || undefined,
+          face_signature:
+            emp.face_signature === "undefined"
+              ? undefined
+              : emp.face_signature || undefined,
+        }));
+        localStorage.setItem("employeesData", JSON.stringify(this.employees));
+      } catch (error) {
+        console.error("Failed to fetch employees:", error);
+      }
     },
-    async submitRegistration() {
+    async registerFace() {
       this.processing = true;
-      this.isRegisterModalOpen = false;
 
       try {
+        // Ensure employee is selected
+        if (!this.selectedEmployee) {
+          await TextToSpeech.speak({
+            text: "Please select an employee.",
+            lang: "en-US",
+            rate: 0.7,
+          });
+          this.processing = false;
+          return;
+        }
+
         const video = this.$refs.video;
         const detection = await faceapi
           .detectSingleFace(video, new faceapi.TinyFaceDetectorOptions())
@@ -576,35 +630,183 @@ export default defineComponent({
           .withFaceDescriptor();
 
         if (detection) {
-          const { username, password, clientID } = this.registrationData;
-          const faceId = `${username}_${Date.now()}`;
-
+          // Generate unique face ID
+          const faceId = `${
+            this.selectedEmployee.id
+          }_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
           const stored = JSON.parse(localStorage.getItem("faceIds") || "[]");
           stored.push({
             id: Date.now(),
             name: faceId,
             descriptor: Array.from(detection.descriptor),
-            username,
-            password, // In a real app, hash this!
-            clientID,
+            username: this.selectedEmployee.id,
+            client: "suysing", // Default client
+            employee: this.selectedEmployee,
           });
-
           localStorage.setItem("faceIds", JSON.stringify(stored));
           this.loadStoredFaces();
-          this.presentAlert(`Face registered successfully for ${username}!`);
 
-          // Clear registration form
-          this.registrationData = { username: "", password: "", clientID: "" };
+          this.alertHeader = "Registration Successful";
+          this.alertMessage = `Face registered successfully for ${this.selectedEmployee.name}!`;
+          this.alertButtons = ["OK"];
+          this.isAlertOpen = true;
+
+          this.presentAlert(
+            `Face registered successfully for ${this.selectedEmployee.name}!`
+          );
+
+          await TextToSpeech.speak({
+            text: "Face registered successfully",
+            lang: "en-US",
+            rate: 1,
+          });
+
+          // Update local storage employeesData
+          try {
+            let employeesData = JSON.parse(
+              localStorage.getItem("employeesData") || "[]"
+            );
+            const employeeIndex = employeesData.findIndex(
+              (emp) => emp.id === this.selectedEmployee.id
+            );
+
+            if (employeeIndex !== -1) {
+              employeesData[employeeIndex].face_signature = JSON.stringify(
+                Array.from(detection.descriptor)
+              );
+              localStorage.setItem(
+                "employeesData",
+                JSON.stringify(employeesData)
+              );
+              this.presentAlert(
+                `Face signature updated locally for ${this.selectedEmployee.name}!`
+              );
+            } else {
+              this.presentAlert(`Employee not found in local storage!`);
+            }
+          } catch (error) {
+            console.error(
+              "Error updating face signature in local storage:",
+              error
+            );
+            this.presentAlert(
+              "Error updating face signature in local storage. Please try again."
+            );
+          }
+
+          // 🔹 Send to API
+          try {
+            const username = this.selectedEmployee.id;
+            const fingerprint = "";
+            const faceSignature = JSON.stringify(
+              Array.from(detection.descriptor)
+            );
+            const encodedFaceSignature = btoa(faceSignature);
+
+            // ✅ Build token as a JSON object instead of string
+            const tokenString = `${username}|${fingerprint}|${encodedFaceSignature}`;
+
+            const response = await fetch(
+              "https://hrvale.bapplware.com/api/bio/enrollment",
+              {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ token: tokenString }),
+              }
+            );
+
+            const result = await response.json();
+            console.log("Enrollment API result:", result);
+
+            if (response.ok) {
+              this.presentAlert("Enrollment sent to server successfully!");
+            } else {
+              this.presentAlert(
+                `Failed to enroll face to server: ${
+                  result?.message || response.status
+                }`
+              );
+            }
+          } catch (apiErr) {
+            console.error("Error calling enrollment API:", apiErr);
+            this.presentAlert("Error sending enrollment to server.");
+          }
+
+          this.selectedEmployee = null;
+          this.searchQuery = "";
         } else {
           this.presentAlert("No face detected. Please try again.");
+          await TextToSpeech.speak({
+            text: "No face detected. Please try again.!",
+            lang: "en-US",
+            rate: 1,
+          });
         }
       } catch (error) {
         console.error("Error registering face:", error);
+        await TextToSpeech.speak({
+          text: "Error registering face",
+          lang: "en-US",
+          rate: 0.7,
+        });
         this.presentAlert("Error registering face. Please try again.");
-      } finally {
-        this.processing = false;
+      }
+
+      this.processing = false;
+    },
+
+    async OnLogin(value) {
+      try {
+        console.log(localStorage.getItem("hasSetup"));
+        if (!value.username || !value.password || !value.client) {
+          await this.alertError();
+          return;
+        }
+
+        this.store.commit("loader/updateLoader", true);
+        const response = await generateToken(
+          value.username,
+          value.password,
+          value.client
+        );
+        const token = response.data.access_token;
+
+        if (token) {
+          await this.fetchStoredTheme();
+          await this.hasPincode();
+          localStorage.setItem("hasSetup", true);
+          console.log("inside if:", localStorage.getItem("hasSetup"));
+        }
+
+        const userCredentials = {
+          username: value.username,
+          password: value.password,
+          client: value.client,
+        };
+
+        localStorage.setItem(
+          "userCredentials",
+          JSON.stringify(userCredentials)
+        );
+      } catch (error) {
+        console.error(error.message);
+        this.store.commit("loader/updateLoader", false);
+        localStorage.setItem("hasSetup", false);
+
+        await this.errorLogs(
+          `Error: ${error.message}\nusername: ${value.username}\npassword: ${value.password}\nclient: ${value.client}`
+        );
+
+        if (error.response && error.response.status === 401) {
+          await this.alertError();
+        } else {
+          await this.maintenanceAlertError();
+        }
+
+        console.log("inside error:", localStorage.getItem("hasSetup"));
       }
     },
+
     loadStoredFaces() {
       this.storedFaces = JSON.parse(localStorage.getItem("faceIds") || "[]");
       // Ensure all faces have a name
@@ -615,12 +817,34 @@ export default defineComponent({
       });
       localStorage.setItem("faceIds", JSON.stringify(this.storedFaces));
     },
+    deleteFace(id) {
+      this.storedFaces = this.storedFaces.filter((f) => f.id !== id);
+      localStorage.setItem("faceIds", JSON.stringify(this.storedFaces));
+    },
+    async checkTokenExpiration() {
+      const storedToken = localStorage.getItem("token");
+
+      if (!storedToken) {
+        console.error("Token not available.");
+        console.log("Token is missing. Redirecting to login...");
+        this.router.push("/login");
+        return;
+      }
+
+      const tokenData = JSON.parse(atob(storedToken.split(".")[1]));
+      const expirationTime = tokenData.exp * 1000;
+
+      if (Date.now() > expirationTime) {
+        console.log("Token expired. Redirecting to login...");
+        this.router.push("/login");
+      }
+    },
     async closeAuthenticated() {
       this.startCamera();
       this.authenticated = false;
       this.processing = false;
       this.processFrames();
-      this.router.push("/facescantemp");
+      this.router.push("/facescan");
       console.log("Close authenticated, restart scanning");
     },
 
@@ -641,42 +865,137 @@ export default defineComponent({
         "#ffffff"
       );
     },
-    goToRegisteredFacesTemp() {
-      this.router.push("/registeredfacestemp");
-    },
-    async presentAlert(message, handler = null) {
-      const alert = await alertController.create({
-        header: "Face Scan",
-        message,
-        buttons: [
-          {
-            text: "OK",
-            handler,
-          },
-        ],
-      });
-      await alert.present();
-    },
-    async fetchToken() {
-      try {
-        const storedToken = localStorage.getItem("access_token");
-        const baseURL = localStorage.getItem("baseUrl");
-
-        if (!storedToken || !baseURL) {
-          throw new Error("Missing storedToken or baseURL");
-        }
-
-        const response = await axios.post(`${baseURL}auth/token`, {
-          secret: storedToken,
-        });
-        console.log("token response ", response);
-
-        localStorage.setItem("token", response.data.token);
-      } catch (error) {
-        console.log(error);
+    goToRegisteredFaces() {
+      const password = prompt(
+        "Enter admin password to manage registered faces:"
+      );
+      if (password === "admin123") {
+        this.router.push("/registeredfaces");
+      } else {
+        alert("Incorrect password");
       }
     },
+    async presentAlert(message, handler = null) {
+      // const alert = await alertController.create({
+      //   header: "Face Scan",
+      //   message,
+      //   buttons: [
+      //     {
+      //       text: "OK",
+      //       handler,
+      //     },
+      //   ],
+      // });
+      // await alert.present();
+    },
+    async performLogin(face) {
+      // This method handles the login process after a face is successfully authenticated.
+      // It dispatches a Vuex action to get a token, and then stores it in localStorage.
+      try {
+        const employee = face.employee;
+        if (!employee) {
+          this.presentAlert("Employee data not found for the recognized face.");
+          return;
+        }
 
+        this.store.commit("loader/updateLoader", true);
+
+        const authResult = await this.store.dispatch(
+          "auth/biometricLogin",
+          employee
+        );
+
+        if (authResult.success) {
+          console.log(
+            "Authentication successful:",
+            authResult.data.access_token
+          );
+          localStorage.setItem("token", authResult.data.access_token);
+          localStorage.setItem("access_token", authResult.data.access_token);
+          localStorage.setItem("refresh_token", authResult.data.refresh_token);
+
+          await this.fetchStoredTheme();
+          // await this.hasPincode();
+          localStorage.setItem("hasSetup", true);
+
+          const userCredentials = {
+            username: employee.username || employee.id,
+            client: "suysing",
+          };
+          localStorage.setItem(
+            "userCredentials",
+            JSON.stringify(userCredentials)
+          );
+
+          this.authenticated = true;
+        } else {
+          await this.alertError(authResult.error || "Authentication failed.");
+        }
+      } catch (error) {
+        console.error(error.message);
+        localStorage.setItem("hasSetup", false);
+        await this.alertError();
+      } finally {
+        this.store.commit("loader/updateLoader", false);
+      }
+    },
+    // async fetchToken() {
+    //   try {
+    //     const accessToken = localStorage.getItem("access_token");
+    //     const refreshToken = localStorage.getItem("refresh_token");
+    //     const baseURL = localStorage.getItem("baseUrl");
+
+    //     if (!accessToken || !refreshToken || !baseURL) {
+    //       throw new Error("Missing access_token, refresh_token, or baseURL");
+    //     }
+
+    //     const url = new URL(baseURL);
+    //     const tokenUrl = `${url.origin}/web/index.php/auth/token`;
+
+    //     const response = await axios.post(tokenUrl, {
+    //       token: accessToken,
+    //       // refresh_token: refreshToken,
+    //     });
+    //     console.log("token response ", response);
+
+    //     localStorage.setItem("token", response.data.token);
+    //   } catch (error) {
+    //     console.log(error);
+    //   }
+    // },
+    // async hasPincode() {
+    //   try {
+    //     await this.fetchToken();
+
+    //     const storedToken = localStorage.getItem("token");
+    //     const baseURL = localStorage.getItem("baseUrl");
+    //     const authToken = `Bearer ${storedToken}`;
+    //     const apiUrl = baseURL + `api/ess/pincode`;
+    //     const headers = { Authorization: authToken };
+    //     const response = await axios.get(apiUrl, { headers });
+
+    //     await this.fetchUserDetails();
+
+    //     if (response.data.data.pincode) {
+    //       try {
+    //         await runBackgroundScript();
+
+    //         localStorage.setItem("pincode", response.data.data.pincode);
+    //         // this.router.push("/WelcomeTermsAndCondition");
+    //       } catch (innerError) {
+    //         console.log(innerError.message);
+    //         location.reload();
+    //       }
+    //     } else {
+    //       this.router.push("/setuppincodelogin");
+    //     }
+    //   } catch (error) {
+    //     console.log(error.message);
+    //     localStorage.setItem("hasSetup", false);
+    //   } finally {
+    //     this.store.commit("loader/updateLoader", false);
+    //   }
+    // },
     async fetchUserDetails() {
       try {
         const storedToken = localStorage.getItem("token");
@@ -696,74 +1015,20 @@ export default defineComponent({
           JSON.stringify(dataResponse.data.data)
         );
 
-        this.scannedFirstName = dataResponse.data.data.employee.firstName;
-        this.scannedLastName = dataResponse.data.data.employee.lastName;
-        console.log(
-          "scannedLastName",
-          this.scannedFirstName,
-          this.scannedLastName
-        );
+        const employee = dataResponse.data.data.employee;
+        this.scannedName = `${employee.firstName} ${employee.lastName}`;
       } catch (error) {
         console.log(error.message);
         if (error.message === "Request failed with status code 401") {
           this.checkToken();
         } else {
-          console.error("Error fetching user details:", error);
+          this.router.replace("/setuplogin");
         }
       }
     },
-    async performLogin(face) {
-      try {
-        const { username, password, clientID } = face;
-        if (!username || !password || !clientID) {
-          this.presentAlert("Credentials not found for the recognized face.");
-          this.processing = false;
-          return;
-        }
-
-        this.store.commit("loader/updateLoader", true);
-
-        const response = await generateToken(username, password, clientID);
-        const token = response.data.access_token;
-
-        if (token) {
-          localStorage.setItem("access_token", token);
-          // localStorage.setItem("token", token);
-          localStorage.setItem("refresh_token", response.data.refresh_token);
-
-          console.log("Token generated successfully:", token);
-
-          await this.fetchStoredTheme();
-          localStorage.setItem("hasSetup", true);
-
-          const userCredentials = {
-            username,
-            password,
-            client: clientID,
-          };
-          localStorage.setItem(
-            "userCredentials",
-            JSON.stringify(userCredentials)
-          );
-
-          await this.fetchToken();
-          await this.fetchUserDetails();
-
-          this.authenticated = true;
-          this.scannedUsername = username;
-        } else {
-          await this.alertError("Authentication failed. Invalid token.");
-        }
-      } catch (error) {
-        console.error("Login error:", error.message);
-        localStorage.setItem("hasSetup", false);
-        await this.alertError(
-          "Authentication failed. Please check credentials or network."
-        );
-        this.processing = false;
-      } finally {
-        this.store.commit("loader/updateLoader", false);
-      }
+    checkToken() {
+      // Simple checkToken method
+      this.router.replace("/setuplogin");
     },
     async fetchStoredTheme() {
       try {
@@ -1089,6 +1354,7 @@ export default defineComponent({
 
 .registration-card-header {
   text-align: center;
+  padding: 20px 20px 0 20px;
 }
 
 .registration-card-title {
@@ -1107,6 +1373,69 @@ export default defineComponent({
 
 .registration-card-content {
   padding: 20px;
+}
+
+.search-container {
+  position: relative;
+  margin-bottom: 1.5rem;
+}
+
+.search-input {
+  width: 100%;
+  padding: 0.8rem 1rem 0.8rem 2.5rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 1rem;
+}
+
+.search-icon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #999;
+}
+
+.employee-list {
+  max-height: 200px;
+  overflow-y: auto;
+  margin-bottom: 2rem;
+}
+
+.employee-item {
+  padding: 1rem;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  margin-bottom: 0.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.employee-item:hover {
+  background-color: #f5f5f5;
+}
+
+.employee-item.selected {
+  background-color: #e3f2fd;
+  border-color: #008e9c;
+}
+
+.employee-name {
+  font-weight: 500;
+  color: #333;
+}
+
+.employee-id {
+  font-size: 0.9rem;
+  color: #666;
+  margin-top: 0.25rem;
+}
+
+.face-status {
+  font-size: 0.8rem;
+  color: #ffc107;
+  margin-top: 0.25rem;
+  font-style: italic;
 }
 
 .registration-item {
@@ -1173,8 +1502,7 @@ export default defineComponent({
   --border-radius: 12px;
   font-weight: 600;
   height: 48px;
-  width: fit-content;
-  margin: 16px auto 0 auto;
+  margin-top: 16px;
 }
 
 .clock-modal {
@@ -1324,7 +1652,7 @@ export default defineComponent({
   margin: 0;
   font-size: 14px;
   opacity: 0.9;
-  color: #e3f2fd;
+  color: white;
 }
 
 ion-spinner {

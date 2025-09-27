@@ -1,25 +1,39 @@
 import authService from "@/services/auth";
-import type { Employee } from "../employee/employee";
 import { ActionContext } from "vuex";
 
+/** === Employee type (moved here so no import errors) === */
+export interface Employee {
+  id: string;
+  name: string;
+  face?: string;
+}
+
+/** === Auth State === */
 export interface AuthState {
   isAuthenticated: boolean;
   currentUser: Employee | null;
   error: string | null;
 }
 
+/** === Vuex Auth Module === */
 export default {
   namespaced: true,
+
+  /** === State === */
   state: {
     isAuthenticated: false,
     currentUser: null,
     error: null,
   },
+
+  /** === Getters === */
   getters: {
     isAuthenticated: (state: AuthState) => state.isAuthenticated,
     currentUser: (state: AuthState) => state.currentUser,
     authError: (state: AuthState) => state.error,
   },
+
+  /** === Mutations === */
   mutations: {
     setAuthStatus(state: AuthState, status: boolean) {
       state.isAuthenticated = status;
@@ -31,6 +45,8 @@ export default {
       state.error = error;
     },
   },
+
+  /** === Actions === */
   actions: {
     async biometricLogin(
       { commit }: ActionContext<AuthState, any>,
