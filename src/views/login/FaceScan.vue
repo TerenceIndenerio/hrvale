@@ -311,6 +311,17 @@ export default defineComponent({
       );
     },
   },
+  watch: {
+    async loading(newValue) {
+      if (newValue === false) {
+        this.$nextTick(async () => {
+          if (this.modelsLoaded) {
+            await this.startCamera();
+          }
+        });
+      }
+    },
+  },
   async mounted() {
     this.loading = true;
     this.fetchTheme();
@@ -335,13 +346,6 @@ export default defineComponent({
     }
     await this.fetchEmployees();
     this.loading = false;
-
-    // Start camera after loading is complete and DOM is updated
-    this.$nextTick(async () => {
-      if (this.modelsLoaded) {
-        await this.startCamera();
-      }
-    });
   },
   methods: {
     async startCamera() {
