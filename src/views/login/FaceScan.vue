@@ -402,7 +402,8 @@ export default defineComponent({
         const response = await axios.get(
           "https://hrvale.bapplware.com/users/data"
         );
-        this.employees = response.data.data.map((emp) => ({
+        const serverEmployees = response.data.data;
+        this.employees = serverEmployees.map((emp) => ({
           id: emp.username,
           name: emp.username,
           fingerprint:
@@ -414,7 +415,43 @@ export default defineComponent({
               ? undefined
               : emp.face_signature || undefined,
         }));
-        // localStorage.setItem("employeesData", JSON.stringify(this.employees));
+        let storedFaces = JSON.parse(localStorage.getItem("faceIds") || "[]");
+        this.employees.forEach((employee) => {
+          if (
+            employee.face_signature &&
+            typeof employee.face_signature === "string" &&
+            employee.face_signature.startsWith("[")
+          ) {
+            try {
+              const descriptor = JSON.parse(employee.face_signature);
+              const existingFaceIndex = storedFaces.findIndex(
+                (f) => f.username === employee.id
+              );
+              if (existingFaceIndex > -1) {
+                storedFaces[existingFaceIndex].descriptor = descriptor;
+                storedFaces[existingFaceIndex].employee = employee;
+                console.log(`Updated face signature for ${employee.name}`);
+              } else {
+                storedFaces.push({
+                  id: Date.now() + Math.random(),
+                  name: `${employee.name}_${Date.now()}`,
+                  descriptor: descriptor,
+                  username: employee.id,
+                  client: "suysing",
+                  employee: employee,
+                });
+                console.log(`Added new face signature for ${employee.name}`);
+              }
+            } catch (e) {
+              console.error(
+                `Failed to parse face_signature for ${employee.name}:`,
+                e
+              );
+            }
+          }
+        });
+        localStorage.setItem("faceIds", JSON.stringify(storedFaces));
+        this.loadStoredFaces();
       } catch (error) {
         console.error("Failed to fetch employees:", error);
       }
