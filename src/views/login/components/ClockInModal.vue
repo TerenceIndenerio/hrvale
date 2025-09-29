@@ -302,19 +302,8 @@ export default defineComponent({
 
   methods: {
     async initializeClock() {
-      try {
-        console.log("GPS disabled, using dummy coordinates.");
-      } catch (error) {
-        console.error(
-          "Error getting coordinates (GPS disabled):",
-          error.message
-        );
-      }
-
       this.getCurrentTime();
       this.updateInterval = setInterval(this.getCurrentTime, 1000);
-
-      // await this.checkTokenExpiration();
 
       // 🔑 Check state immediately
       await this.updateClockState();
@@ -333,7 +322,7 @@ export default defineComponent({
 
         console.log("EmpNumber:", empNumber);
         console.log("BaseURL:", baseURL);
-        console.log("Token:", token ? "Available" : "Not Available");
+        console.log("Token:", token);
 
         if (!token || !empNumber || !baseURL) {
           console.error("Missing token, empNumber, or baseURL");

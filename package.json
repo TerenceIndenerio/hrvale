@@ -34,6 +34,7 @@
     "@ionic/vue-router": "^7.0.0",
     "axios": "^1.6.3",
     "cordova-plugin-file-opener2": "^4.0.0",
+    "delaunator": "^5.0.1",
     "face-api.js": "^0.22.2",
     "file-saver": "^2.0.5",
     "firebase": "^10.6.0",
