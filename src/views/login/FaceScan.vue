@@ -326,11 +326,6 @@ export default defineComponent({
       );
       this.modelsLoaded = true;
 
-      this.$nextTick(async () => {
-        if (this.modelsLoaded) {
-          await this.startCamera();
-        }
-      });
       this.loadStoredFaces();
     } catch (error) {
       console.error("Error during component mount:", error);
@@ -340,6 +335,13 @@ export default defineComponent({
     }
     await this.fetchEmployees();
     this.loading = false;
+
+    // Start camera after loading is complete and DOM is updated
+    this.$nextTick(async () => {
+      if (this.modelsLoaded) {
+        await this.startCamera();
+      }
+    });
   },
   methods: {
     async startCamera() {
