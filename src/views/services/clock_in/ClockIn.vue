@@ -232,7 +232,6 @@ export default defineComponent({
       theme: {},
       loading: true,
       coordinatesText: "",
-      toastMessage: "",
       hasClockedIn: false,
       breakTime: false,
       breakDetails: null,
@@ -333,23 +332,25 @@ export default defineComponent({
           this.clockout = "00:00";
         }
 
-        if (!this.hasBreaktime) {
-          console.log("this.isPmBreakDone: ", !this.isPmBreakDone);
+        const attendanceState = getStateResponse.data?.data?.state?.name;
+        const breakTimeState = getStateResponse.data?.data?.breakTimeState;
 
-          if (
-            getStateResponse.data?.data?.state?.name === "Punched Out"
-            // && getStateResponse.data?.data?.punchIn?.utcDate === currentDate
-          ) {
-            this.btnText = "Clock In";
+        if (this.hasBreaktime) {
+          this.btnText = "Clock Out";
 
-            this.toastMessage = "Clocked Out";
-          } else if (
-            getStateResponse.data?.data?.state?.name === "Punched In"
-            // && getStateResponse.data?.data?.punchIn?.utcDate === currentDate
-          ) {
-            this.btnText = "Clock Out";
-            this.toastMessage = "Clocked In";
+          if (breakTimeState === "Break In") {
+            this.btnText = "Break Out";
+          } else if (breakTimeState === "Break Out") {
+            this.btnText = "Break In";
           }
+        }
+
+        if (attendanceState === "Punched In" && !this.hasBreaktime) {
+          this.btnText = "Clock Out";
+        }
+
+        if (attendanceState === "Punched Out") {
+          this.btnText = "Clock In";
         }
       } catch (error) {
         this.loading = false;
@@ -388,68 +389,17 @@ export default defineComponent({
         const getStateResponse = await axios.get(apiUrl, { headers });
         this.isPmBreakDone = getStateResponse.data?.data?.isPmBreakDone;
         this.hasBreaktime = getStateResponse.data?.data?.hasBreaktime;
-
-        await this.checkStateBreaktime();
       } catch (error) {
-        console.error("Error fetching break-time config:", error.message);
-      } finally {
-        this.store.commit("loader/updateLoader", false);
-      }
-    },
-
-    async checkStateBreaktime() {
-      try {
-        this.store.commit("loader/updateLoader", true);
-        const empNumber = localStorage.getItem("empNumber");
-        const baseURL = localStorage.getItem("baseUrl");
-        await this.checkTokenExpiration();
-        const token = localStorage.getItem("token");
-        if (!token) {
-          console.error("Token not available.");
-          return;
-        }
-
-        const headers = {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        };
-        const apiUrl =
-          baseURL +
-          `api/v1/attendance/break-time/latest?empNumber=${empNumber}`;
-        const getStateResponse = await axios.get(apiUrl, { headers });
-
-        const breakData = getStateResponse.data.data;
-
-        const currentDate = new Date().toISOString().split("T")[0];
-
-        if (
-          breakData.punchInAmBreak.amDate === currentDate ||
-          breakData.punchOutAmBreak.amDate === currentDate ||
-          breakData.punchInLunchBreak.lunchDate === currentDate ||
-          breakData.punchOutLunchBreak.lunchDate === currentDate ||
-          breakData.punchInPmBreak.pmDate === currentDate ||
-          breakData.punchOutPmBreak.pmDate === currentDate
-        ) {
-          this.breakDetails = breakData;
+        if (error.response && error.response.status === 401) {
+          this.hasBreaktime = false;
         } else {
-          this.breakDetails = null;
+          console.error("Error fetching break-time config:", error.message);
         }
-
-        if (this.hasBreaktime) {
-          if (breakData.state.name === "Punched In") {
-            this.btnText = "Punch Out Break";
-            this.toastMessage = "Punch Out Break";
-          } else {
-            this.btnText = "Punch In Break";
-            this.toastMessage = "Punch In Break";
-          }
-        }
-      } catch (error) {
-        console.log(error);
       } finally {
         this.store.commit("loader/updateLoader", false);
       }
     },
+
 
     async getState(dataData) {
       try {
@@ -504,23 +454,19 @@ export default defineComponent({
           return;
         }
 
+        const actionText = this.btnText;
+        const isBreakAction =
+          actionText === "Break In" || actionText === "Break Out";
 
-        if (this.hasBreaktime) {
+        if (isBreakAction) {
           console.log("Using Break Time");
           const payload = {
             date: this.date,
             time: this.time,
-            // commented, so that i can submit without using GPS
-            // timezoneName: this.timezoneName,
-            // timezoneOffset: this.timezoneOffset,
-            // note: null,
-            // latitude: coordinates.coords.latitude,
-            // longitude: coordinates.coords.longitude,
           };
           const breakTimeApiUrl = `${baseURL}api/v1/break-time`;
 
           await axios.post(breakTimeApiUrl, payload, { headers });
-          await this.breaktimeConfig();
         } else {
           console.log("Using Attendance");
           const payload = {
@@ -531,15 +477,15 @@ export default defineComponent({
           };
           const attendanceApiUrl = `${baseURL}api/v3/attendance/employees/records`;
 
-          if (this.employeeAlreadyPunchedIn) {
+          if (actionText === "Clock Out") {
             await axios.put(attendanceApiUrl, payload, { headers });
           } else {
             await axios.post(attendanceApiUrl, payload, { headers });
           }
-          await this.checkState();
         }
 
-        this.showAlert(this.toastMessage);
+        await this.checkState();
+        this.showAlert(actionText);
       } catch (error) {
         console.error(
           "Error making the API request: ",
@@ -552,8 +498,19 @@ export default defineComponent({
     // /api/v1/break-time
     async showAlert(message) {
       try {
+        let toastMessage = `Successfully submitted ${message}!`;
+
+        if (message === "Clock In") {
+          toastMessage = "Successfully Clocked In!";
+        } else if (message === "Clock Out") {
+          toastMessage = "Successfully Clocked Out!";
+        } else if (message === "Break In") {
+          toastMessage = "Successfully Started Break!";
+        } else if (message === "Break Out") {
+          toastMessage = "Successfully Ended Break!";
+        }
         const toast = await toastController.create({
-          message: `Successfully ${message}!`,
+          message: toastMessage,
           duration: 3000,
           position: "top",
           icon: "alert-circle-outline",
