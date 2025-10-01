@@ -142,9 +142,6 @@
       <ion-spinner v-if="loading" name="crescent"></ion-spinner>
       <ClockInModal
         :is-open="authenticated"
-        :scanned-username="scannedUsername"
-        :scanned-first-name="scannedFirstName"
-        :scanned-last-name="scannedLastName"
         @didDismiss="closeAuthenticated"
       />
 
@@ -192,13 +189,25 @@
               </div>
             </div>
           </div>
-          <ion-button
-            @click="submitRegistration"
-            class="register-button ion-margin-top"
-          >
-            <ion-icon name="person-add" slot="start"></ion-icon>
-            Register
-          </ion-button>
+          <div class="registration-buttons">
+            <ion-button
+              @click="submitRegistration"
+              class="register-button"
+              :disabled="!selectedEmployee"
+            >
+              <ion-icon name="person-add" slot="start"></ion-icon>
+              Register
+            </ion-button>
+            <ion-button
+              v-if="selectedEmployee && selectedEmployee.face_signature"
+              @click="resetFaceSignature"
+              class="reset-button"
+              color="danger"
+            >
+              <ion-icon name="trash-outline" slot="start"></ion-icon>
+              Reset Face Signature
+            </ion-button>
+          </div>
         </ion-content>
       </ion-modal>
     </ion-content>
@@ -285,9 +294,6 @@ export default defineComponent({
       authenticated: false,
       cameraOn: false,
       theme: {},
-      scannedUsername: "",
-      scannedFirstName: "",
-      scannedLastName: "",
       isRegisterModalOpen: false,
       registrationData: {
         username: "",
@@ -717,17 +723,9 @@ export default defineComponent({
     },
 
     /** Send enrollment to server */
-    async enrollFaceToServer(username, descriptor) {
+    async enrollFaceToServer(username, faceSignature) {
       try {
-        const fingerprint = "";
-        const faceSignature = JSON.stringify(Array.from(descriptor));
-        // const encodedFaceSignature = btoa(faceSignature);
-        console.log(
-          "username, fingerprint, faceSignature",
-          username,
-          fingerprint,
-          faceSignature
-        );
+        const fingerprint = ""; // Assuming fingerprint is not used here
         const tokenString = `${username}|${fingerprint}|${faceSignature}`;
         const encodedPayload = btoa(tokenString);
 
@@ -746,13 +744,69 @@ export default defineComponent({
           throw new Error(result?.message || response.status);
         }
 
-        this.presentAlert("Enrollment sent to server successfully!");
         return true;
       } catch (apiErr) {
         console.error("Error calling enrollment API:", apiErr);
         this.presentAlert("Error sending enrollment to server.");
         return false;
       }
+    },
+
+    async resetFaceSignature() {
+      if (!this.selectedEmployee) return;
+
+      const alert = await alertController.create({
+        header: "Confirm Reset",
+        message: `Are you sure you want to reset the face signature for ${this.selectedEmployee.name}? This action cannot be undone.`,
+        buttons: [
+          {
+            text: "Cancel",
+            role: "cancel",
+          },
+          {
+            text: "Reset",
+            handler: async () => {
+              this.processing = true;
+              try {
+                // Send empty string to server to reset
+                const success = await this.enrollFaceToServer(
+                  this.selectedEmployee.id,
+                  ""
+                );
+
+                if (success) {
+                  // Update local data
+                  const employee = this.employees.find(
+                    (e) => e.id === this.selectedEmployee.id
+                  );
+                  if (employee) {
+                    employee.face_signature = undefined;
+                  }
+                  // Also update local storage if necessary
+                  let storedFaces = JSON.parse(
+                    localStorage.getItem("faceIds") || "[]"
+                  );
+                  storedFaces = storedFaces.filter(
+                    (f) => f.username !== this.selectedEmployee.id
+                  );
+                  localStorage.setItem("faceIds", JSON.stringify(storedFaces));
+
+                  this.presentAlert("Face signature reset successfully.");
+                  this.selectedEmployee.face_signature = undefined; // Update the selected employee object
+                } else {
+                  this.presentAlert("Failed to reset face signature.");
+                }
+              } catch (error) {
+                console.error("Error resetting face signature:", error);
+                this.presentAlert("An error occurred. Please try again.");
+              } finally {
+                this.processing = false;
+              }
+            },
+          },
+        ],
+      });
+      await alert.present();
     },
     // end submitRegistration
 
@@ -1547,5 +1601,15 @@ ion-button {
 .version {
   margin: 0;
   padding: 0;
+}
+.registration-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 1rem;
+}
+
+.reset-button {
+  --background: #eb445a;
 }
 </style>

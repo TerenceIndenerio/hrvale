@@ -241,20 +241,6 @@ export default defineComponent({
       type: Boolean,
       required: true,
     },
-    scannedUsername: {
-      type: String,
-      required: true,
-    },
-    scannedFirstName: {
-      type: String,
-      required: false,
-      default: "",
-    },
-    scannedLastName: {
-      type: String,
-      required: false,
-      default: "",
-    },
   },
   setup() {
     return {
