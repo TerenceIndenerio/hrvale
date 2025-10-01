@@ -630,28 +630,17 @@ export default defineComponent({
 
         console.log("Registering face for employee:", this.selectedEmployee);
 
-        const enrollSuccess = await this.enrollFaceToServer(
+        await this.enrollFaceToServer(
           this.selectedEmployee.name,
           detection.descriptor
         );
 
-        // if (!enrollSuccess) {
-        //   this.presentAlert("Enrollment failed. Face not saved locally.");
-        //   return;
-        // }
-
-        const faceId = this.generateFaceId(this.selectedEmployee.id);
-        // this.saveFaceLocally(faceId, detection, this.selectedEmployee);
-
         this.updateEmployeeFaceSignature(
-          this.selectedEmployee.id,
+          this.selectedEmployee,
           detection.descriptor
         );
 
         this.loadStoredFaces();
-        this.presentAlert(
-          `Face registered successfully for ${this.selectedEmployee.name}!`
-        );
       } catch (error) {
         console.error("Error registering face:", error);
         this.presentAlert("Error registering face. Please try again.");
@@ -695,12 +684,12 @@ export default defineComponent({
     },
 
     /** Update employee’s face signature in employeesData */
-    updateEmployeeFaceSignature(employeeId, descriptor) {
+    updateEmployeeFaceSignature(employee, descriptor) {
       try {
         let employeesData = JSON.parse(
           localStorage.getItem("employeesData") || "[]"
         );
-        const idx = employeesData.findIndex((emp) => emp.id === employeeId);
+        const idx = employeesData.findIndex((emp) => emp.id === employee.id);
 
         if (idx !== -1) {
           employeesData[idx].face_signature = JSON.stringify(
@@ -711,7 +700,15 @@ export default defineComponent({
             `Face signature updated locally for ${employeesData[idx].name}!`
           );
         } else {
-          this.presentAlert("Employee not found in local storage!");
+          const newEmployee = {
+            ...employee,
+            face_signature: JSON.stringify(Array.from(descriptor)),
+          };
+          employeesData.push(newEmployee);
+          localStorage.setItem("employeesData", JSON.stringify(employeesData));
+          this.presentAlert(
+            `Face registered successfully for ${newEmployee.name}!`
+          );
         }
       } catch (error) {
         console.error("Error updating face signature:", error);
