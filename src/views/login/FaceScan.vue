@@ -423,43 +423,6 @@ export default defineComponent({
               ? undefined
               : emp.face_signature || undefined,
         }));
-        let storedFaces = JSON.parse(localStorage.getItem("faceIds") || "[]");
-        this.employees.forEach((employee) => {
-          if (
-            employee.face_signature &&
-            typeof employee.face_signature === "string" &&
-            employee.face_signature.startsWith("[")
-          ) {
-            try {
-              const descriptor = JSON.parse(employee.face_signature);
-              const existingFaceIndex = storedFaces.findIndex(
-                (f) => f.username === employee.id
-              );
-              if (existingFaceIndex > -1) {
-                storedFaces[existingFaceIndex].descriptor = descriptor;
-                storedFaces[existingFaceIndex].employee = employee;
-                console.log(`Updated face signature for ${employee.name}`);
-              } else {
-                storedFaces.push({
-                  id: Date.now() + Math.random(),
-                  name: `${employee.name}_${Date.now()}`,
-                  descriptor: descriptor,
-                  username: employee.id,
-                  client: "suysing",
-                  employee: employee,
-                });
-                console.log(`Added new face signature for ${employee.name}`);
-              }
-            } catch (e) {
-              console.error(
-                `Failed to parse face_signature for ${employee.name}:`,
-                e
-              );
-            }
-          }
-        });
-        localStorage.setItem("faceIds", JSON.stringify(storedFaces));
-        this.loadStoredFaces();
       } catch (error) {
         console.error("Failed to fetch employees:", error);
       }
@@ -544,45 +507,53 @@ export default defineComponent({
           });
 
           // --- FACE MATCHING ---
-          const storedFaces = JSON.parse(
-            localStorage.getItem("faceIds") || "[]"
+          const employeesWithFaces = this.employees.filter(
+            (emp) => emp.face_signature && emp.face_signature.startsWith("[")
           );
 
-          // Build matcher
-          const labeledDescriptors = storedFaces.map(
-            (f) =>
-              new faceapi.LabeledFaceDescriptors(f.username, [
-                new Float32Array(f.descriptor),
-              ])
-          );
+          if (employeesWithFaces.length > 0) {
+            const labeledDescriptors = employeesWithFaces
+              .map((emp) => {
+                try {
+                  const descriptor = JSON.parse(emp.face_signature);
+                  return new faceapi.LabeledFaceDescriptors(emp.id, [
+                    new Float32Array(descriptor),
+                  ]);
+                } catch (e) {
+                  console.error(
+                    `Failed to parse face_signature for ${emp.name}:`,
+                    e
+                  );
+                  return null;
+                }
+              })
+              .filter(Boolean);
 
-          if (labeledDescriptors.length > 0) {
-            const matcher = new faceapi.FaceMatcher(labeledDescriptors, 0.5);
-            const bestMatch = matcher.findBestMatch(detection.descriptor);
+            if (labeledDescriptors.length > 0) {
+              const matcher = new faceapi.FaceMatcher(labeledDescriptors, 0.5);
+              const bestMatch = matcher.findBestMatch(detection.descriptor);
 
-            if (
-              bestMatch.label !== "unknown" &&
-              !this.processing &&
-              this.mode === "auth"
-            ) {
-              // find the employee object corresponding to the matched username
-              const matchedFace = storedFaces.find(
-                (f) => f.username === bestMatch.label
-              );
-
-              console.log("Matched face:", matchedFace);
-
-              if (matchedFace && matchedFace.employee) {
-                this.processing = true; // block repeated calls
-                await this.performLogin(matchedFace.employee); // pass employee object
-                console.log(
-                  "Face recognized, performing login...",
-                  matchedFace.employee
+              if (
+                bestMatch.label !== "unknown" &&
+                !this.processing &&
+                this.mode === "auth"
+              ) {
+                const matchedEmployee = this.employees.find(
+                  (emp) => emp.id === bestMatch.label
                 );
-              } else {
-                console.warn(
-                  "Matched face found but no employee object attached"
-                );
+
+                if (matchedEmployee) {
+                  this.processing = true; // block repeated calls
+                  await this.performLogin(matchedEmployee); // pass employee object
+                  console.log(
+                    "Face recognized, performing login...",
+                    matchedEmployee
+                  );
+                } else {
+                  console.warn(
+                    "Matched face found but no employee object attached"
+                  );
+                }
               }
             }
           }
@@ -630,17 +601,28 @@ export default defineComponent({
 
         console.log("Registering face for employee:", this.selectedEmployee);
 
-        await this.enrollFaceToServer(
+        const enrollSuccess = await this.enrollFaceToServer(
           this.selectedEmployee.name,
           detection.descriptor
         );
 
+        // if (!enrollSuccess) {
+        //   this.presentAlert("Enrollment failed. Face not saved locally.");
+        //   return;
+        // }
+
+        const faceId = this.generateFaceId(this.selectedEmployee.id);
+        // this.saveFaceLocally(faceId, detection, this.selectedEmployee);
+
         this.updateEmployeeFaceSignature(
-          this.selectedEmployee,
+          this.selectedEmployee.id,
           detection.descriptor
         );
 
         this.loadStoredFaces();
+        this.presentAlert(
+          `Face registered successfully for ${this.selectedEmployee.name}!`
+        );
       } catch (error) {
         console.error("Error registering face:", error);
         this.presentAlert("Error registering face. Please try again.");
@@ -684,12 +666,12 @@ export default defineComponent({
     },
 
     /** Update employee’s face signature in employeesData */
-    updateEmployeeFaceSignature(employee, descriptor) {
+    updateEmployeeFaceSignature(employeeId, descriptor) {
       try {
         let employeesData = JSON.parse(
           localStorage.getItem("employeesData") || "[]"
         );
-        const idx = employeesData.findIndex((emp) => emp.id === employee.id);
+        const idx = employeesData.findIndex((emp) => emp.id === employeeId);
 
         if (idx !== -1) {
           employeesData[idx].face_signature = JSON.stringify(
@@ -700,15 +682,7 @@ export default defineComponent({
             `Face signature updated locally for ${employeesData[idx].name}!`
           );
         } else {
-          const newEmployee = {
-            ...employee,
-            face_signature: JSON.stringify(Array.from(descriptor)),
-          };
-          employeesData.push(newEmployee);
-          localStorage.setItem("employeesData", JSON.stringify(employeesData));
-          this.presentAlert(
-            `Face registered successfully for ${newEmployee.name}!`
-          );
+          this.presentAlert("Employee not found in local storage!");
         }
       } catch (error) {
         console.error("Error updating face signature:", error);
