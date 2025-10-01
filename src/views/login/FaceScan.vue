@@ -508,17 +508,24 @@ export default defineComponent({
 
           // --- FACE MATCHING ---
           const employeesWithFaces = this.employees.filter(
-            (emp) => emp.face_signature && emp.face_signature.startsWith("[")
+            (emp) => emp.face_signature && typeof emp.face_signature === "string"
           );
 
           if (employeesWithFaces.length > 0) {
             const labeledDescriptors = employeesWithFaces
               .map((emp) => {
                 try {
-                  const descriptor = JSON.parse(emp.face_signature);
-                  return new faceapi.LabeledFaceDescriptors(emp.id, [
-                    new Float32Array(descriptor),
-                  ]);
+                  // Correctly parse the comma-separated string into a Float32Array
+                  const descriptor = new Float32Array(
+                    emp.face_signature.split(",").map(Number)
+                  );
+                  // Ensure the descriptor has the expected length (128 for face-recognition.js)
+                  if (descriptor.length === 128) {
+                    return new faceapi.LabeledFaceDescriptors(emp.id, [
+                      descriptor,
+                    ]);
+                  }
+                  return null;
                 } catch (e) {
                   console.error(
                     `Failed to parse face_signature for ${emp.name}:`,
