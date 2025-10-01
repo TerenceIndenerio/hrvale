@@ -140,10 +140,7 @@
       </ion-grid>
 
       <ion-spinner v-if="loading" name="crescent"></ion-spinner>
-      <ClockInModal
-        :is-open="authenticated"
-        @didDismiss="closeAuthenticated"
-      />
+      <ClockInModal :is-open="authenticated" @didDismiss="closeAuthenticated" />
 
       <!-- Registration Modal -->
       <ion-modal
@@ -573,6 +570,8 @@ export default defineComponent({
                 (f) => f.username === bestMatch.label
               );
 
+              console.log("Matched face:", matchedFace);
+
               if (matchedFace && matchedFace.employee) {
                 this.processing = true; // block repeated calls
                 await this.performLogin(matchedFace.employee); // pass employee object
@@ -636,10 +635,10 @@ export default defineComponent({
           detection.descriptor
         );
 
-        if (!enrollSuccess) {
-          this.presentAlert("Enrollment failed. Face not saved locally.");
-          return;
-        }
+        // if (!enrollSuccess) {
+        //   this.presentAlert("Enrollment failed. Face not saved locally.");
+        //   return;
+        // }
 
         const faceId = this.generateFaceId(this.selectedEmployee.id);
         // this.saveFaceLocally(faceId, detection, this.selectedEmployee);
@@ -1108,6 +1107,7 @@ export default defineComponent({
   border-radius: 20px;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.2);
+  padding-bottom: 50px;
 }
 
 .face-scan-card-header {
@@ -1258,7 +1258,7 @@ export default defineComponent({
   font-weight: 600;
   height: 50px;
   margin: 0 auto;
-  position: relative;
+  position: absolute;
   left: 50%;
   transform: translateX(-50%);
   --background: linear-gradient(to right, #064ea0, #002e62);
@@ -1611,5 +1611,7 @@ ion-button {
 
 .reset-button {
   --background: #eb445a;
+  position: absolute;
+  bottom: 10px;
 }
 </style>
