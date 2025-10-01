@@ -94,7 +94,7 @@ import CantBeAccess from "@/views/CantBeAccess.vue";
 const routes: Array<RouteRecordRaw> = [
   {
     path: "/",
-    redirect: "/facescantemp",
+    redirect: "/facescan",
   },
   {
     path: "/setuppincodelogin",

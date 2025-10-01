@@ -35,13 +35,12 @@
                   {{ mode === "auth" ? "Authentication" : "Registration" }}
                 </ion-card-title>
                 <ion-card-subtitle class="face-scan-card-subtitle">
-                  Position your face in the camera for
-                  {{ mode === "auth" ? "authentication" : "registration" }}.
+                  Face the frame directly to ensure accurate facial scanning.
                 </ion-card-subtitle>
               </ion-card-header>
               <br />
 
-              <ion-card v-if="mode === 'register'" class="registration-card">
+              <!-- <ion-card v-if="mode === 'register'" class="registration-card">
                 <ion-card-header class="registration-card-header">
                   <ion-card-title class="registration-card-title">
                     <ion-icon
@@ -51,7 +50,7 @@
                     Register New Face
                   </ion-card-title>
                 </ion-card-header>
-              </ion-card>
+              </ion-card> -->
 
               <ion-card-content class="face-scan-card-content">
                 <div class="camera-container">
@@ -558,7 +557,11 @@ export default defineComponent({
             const matcher = new faceapi.FaceMatcher(labeledDescriptors, 0.5);
             const bestMatch = matcher.findBestMatch(detection.descriptor);
 
-            if (bestMatch.label !== "unknown" && !this.processing) {
+            if (
+              bestMatch.label !== "unknown" &&
+              !this.processing &&
+              this.mode === "auth"
+            ) {
               // find the employee object corresponding to the matched username
               const matchedFace = storedFaces.find(
                 (f) => f.username === bestMatch.label
@@ -836,7 +839,7 @@ export default defineComponent({
       try {
         console.log("Performing login for face:", face);
         const employee = face.employee;
-        this.store.commit("loader/updateLoader", true);
+        // this.store.commit("loader/updateLoader", true);
         const authResult = await this.store.dispatch(
           "auth/biometricLogin",
           face
@@ -873,7 +876,7 @@ export default defineComponent({
         );
         this.processing = false;
       } finally {
-        this.store.commit("loader/updateLoader", false);
+        // this.store.commit("loader/updateLoader", false);
       }
     },
     async fetchStoredTheme() {

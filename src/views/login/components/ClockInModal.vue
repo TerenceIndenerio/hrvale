@@ -313,7 +313,7 @@ export default defineComponent({
     },
 
     async updateClockState() {
-      this.store.commit("loader/updateLoader", true);
+      // this.store.commit("loader/updateLoader", true);
 
       try {
         const empNumber = localStorage.getItem("empNumber");
@@ -402,9 +402,7 @@ export default defineComponent({
         const errorMessage =
           error.response?.data?.error?.message ||
           "Could not update clock status.";
-        this.showErrorMessage(errorMessage);
-      } finally {
-        this.store.commit("loader/updateLoader", false);
+        this.$emit("didDismiss");
       }
     },
 
@@ -516,7 +514,6 @@ export default defineComponent({
         const errorMessage =
           error.response?.data?.error?.message || "An unknown error occurred.";
         console.error("Error making the API request: ", errorMessage);
-        this.showErrorMessage(errorMessage);
       } finally {
         this.$emit("didDismiss");
       }
