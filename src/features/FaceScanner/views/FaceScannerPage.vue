@@ -152,9 +152,9 @@ import { useRouter } from "vue-router";
 import { defineComponent, ref, onMounted, nextTick, onBeforeUnmount } from "vue";
 import { useStore } from "vuex";
 import Refresher from "@/components/refresher/Refresher.vue";
-import ClockInModal from "@/components/face-scanner/ClockInModal.vue";
-import FaceScannerCamera from "@/components/face-scanner/FaceScannerCamera.vue";
-import RegistrationModal from "@/components/face-scanner/RegistrationModal.vue";
+import ClockInModal from "@/features/FaceScanner/components/ClockInModal.vue";
+import FaceScannerCamera from "@/features/FaceScanner/components/FaceScannerCamera.vue";
+import RegistrationModal from "@/features/FaceScanner/components/RegistrationModal.vue";
 import { TextToSpeech } from "@capacitor-community/text-to-speech";
 import {
   loadModels as loadFaceApiModels,
@@ -162,11 +162,11 @@ import {
   findBestMatch,
   drawLandmarks,
   drawAuthenticatedBox,
-} from "@/services/faceapi.service";
-import { performFaceLogin } from "@/services/auth.face.service";
+} from "@/features/FaceScanner/services/faceapi.service";
+import { performFaceLogin } from "@/features/FaceScanner/services/auth.face.service";
 
 export default defineComponent({
-  name: "FaceScanner",
+  name: "FaceScannerPage",
   components: {
     IonPage,
     IonContent,

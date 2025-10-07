@@ -62,27 +62,20 @@ export const drawLandmarks = (
     canvas.height = video.clientHeight;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    const scaleX = video.clientWidth / video.videoWidth;
-    const scaleY = video.clientHeight / video.videoHeight;
+    const { positions } = detection.landmarks;
+    const resizedPositions = positions.map(
+      pos => new faceapi.Point(
+        pos.x * (video.clientWidth / video.videoWidth),
+        pos.y * (video.clientHeight / video.videoHeight)
+      )
+    );
+    const resizedLandmarks = new faceapi.FaceLandmarks68(
+        resizedPositions,
+        { width: video.clientWidth, height: video.clientHeight }
+    );
 
-    const landmarks = detection.landmarks.positions.map(p => ({
-      x: p.x * scaleX,
-      y: p.y * scaleY,
-    }));
 
-    ctx.strokeStyle = '#00f9ff';
-    ctx.lineWidth = 2;
-
-    faceapi.draw.drawJawline(ctx, landmarks);
-    faceapi.draw.drawEyebrows(ctx, landmarks);
-    faceapi.draw.drawNose(ctx, landmarks);
-    faceapi.draw.drawMouth(ctx, landmarks);
-
-    // Draw eyes separately to ensure they are closed loops
-    const leftEye = landmarks.slice(36, 42);
-    const rightEye = landmarks.slice(42, 48);
-    faceapi.draw.drawPolygon(ctx, [...leftEye, leftEye[0]]);
-    faceapi.draw.drawPolygon(ctx, [...rightEye, rightEye[0]]);
+    faceapi.draw.drawFaceLandmarks(canvas, resizedLandmarks);
   };
 
   export const drawAuthenticatedBox = (
@@ -95,9 +88,9 @@ export const drawLandmarks = (
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    const { x, y } = detection.landmarks.getNose()[3]; // A central point on the nose
+    const { x, y } = detection.landmarks.getNose()[3];
     const { width } = detection.detection.box;
-    const radius = width / 2 + 20; // Adjust radius based on face size
+    const radius = width / 2 + 20;
 
     ctx.strokeStyle = '#00ff80';
     ctx.lineWidth = 4;
