@@ -8,9 +8,8 @@ import LeaveRequest from "@/views/services/leave/LeaveRequest.vue";
 import ClockIn from "@/views/services/clock_in/ClockIn.vue";
 import AttendanceCorrection from "@/views/services/attendance/AttendanceCorrection.vue";
 import Login from "@/views/login/Login.vue";
-import FaceScan from "@/views/FaceScanner/FaceScanner.vue";
+import FaceScan from "@/features/FaceScanner/views/FaceScannerPage.vue";
 import RegisteredFaces from "@/views/login/RegisteredFaces.vue";
-import RegisteredFacesTemp from "@/views/login/RegisteredFacesTemp.vue";
 import SetUpLogin from "@/views/login/SetUpLogin.vue";
 import Flash from "@/views/login/Flash.vue";
 import ApplyOT from "@/views/services/ot/ApplyOT.vue";
@@ -403,10 +402,6 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: "/registeredfaces",
     component: RegisteredFaces,
-  },
-  {
-    path: "/registeredfacestemp",
-    component: RegisteredFacesTemp,
   },
   {
     path: "/setuplogin",

@@ -36,4 +36,3 @@ package-lock.json
 package.json
 
 resources/android/**/*
-public/models/
