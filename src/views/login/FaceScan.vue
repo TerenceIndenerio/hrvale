@@ -20,9 +20,15 @@
 
       <div v-if="loading" class="loading-overlay">
         <div class="loading-content">
-          <h3>Loading Face Recognition...</h3>
+          <h3>Loading Face Recognition</h3>
+          <br />
           <p>Please wait while we initialize the camera and models</p>
-          <ion-spinner name="crescent" color="primary"></ion-spinner>
+          <ion-progress-bar
+            :buffer="buffer"
+            :value="progress"
+            class
+          ></ion-progress-bar>
+          <div class="loader-2"></div>
         </div>
       </div>
 
@@ -40,17 +46,71 @@
               </ion-card-header>
               <br />
 
-              <!-- <ion-card v-if="mode === 'register'" class="registration-card">
-                <ion-card-header class="registration-card-header">
-                  <ion-card-title class="registration-card-title">
-                    <ion-icon
-                      name="person-add-outline"
-                      class="card-icon"
-                    ></ion-icon>
-                    Register New Face
-                  </ion-card-title>
-                </ion-card-header>
-              </ion-card> -->
+              <!-- Registration Modal -->
+              <ion-card
+                :is-open="isRegisterModalOpen"
+                v-if="isRegisterModalOpen"
+              >
+                <div class="ion-padding">
+                  <!-- Search Box -->
+                  <div class="search-container">
+                    <input
+                      type="text"
+                      v-model="searchQuery"
+                      placeholder="Search employees..."
+                      class="search-input"
+                      :disabled="processing"
+                    />
+                    <span class="search-icon">🔍</span>
+                  </div>
+                  <!-- Employee List -->
+                  <div class="employee-list">
+                    <div
+                      v-for="employee in filteredEmployees"
+                      :key="employee.id"
+                      class="employee-item"
+                      :class="{ selected: selectedEmployee === employee }"
+                      @click="selectedEmployee = employee"
+                      :style="{ pointerEvents: processing ? 'none' : 'auto' }"
+                    >
+                      <div class="employee-name">{{ employee.name }}</div>
+                      <div class="employee-id">ID: {{ employee.id }}</div>
+                      <div v-if="employee.face_signature" class="face-status">
+                        Has registered face
+                      </div>
+                    </div>
+                  </div>
+                  <div class="registration-buttons">
+                    <ion-button
+                      @click="submitRegistration"
+                      class="register-button"
+                      :disabled="!selectedEmployee"
+                    >
+                      <ion-icon name="checkmark" slot="start"></ion-icon>
+                      Save
+                    </ion-button>
+
+                    <ion-button
+                      @click="isRegisterModalOpen = false"
+                      color="danger"
+                      class="close-register-button"
+                    >
+                      <ion-icon name="close"></ion-icon>
+                      Cancel
+                    </ion-button>
+
+                    <ion-button
+                      v-if="selectedEmployee && selectedEmployee.face_signature"
+                      @click="resetFaceSignature"
+                      class="reset-button"
+                      color="danger"
+                    >
+                      <ion-icon name="trash-outline" slot="start"></ion-icon>
+                      Reset Face Signature
+                    </ion-button>
+                  </div>
+                </div>
+              </ion-card>
 
               <ion-card-content class="face-scan-card-content">
                 <div class="camera-container">
@@ -81,132 +141,66 @@
                       <p>Camera is off</p>
                     </div>
                     <div class="scan-overlay" v-if="processing && cameraOn">
-                      <ion-spinner
-                        name="crescent"
-                        color="primary"
-                      ></ion-spinner>
-                      <p class="scan-text">Scanning...</p>
+                      <div class="loader"></div>
                     </div>
                   </div>
                 </div>
 
-                <ion-button
-                  @click="switchMode"
-                  class="mode-switch-button"
-                  color="None"
-                >
-                  <ion-icon
-                    :name="mode === 'auth' ? 'cog' : 'scan'"
-                    :style="{ color: '#064ea0' }"
-                    slot="start"
-                  ></ion-icon>
-                </ion-button>
+                <div class="button-tools-container">
+                  <ion-button
+                    @click="switchMode"
+                    class="mode-switch-button"
+                    color="None"
+                  >
+                    <ion-icon
+                      :name="mode === 'auth' ? 'cog' : 'scan'"
+                      :style="{ color: '#064ea0' }"
+                      slot="start"
+                    ></ion-icon>
+                  </ion-button>
 
-                <!-- Refresh Button -->
-                <ion-button
-                  @click="refreshPage"
-                  class="refresh-button"
-                  color="None"
-                >
-                  <ion-icon
-                    name="reload"
-                    :style="{ color: '#064ea0' }"
-                  ></ion-icon>
-                </ion-button>
+                  <!-- Refresh Button -->
+                  <ion-button
+                    @click="refreshPage"
+                    class="refresh-button"
+                    color="None"
+                  >
+                    <ion-icon
+                      name="reload"
+                      :style="{ color: '#064ea0' }"
+                    ></ion-icon>
+                  </ion-button>
+                </div>
+
+                <!-- Scanning and Detecting Text -->
+                <div
+                  v-if="processing && cameraOn"
+                  class="loader-3"
+                  :style="{ color: '#064ea0' }"
+                ></div>
+
+                <h3 v-else class="scanning-text detecting">Detecting Face</h3>
 
                 <ion-button
-                  v-if="mode === 'register'"
+                  v-if="mode === 'register' && !isRegisterModalOpen"
                   @click="registerFace"
                   :disabled="processing || !cameraOn"
-                  class="register-button"
+                  class="register-face-button"
                 >
                   <ion-icon name="person-add" slot="start"></ion-icon>
                   Register Face
                 </ion-button>
-
-                <!-- <ion-button
-                  v-if="mode === 'register'"
-                  @click="goToRegisteredFacesTemp"
-                  expand="block"
-                  class="manage-faces-button ion-margin-top"
-                >
-                  <ion-icon name="list-outline" slot="start"></ion-icon>
-                  Manage Registered Faces
-                </ion-button> -->
               </ion-card-content>
             </ion-card>
           </ion-col>
         </ion-row>
       </ion-grid>
 
-      <ion-spinner v-if="loading" name="crescent"></ion-spinner>
-      <ClockInModal :is-open="authenticated" @didDismiss="closeAuthenticated" />
-
-      <!-- Registration Modal -->
-      <ion-modal
-        :is-open="isRegisterModalOpen"
-        @didDismiss="isRegisterModalOpen = false"
-      >
-        <ion-header>
-          <ion-toolbar>
-            <ion-title>Register Credentials</ion-title>
-            <ion-buttons slot="end">
-              <ion-button @click="isRegisterModalOpen = false"
-                >Close</ion-button
-              >
-            </ion-buttons>
-          </ion-toolbar>
-        </ion-header>
-        <ion-content class="ion-padding">
-          <!-- Search Box -->
-          <div class="search-container">
-            <input
-              type="text"
-              v-model="searchQuery"
-              placeholder="Search employees..."
-              class="search-input"
-              :disabled="processing"
-            />
-            <span class="search-icon">🔍</span>
-          </div>
-          <!-- Employee List -->
-          <div class="employee-list">
-            <div
-              v-for="employee in filteredEmployees"
-              :key="employee.id"
-              class="employee-item"
-              :class="{ selected: selectedEmployee === employee }"
-              @click="selectedEmployee = employee"
-              :style="{ pointerEvents: processing ? 'none' : 'auto' }"
-            >
-              <div class="employee-name">{{ employee.name }}</div>
-              <div class="employee-id">ID: {{ employee.id }}</div>
-              <div v-if="employee.face_signature" class="face-status">
-                Has registered face
-              </div>
-            </div>
-          </div>
-          <div class="registration-buttons">
-            <ion-button
-              @click="submitRegistration"
-              class="register-button"
-              :disabled="!selectedEmployee"
-            >
-              <ion-icon name="person-add" slot="start"></ion-icon>
-              Register
-            </ion-button>
-            <ion-button
-              v-if="selectedEmployee && selectedEmployee.face_signature"
-              @click="resetFaceSignature"
-              class="reset-button"
-              color="danger"
-            >
-              <ion-icon name="trash-outline" slot="start"></ion-icon>
-              Reset Face Signature
-            </ion-button>
-          </div>
-        </ion-content>
-      </ion-modal>
+      <ClockInModal
+        :is-open="authenticated"
+        @didDismiss="closeAuthenticated"
+        :scannedEmployeeDetails="scannedEmployeeDetails"
+      />
     </ion-content>
   </ion-page>
 </template>
@@ -235,6 +229,7 @@ import {
   IonItem,
   IonLabel,
   IonInput,
+  IonProgressBar,
 } from "@ionic/vue";
 import { camera, scan } from "ionicons/icons";
 import * as faceapi from "face-api.js";
@@ -246,8 +241,11 @@ import ClockInModal from "./components/ClockInModal.vue";
 import { TextToSpeech } from "@capacitor-community/text-to-speech";
 import generateToken from "@/store/token/accessToken.ts";
 import axios from "axios";
+import ClockInCardDigital from "../services/clock_in/components/ClockInCardDigital.vue";
 
 export default defineComponent({
+  name: "FaceScanComponent",
+
   components: {
     IonPage,
     IonContent,
@@ -273,36 +271,87 @@ export default defineComponent({
     IonItem,
     IonLabel,
     IonInput,
+    IonProgressBar,
+    ClockInCardDigital,
   },
+
   setup() {
     const router = useRouter();
     const store = useStore();
     return { router, store };
   },
+
   data() {
     return {
+      // Icons
       camera,
+
+      // Loading & Status
       loading: false,
       modelsLoaded: false,
-      stream: null,
       processing: false,
-      mode: "auth",
-      storedFaces: [],
       authenticated: false,
       cameraOn: false,
-      theme: {},
+
+      // Camera & Video
+      stream: null,
+
+      // Mode Management
+      mode: "auth", // 'auth' or 'register'
+
+      // Employee Data
+      employees: [],
+      storedFaces: [],
+      selectedEmployee: null,
+      searchQuery: "",
+
+      // Modal States
       isRegisterModalOpen: false,
+
+      // Registration Data
       registrationData: {
         username: "",
         password: "",
         clientID: "",
       },
-      searchQuery: "",
-      employees: [],
-      selectedEmployee: null,
+
+      // Theme
+      theme: {},
+
+      // User Data
+      scannedEmployeeDetails: null,
+      scannedUsername: "",
+      scannedFirstName: "",
+      scannedLastName: "",
+      empNumber: null,
+
+      // Optimization Properties
+      frameSkipCounter: 0,
+      frameSkipRate: 2,
+      lastProcessTime: 0,
+      minProcessInterval: 100,
+      isProcessingFrame: false,
+      cachedLabeledDescriptors: null,
+      lastCacheUpdate: 0,
+      cacheTimeout: 10000,
+      isAuthenticating: false, // Prevent multiple simultaneous login attempts
+
+      // Misc
       version: "1.0.0",
+      updateInterval: null,
+
+      // Display Times
+      displayTimes: {
+        clockIn: "00:00",
+        clockOut: "00:00",
+      },
+
+      // progress bar
+      buffer: 1,
+      progress: 0,
     };
   },
+
   computed: {
     filteredEmployees() {
       const query = this.searchQuery.toLowerCase();
@@ -313,6 +362,7 @@ export default defineComponent({
       );
     },
   },
+
   watch: {
     async loading(newValue) {
       if (newValue === false) {
@@ -324,40 +374,175 @@ export default defineComponent({
       }
     },
   },
-  async mounted() {
-    this.loading = true;
-    this.fetchTheme();
-    try {
-      await faceapi.nets.tinyFaceDetector.loadFromUri(
-        "https://justadudewhohacks.github.io/face-api.js/models/"
-      );
-      await faceapi.nets.faceLandmark68Net.loadFromUri(
-        "https://justadudewhohacks.github.io/face-api.js/models/"
-      );
-      await faceapi.nets.faceRecognitionNet.loadFromUri(
-        "https://justadudewhohacks.github.io/face-api.js/models/"
-      );
-      this.modelsLoaded = true;
 
-      this.loadStoredFaces();
-    } catch (error) {
-      console.error("Error during component mount:", error);
-      await this.presentAlert(
-        "Initialization failed. Please refresh the page."
-      );
-    }
-    await this.fetchEmployees();
-    this.loading = false;
+  async mounted() {
+    await this.initialize();
   },
+
+  beforeUnmount() {
+    this.cleanup();
+  },
+
+  beforeDestroy() {
+    if (this.updateInterval) {
+      clearInterval(this.updateInterval);
+    }
+  },
+
+  created() {
+    this.fetchTheme();
+  },
+
   methods: {
+    // ============================================
+    // INITIALIZATION METHODS (OPTIMIZED)
+    // ============================================
+
+    async initialize() {
+      this.loading = true;
+      this.progress = 0;
+      this.fetchTheme();
+
+      try {
+        // Load models and fetch employees in PARALLEL for faster initialization
+        await Promise.all([this.loadFaceModels(), this.fetchEmployees()]);
+
+        this.loadStoredFaces();
+        this.progress = 0.75;
+      } catch (error) {
+        console.error("Error during initialization:", error);
+        await this.presentAlert(
+          "Initialization failed. Please refresh the page."
+        );
+      }
+
+      // Turn off loading screen first so video element becomes available
+      this.loading = false;
+
+      // Wait for DOM to update and video element to be available
+      await this.$nextTick();
+
+      // Now initialize camera
+      try {
+        if (this.$refs.video) {
+          await this.initializeCamera();
+        }
+      } catch (error) {
+        console.error("Error initializing camera:", error);
+        await this.presentAlert(
+          "Error accessing camera. Please check permissions."
+        );
+      }
+    },
+
+    async loadFaceModels() {
+      const modelUrl =
+        "https://justadudewhohacks.github.io/face-api.js/models/";
+
+      // Load ALL models in PARALLEL instead of sequentially
+      const models = [
+        faceapi.nets.tinyFaceDetector.loadFromUri(modelUrl),
+        faceapi.nets.faceLandmark68Net.loadFromUri(modelUrl),
+        faceapi.nets.faceRecognitionNet.loadFromUri(modelUrl),
+      ];
+
+      try {
+        // Use Promise.all to load all models simultaneously (3x faster!)
+        await Promise.all(models);
+        this.progress = 0.75;
+        console.log("All models loaded in parallel");
+        this.modelsLoaded = true;
+      } catch (error) {
+        console.error("Failed to load models:", error);
+        throw error;
+      }
+    },
+
+    async initializeCamera() {
+      try {
+        // Update progress to show camera initialization starting (75%)
+        this.progress = 0.75;
+        console.log("Initializing camera...");
+
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: {
+            facingMode: "user",
+            width: { ideal: 640 },
+            height: { ideal: 480 },
+            frameRate: { ideal: 30, max: 30 },
+          },
+        });
+
+        this.$refs.video.srcObject = stream;
+        this.stream = stream;
+
+        // Update progress to 90% while waiting for video to be ready
+        this.progress = 0.9;
+
+        // Wait for video to be actually ready
+        await this.waitForVideoReady(this.$refs.video);
+
+        this.cameraOn = true;
+
+        // Camera is fully on, complete progress
+        this.progress = 1.0;
+        console.log("Camera fully initialized and ready");
+
+        // Start processing frames immediately (no delay needed)
+        requestAnimationFrame(() => this.processFrames());
+      } catch (error) {
+        console.error("Error initializing camera:", error);
+        this.cameraOn = false;
+        throw error;
+      }
+    },
+
+    waitForVideoReady(video) {
+      return new Promise((resolve) => {
+        if (video.readyState >= 2) {
+          resolve();
+        } else {
+          video.addEventListener("loadeddata", () => resolve(), { once: true });
+        }
+      });
+    },
+
+    cleanup() {
+      this.stopCamera();
+      this.resetState();
+    },
+
+    resetState() {
+      this.processing = false;
+      this.authenticated = false;
+      this.isAuthenticating = false;
+      this.frameSkipCounter = 0;
+      this.lastProcessTime = 0;
+      this.isProcessingFrame = false;
+      this.cachedLabeledDescriptors = null;
+      this.lastCacheUpdate = 0;
+    },
+
+    // ============================================
+    // CAMERA MANAGEMENT
+    // ============================================
+
     async startCamera() {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: "user" },
+          video: {
+            facingMode: "user",
+            width: { ideal: 640 },
+            height: { ideal: 480 },
+            frameRate: { ideal: 30, max: 30 },
+          },
         });
+
         this.$refs.video.srcObject = stream;
         this.stream = stream;
         this.cameraOn = true;
+
+        // Start processing frames
         this.processFrames();
       } catch (error) {
         console.error("Error accessing camera:", error);
@@ -366,6 +551,7 @@ export default defineComponent({
         );
       }
     },
+
     stopCamera() {
       if (this.stream) {
         this.stream.getTracks().forEach((track) => track.stop());
@@ -373,98 +559,239 @@ export default defineComponent({
         this.cameraOn = false;
       }
     },
-    async switchMode() {
-      if (this.mode === "auth") {
-        // Switching to register mode - require password
-        const password = prompt("Enter admin password to access registration:");
-        if (password === "admin123") {
-          this.mode = "register";
-        } else {
-          alert("Incorrect password");
-        }
-      } else {
-        // Switching back to auth mode - no password required
-        this.mode = "auth";
-      }
-    },
-    async refreshPage() {
-      this.processing = false;
-      this.authenticated = false;
-      this.scannedUsername = "";
-      this.scannedFirstName = "";
-      this.scannedLastName = "";
-      this.isRegisterModalOpen = false;
-      this.registrationData = {
-        username: "",
-        clientID: "",
-      };
 
-      // Stop and restart the camera to ensure a clean state
-      this.stopCamera();
-      await this.$nextTick(); // Allow the DOM to update
-      await this.startCamera();
+    async refreshPage() {
+      window.location.reload();
     },
-    async fetchEmployees() {
-      console.log("Fetching employees...");
-      try {
-        const response = await axios.get(
-          "https://hrvale.bapplware.com/users/data"
-        );
-        const serverEmployees = response.data.data;
-        this.employees = serverEmployees.map((emp) => ({
-          id: emp.username,
-          name: emp.username,
-          fingerprint:
-            emp.finger_print === "undefined"
-              ? undefined
-              : emp.finger_print || undefined,
-          face_signature:
-            emp.face_signature === "undefined"
-              ? undefined
-              : emp.face_signature || undefined,
-        }));
-      } catch (error) {
-        console.error("Failed to fetch employees:", error);
-      }
-    },
+
+    // ============================================
+    // FACE DETECTION & PROCESSING (OPTIMIZED)
+    // ============================================
+
     async processFrames() {
       const video = this.$refs.video;
 
       // Ensure video and models are ready
-      if (!video || video.videoWidth === 0 || !this.modelsLoaded) {
+      if (
+        !video ||
+        video.videoWidth === 0 ||
+        !this.modelsLoaded ||
+        !this.cameraOn
+      ) {
         requestAnimationFrame(() => this.processFrames());
         return;
       }
 
+      // Adaptive frame skipping - process more frames when idle
+      this.frameSkipCounter++;
+      const skipRate = this.processing ? 3 : 1; // Skip more frames when processing
+      if (this.frameSkipCounter % skipRate !== 0) {
+        requestAnimationFrame(() => this.processFrames());
+        return;
+      }
+
+      // Throttle processing based on time
+      const now = Date.now();
+      const minInterval = this.processing ? 300 : 100; // Slower when processing
+      if (now - this.lastProcessTime < minInterval) {
+        requestAnimationFrame(() => this.processFrames());
+        return;
+      }
+
+      // Prevent concurrent processing
+      if (this.isProcessingFrame) {
+        requestAnimationFrame(() => this.processFrames());
+        return;
+      }
+
+      this.isProcessingFrame = true;
+      this.lastProcessTime = now;
+
       try {
-        // Detect face with landmarks + descriptor
+        // Use smaller input size for faster detection
+        const detectionOptions = new faceapi.TinyFaceDetectorOptions({
+          inputSize: 320, // Reduced from 160 for faster detection
+          scoreThreshold: 0.4,
+        });
+
         const detection = await faceapi
-          .detectSingleFace(video, new faceapi.TinyFaceDetectorOptions())
+          .detectSingleFace(video, detectionOptions)
           .withFaceLandmarks()
           .withFaceDescriptor();
 
         const canvas = this.$refs.canvas;
         const ctx = canvas.getContext("2d");
 
-        // Keep canvas in sync with video display size
         canvas.width = video.clientWidth;
         canvas.height = video.clientHeight;
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         if (detection) {
-          // scale landmarks
-          const scaleX = video.clientWidth / video.videoWidth;
-          const scaleY = video.clientHeight / video.videoHeight;
-          const points = detection.landmarks.positions.map((p) => ({
-            x: p.x * scaleX,
-            y: p.y * scaleY,
-          }));
+          // Use simpler mesh when not processing for better performance
+          const meshMode = this.processing ? "simple" : "detailed";
+          this.drawFaceLandmarks(ctx, detection, video, meshMode);
 
-          // --- draw filter mesh ---
-          const VERTICES = [
-            0, 3, 8, 13, 16, 19, 24, 27, 30, 36, 39, 42, 45, 48, 54,
-          ];
-          const TRIANGLES = [
+          // Only match faces in auth mode when not already processing
+          if (this.mode === "auth" && !this.processing) {
+            await this.matchFace(detection);
+          }
+        }
+      } catch (err) {
+        console.error("processFrames error:", err);
+      } finally {
+        this.isProcessingFrame = false;
+      }
+
+      requestAnimationFrame(() => this.processFrames());
+    },
+
+    async matchFace(detection) {
+      // Prevent multiple simultaneous authentication attempts
+      if (this.isAuthenticating) {
+        return;
+      }
+
+      const now = Date.now();
+
+      // Build/refresh cached face matcher
+      if (
+        !this.cachedLabeledDescriptors ||
+        now - this.lastCacheUpdate > this.cacheTimeout
+      ) {
+        this.cachedLabeledDescriptors = this.buildFaceMatcher();
+        this.lastCacheUpdate = now;
+      }
+
+      // ✅ CHANGED: Show alert when no registered faces exist
+      if (
+        !this.cachedLabeledDescriptors ||
+        this.cachedLabeledDescriptors.length === 0
+      ) {
+        if (!this.processing && !this.isAuthenticating) {
+          this.processing = true;
+          await this.speakMessage(
+            "Face not recognized. Please register your face first."
+          );
+
+          this.processing = false;
+        }
+        return; // ✅ ADDED: Stop processing
+      }
+
+      // Lower threshold for stricter matching (0.6 is standard, lower = stricter)
+      const matcher = new faceapi.FaceMatcher(
+        this.cachedLabeledDescriptors,
+        0.55
+      );
+      const bestMatch = matcher.findBestMatch(detection.descriptor);
+
+      console.log(
+        `Match result: ${bestMatch.label} (score: ${bestMatch.distance.toFixed(
+          3
+        )})`
+      );
+
+      // Only accept matches with good confidence (distance < 0.55)
+      if (bestMatch.label !== "unknown" && bestMatch.distance < 0.55) {
+        const matchedEmployee = this.employees.find(
+          (emp) => emp.id === bestMatch.label
+        );
+
+        if (matchedEmployee) {
+          console.log(`✓ Authenticated: ${matchedEmployee.name}`);
+          this.isAuthenticating = true;
+          this.processing = true;
+          await this.performLogin(matchedEmployee);
+        } else {
+          console.warn(
+            "Matched face ID but employee not found in current list"
+          );
+        }
+      } else if (bestMatch.label === "unknown" || bestMatch.distance >= 0.55) {
+        // Face detected but not registered
+        if (!this.processing && !this.isAuthenticating) {
+          this.processing = true;
+          await this.speakMessage(
+            "Face not recognized. Please register your face first."
+          );
+
+          this.processing = false;
+        }
+      }
+    },
+
+    buildFaceMatcher() {
+      const employeesWithFaces = this.employees.filter(
+        (emp) => emp.face_signature && typeof emp.face_signature === "string"
+      );
+
+      if (employeesWithFaces.length === 0) {
+        console.warn("No employees with valid face signatures found");
+        return null;
+      }
+
+      const labeledDescriptors = employeesWithFaces
+        .map((emp) => {
+          try {
+            // Parse face signature
+            const descriptorArray = emp.face_signature.split(",").map(Number);
+
+            // Validate descriptor length and values
+            if (descriptorArray.length !== 128) {
+              console.error(
+                `Invalid descriptor length for ${emp.name}: ${descriptorArray.length}`
+              );
+              return null;
+            }
+
+            if (descriptorArray.some(isNaN)) {
+              console.error(`Invalid descriptor values for ${emp.name}`);
+              return null;
+            }
+
+            const descriptor = new Float32Array(descriptorArray);
+            console.log(
+              `✓ Loaded face signature for: ${emp.name} (ID: ${emp.id})`
+            );
+
+            return new faceapi.LabeledFaceDescriptors(emp.id, [descriptor]);
+          } catch (e) {
+            console.error(`Failed to parse face_signature for ${emp.name}:`, e);
+            return null;
+          }
+        })
+        .filter(Boolean);
+
+      console.log(
+        `Built face matcher with ${labeledDescriptors.length} valid face signatures`
+      );
+
+      return labeledDescriptors;
+    },
+
+    drawFaceLandmarks(ctx, detection, video, mode = "detailed") {
+      const scaleX = video.clientWidth / video.videoWidth;
+      const scaleY = video.clientHeight / video.videoHeight;
+      const points = detection.landmarks.positions.map((p) => ({
+        x: p.x * scaleX,
+        y: p.y * scaleY,
+      }));
+
+      // Mesh presets
+      const meshes = {
+        simple: {
+          VERTICES: [0, 8, 16, 27, 30, 36, 45, 48, 54],
+          TRIANGLES: [
+            [0, 8, 16],
+            [0, 27, 30],
+            [16, 27, 30],
+            [36, 30, 45],
+            [48, 30, 54],
+          ],
+        },
+        detailed: {
+          VERTICES: [0, 3, 8, 13, 16, 19, 24, 27, 30, 36, 39, 42, 45, 48, 54],
+          TRIANGLES: [
             [0, 3, 8],
             [3, 8, 13],
             [8, 13, 16],
@@ -478,166 +805,42 @@ export default defineComponent({
             [48, 54, 30],
             [39, 48, 30],
             [42, 54, 30],
-          ];
+          ],
+        },
+      };
 
-          ctx.strokeStyle = "#fff";
-          ctx.lineWidth = 0.2;
-          ctx.fillStyle = "#fff";
-          ctx.shadowBlur = 10;
+      // Pick mesh depending on mode
+      const { VERTICES, TRIANGLES } = meshes[mode] || meshes.simple;
 
-          TRIANGLES.forEach(([a, b, c]) => {
-            const p1 = points[a],
-              p2 = points[b],
-              p3 = points[c];
-            if (!p1 || !p2 || !p3) return;
-            ctx.beginPath();
-            ctx.moveTo(p1.x, p1.y);
-            ctx.lineTo(p2.x, p2.y);
-            ctx.lineTo(p3.x, p3.y);
-            ctx.closePath();
-            ctx.stroke();
-          });
+      ctx.strokeStyle = "#fff";
+      ctx.lineWidth = 0.3;
+      ctx.fillStyle = "#fff";
+      ctx.shadowBlur = 10;
 
-          VERTICES.forEach((i) => {
-            const p = points[i];
-            if (!p) return;
-            ctx.beginPath();
-            ctx.arc(p.x, p.y, 1.5, 0, Math.PI * 2);
-            ctx.fill();
-          });
+      // Draw triangles
+      TRIANGLES.forEach(([a, b, c]) => {
+        const p1 = points[a],
+          p2 = points[b],
+          p3 = points[c];
+        if (!p1 || !p2 || !p3) return;
+        ctx.beginPath();
+        ctx.moveTo(p1.x, p1.y);
+        ctx.lineTo(p2.x, p2.y);
+        ctx.lineTo(p3.x, p3.y);
+        ctx.closePath();
+        ctx.stroke();
+      });
 
-          // --- FACE MATCHING ---
-          const employeesWithFaces = this.employees.filter(
-            (emp) => emp.face_signature && typeof emp.face_signature === "string"
-          );
-
-          if (employeesWithFaces.length > 0) {
-            const labeledDescriptors = employeesWithFaces
-              .map((emp) => {
-                try {
-                  // Correctly parse the comma-separated string into a Float32Array
-                  const descriptor = new Float32Array(
-                    emp.face_signature.split(",").map(Number)
-                  );
-                  // Ensure the descriptor has the expected length (128 for face-recognition.js)
-                  if (descriptor.length === 128) {
-                    return new faceapi.LabeledFaceDescriptors(emp.id, [
-                      descriptor,
-                    ]);
-                  }
-                  return null;
-                } catch (e) {
-                  console.error(
-                    `Failed to parse face_signature for ${emp.name}:`,
-                    e
-                  );
-                  return null;
-                }
-              })
-              .filter(Boolean);
-
-            if (labeledDescriptors.length > 0) {
-              const matcher = new faceapi.FaceMatcher(labeledDescriptors, 0.5);
-              const bestMatch = matcher.findBestMatch(detection.descriptor);
-
-              if (
-                bestMatch.label !== "unknown" &&
-                !this.processing &&
-                this.mode === "auth"
-              ) {
-                const matchedEmployee = this.employees.find(
-                  (emp) => emp.id === bestMatch.label
-                );
-
-                if (matchedEmployee) {
-                  this.processing = true; // block repeated calls
-                  await this.performLogin(matchedEmployee); // pass employee object
-                  console.log(
-                    "Face recognized, performing login...",
-                    matchedEmployee
-                  );
-                } else {
-                  console.warn(
-                    "Matched face found but no employee object attached"
-                  );
-                }
-              }
-            }
-          }
-        }
-      } catch (err) {
-        console.error("processFrames error:", err);
-      }
-
-      requestAnimationFrame(() => this.processFrames());
-    },
-    getGreeting() {
-      const now = new Date();
-      const hour = now.getHours(); // 0–23
-
-      if (hour >= 5 && hour < 12) {
-        return "Good Morning";
-      } else if (hour >= 12 && hour < 18) {
-        return "Good Afternoon";
-      } else {
-        return "Good Evening";
-      }
+      // Draw vertices
+      VERTICES.forEach((i) => {
+        const p = points[i];
+        if (!p) return;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 2, 0, Math.PI * 2);
+        ctx.fill();
+      });
     },
 
-    // start of register face
-    async registerFace() {
-      this.isRegisterModalOpen = true;
-    },
-
-    async submitRegistration() {
-      this.processing = true;
-      this.isRegisterModalOpen = false;
-
-      try {
-        // Validate
-        if (!this.selectedEmployee) {
-          this.presentAlert(
-            "No employee selected. Please select an employee first."
-          );
-          return;
-        }
-
-        const video = this.$refs.video;
-        const detection = await this.detectFace(video);
-        if (!detection) return;
-
-        console.log("Registering face for employee:", this.selectedEmployee);
-
-        const enrollSuccess = await this.enrollFaceToServer(
-          this.selectedEmployee.name,
-          detection.descriptor
-        );
-
-        // if (!enrollSuccess) {
-        //   this.presentAlert("Enrollment failed. Face not saved locally.");
-        //   return;
-        // }
-
-        const faceId = this.generateFaceId(this.selectedEmployee.id);
-        // this.saveFaceLocally(faceId, detection, this.selectedEmployee);
-
-        this.updateEmployeeFaceSignature(
-          this.selectedEmployee.id,
-          detection.descriptor
-        );
-
-        this.loadStoredFaces();
-        this.presentAlert(
-          `Face registered successfully for ${this.selectedEmployee.name}!`
-        );
-      } catch (error) {
-        console.error("Error registering face:", error);
-        this.presentAlert("Error registering face. Please try again.");
-      } finally {
-        this.processing = false;
-      }
-    },
-    /** Detect single face and return detection */
     async detectFace(video) {
       const detection = await faceapi
         .detectSingleFace(video, new faceapi.TinyFaceDetectorOptions())
@@ -651,14 +854,221 @@ export default defineComponent({
       return detection;
     },
 
-    /** Generate unique face ID */
+    // ============================================
+    // MODE MANAGEMENT
+    // ============================================
+
+    async switchMode() {
+      if (this.mode === "auth") {
+        const password = prompt("Enter admin password to access registration:");
+        if (password === "admin123") {
+          this.mode = "register";
+          this.clearCache();
+        } else {
+          alert("Incorrect password");
+        }
+      } else {
+        this.mode = "auth";
+        this.clearCache();
+      }
+    },
+
+    clearCache() {
+      this.cachedLabeledDescriptors = null;
+      this.lastCacheUpdate = 0;
+      console.log("Face matcher cache cleared");
+    },
+
+    // ============================================
+    // EMPLOYEE DATA MANAGEMENT (OPTIMIZED)
+    // ============================================
+
+    async fetchEmployees() {
+      try {
+        // Always fetch fresh data for authentication accuracy
+        const response = await axios.get(
+          "https://hrvale.bapplware.com/users/data"
+        );
+        const serverEmployees = response.data.data;
+
+        this.employees = serverEmployees.map((emp) => ({
+          id: emp.username,
+          name: emp.username,
+          fingerprint:
+            emp.finger_print === "undefined"
+              ? undefined
+              : emp.finger_print || undefined,
+          face_signature:
+            emp.face_signature === "undefined" || !emp.face_signature
+              ? undefined
+              : emp.face_signature,
+        }));
+
+        // Clear face matcher cache after updating employees
+        this.clearCache();
+
+        console.log(
+          `Loaded ${
+            this.employees.filter((e) => e.face_signature).length
+          } employees with face signatures`
+        );
+      } catch (error) {
+        console.error("Failed to fetch employees:", error);
+        throw error;
+      }
+    },
+
+    loadStoredFaces() {
+      this.storedFaces = JSON.parse(localStorage.getItem("faceIds") || "[]");
+      this.storedFaces.forEach((face) => {
+        if (!face.name) {
+          face.name = "Face " + face.id;
+        }
+      });
+      localStorage.setItem("faceIds", JSON.stringify(this.storedFaces));
+    },
+
+    // ============================================
+    // FACE REGISTRATION
+    // ============================================
+
+    async registerFace() {
+      this.isRegisterModalOpen = true;
+    },
+
+    async submitRegistration() {
+      this.processing = true;
+      this.isRegisterModalOpen = false;
+
+      try {
+        if (!this.selectedEmployee) {
+          this.presentAlert(
+            "No employee selected. Please select an employee first."
+          );
+          this.processing = false;
+          return;
+        }
+
+        const video = this.$refs.video;
+        const detection = await this.detectFace(video);
+        if (!detection) {
+          this.processing = false;
+          return;
+        }
+
+        // Convert descriptor to comma-separated string
+        const descriptorString = Array.from(detection.descriptor).join(",");
+
+        // ✅ NEW: Check if face is already registered to another employee
+        const duplicateCheck = await this.checkForDuplicateFace(
+          detection.descriptor
+        );
+        if (duplicateCheck.isDuplicate) {
+          this.presentAlert(
+            `This face is already registered to ${duplicateCheck.employeeName}. Each face can only be registered once.`
+          );
+          this.processing = false;
+          return;
+        }
+
+        // Send to server first
+        const enrollSuccess = await this.enrollFaceToServer(
+          this.selectedEmployee.id,
+          descriptorString
+        );
+
+        if (!enrollSuccess) {
+          this.presentAlert("Failed to register face on server.");
+          this.processing = false;
+          return;
+        }
+
+        // Update local employee data
+        const employeeIndex = this.employees.findIndex(
+          (e) => e.id === this.selectedEmployee.id
+        );
+        if (employeeIndex !== -1) {
+          this.employees[employeeIndex].face_signature = descriptorString;
+        }
+
+        // Clear cache to force rebuild with new data
+        this.clearCache();
+
+        await this.speakMessage(
+          `Successfully registered ${this.selectedEmployee.name}!`
+        );
+
+        this.presentAlert(
+          `Face registered successfully for ${this.selectedEmployee.name}!`
+        );
+
+        this.selectedEmployee = null;
+        this.searchQuery = "";
+      } catch (error) {
+        console.error("Error registering face:", error);
+        this.presentAlert("Error registering face. Please try again.");
+      } finally {
+        this.processing = false;
+      }
+    },
+
+    async checkForDuplicateFace(newDescriptor) {
+      // Get all employees with face signatures except the currently selected one
+      const employeesWithFaces = this.employees.filter(
+        (emp) =>
+          emp.face_signature &&
+          typeof emp.face_signature === "string" &&
+          emp.id !== this.selectedEmployee?.id // Exclude current employee (for re-registration)
+      );
+
+      if (employeesWithFaces.length === 0) {
+        return { isDuplicate: false };
+      }
+
+      // Check against each registered face
+      for (const emp of employeesWithFaces) {
+        try {
+          const descriptorArray = emp.face_signature.split(",").map(Number);
+
+          if (descriptorArray.length !== 128 || descriptorArray.some(isNaN)) {
+            continue;
+          }
+
+          const existingDescriptor = new Float32Array(descriptorArray);
+          const distance = faceapi.euclideanDistance(
+            newDescriptor,
+            existingDescriptor
+          );
+
+          console.log(
+            `Face comparison with ${emp.name}: score = ${distance.toFixed(3)}`
+          );
+
+          // If distance is less than 0.6, faces are considered the same
+          // (lower distance = more similar)
+          if (distance < 0.6) {
+            return {
+              isDuplicate: true,
+              employeeName: emp.name,
+              employeeId: emp.id,
+              distance: distance,
+            };
+          }
+        } catch (e) {
+          console.error(`Error comparing face with ${emp.name}:`, e);
+          continue;
+        }
+      }
+
+      return { isDuplicate: false };
+    },
+
     generateFaceId(employeeId) {
       return `${employeeId}_${Date.now()}_${Math.random()
         .toString(36)
         .substr(2, 9)}`;
     },
 
-    /** Save face info locally */
     saveFaceLocally(faceId, detection, employee) {
       const stored = JSON.parse(localStorage.getItem("faceIds") || "[]");
       stored.push({
@@ -672,7 +1082,6 @@ export default defineComponent({
       localStorage.setItem("faceIds", JSON.stringify(stored));
     },
 
-    /** Update employee’s face signature in employeesData */
     updateEmployeeFaceSignature(employeeId, descriptor) {
       try {
         let employeesData = JSON.parse(
@@ -685,11 +1094,9 @@ export default defineComponent({
             Array.from(descriptor)
           );
           localStorage.setItem("employeesData", JSON.stringify(employeesData));
-          this.presentAlert(
-            `Face signature updated locally for ${employeesData[idx].name}!`
-          );
         } else {
-          this.presentAlert("Employee not found in local storage!");
+          localStorage.setItem("employeesData", JSON.stringify(employeesData));
+          console.log("Employee not found in local storage!");
         }
       } catch (error) {
         console.error("Error updating face signature:", error);
@@ -699,10 +1106,9 @@ export default defineComponent({
       }
     },
 
-    /** Send enrollment to server */
     async enrollFaceToServer(username, faceSignature) {
       try {
-        const fingerprint = ""; // Assuming fingerprint is not used here
+        const fingerprint = "";
         const tokenString = `${username}|${fingerprint}|${faceSignature}`;
         const encodedPayload = btoa(tokenString);
 
@@ -716,15 +1122,14 @@ export default defineComponent({
         );
 
         const result = await response.json();
-
         if (!response.ok) {
           throw new Error(result?.message || response.status);
         }
 
+        console.log(`✓ Face signature enrolled for ${username}`);
         return true;
       } catch (apiErr) {
         console.error("Error calling enrollment API:", apiErr);
-        this.presentAlert("Error sending enrollment to server.");
         return false;
       }
     },
@@ -745,21 +1150,19 @@ export default defineComponent({
             handler: async () => {
               this.processing = true;
               try {
-                // Send empty string to server to reset
                 const success = await this.enrollFaceToServer(
                   this.selectedEmployee.id,
                   ""
                 );
 
                 if (success) {
-                  // Update local data
                   const employee = this.employees.find(
                     (e) => e.id === this.selectedEmployee.id
                   );
                   if (employee) {
                     employee.face_signature = undefined;
                   }
-                  // Also update local storage if necessary
+
                   let storedFaces = JSON.parse(
                     localStorage.getItem("faceIds") || "[]"
                   );
@@ -768,8 +1171,9 @@ export default defineComponent({
                   );
                   localStorage.setItem("faceIds", JSON.stringify(storedFaces));
 
+                  this.clearCache();
                   this.presentAlert("Face signature reset successfully.");
-                  this.selectedEmployee.face_signature = undefined; // Update the selected employee object
+                  this.selectedEmployee.face_signature = undefined;
                 } else {
                   this.presentAlert("Failed to reset face signature.");
                 }
@@ -785,180 +1189,146 @@ export default defineComponent({
       });
       await alert.present();
     },
-    // end submitRegistration
 
-    loadStoredFaces() {
-      this.storedFaces = JSON.parse(localStorage.getItem("faceIds") || "[]");
-      // Ensure all faces have a name
-      this.storedFaces.forEach((face) => {
-        if (!face.name) {
-          face.name = "Face " + face.id;
-        }
-      });
-      localStorage.setItem("faceIds", JSON.stringify(this.storedFaces));
-    },
-    async closeAuthenticated() {
-      this.startCamera();
-      this.authenticated = false;
-      this.processing = false;
-      this.processFrames();
-      this.router.push("/facescan");
-      console.log("Close authenticated, restart scanning");
-    },
+    // ============================================
+    // AUTHENTICATION & LOGIN
+    // ============================================
 
-    goToRegisteredFacesTemp() {
-      this.router.push("/registeredfacestemp");
-    },
-
-    async fetchToken() {
-      try {
-        const storedToken = localStorage.getItem("access_token");
-        console.log("storedToken ", storedToken);
-        const baseURL = localStorage.getItem("baseUrl");
-
-        if (!storedToken || !baseURL) {
-          throw new Error("Missing storedToken or baseURL");
-        }
-
-        const response = await axios.post(`${baseURL}auth/token`, {
-          secret: storedToken,
-        });
-        console.log("token response ", response);
-
-        localStorage.setItem("token", response.data.token);
-      } catch (error) {
-        console.log(error);
-      }
-    },
-
-    // async fetchUserDetails() {
-    //   try {
-    //     const storedToken = localStorage.getItem("token");
-    //     const baseURL = localStorage.getItem("baseUrl");
-    //     const headers = { Authorization: `Bearer ${storedToken}` };
-    //     const api = baseURL + `api/v2/user/me`;
-    //     const dataResponse = await axios.get(api, { headers });
-
-    //     this.empNumber = dataResponse.data.data.employee.empNumber;
-    //     localStorage.setItem(
-    //       "empNumber",
-    //       dataResponse.data.data.employee.empNumber
-    //     );
-
-    //     localStorage.setItem(
-    //       "myDetails",
-    //       JSON.stringify(dataResponse.data.data)
-    //     );
-
-    //     this.scannedFirstName = dataResponse.data.data.employee.firstName;
-    //     this.scannedLastName = dataResponse.data.data.employee.lastName;
-    //     console.log(
-    //       "scannedLastName",
-    //       this.scannedFirstName,
-    //       this.scannedLastName
-    //     );
-    //   } catch (error) {
-    //     console.log(error.message);
-    //     if (error.message === "Request failed with status code 401") {
-    //       // this.checkToken();
-    //     } else {
-    //       console.error("Error fetching user details:", error);
-    //     }
-    //   }
-    // },
     async performLogin(face) {
       try {
-        console.log("Performing login for face:", face);
-        const employee = face.employee;
-        // this.store.commit("loader/updateLoader", true);
         const authResult = await this.store.dispatch(
           "auth/biometricLogin",
           face
         );
 
-        console.log("Employee data:", face);
-
-        console.log("Auth result:", authResult);
-
         if (authResult.success) {
-          console.log(
-            "Authentication successful:",
-            authResult.data.access_token
-          );
           localStorage.setItem("access_token", authResult.data.access_token);
-          console.log("access_token :", authResult.data.access_token);
           localStorage.setItem("refresh_token", authResult.data.refresh_token);
-          await this.fetchToken();
-          await this.fetchStoredTheme();
-          // await this.hasPincode();
-          localStorage.setItem("hasSetup", true);
 
+          const storedThemeData = localStorage.getItem("bio");
+          if (storedThemeData) {
+            await this.fetchStoredTheme();
+          } else {
+            console.warn("No theme data found in localStorage.");
+          }
+
+          // ✅ NEW: Fetch token with error handling
+          try {
+            await this.fetchToken();
+          } catch (tokenError) {
+            console.error("Failed to fetch token:", tokenError.message);
+
+            this.processing = false;
+            this.isAuthenticating = false;
+            return; // Stop the login process
+          }
+
+          // ✅ NEW: Fetch user details with error handling
+          try {
+            await this.fetchUserDetails();
+          } catch (userDetailsError) {
+            console.error(
+              "Failed to fetch user details:",
+              userDetailsError.message
+            );
+
+            this.processing = false;
+            this.isAuthenticating = false;
+            return; // Stop the login process
+          }
+
+          localStorage.setItem("hasSetup", true);
           this.authenticated = true;
         }
-
-        // await this.fetchUserDetails();
-
-        // this.scannedUsername = username;
       } catch (error) {
         console.error("Login error:", error.message);
         localStorage.setItem("hasSetup", false);
-        await this.alertError(
-          "Authentication failed. Please check credentials or network."
-        );
+        await this.alertError("Authentication failed. Try again later!");
         this.processing = false;
-      } finally {
-        // this.store.commit("loader/updateLoader", false);
+        this.isAuthenticating = false;
       }
     },
-    async fetchStoredTheme() {
-      try {
-        const storedThemeData = localStorage.getItem("configs");
-        const configs = storedThemeData ? JSON.parse(storedThemeData) : [];
 
-        const brandingConfig = configs.find((item) => item.name === "branding");
-        const authConfigs = configs.find(
-          (item) => item.name === "authentication"
+    async closeAuthenticated() {
+      this.authenticated = false;
+      this.processing = false;
+      this.isAuthenticating = false; // Reset authentication flag
+
+      // Resume camera and scanning if camera was stopped
+      if (!this.cameraOn) {
+        await this.startCamera();
+      }
+    },
+
+    // ============================================
+    // API CALLS
+    // ============================================
+
+    async fetchToken() {
+      try {
+        const storedToken = localStorage.getItem("access_token");
+        const baseURL = "https://hrp-uat-app.bapplware.com/web/index.php";
+
+        if (!storedToken || !baseURL) {
+          throw new Error("Missing storedToken or baseURL");
+        }
+
+        const response = await axios.post(baseURL + `/auth/token`, {
+          secret: storedToken,
+        });
+
+        localStorage.setItem("token", response.data.token);
+      } catch (error) {
+        console.error("Error fetching token:", error);
+        throw error; // ✅ Re-throw to stop the login process
+      }
+    },
+
+    async fetchUserDetails() {
+      try {
+        const storedToken = localStorage.getItem("token");
+        const headers = { Authorization: `Bearer ${storedToken}` };
+        const api = `https://hrp-uat-app.bapplware.com/web/index.php/api/v2/user/me`;
+        const dataResponse = await axios.get(api, { headers });
+
+        this.empNumber = dataResponse.data.data.employee.empNumber;
+        localStorage.setItem(
+          "empNumber",
+          dataResponse.data.data.employee.empNumber
         );
 
-        // Branding Theme
-        if (brandingConfig) {
-          const theme = brandingConfig.configuration.theme;
-          const services = brandingConfig.configuration.services;
-          const client = brandingConfig.configuration.client;
+        localStorage.setItem(
+          "myDetails",
+          JSON.stringify(dataResponse.data.data)
+        );
 
-          if (theme) {
-            localStorage.setItem("themeData", JSON.stringify(theme));
-            this.theme = theme;
-            localStorage.setItem("servicesConfig", JSON.stringify(services));
-            localStorage.setItem("client", JSON.stringify(client));
-          } else {
-            console.error("Theme not found in the branding configuration.");
-          }
-        } else {
-          console.error("Configuration for branding not found.");
-        }
+        this.scannedEmployeeDetails = dataResponse.data.data;
 
-        // Authentication
-        if (authConfigs) {
-          const apiHost = authConfigs.configuration.apiHost;
-          localStorage.setItem("baseUrl", apiHost);
-        } else {
-          console.error("Configuration for Auth not found.");
-        }
+        this.scannedFirstName = dataResponse.data.data.employee.firstName;
+        this.scannedLastName = dataResponse.data.data.employee.lastName;
+
+        console.log(this.scannedEmployeeDetails);
       } catch (error) {
-        console.error("Error fetching or parsing theme data:", error);
-        localStorage.setItem("hasSetup", false);
+        console.log(error.message);
+        if (error.message === "Request failed with status code 401") {
+          // ✅ Handle 401 with specific error message
+          throw new Error("Unauthorized - Invalid token");
+        } else {
+          console.error("Error fetching user details:", error);
+          throw error; // ✅ Re-throw to stop the login process
+        }
       }
     },
+
+    // ============================================
+    // THEME MANAGEMENT
+    // ============================================
 
     fetchTheme() {
       const storedThemeData = localStorage.getItem("themeData");
-
       const themeData = storedThemeData ? JSON.parse(storedThemeData) : {};
-
       this.theme = themeData;
 
-      // Set CSS variables to use theme colors
       document.documentElement.style.setProperty(
         "--ion-color-primary",
         "#008e9c"
@@ -968,24 +1338,107 @@ export default defineComponent({
         "#ffffff"
       );
     },
-    async alertError() {
-      const showAlert = async () => {
-        const alert = await alertController.create({
-          header: "Invalid Credentials",
-          message:
-            "Invalid credentials. Please check your username and password and try again. If you're having trouble, refer to the email containing your login details.",
-          buttons: [
-            {
-              text: "Close",
-              htmlAttributes: {
-                "aria-label": "close",
-              },
-            },
-          ],
+
+    async fetchStoredTheme() {
+      try {
+        const storedThemeData = localStorage.getItem("bio");
+        const parsedData = storedThemeData ? JSON.parse(storedThemeData) : null;
+
+        if (!parsedData || !parsedData.configs) {
+          console.error("No valid configs found in stored data.");
+          return;
+        }
+
+        const configs = parsedData.configs;
+        const brandingConfig = configs.find((item) => item.name === "branding");
+        const authConfig = configs.find(
+          (item) => item.name === "authentication"
+        );
+
+        if (brandingConfig && brandingConfig.configuration.apiHost) {
+          const baseUrl = brandingConfig.configuration.apiHost;
+          localStorage.setItem("baseUrl", baseUrl);
+        } else if (authConfig && authConfig.configuration.apiHost) {
+          const baseUrl = authConfig.configuration.apiHost;
+          localStorage.setItem("baseUrl", baseUrl);
+          console.log("Base URL set (from auth):", baseUrl);
+        } else {
+          console.error("No baseUrl found in configs");
+        }
+
+        if (brandingConfig) {
+          const { theme, services, client } = brandingConfig.configuration;
+          if (theme) {
+            localStorage.setItem("themeData", JSON.stringify(theme));
+            this.theme = theme;
+          }
+          if (services) {
+            localStorage.setItem("servicesConfig", JSON.stringify(services));
+          }
+          if (client) {
+            localStorage.setItem("client", JSON.stringify(client));
+          }
+        }
+
+        if (parsedData.access_token) {
+          localStorage.setItem("accessToken", parsedData.access_token);
+        }
+        if (parsedData.refresh_token) {
+          localStorage.setItem("refreshToken", parsedData.refresh_token);
+        }
+      } catch (error) {
+        console.error("Error fetching or parsing theme data:", error);
+        localStorage.setItem("hasSetup", false);
+      }
+    },
+
+    // ============================================
+    // UI HELPERS
+    // ============================================
+
+    delay(ms) {
+      return new Promise((resolve) => setTimeout(resolve, ms));
+    },
+
+    async speakMessage(text) {
+      try {
+        await TextToSpeech.speak({
+          text: text,
+          lang: "en-US",
+          rate: 1.0,
         });
-        await alert.present();
-      };
-      return showAlert();
+      } catch (error) {
+        console.error("Text-to-speech error:", error);
+      }
+    },
+
+    getGreeting() {
+      const now = new Date();
+      const hour = now.getHours();
+
+      if (hour >= 5 && hour < 12) {
+        return "Good Morning";
+      } else if (hour >= 12 && hour < 18) {
+        return "Good Afternoon";
+      } else {
+        return "Good Evening";
+      }
+    },
+
+    async alertError(message) {
+      const alert = await alertController.create({
+        header: "Invalid",
+        message: message,
+        buttons: [
+          {
+            text: "Close",
+            htmlAttributes: {
+              "aria-label": "close",
+            },
+          },
+        ],
+      });
+      await alert.present();
     },
 
     async presentAlert(message, handler = null) {
@@ -1001,17 +1454,10 @@ export default defineComponent({
       });
       await alert.present();
     },
-  },
-  created() {
-    this.fetchTheme();
-  },
-  beforeUnmount() {
-    if (this.stream) {
-      this.stream.getTracks().forEach((track) => track.stop());
-    }
-  },
-  beforeDestroy() {
-    clearInterval(this.updateInterval);
+
+    goToRegisteredFacesTemp() {
+      this.router.push("/registeredfacestemp");
+    },
   },
 });
 </script>
@@ -1085,7 +1531,6 @@ export default defineComponent({
   border-radius: 20px;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.2);
-  padding-bottom: 50px;
 }
 
 .face-scan-card-header {
@@ -1097,26 +1542,22 @@ export default defineComponent({
   --color: #2c3e50;
   font-size: 24px;
   font-weight: 700;
-  margin-bottom: 8px;
 }
 
 .face-scan-card-subtitle {
   --color: #7f8c8d;
   font-size: 14px;
   line-height: 1.4;
+  margin: 0;
 }
 
 .face-scan-card-content {
-  padding: 20px;
-}
-
-.camera-container {
-  margin-bottom: 20px;
+  padding: 0 20px 20px 20px;
 }
 
 .video-wrapper {
   position: relative;
-  width: 80vw;
+  width: 90vw;
   height: auto;
   min-height: 430px;
   margin: auto;
@@ -1188,18 +1629,14 @@ export default defineComponent({
 
 .mode-switch-button {
   --border-radius: 50%;
-  margin-bottom: 12px;
   font-weight: 600;
   width: 70px;
   height: 70px;
-  position: absolute;
-  top: 50%;
-  right: 25px;
   text-align: center;
   display: flex;
   justify-content: center;
   align-items: center;
-  transform: translateY(-50%);
+  margin: 0;
 }
 
 .mode-switch-button ion-icon {
@@ -1210,19 +1647,15 @@ export default defineComponent({
 
 .refresh-button {
   --border-radius: 50%;
-  margin-bottom: 12px;
   font-weight: 600;
   width: 70px;
   height: 70px;
-  position: absolute;
-  top: 35%;
-  right: 25px;
   text-align: center;
   display: flex;
   justify-content: center;
   align-items: center;
-  transform: translateY(-50%);
   color: linear-gradient(to right, #064ea0, #002e62);
+  margin: 0;
 }
 
 .refresh-button ion-icon {
@@ -1231,14 +1664,23 @@ export default defineComponent({
   padding: 0;
 }
 
+.register-face-button {
+  --border-radius: 12px;
+  font-weight: 600;
+  height: 50px;
+  margin: 15px auto 5px auto;
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);
+  --background: linear-gradient(to right, #064ea0, #002e62);
+}
+
 .register-button {
   --border-radius: 12px;
   font-weight: 600;
   height: 50px;
-  margin: 0 auto;
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
+  width: 100px;
+
   --background: linear-gradient(to right, #064ea0, #002e62);
 }
 
@@ -1346,16 +1788,14 @@ export default defineComponent({
 }
 
 .clock-modal {
-  --background: transparent; /* Make modal background transparent */
+  --background: transparent;
   --border-radius: 20px;
-  --height: 700px;
+  --height: 800px;
   --width: 650px;
-
-  /* Glassmorphism effect */
-  background: rgba(255, 255, 255, 0.1); /* transparent white overlay */
-  backdrop-filter: blur(15px); /* actual blur effect */
-  -webkit-backdrop-filter: blur(15px); /* for Safari */
-  border: 1px solid rgba(255, 255, 255, 0.2); /* subtle border */
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .clock-modal-header {
@@ -1387,13 +1827,10 @@ export default defineComponent({
   display: flex;
   justify-content: center;
   align-items: center;
-
-  --background: transparent;
-  /* Glassmorphism effect */
-  background: rgba(255, 255, 255, 0.1); /* transparent white overlay */
-  backdrop-filter: blur(15px); /* actual blur effect */
-  -webkit-backdrop-filter: blur(15px); /* for Safari */
-  border: 1px solid rgba(255, 255, 255, 0.2); /* subtle border */
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .clock-card {
@@ -1576,6 +2013,13 @@ ion-button {
   color: #666;
   margin-top: 0.25rem;
 }
+
+.face-status {
+  font-size: 0.85rem;
+  color: #28a745;
+  margin-top: 0.25rem;
+}
+
 .version {
   margin: 0;
   padding: 0;
@@ -1589,7 +2033,189 @@ ion-button {
 
 .reset-button {
   --background: #eb445a;
+  /* position: absolute;
+  left: 10px;
+  bottom: 15px; */
+  height: 50px;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.scanning-text {
+  font-size: 18px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.detecting {
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.3;
+  }
+}
+
+.scanning::after {
+  content: "";
+  display: inline-block;
+  animation: dots 1.5s steps(3, end) infinite;
+}
+
+@keyframes dots {
+  0% {
+    content: "";
+  }
+  33% {
+    content: ".";
+  }
+  66% {
+    content: "..";
+  }
+  100% {
+    content: "...";
+  }
+}
+
+.register-close-button-container {
+  width: 100%;
+  display: flex;
+  justify-content: right;
+  align-items: center;
+}
+.close-register-button {
+  --border-radius: 12px;
+  font-weight: 600;
+  height: 50px;
+
+  --background: linear-gradient(to right, #064ea0, #002e62);
+}
+
+.button-tools-container {
   position: absolute;
-  bottom: 10px;
+  right: 20px;
+  top: 50%;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  height: fit-content;
+  transform: translateY(-50%);
+}
+
+.loading-content {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+ion-progress-bar {
+  --progress-background: #4cafef;
+  --buffer-background: #cce7f9;
+  height: 8px;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.loader {
+  width: fit-content;
+  font-weight: bold;
+  font-family: monospace;
+  font-size: 30px;
+  background: radial-gradient(circle closest-side, #064ea0 94%, #0000) right /
+    calc(200% - 1em) 100%;
+  animation: l24 1s infinite alternate linear;
+}
+
+.loader::before {
+  content: "Scanning...";
+  line-height: 1em;
+  color: #0000;
+  background: inherit;
+  background-image: radial-gradient(
+    circle closest-side,
+    #ffffff 94%,
+    #064ea0d7
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+@keyframes l24 {
+  100% {
+    background-position: left;
+  }
+}
+
+.loader-2 {
+  --d: 22px;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  color: #fff;
+  box-shadow: calc(1 * var(--d)) calc(0 * var(--d)) 0 0,
+    calc(0.707 * var(--d)) calc(0.707 * var(--d)) 0 1px,
+    calc(0 * var(--d)) calc(1 * var(--d)) 0 2px,
+    calc(-0.707 * var(--d)) calc(0.707 * var(--d)) 0 3px,
+    calc(-1 * var(--d)) calc(0 * var(--d)) 0 4px,
+    calc(-0.707 * var(--d)) calc(-0.707 * var(--d)) 0 5px,
+    calc(0 * var(--d)) calc(-1 * var(--d)) 0 6px;
+  animation: l27 1s infinite steps(8);
+  margin: 50px auto 10px auto;
+}
+@keyframes l27 {
+  100% {
+    transform: rotate(1turn);
+  }
+}
+
+.loader-3 {
+  width: 85px;
+  height: 25px;
+  --g1: conic-gradient(from 90deg at left 3px top 3px, #0000 90deg, #4c8def 0);
+  --g2: conic-gradient(
+    from -90deg at bottom 3px right 3px,
+    #0000 90deg,
+    #4cafef 0
+  );
+  background: var(--g1), var(--g1), var(--g1), var(--g2), var(--g2), var(--g2);
+  background-position: left, center, right;
+  background-repeat: no-repeat;
+  animation: l8 1s infinite;
+  margin: 10px auto 0 auto;
+}
+@keyframes l8 {
+  0% {
+    background-size: 25px 100%, 25px 100%, 25px 100%;
+  }
+  20% {
+    background-size: 25px 50%, 25px 100%, 25px 100%;
+  }
+  40% {
+    background-size: 25px 50%, 25px 50%, 25px 100%;
+  }
+  60% {
+    background-size: 25px 100%, 25px 50%, 25px 50%;
+  }
+  80% {
+    background-size: 25px 100%, 25px 100%, 25px 50%;
+  }
+  100% {
+    background-size: 25px 100%, 25px 100%, 25px 100%;
+  }
 }
 </style>

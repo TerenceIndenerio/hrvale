@@ -20,6 +20,8 @@ class AuthService {
       });
 
       const data = await response.json();
+      localStorage.setItem("bio", JSON.stringify(data));
+
       return {
         success: response.ok,
         data: data,
